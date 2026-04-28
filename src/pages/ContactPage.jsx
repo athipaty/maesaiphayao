@@ -54,7 +54,7 @@ export default function ContactPage() {
             <div className="rounded-md overflow-hidden border border-gray-200 h-64 bg-blue-50 flex items-center justify-center text-gray-400 text-sm">
               <iframe
                 title="แผนที่ อบต.แม่ใส"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3788.123!2d99.883!3d19.183!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTnCsDEwJzU4LjgiTiA5OcKwNTInNTguOCJF!5e0!3m2!1sth!2sth!4v1600000000000"
+                src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d500!2d99.876361!3d19.1321714!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTnCsDA3JzU1LjgiTiA5OcKwNTInMzUuNSJF!5e0!3m2!1sth!2sth!4v1700000000001"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
