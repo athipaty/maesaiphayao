@@ -48,13 +48,6 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Hero */}
-      <div className="w-full h-56 bg-gradient-to-r from-primary via-secondary to-accent rounded-md mb-4 flex flex-col items-center justify-center text-white gap-2 shadow-sm">
-        <div className="text-4xl">🏛️</div>
-        <h2 className="text-xl font-bold">องค์การบริหารส่วนตำบลแม่ใส</h2>
-        <p className="text-sm opacity-85">ตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา</p>
-      </div>
-
       {/* News sections per department */}
       {DEPARTMENTS.map(dept => (
         <NewsSection
