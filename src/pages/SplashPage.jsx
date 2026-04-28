@@ -122,8 +122,14 @@ export default function SplashPage({ onEnter }) {
             boxShadow: '0 0 40px rgba(212,175,55,0.35)',
           }}>
             {PRINCE_IMAGE ? (
-              <img src={PRINCE_IMAGE} alt="portrait"
-                style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'top center' }}/>
+              <div style={{
+                width:'100%',
+                height:'100%',
+                backgroundImage:`url(${PRINCE_IMAGE})`,
+                backgroundSize:'200%',
+                backgroundPosition:'30% 8%',
+                backgroundRepeat:'no-repeat',
+              }}/>
             ) : (
               <div style={{ textAlign:'center', color:'#5588bb', padding:'16px' }}>
                 <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#5588bb" strokeWidth="1.2">
