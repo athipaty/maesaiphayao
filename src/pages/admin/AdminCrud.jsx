@@ -11,7 +11,7 @@ import { useState } from 'react'
  *  - renderForm: ({ data, onChange, onSubmit, onCancel, saving }) => JSX
  *  - emptyForm: object (default blank form state)
  */
-export default function AdminCrud({ title, items, loading, columns, onDelete, renderForm, emptyForm }) {
+export default function AdminCrud({ title, items = [], loading, columns, onDelete, renderForm, emptyForm }) {
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState(emptyForm)
   const [editing, setEditing]   = useState(null) // id being edited
