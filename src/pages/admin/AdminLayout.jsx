@@ -11,6 +11,7 @@ const MENU = [
   { path: '/admin/staff',         label: '👥 บุคลากร'                      },
   { path: '/admin/travel',        label: '🗺️ สถานที่ท่องเที่ยว'            },
   { path: '/admin/products',      label: '🛍️ สินค้า OTOP'                 },
+  { path: '/admin/settings',      label: '⚙️ ตั้งค่าเว็บไซต์'             },
 ]
 
 export default function AdminLayout() {
