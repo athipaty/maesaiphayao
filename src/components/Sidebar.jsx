@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { getSettings } from '../services/api'
 
 const MENU = [
   { label: 'งานแผนและงบประมาณ',       path: '/announcements' },
@@ -20,7 +22,7 @@ const MENU = [
 
 const ESERVICES = [
   { icon: '🏛️', label: 'ศูนย์บริการออนไลน์', href: 'https://www.dla.go.th/oss.htm' },
-  { icon: '💬', label: 'แชท Messenger',       href: '#' },
+  { icon: '💬', label: 'แชท Messenger',       href: 'https://m.me/MaesaiSAOPhayao' },
   { icon: '📘', label: 'Facebook Page',        href: 'https://www.facebook.com/MaesaiSAOPhayao' },
   { icon: '📍', label: 'Traffy Fondue',        href: 'https://liff.line.me/1645278921-kWRPP32q/?accountId=traffyfondue' },
   { icon: '📋', label: 'แบบฟอร์มร้องเรียน',    href: '#' },
@@ -31,7 +33,7 @@ const ESERVICES = [
 
 const LINKS = [
   { label: 'กรมส่งเสริมการปกครอง', href: 'http://www.dla.go.th/' },
-  { label: 'ระบบ E-GP',             href: 'http://www.gprocurement.go.th/new_index.html' },
+  { label: 'ระบบ E-GP',             href: 'http://www.gprocurement.go.th/' },
   { label: 'ทะเบียนราษฎร',          href: 'https://stat.bora.dopa.go.th/' },
   { label: 'ระบบสวัสดิการ',          href: 'https://welfare.dla.go.th/' },
   { label: 'เลือกตั้งท้องถิ่น',      href: 'https://ele.dla.go.th/' },
@@ -40,16 +42,38 @@ const LINKS = [
   { label: 'LPA Dashboard',          href: '#' },
 ]
 
+const DEFAULT_SETTINGS = {
+  mayorName:     'นายสันติ สารเร็ว',
+  mayorPosition: 'นายกองค์การบริหารส่วนตำบลแม่ใส',
+  mayorPhone:    '089-7577366',
+  mayorImage:    '',
+}
+
 export default function Sidebar() {
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS)
+
+  useEffect(() => {
+    getSettings()
+      .then(r => {
+        if (r?.data) setSettings(prev => ({ ...prev, ...r.data }))
+      })
+      .catch(() => {})
+  }, [])
+
   return (
     <aside className="w-[230px] flex-shrink-0 hidden lg:block">
 
       {/* President card */}
       <div className="bg-white rounded-md shadow-sm mb-3 p-4 text-center">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl mx-auto mb-2">👤</div>
-        <h4 className="text-sm font-semibold text-primary">นายสันติ สารเร็ว</h4>
-        <p className="text-xs text-gray-500 mt-1">นายกองค์การบริหารส่วนตำบลแม่ใส</p>
-        <p className="text-xs text-secondary mt-1">089-7577366</p>
+        {settings.mayorImage ? (
+          <img src={settings.mayorImage} alt={settings.mayorName}
+            className="w-20 h-20 rounded-full object-cover mx-auto mb-2 border-2 border-blue-100" />
+        ) : (
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl mx-auto mb-2">👤</div>
+        )}
+        <h4 className="text-sm font-semibold text-primary">{settings.mayorName}</h4>
+        <p className="text-xs text-gray-500 mt-1">{settings.mayorPosition}</p>
+        <p className="text-xs text-secondary mt-1">{settings.mayorPhone}</p>
       </div>
 
       {/* Main menu */}

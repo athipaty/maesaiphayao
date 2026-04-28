@@ -23,6 +23,7 @@ import AdminProcurement from './pages/admin/AdminProcurement'
 import AdminStaff       from './pages/admin/AdminStaff'
 import AdminTravel      from './pages/admin/AdminTravel'
 import AdminProducts    from './pages/admin/AdminProducts'
+import AdminSettings    from './pages/admin/AdminSettings'
 
 export default function App() {
   // แสดง splash ครั้งเดียวต่อ session
