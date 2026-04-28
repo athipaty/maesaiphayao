@@ -2,50 +2,20 @@ import { useEffect, useState } from 'react'
 
 const PRINCE_IMAGE = 'https://cache-igetweb-v2.mt108.info/uploads/images-cache/12283/filemanager/99c5e4d8a8e8ca418f4b15e7ccac3272_full.jpg'
 
+const EMBLEM_URL = 'https://v4i.rweb-images.com/www.dgm88.com/images/editor/z10%e0%b8%ad%e0%b8%87%e0%b8%84%e0%b9%8c%e0%b8%97%e0%b8%b5.png'
+
 const EmblemSVG = () => (
-  <svg width="120" height="140" viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <radialGradient id="glow2" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stopColor="#fff8dc" stopOpacity="0.2"/>
-        <stop offset="100%" stopColor="#1a3a6b" stopOpacity="0"/>
-      </radialGradient>
-    </defs>
-    <ellipse cx="340" cy="200" rx="180" ry="180" fill="url(#glow2)"/>
-    <g transform="translate(340,195)">
-      <rect x="-72" y="28" width="144" height="22" rx="4" fill="#c8922a" stroke="#f0c040" strokeWidth="1.2"/>
-      <ellipse cx="-48" cy="39" rx="7" ry="5" fill="#1a6aaa"/>
-      <ellipse cx="0"   cy="39" rx="7" ry="5" fill="#cc2222"/>
-      <ellipse cx="48"  cy="39" rx="7" ry="5" fill="#1a6aaa"/>
-      <path d="M-72,30 Q-72,-10 -42,-30 L-30,28" fill="#d4a020" stroke="#f0c040" strokeWidth="0.8"/>
-      <path d="M72,30 Q72,-10 42,-30 L30,28" fill="#d4a020" stroke="#f0c040" strokeWidth="0.8"/>
-      <path d="M-30,28 Q-20,-55 0,-75 Q20,-55 30,28 Z" fill="#d4a020" stroke="#f0c040" strokeWidth="0.8"/>
-      <line x1="-42" y1="-30" x2="-42" y2="28" stroke="#f0c040" strokeWidth="0.6" opacity="0.5"/>
-      <line x1="42"  y1="-30" x2="42"  y2="28" stroke="#f0c040" strokeWidth="0.6" opacity="0.5"/>
-      <polygon points="-42,-30 -48,-60 -36,-60" fill="#f0c040"/>
-      <circle cx="-42" cy="-64" r="5" fill="#f0c040"/>
-      <polygon points="42,-30 36,-60 48,-60" fill="#f0c040"/>
-      <circle cx="42" cy="-64" r="5" fill="#f0c040"/>
-      <polygon points="0,-75 -10,-105 10,-105" fill="#f0c040"/>
-      <circle cx="0" cy="-112" r="7" fill="#f0c040"/>
-      <ellipse cx="0" cy="-88" rx="5" ry="6" fill="#cc2222"/>
-      <circle cx="-56" cy="54" r="4" fill="#fffacd" stroke="#d4a020" strokeWidth="0.8"/>
-      <circle cx="-28" cy="56" r="4" fill="#fffacd" stroke="#d4a020" strokeWidth="0.8"/>
-      <circle cx="0"   cy="57" r="4" fill="#fffacd" stroke="#d4a020" strokeWidth="0.8"/>
-      <circle cx="28"  cy="56" r="4" fill="#fffacd" stroke="#d4a020" strokeWidth="0.8"/>
-      <circle cx="56"  cy="54" r="4" fill="#fffacd" stroke="#d4a020" strokeWidth="0.8"/>
-    </g>
-    <g transform="translate(340,295)">
-      <path d="M-45,0 C-45,-30 -20,-45 0,-45 C20,-45 45,-30 45,0 C45,25 30,38 10,40 L10,20 C22,18 28,10 28,0 C28,-18 16,-28 0,-28 C-16,-28 -28,-18 -28,0 C-28,18 -16,28 0,28 L0,45 C-30,45 -45,25 -45,0 Z"
-        fill="none" stroke="#1aaad4" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M10,-45 C10,-62 30,-68 30,-55 C30,-44 18,-40 18,-30"
-        fill="none" stroke="#1aaad4" strokeWidth="6" strokeLinecap="round"/>
-      <circle cx="0" cy="0" r="6" fill="#1aaad4" opacity="0.4"/>
-    </g>
-    <circle cx="340" cy="220" r="145" fill="none" stroke="#d4a020" strokeWidth="1" strokeDasharray="6,4" opacity="0.5"/>
-    <circle cx="340" cy="220" r="155" fill="none" stroke="#d4a020" strokeWidth="0.5" opacity="0.3"/>
-    <rect x="160" y="218" width="8" height="8" rx="1" fill="#f0c040" opacity="0.6" transform="rotate(45,164,222)"/>
-    <rect x="508" y="218" width="8" height="8" rx="1" fill="#f0c040" opacity="0.6" transform="rotate(45,512,222)"/>
-  </svg>
+  <img
+    src={EMBLEM_URL}
+    alt="สัญลักษณ์เจ้าฟ้าทีปังกร"
+    style={{
+      width: '120px',
+      height: '140px',
+      objectFit: 'contain',
+      mixBlendMode: 'screen',
+      filter: 'brightness(1.1) contrast(1.05)',
+    }}
+  />
 )
 
 export default function SplashPage({ onEnter }) {
