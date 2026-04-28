@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-const PRINCE_IMAGE = 'https://wellwishes.royaloffice.th/assets/images/919_69/banner.jpg'
+const PRINCE_IMAGE = 'https://cache-igetweb-v2.mt108.info/uploads/images-cache/12283/filemanager/99c5e4d8a8e8ca418f4b15e7ccac3272_full.jpg'
 
 const EmblemSVG = () => (
   <svg width="120" height="140" viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg">
@@ -126,8 +126,8 @@ export default function SplashPage({ onEnter }) {
                 width:'100%',
                 height:'100%',
                 backgroundImage:`url(${PRINCE_IMAGE})`,
-                backgroundSize:'200%',
-                backgroundPosition:'30% 8%',
+                backgroundSize:'cover',
+                backgroundPosition:'center 15%',
                 backgroundRepeat:'no-repeat',
               }}/>
             ) : (
