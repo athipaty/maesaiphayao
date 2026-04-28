@@ -13,7 +13,7 @@ const EmblemSVG = () => (
       height: '140px',
       objectFit: 'contain',
       mixBlendMode: 'screen',
-      filter: 'brightness(1.1) contrast(1.05)',
+      filter: 'brightness(1.8) contrast(1.2) saturate(1.3)',
     }}
   />
 )
