@@ -1,0 +1,34 @@
+import { useState } from 'react'
+import { uploadImage } from '../services/api'
+
+export default function ImageUpload({ value, onChange }) {
+  const [uploading, setUploading] = useState(false)
+
+  const handleFile = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const res = await uploadImage(file)
+      onChange(res.data.url)
+    } catch {
+      alert('อัปโหลดรูปภาพไม่สำเร็จ')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <div>
+      {value && (
+        <img src={value} alt="preview" className="w-full h-40 object-cover rounded mb-2" />
+      )}
+      <label className="block">
+        <span className={`btn-ghost text-xs cursor-pointer inline-block ${uploading ? 'opacity-50' : ''}`}>
+          {uploading ? 'กำลังอัปโหลด...' : value ? '🔄 เปลี่ยนรูป' : '📷 อัปโหลดรูป'}
+        </span>
+        <input type="file" accept="image/*" className="hidden" onChange={handleFile} disabled={uploading} />
+      </label>
+    </div>
+  )
+}
