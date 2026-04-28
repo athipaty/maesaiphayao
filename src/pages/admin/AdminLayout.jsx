@@ -4,22 +4,35 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin1234'
 
 const MENU = [
-  { path: '/admin',               label: '📊 Dashboard',         end: true },
-  { path: '/admin/news',          label: '📰 ข่าวสารกิจกรรม'               },
-  { path: '/admin/announcements', label: '📢 ประชาสัมพันธ์'                },
-  { path: '/admin/procurement',   label: '📦 จัดซื้อจัดจ้าง'               },
-  { path: '/admin/staff',         label: '👥 บุคลากร'                      },
-  { path: '/admin/travel',        label: '🗺️ สถานที่ท่องเที่ยว'            },
-  { path: '/admin/products',      label: '🛍️ สินค้า OTOP'                 },
-  { path: '/admin/settings',      label: '⚙️ ตั้งค่าเว็บไซต์'             },
+  { path: '/admin',               label: 'Dashboard',        icon: '📊', end: true },
+  { path: '/admin/news',          label: 'ข่าวสารกิจกรรม',   icon: '📰' },
+  { path: '/admin/announcements', label: 'ประชาสัมพันธ์',     icon: '📢' },
+  { path: '/admin/procurement',   label: 'จัดซื้อจัดจ้าง',   icon: '📦' },
+  { path: '/admin/staff',         label: 'บุคลากร',           icon: '👥' },
+  { path: '/admin/travel',        label: 'สถานที่ท่องเที่ยว', icon: '🗺️' },
+  { path: '/admin/products',      label: 'สินค้า OTOP',       icon: '🛍️' },
+  { path: '/admin/settings',      label: 'ตั้งค่าเว็บไซต์',  icon: '⚙️' },
 ]
 
+const ChevronLeft = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="15 18 9 12 15 6"/>
+  </svg>
+)
+
+const ChevronRight = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 18 15 12 9 6"/>
+  </svg>
+)
+
 export default function AdminLayout() {
-  const [authed, setAuthed] = useState(() => sessionStorage.getItem('abt_admin') === '1')
-  const [pw, setPw]         = useState('')
-  const [showPw, setShowPw] = useState(false)
-  const [err, setErr]       = useState('')
-  const navigate            = useNavigate()
+  const [authed, setAuthed]       = useState(() => sessionStorage.getItem('abt_admin') === '1')
+  const [pw, setPw]               = useState('')
+  const [showPw, setShowPw]       = useState(false)
+  const [err, setErr]             = useState('')
+  const [collapsed, setCollapsed] = useState(false)
+  const navigate                  = useNavigate()
 
   function login() {
     if (pw === ADMIN_PASSWORD) {
@@ -40,17 +53,11 @@ export default function AdminLayout() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary to-secondary flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
-
-          {/* Top banner */}
           <div className="bg-gradient-to-r from-primary to-secondary px-8 py-8 flex flex-col items-center">
-            <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-4xl mb-4">
-              🏛️
-            </div>
+            <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-4xl mb-4">🏛️</div>
             <h1 className="text-white text-lg font-bold text-center">ระบบจัดการเนื้อหา</h1>
             <p className="text-white/70 text-xs mt-1 text-center">องค์การบริหารส่วนตำบลแม่ใส</p>
           </div>
-
-          {/* Form */}
           <div className="px-8 py-8 space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-2">รหัสผ่าน</label>
@@ -63,12 +70,9 @@ export default function AdminLayout() {
                   onChange={e => { setPw(e.target.value); setErr('') }}
                   onKeyDown={e => e.key === 'Enter' && login()}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPw(v => !v)}
+                <button type="button" onClick={() => setShowPw(v => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100 transition-colors"
-                  tabIndex={-1}
-                >
+                  tabIndex={-1}>
                   {showPw ? (
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
@@ -83,15 +87,10 @@ export default function AdminLayout() {
                   )}
                 </button>
               </div>
-              {err && (
-                <p className="text-red-500 text-xs mt-2">⚠️ {err}</p>
-              )}
+              {err && <p className="text-red-500 text-xs mt-2">⚠️ {err}</p>}
             </div>
-
-            <button
-              onClick={login}
-              className="w-full bg-gradient-to-r from-primary to-secondary text-white rounded-lg py-3 text-sm font-semibold hover:opacity-90 active:scale-95 transition-all shadow-md"
-            >
+            <button onClick={login}
+              className="w-full bg-gradient-to-r from-primary to-secondary text-white rounded-lg py-3 text-sm font-semibold hover:opacity-90 active:scale-95 transition-all shadow-md">
               เข้าสู่ระบบ
             </button>
           </div>
@@ -102,32 +101,64 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen flex bg-gray-100">
-      <aside className="w-56 bg-primary flex-shrink-0 flex flex-col">
-        <div className="p-4 border-b border-white/20">
-          <p className="text-white font-bold text-sm">🏛️ อบต.แม่ใส</p>
-          <p className="text-white/60 text-xs mt-0.5">ระบบจัดการเนื้อหา</p>
+
+      {/* Sidebar */}
+      <aside
+        style={{ width: collapsed ? '64px' : '220px', transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1)' }}
+        className="bg-primary flex-shrink-0 flex flex-col overflow-hidden relative"
+      >
+        {/* Logo */}
+        <div className="flex items-center gap-3 px-4 py-4 border-b border-white/20 min-h-[60px] overflow-hidden">
+          <span className="text-xl flex-shrink-0">🏛️</span>
+          <div style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}>
+            <p className="text-white font-bold text-sm">อบต.แม่ใส</p>
+            <p className="text-white/60 text-xs">ระบบจัดการเนื้อหา</p>
+          </div>
         </div>
-        <nav className="flex-1 py-2">
+
+        {/* Menu */}
+        <nav className="flex-1 py-2 overflow-hidden">
           {MENU.map(m => (
             <NavLink key={m.path} to={m.path} end={m.end}
+              title={collapsed ? m.label : ''}
               className={({ isActive }) =>
-                `flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${
+                `flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-150 ${
                   isActive
-                    ? 'bg-secondary text-white font-medium'
-                    : 'text-white/75 hover:bg-white/10 hover:text-white'
+                    ? 'bg-white/20 text-white font-semibold border-r-4 border-accent'
+                    : 'text-white/70 hover:bg-white/10 hover:text-white'
                 }`
               }>
-              {m.label}
+              <span className="text-base flex-shrink-0 w-5 text-center">{m.icon}</span>
+              <span style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}>
+                {m.label}
+              </span>
             </NavLink>
           ))}
         </nav>
-        <div className="p-3 border-t border-white/20">
+
+        {/* Logout */}
+        <div className="border-t border-white/20 overflow-hidden">
           <button onClick={logout}
-            className="w-full text-xs text-white/60 hover:text-white text-left px-1 py-1 transition-colors">
-            🚪 ออกจากระบบ
+            title={collapsed ? 'ออกจากระบบ' : ''}
+            className="w-full flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/10 transition-colors text-sm">
+            <span className="flex-shrink-0 w-5 text-center">🚪</span>
+            <span style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}>
+              ออกจากระบบ
+            </span>
           </button>
         </div>
+
+        {/* Toggle button — ลูกศรติดขอบขวา */}
+        <button
+          onClick={() => setCollapsed(v => !v)}
+          className="absolute -right-3 top-7 z-50 w-6 h-6 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-200"
+          title={collapsed ? 'ขยาย sidebar' : 'ย่อ sidebar'}
+        >
+          {collapsed ? <ChevronRight /> : <ChevronLeft />}
+        </button>
       </aside>
+
+      {/* Main content */}
       <main className="flex-1 min-w-0 overflow-auto">
         <div className="p-5">
           <Outlet />
