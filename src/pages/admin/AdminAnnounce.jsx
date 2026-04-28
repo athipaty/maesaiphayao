@@ -11,7 +11,7 @@ export default function AdminAnnounce() {
 
   async function load() {
     setLoading(true)
-    try { const r = await getAnnouncements(); setItems(r.data) }
+    try { const r = await getAnnouncements(); setItems(r?.data || []) }
     finally { setLoading(false) }
   }
 
@@ -29,11 +29,11 @@ export default function AdminAnnounce() {
   }
 
   const columns = [
-    { label: 'หัวข้อ', render: item => <span className="text-xs line-clamp-2">{item.title}</span> },
+    { label: 'หัวข้อ', render: item => <span className="text-sm font-medium text-gray-800 line-clamp-1">{item.title}</span> },
     {
       label: 'ประเภท',
       render: item => (
-        <span className={`text-xs px-2 py-0.5 rounded-full ${item.type === 'announcement' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
+        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${item.type === 'announcement' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
           {item.type === 'announcement' ? 'ประชาสัมพันธ์' : 'จดหมายข่าว'}
         </span>
       )
@@ -42,8 +42,8 @@ export default function AdminAnnounce() {
     {
       label: 'สถานะ',
       render: item => (
-        <span className={`text-xs px-2 py-0.5 rounded-full ${item.isActive ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
-          {item.isActive ? 'เผยแพร่' : 'ซ่อน'}
+        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${item.isActive ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
+          {item.isActive ? '● เผยแพร่' : '○ ซ่อน'}
         </span>
       )
     },
@@ -60,31 +60,53 @@ export default function AdminAnnounce() {
       renderForm={{
         onSubmit: handleSubmit,
         fields: ({ data, onChange }) => (
-          <>
+          <div className="space-y-5">
             <div>
-              <label className="form-label">ประเภท <span className="text-red-400">*</span></label>
-              <select className="form-input" value={data.type} onChange={e => onChange('type', e.target.value)}>
-                <option value="announcement">ข่าวประชาสัมพันธ์</option>
-                <option value="newsletter">จดหมายข่าว</option>
-              </select>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">ประเภท <span className="text-red-400">*</span></label>
+              <div className="flex gap-3">
+                {[
+                  { value: 'announcement', label: '📢 ข่าวประชาสัมพันธ์' },
+                  { value: 'newsletter',   label: '📰 จดหมายข่าว' },
+                ].map(t => (
+                  <label key={t.value} className={`flex-1 border-2 rounded-lg px-4 py-3 cursor-pointer transition-all text-sm font-medium text-center ${data.type === t.value ? 'border-blue-400 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+                    <input type="radio" name="type" value={t.value} checked={data.type === t.value} onChange={() => onChange('type', t.value)} className="hidden" />
+                    {t.label}
+                  </label>
+                ))}
+              </div>
             </div>
             <div>
-              <label className="form-label">หัวข้อ <span className="text-red-400">*</span></label>
-              <input className="form-input" value={data.title} onChange={e => onChange('title', e.target.value)} placeholder="หัวข้อ" />
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">หัวข้อ <span className="text-red-400">*</span></label>
+              <input
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                value={data.title}
+                onChange={e => onChange('title', e.target.value)}
+                placeholder="ชื่อหัวข้อ..."
+              />
             </div>
             <div>
-              <label className="form-label">ลิงค์ไฟล์ / PDF URL</label>
-              <input className="form-input" value={data.fileUrl} onChange={e => onChange('fileUrl', e.target.value)} placeholder="https://..." />
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">🔗 ลิงค์ไฟล์ / PDF URL</label>
+              <input
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                value={data.fileUrl}
+                onChange={e => onChange('fileUrl', e.target.value)}
+                placeholder="https://..."
+              />
             </div>
             <div>
-              <label className="form-label">รูปภาพปก (จดหมายข่าว)</label>
-              <ImageUpload value={data.image} onChange={url => onChange('image', url)} />
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">รูปภาพปก (จดหมายข่าว)</label>
+              <div className="border-2 border-dashed border-gray-200 rounded-lg p-3 hover:border-blue-300 transition-colors">
+                <ImageUpload value={data.image} onChange={url => onChange('image', url)} />
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="isActive2" checked={data.isActive} onChange={e => onChange('isActive', e.target.checked)} />
-              <label htmlFor="isActive2" className="text-sm text-gray-700">เผยแพร่ทันที</label>
+            <div className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
+              <input type="checkbox" id="isActive2" checked={data.isActive} onChange={e => onChange('isActive', e.target.checked)} className="w-4 h-4 accent-blue-500" />
+              <div>
+                <label htmlFor="isActive2" className="text-sm font-medium text-gray-700 cursor-pointer">เผยแพร่ทันที</label>
+                <p className="text-xs text-gray-400">ถ้าไม่เลือก จะซ่อนจากหน้าเว็บ</p>
+              </div>
             </div>
-          </>
+          </div>
         )
       }}
     />
