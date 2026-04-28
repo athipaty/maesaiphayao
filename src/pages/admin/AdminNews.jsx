@@ -13,7 +13,7 @@ const DEPTS = [
   { value: 'finance',     label: '💰 กองคลัง' },
 ]
 
-const EMPTY = { title: '', content: '', image: '', department: 'council', publishedAt: '', isActive: true }
+const EMPTY = { title: '', content: '', images: [], department: 'council', publishedAt: '', isActive: true }
 
 export default function AdminNews() {
   const [items, setItems]     = useState([])
@@ -21,7 +21,17 @@ export default function AdminNews() {
 
   async function load() {
     setLoading(true)
-    try { const r = await getNews(); setItems(r?.data || []) }
+    try {
+      const r = await getNews()
+      // normalize — ถ้าไม่มี images ให้ใช้ image เดิม
+      const normalized = (r?.data || []).map(item => ({
+        ...item,
+        images: Array.isArray(item.images) && item.images.length > 0
+          ? item.images
+          : item.image ? [item.image] : []
+      }))
+      setItems(normalized)
+    }
     finally { setLoading(false) }
   }
 
@@ -41,9 +51,12 @@ export default function AdminNews() {
   const columns = [
     {
       label: 'รูป',
-      render: item => item.image
-        ? <img src={item.image} alt="" className="w-14 h-10 object-cover rounded" />
-        : <div className="w-14 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-300 text-lg">📷</div>
+      render: item => {
+        const img = Array.isArray(item.images) ? item.images[0] : item.image
+        return img
+          ? <img src={img} alt="" className="w-14 h-10 object-cover rounded" />
+          : <div className="w-14 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-300 text-lg">📷</div>
+      }
     },
     { label: 'หัวข้อ',   render: item => <span className="text-sm font-medium text-gray-800 line-clamp-2">{item.title}</span> },
     { label: 'กอง/ฝ่าย', render: item => <span className="text-xs text-gray-500">{DEPTS.find(d => d.value === item.department)?.label}</span> },
@@ -102,7 +115,7 @@ export default function AdminNews() {
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">รูปภาพ</label>
               <div className="border-2 border-dashed border-gray-200 rounded-lg p-3 hover:border-blue-300 transition-colors">
-                <ImageUpload value={data.image} onChange={url => onChange('image', url)} />
+                <ImageUpload value={data.images} onChange={urls => onChange('images', urls)} multiple={true} />
               </div>
             </div>
             <div>

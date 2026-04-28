@@ -55,14 +55,18 @@ export default function NewsListPage() {
             {items.map(item => (
               <Link key={item._id} to={`/news/detail/${item._id}`}
                 className="flex gap-3 p-3 hover:bg-blue-50 transition-colors">
-                {item.image ? (
-                  <img src={item.image} alt={item.title}
-                    className="w-24 h-20 object-cover rounded flex-shrink-0" />
-                ) : (
-                  <div className="w-24 h-20 rounded flex-shrink-0 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-2xl">
-                    {DEPT_ICONS[item.department] || '📰'}
-                  </div>
-                )}
+                {(() => {
+                  const img = Array.isArray(item.images) && item.images.length > 0
+                    ? item.images[0] : item.image
+                  return img ? (
+                    <img src={img} alt={item.title}
+                      className="w-24 h-20 object-cover rounded flex-shrink-0" />
+                  ) : (
+                    <div className="w-24 h-20 rounded flex-shrink-0 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-2xl">
+                      {DEPT_ICONS[item.department] || '📰'}
+                    </div>
+                  )
+                })()}
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-semibold text-primary line-clamp-2 mb-1">{item.title}</h3>
                   <p className="text-xs text-gray-400 mb-1">

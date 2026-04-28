@@ -23,11 +23,11 @@ const DEPT_LABELS = {
 export function NewsSection({ dept, items = [], loading }) {
   return (
     <div className="card">
-      <div className="section-head">
+      <div className="section-head flex items-center justify-between">
         <h3 className="text-sm font-semibold">✨ ข่าวสาร กิจกรรม {DEPT_LABELS[dept]}</h3>
         <Link to={`/news/${dept}`}
-          className="text-xs bg-white/20 hover:bg-white/35 transition-colors px-3 py-1 rounded-full">
-          ดูทั้งหมด
+          className="text-xs bg-white/20 hover:bg-white/35 transition-colors px-3 py-1 rounded-full ml-auto">
+          ดูทั้งหมด »
         </Link>
       </div>
       {loading ? (
@@ -39,19 +39,26 @@ export function NewsSection({ dept, items = [], loading }) {
           {items.slice(0, 3).map(item => (
             <Link to={`/news/detail/${item._id}`} key={item._id}
               className="p-3 hover:bg-blue-50 transition-colors block">
-              {item.image ? (
-                <img src={item.image} alt={item.title}
-                  className="w-full h-24 object-cover rounded mb-2" />
-              ) : (
-                <div className="w-full h-24 rounded mb-2 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-3xl">
-                  {DEPT_ICONS[dept] || '📰'}
-                </div>
-              )}
-              <h4 className="text-xs font-semibold text-primary leading-snug mb-1 line-clamp-2">
+              {(() => {
+                const img = Array.isArray(item.images) && item.images.length > 0
+                  ? item.images[0]
+                  : item.image
+                return img ? (
+                  <img src={img} alt={item.title}
+                    className="w-full h-24 object-cover rounded mb-2" />
+                ) : (
+                  <div className="w-full h-24 rounded mb-2 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-3xl">
+                    {DEPT_ICONS[dept] || '📰'}
+                  </div>
+                )
+              })()}
+              <h4 className="text-xs font-semibold text-primary mb-2 truncate" title={item.title}>
                 {item.title}
               </h4>
-              <p className="text-xs text-gray-400 mb-1">👁 {item.views} ครั้ง</p>
-              <span className="text-xs text-secondary font-medium">อ่านเพิ่ม »</span>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-gray-400">👁 {item.views} ครั้ง</p>
+                <span className="text-xs text-secondary font-medium">อ่านเพิ่ม »</span>
+              </div>
             </Link>
           ))}
         </div>

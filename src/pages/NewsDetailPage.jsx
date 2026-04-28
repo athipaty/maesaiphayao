@@ -45,10 +45,18 @@ export default function NewsDetailPage() {
               year: 'numeric', month: 'long', day: 'numeric'
             })}</span>
           </div>
-          {item.image && (
+          {/* รูปภาพ — รองรับทั้ง single image และ multiple images */}
+          {Array.isArray(item.images) && item.images.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+              {item.images.map((img, idx) => (
+                <img key={idx} src={img} alt={`${item.title} ${idx + 1}`}
+                  className="w-full max-h-72 object-cover rounded-md" />
+              ))}
+            </div>
+          ) : item.image ? (
             <img src={item.image} alt={item.title}
               className="w-full max-h-80 object-cover rounded-md mb-5" />
-          )}
+          ) : null}
           {item.content ? (
             <div
               className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
