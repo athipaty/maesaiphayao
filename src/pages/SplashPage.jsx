@@ -77,7 +77,6 @@ export default function SplashPage({ onEnter }) {
         <div style={{ position: 'relative', flexShrink: 0 }}>
           <div className="gold-shimmer" style={{
             position: 'absolute', inset: '-10px',
-            borderRadius: '50%',
             background: 'conic-gradient(from 0deg, #d4af37, #fff8dc, #d4af37, #b8860b, #d4af37)',
             borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
           }}/>
