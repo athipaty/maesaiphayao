@@ -26,7 +26,6 @@ import AdminProducts    from './pages/admin/AdminProducts'
 import AdminSettings    from './pages/admin/AdminSettings'
 
 export default function App() {
-  // แสดง splash ครั้งเดียวต่อ session
   const [showSplash, setShowSplash] = useState(
     () => !sessionStorage.getItem('splash_seen')
   )
@@ -38,7 +37,6 @@ export default function App() {
 
   return (
     <>
-      {/* Splash — overlay ทับทุกอย่าง */}
       {showSplash && <SplashPage onEnter={handleEnter} />}
 
       <Routes>
@@ -58,13 +56,14 @@ export default function App() {
 
         {/* Admin panel */}
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index              element={<AdminDashboard />} />
-          <Route path="news"        element={<AdminNews />} />
-          <Route path="announcements" element={<AdminAnnounce />} />
-          <Route path="procurement" element={<AdminProcurement />} />
-          <Route path="staff"       element={<AdminStaff />} />
-          <Route path="travel"      element={<AdminTravel />} />
-          <Route path="products"    element={<AdminProducts />} />
+          <Route index                   element={<AdminDashboard />} />
+          <Route path="news"             element={<AdminNews />} />
+          <Route path="announcements"    element={<AdminAnnounce />} />
+          <Route path="procurement"      element={<AdminProcurement />} />
+          <Route path="staff"            element={<AdminStaff />} />
+          <Route path="travel"           element={<AdminTravel />} />
+          <Route path="products"         element={<AdminProducts />} />
+          <Route path="settings"         element={<AdminSettings />} />
         </Route>
       </Routes>
     </>
