@@ -107,9 +107,11 @@ export default function AdminSettings() {
           <div className="bg-gray-50 rounded-lg p-4 flex items-center gap-4 max-w-xs">
             {form.mayorImage ? (
               <img src={form.mayorImage} alt="preview"
-                className="w-16 h-16 rounded-full object-cover border-2 border-blue-100" />
+                className="object-cover border-2 border-yellow-400 rounded flex-shrink-0"
+                style={{ width: '70px', height: '105px', objectFit: 'cover', objectPosition: 'top center' }} />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-teal-400 flex items-center justify-center text-2xl flex-shrink-0">👤</div>
+              <div className="bg-gradient-to-br from-blue-400 to-teal-400 flex items-center justify-center text-2xl flex-shrink-0 rounded border-2 border-yellow-400"
+                style={{ width: '70px', height: '105px' }}>👤</div>
             )}
             <div>
               <p className="text-sm font-semibold text-blue-900">{form.mayorName || 'ชื่อ-นามสกุล'}</p>

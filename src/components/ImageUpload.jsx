@@ -21,7 +21,9 @@ export default function ImageUpload({ value, onChange }) {
   return (
     <div>
       {value && (
-        <img src={value} alt="preview" className="w-full h-56 object-cover rounded-lg mb-2" />
+        <img src={value} alt="preview"
+          className="rounded mb-2 border border-gray-200"
+          style={{ width: '120px', height: '180px', objectFit: 'cover', objectPosition: 'top center' }} />
       )}
       <label className="block">
         <span className={`btn-ghost text-xs cursor-pointer inline-block ${uploading ? 'opacity-50' : ''}`}>

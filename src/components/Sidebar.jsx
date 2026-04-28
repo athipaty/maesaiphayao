@@ -67,9 +67,11 @@ export default function Sidebar() {
       <div className="bg-white rounded-md shadow-sm mb-3 p-4 text-center">
         {settings.mayorImage ? (
           <img src={settings.mayorImage} alt={settings.mayorName}
-            className="w-20 h-20 rounded-full object-cover mx-auto mb-2 border-2 border-blue-100" />
+            className="object-cover mx-auto mb-2 border-2 border-yellow-400 rounded"
+            style={{ width: '100px', height: '150px', objectFit: 'cover', objectPosition: 'top center' }} />
         ) : (
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl mx-auto mb-2">👤</div>
+          <div className="bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl mx-auto mb-2 rounded border-2 border-yellow-400"
+            style={{ width: '100px', height: '150px' }}>👤</div>
         )}
         <h4 className="text-sm font-semibold text-primary">{settings.mayorName}</h4>
         <p className="text-xs text-gray-500 mt-1">{settings.mayorPosition}</p>
