@@ -14,7 +14,7 @@ export default function NewsListPage() {
   useEffect(() => {
     setLoading(true)
     getNews(activeDept ? { dept: activeDept } : {})
-      .then(r => setItems(r.data))
+      .then(r => setItems(r?.data || []))
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [activeDept])

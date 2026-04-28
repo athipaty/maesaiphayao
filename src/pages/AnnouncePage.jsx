@@ -9,7 +9,7 @@ export default function AnnouncePage() {
   useEffect(() => {
     setLoading(true)
     getAnnouncements({ type: tab })
-      .then(r => setItems(r.data))
+      .then(r => setItems(r?.data || []))
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [tab])

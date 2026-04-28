@@ -23,7 +23,7 @@ export default function HomePage() {
           DEPARTMENTS.map(dept => getNews({ dept, limit: 3 }))
         )
         const map = {}
-        DEPARTMENTS.forEach((dept, i) => { map[dept] = deptResults[i].data })
+        DEPARTMENTS.forEach((dept, i) => { map[dept] = deptResults[i]?.data || [] })
         setNewsByDept(map)
 
         // fetch announcements
@@ -33,10 +33,10 @@ export default function HomePage() {
           getProcurement({ type: 'egp' }),
           getProcurement({ type: 'news' }),
         ])
-        setAnnounce(ann.data)
-        setNewsletter(nl.data)
-        setEgp(e.data)
-        setProcNews(pn.data)
+        setAnnounce(ann?.data || [])
+        setNewsletter(nl?.data || [])
+        setEgp(e?.data || [])
+        setProcNews(pn?.data || [])
       } catch (err) {
         console.error(err)
       } finally {

@@ -17,7 +17,7 @@ export default function StaffPage() {
 
   useEffect(() => {
     getStaff()
-      .then(r => setStaff(r.data))
+      .then(r => setStaff(r?.data || []))
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
