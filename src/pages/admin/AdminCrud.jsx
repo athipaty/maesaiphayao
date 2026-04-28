@@ -65,17 +65,17 @@ export default function AdminCrud({ title, items, loading, columns, onDelete, re
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <h2 className="text-sm font-semibold text-gray-800">
                 {editing ? '✏️ แก้ไขรายการ' : '➕ เพิ่มรายการใหม่'}
               </h2>
               <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">×</button>
             </div>
-            <div className="p-5 space-y-4">
+            <div className="p-6 space-y-4">
               {renderForm.fields({ data: formData, onChange: handleChange })}
             </div>
-            <div className="flex justify-end gap-2 px-5 py-3.5 border-t border-gray-100 bg-gray-50">
+            <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-100 bg-gray-50">
               <button onClick={() => setShowForm(false)} className="btn-ghost text-xs">ยกเลิก</button>
               <button onClick={handleSubmit} disabled={saving} className="btn-primary text-xs disabled:opacity-50">
                 {saving ? 'กำลังบันทึก...' : '💾 บันทึก'}
