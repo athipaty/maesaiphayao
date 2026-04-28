@@ -43,6 +43,10 @@ export const createProduct  = (data)     => api.post('/products', data)
 export const updateProduct  = (id, data) => api.put(`/products/${id}`, data)
 export const deleteProduct  = (id)       => api.delete(`/products/${id}`)
 
+// ── Settings ──────────────────────────────────────────────────────────────────
+export const getSettings   = ()           => api.get('/settings')
+export const updateSetting = (key, value) => api.put(`/settings/${key}`, { value })
+
 // ── Image upload ──────────────────────────────────────────────────────────────
 export const uploadImage = (file) => {
   const form = new FormData()
