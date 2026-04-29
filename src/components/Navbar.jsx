@@ -68,9 +68,23 @@ export default function Navbar() {
               `block px-4 py-2.5 text-white text-sm font-medium hover:bg-secondary transition-colors ${isActive ? 'bg-secondary' : ''}`
             }>จัดซื้อจัดจ้าง</NavLink>
 
-            <NavLink to="/staff" className={({ isActive }) =>
-              `block px-4 py-2.5 text-white text-sm font-medium hover:bg-secondary transition-colors ${isActive ? 'bg-secondary' : ''}`
-            }>บุคลากร</NavLink>
+            {/* Staff dropdown */}
+            <div className="relative group">
+              <button className="flex items-center gap-1 px-4 py-2.5 text-white text-sm font-medium hover:bg-secondary transition-colors">
+                บุคลากร <span className="text-xs">▾</span>
+              </button>
+              <div className="absolute top-full left-0 hidden group-hover:block bg-white shadow-lg min-w-[240px] z-50 border-t-2 border-secondary">
+                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">สำนักปลัด</NavLink>
+                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">กองคลัง</NavLink>
+                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">กองช่าง</NavLink>
+                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">ทำเนียบผู้บริหาร</NavLink>
+                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">กองสาธารณสุขและสิ่งแวดล้อม</NavLink>
+                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">สมาชิกสภาองค์การบริหารส่วนตำบล</NavLink>
+                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">หน่วยตรวจสอบภายใน</NavLink>
+                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">แผนผังแสดงโครงสร้างส่วนราชการ</NavLink>
+                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary">หัวหน้าส่วนราชการ</NavLink>
+              </div>
+            </div>
 
             <NavLink to="/travel" className={({ isActive }) =>
               `block px-4 py-2.5 text-white text-sm font-medium hover:bg-secondary transition-colors ${isActive ? 'bg-secondary' : ''}`
