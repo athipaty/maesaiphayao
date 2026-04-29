@@ -49,9 +49,11 @@ export default function StaffPage() {
                   <div key={s._id} className="text-center">
                     {s.image ? (
                       <img src={s.image} alt={s.name}
-                        className="w-20 h-20 rounded-full object-cover mx-auto mb-2 border-2 border-blue-100" />
+                        className="object-cover mx-auto mb-2 border-2 border-blue-100 rounded"
+                        style={{ width: '100px', height: '140px', objectFit: 'cover', objectPosition: 'top center' }} />
                     ) : (
-                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-2xl text-white mx-auto mb-2">
+                      <div className="bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-2xl text-white mx-auto mb-2 rounded"
+                        style={{ width: '100px', height: '140px' }}>
                         👤
                       </div>
                     )}
