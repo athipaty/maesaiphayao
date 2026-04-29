@@ -7,7 +7,7 @@ export default function TravelPage() {
 
   useEffect(() => {
     getTravel()
-      .then(r => setItems(r.data))
+      .then(r => setItems(r?.data || []))
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
@@ -26,9 +26,9 @@ export default function TravelPage() {
           {items.map(item => (
             <div key={item._id} className="border border-gray-100 rounded-md overflow-hidden hover:shadow-md transition-shadow">
               {item.image ? (
-                <img src={item.image} alt={item.title} className="w-full h-44 object-cover" />
+                <img src={item.image} alt={item.title} className="w-full h-64 object-cover" />
               ) : (
-                <div className="w-full h-44 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-4xl">🏞️</div>
+                <div className="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-4xl">🏞️</div>
               )}
               <div className="p-3">
                 <h3 className="text-sm font-semibold text-primary mb-1">{item.title}</h3>

@@ -136,8 +136,16 @@ export default function AdminLayout() {
           ))}
         </nav>
 
-        {/* Logout */}
+        {/* Bottom buttons */}
         <div className="border-t border-white/20 overflow-hidden">
+          <a href="/"
+            title={collapsed ? 'กลับหน้าหลัก' : ''}
+            className="w-full flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/10 transition-colors text-sm">
+            <span className="flex-shrink-0 w-5 text-center">🏠</span>
+            <span style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}>
+              กลับหน้าหลัก
+            </span>
+          </a>
           <button onClick={logout}
             title={collapsed ? 'ออกจากระบบ' : ''}
             className="w-full flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/10 transition-colors text-sm">
