@@ -81,7 +81,7 @@ export default function NewsDetailPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {restImages.map((img, idx) => (
                   <img key={idx} src={img} alt={`${item.title} ${idx + 2}`}
-                    className="w-full h-44 object-cover rounded-md shadow-sm hover:opacity-90 transition-opacity cursor-pointer" />
+                    className="w-full h-60 object-cover rounded-md shadow-sm hover:opacity-90 transition-opacity cursor-pointer" />
                 ))}
               </div>
             </div>
