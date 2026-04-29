@@ -45,9 +45,9 @@ export function NewsSection({ dept, items = [], loading }) {
                   : item.image
                 return img ? (
                   <img src={img} alt={item.title}
-                    className="w-full h-24 object-cover rounded mb-2" />
+                    className="w-full h-44 object-cover rounded mb-2" />
                 ) : (
-                  <div className="w-full h-24 rounded mb-2 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-3xl">
+                  <div className="w-full h-44 rounded mb-2 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-3xl">
                     {DEPT_ICONS[dept] || '📰'}
                   </div>
                 )
