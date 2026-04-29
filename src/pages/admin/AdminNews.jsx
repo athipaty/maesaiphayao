@@ -16,8 +16,9 @@ const DEPTS = [
 const EMPTY = { title: '', content: '', images: [], department: 'council', publishedAt: '', isActive: true }
 
 export default function AdminNews() {
-  const [items, setItems]     = useState([])
-  const [loading, setLoading] = useState(true)
+  const [items, setItems]       = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [filterDept, setFilterDept] = useState('all')
 
   async function load() {
     setLoading(true)
@@ -71,10 +72,29 @@ export default function AdminNews() {
     },
   ]
 
+  const filtered = filterDept === 'all'
+    ? items
+    : items.filter(i => i.department === filterDept)
+
   return (
+    <>
+      {/* Filter bar */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {[{ value: 'all', label: '🗂️ ทั้งหมด' }, ...DEPTS].map(d => (
+          <button key={d.value} onClick={() => setFilterDept(d.value)}
+            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+              filterDept === d.value
+                ? 'bg-secondary text-white border-secondary'
+                : 'border-gray-300 text-gray-600 hover:border-secondary hover:text-secondary'
+            }`}>
+            {d.label}
+          </button>
+        ))}
+      </div>
+
     <AdminCrud
       title="📰 จัดการข่าวสารกิจกรรม"
-      items={items}
+      items={filtered}
       loading={loading}
       columns={columns}
       onDelete={handleDelete}
@@ -138,5 +158,6 @@ export default function AdminNews() {
         )
       }}
     />
+    </>
   )
 }
