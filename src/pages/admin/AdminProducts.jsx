@@ -3,7 +3,7 @@ import AdminCrud from './AdminCrud'
 import ImageUpload from '../../components/ImageUpload'
 import { getProducts, createProduct, updateProduct, deleteProduct } from '../../services/api'
 
-const EMPTY = { title: '', description: '', image: '', isActive: true }
+const EMPTY = { title: '', description: '', images: [], isActive: true }
 
 export default function AdminProducts() {
   const [items, setItems]     = useState([])
@@ -31,9 +31,12 @@ export default function AdminProducts() {
   const columns = [
     {
       label: 'รูป',
-      render: item => item.image
-        ? <img src={item.image} alt="" className="w-16 h-12 object-cover rounded" />
-        : <div className="w-16 h-12 bg-gray-100 rounded flex items-center justify-center text-gray-300">🛍️</div>
+      render: item => {
+        const img = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
+        return img
+          ? <img src={img} alt="" className="w-16 h-12 object-cover rounded" />
+          : <div className="w-16 h-12 bg-gray-100 rounded flex items-center justify-center text-gray-300">🛍️</div>
+      }
     },
     { label: 'ชื่อสินค้า', render: item => <span className="text-sm font-medium text-gray-800">{item.title}</span> },
     { label: 'คำอธิบาย',  render: item => <span className="text-xs text-gray-400 line-clamp-1">{item.description || '-'}</span> },
@@ -84,7 +87,7 @@ export default function AdminProducts() {
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">รูปภาพ</label>
               <div className="border-2 border-dashed border-gray-200 rounded-lg p-3 hover:border-blue-300 transition-colors">
-                <ImageUpload value={data.image} onChange={url => onChange('image', url)} />
+                <ImageUpload value={data.images} onChange={urls => onChange('images', urls)} multiple={true} />
               </div>
             </div>
             <div className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">

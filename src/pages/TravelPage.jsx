@@ -25,10 +25,20 @@ export default function TravelPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
           {items.map(item => (
             <div key={item._id} className="border border-gray-100 rounded-md overflow-hidden hover:shadow-md transition-shadow">
-              {item.image ? (
-                <img src={item.image} alt={item.title} className="w-full h-64 object-cover" />
-              ) : (
-                <div className="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-4xl">🏞️</div>
+              {(() => {
+                const imgs = Array.isArray(item.images) && item.images.length > 0 ? item.images : item.image ? [item.image] : []
+                const first = imgs[0]
+                return first
+                  ? <img src={first} alt={item.title} className="w-full h-64 object-cover" />
+                  : <div className="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-4xl">🏞️</div>
+              })()}
+              {/* extra images grid */}
+              {Array.isArray(item.images) && item.images.length > 1 && (
+                <div className="grid grid-cols-3 gap-1 mt-1">
+                  {item.images.slice(1).map((img, idx) => (
+                    <img key={idx} src={img} alt={`extra-${idx}`} className="w-full h-20 object-cover" />
+                  ))}
+                </div>
               )}
               <div className="p-3">
                 <h3 className="text-sm font-semibold text-primary mb-1">{item.title}</h3>
