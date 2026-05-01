@@ -28,7 +28,7 @@ const ESERVICES = [
   { icon: '📋', label: 'แบบฟอร์มร้องเรียน',                          href: '#' },
   { icon: '📝', label: 'แบบฟอร์มขอข้อมูล',                          href: '#' },
   { icon: '🏠', label: 'ขออนุญาตก่อสร้าง',                          href: '#' },
-  { icon: '💧', label: 'แจ้งขอน้ำอุปโภค/บริโภค',                    href: '#' },
+  { icon: '💧', label: 'แจ้งขอน้ำอุปโภค/บริโภค',                    href: 'https://docs.google.com/forms/d/e/1FAIpQLSc9j_NSPrflDIV17OqlsPpy4P7efwYzEmVYZz1W4idy0Eg5ig/viewform' },
   { icon: '🏢', label: 'ขอใช้ห้องประชุม',                            href: 'https://docs.google.com/forms/d/e/1FAIpQLSdvfTFLcgGGpn0wL6lkL1GOOAGLafXEWRAe0ff1JR3abUYY8A/viewform' },
   { icon: '💭', label: 'ช่องทางการรับฟังความคิดเห็น',                href: 'https://docs.google.com/forms/d/e/1FAIpQLSc9j_NSPrflDIV17OqlsPpy4P7efwYzEmVYZz1W4idy0Eg5ig/viewform' },
   { icon: '🚨', label: 'แจ้งเรื่องร้องเรียนการทุจริตฯ',              href: 'https://docs.google.com/forms/d/e/1FAIpQLSftgMaWJXsdPBmZ8lG4lTBSQcmLGQMykSfajGTYF8L7bdiCBA/viewform' },
