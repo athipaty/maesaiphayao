@@ -21,14 +21,19 @@ const MENU = [
 ]
 
 const ESERVICES = [
-  { icon: '🏛️', label: 'ศูนย์บริการออนไลน์', href: 'https://www.dla.go.th/oss.htm' },
-  { icon: '💬', label: 'แชท Messenger',       href: 'https://m.me/MaesaiSAOPhayao' },
-  { icon: '📘', label: 'Facebook Page',        href: 'https://www.facebook.com/MaesaiSAOPhayao' },
-  { icon: '📍', label: 'Traffy Fondue',        href: 'https://liff.line.me/1645278921-kWRPP32q/?accountId=traffyfondue' },
-  { icon: '📋', label: 'แบบฟอร์มร้องเรียน',    href: '#' },
-  { icon: '📝', label: 'แบบฟอร์มขอข้อมูล',    href: '#' },
-  { icon: '🏠', label: 'ขออนุญาตก่อสร้าง',   href: '#' },
-  { icon: '💧', label: 'แจ้งขอน้ำอุปโภค',     href: '#' },
+  { icon: '🏛️', label: 'ศูนย์บริการออนไลน์',                        href: 'https://www.dla.go.th/oss.htm' },
+  { icon: '💬', label: 'แชท Messenger',                              href: 'https://m.me/MaesaiSAOPhayao' },
+  { icon: '📘', label: 'Facebook Page',                               href: 'https://www.facebook.com/MaesaiSAOPhayao' },
+  { icon: '📍', label: 'Traffy Fondue',                               href: 'https://liff.line.me/1645278921-kWRPP32q/?accountId=traffyfondue' },
+  { icon: '📋', label: 'แบบฟอร์มร้องเรียน',                          href: '#' },
+  { icon: '📝', label: 'แบบฟอร์มขอข้อมูล',                          href: '#' },
+  { icon: '🏠', label: 'ขออนุญาตก่อสร้าง',                          href: '#' },
+  { icon: '💧', label: 'แจ้งขอน้ำอุปโภค/บริโภค',                    href: '#' },
+  { icon: '🏢', label: 'ขอใช้ห้องประชุม',                            href: 'https://docs.google.com/forms/d/e/1FAIpQLSdvfTFLcgGGpn0wL6lkL1GOOAGLafXEWRAe0ff1JR3abUYY8A/viewform' },
+  { icon: '💭', label: 'ช่องทางการรับฟังความคิดเห็น',                href: 'https://docs.google.com/forms/d/e/1FAIpQLSc9j_NSPrflDIV17OqlsPpy4P7efwYzEmVYZz1W4idy0Eg5ig/viewform' },
+  { icon: '🚨', label: 'แจ้งเรื่องร้องเรียนการทุจริตฯ',              href: 'https://docs.google.com/forms/d/e/1FAIpQLSftgMaWJXsdPBmZ8lG4lTBSQcmLGQMykSfajGTYF8L7bdiCBA/viewform' },
+  { icon: '⚠️', label: 'แจ้งเบาะแสป้ายโฆษณารุกล้ำทางสาธารณะ',      href: 'https://docs.google.com/forms/d/e/1FAIpQLSfnTOvwpWrq-lOU9LsxjKOHce7_10EdfpXQfCtORSRUpfl_PQ/viewform' },
+  { icon: '📊', label: 'แบบสำรวจความพึงพอใจ',                        href: 'https://docs.google.com/forms/d/e/1FAIpQLSeoxWq5gYJ4XWgmThe4PoKBdyNB5yVKNDPrvSdu87Jl_YmlTg/viewform' },
 ]
 
 const LINKS = [
