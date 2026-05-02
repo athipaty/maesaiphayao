@@ -55,6 +55,7 @@ export default function App() {
           <Route path="/products"        element={<ProductsPage />} />
           <Route path="/contact"         element={<ContactPage />} />
           <Route path="/general-info" element={<GeneralInfoPage />} />
+          <Route path="/mission"       element={<MissionPage />} />
         </Route>
 
         {/* Admin panel */}
