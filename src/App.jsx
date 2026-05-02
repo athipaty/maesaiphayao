@@ -12,9 +12,10 @@ import ProcurementPage from './pages/ProcurementPage'
 import StaffPage       from './pages/StaffPage'
 import TravelPage      from './pages/TravelPage'
 import ProductsPage    from './pages/ProductsPage'
-import ContactPage        from './pages/ContactPage'
-import GeneralInfoPage   from './pages/GeneralInfoPage'
-import MissionPage       from './pages/MissionPage'
+import ContactPage     from './pages/ContactPage'
+import GeneralInfoPage from './pages/GeneralInfoPage'
+import MissionPage     from './pages/MissionPage'
+import LocalWisdomPage from './pages/LocalWisdomPage'
 
 // Admin pages
 import AdminLayout      from './pages/admin/AdminLayout'
@@ -54,20 +55,21 @@ export default function App() {
           <Route path="/travel"          element={<TravelPage />} />
           <Route path="/products"        element={<ProductsPage />} />
           <Route path="/contact"         element={<ContactPage />} />
-          <Route path="/general-info" element={<GeneralInfoPage />} />
-          <Route path="/mission"       element={<MissionPage />} />
+          <Route path="/general-info"    element={<GeneralInfoPage />} />
+          <Route path="/mission"         element={<MissionPage />} />
+          <Route path="/local-wisdom"    element={<LocalWisdomPage />} />
         </Route>
 
         {/* Admin panel */}
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index                   element={<AdminDashboard />} />
-          <Route path="news"             element={<AdminNews />} />
-          <Route path="announcements"    element={<AdminAnnounce />} />
-          <Route path="procurement"      element={<AdminProcurement />} />
-          <Route path="staff"            element={<AdminStaff />} />
-          <Route path="travel"           element={<AdminTravel />} />
-          <Route path="products"         element={<AdminProducts />} />
-          <Route path="settings"         element={<AdminSettings />} />
+          <Route index                element={<AdminDashboard />} />
+          <Route path="news"          element={<AdminNews />} />
+          <Route path="announcements" element={<AdminAnnounce />} />
+          <Route path="procurement"   element={<AdminProcurement />} />
+          <Route path="staff"         element={<AdminStaff />} />
+          <Route path="travel"        element={<AdminTravel />} />
+          <Route path="products"      element={<AdminProducts />} />
+          <Route path="settings"      element={<AdminSettings />} />
         </Route>
       </Routes>
     </>
