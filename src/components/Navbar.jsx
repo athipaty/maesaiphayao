@@ -31,7 +31,7 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             {logoImage ? (
               <img src={logoImage} alt="logo"
-                className="w-14 h-14 rounded-full object-contain bg-white p-1 flex-shrink-0" />
+                className="w-14 h-14 rounded-full object-cover flex-shrink-0" />
             ) : (
               <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center text-primary font-bold text-xs text-center leading-tight p-1 flex-shrink-0">
                 อบต.<br />แม่ใส
