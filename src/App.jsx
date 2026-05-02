@@ -54,6 +54,7 @@ export default function App() {
           <Route path="/travel"          element={<TravelPage />} />
           <Route path="/products"        element={<ProductsPage />} />
           <Route path="/contact"         element={<ContactPage />} />
+          <Route path="/general-info" element={<GeneralInfoPage />} />
         </Route>
 
         {/* Admin panel */}
