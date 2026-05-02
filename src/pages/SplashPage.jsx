@@ -61,13 +61,13 @@ export default function SplashPage({ onEnter }) {
       {/* Main content */}
       <div className="splash-in" style={{
         position: 'relative', zIndex: 1,
-        height: '100%',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        gap: '60px', flexWrap: 'wrap', padding: '24px',
+        minHeight: '100%',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        gap: '24px', padding: '20px 16px',
       }}>
 
         {/* Portrait in gold frame */}
-        <div style={{ position: 'relative', flexShrink: 0 }}>
+        <div style={{ position: 'relative', flexShrink: 0, marginTop: '8px' }}>
           {/* Outer frame decoration */}
           <div style={{
             position: 'absolute', inset: '-16px',
@@ -83,7 +83,7 @@ export default function SplashPage({ onEnter }) {
           {/* Inner frame */}
           <div style={{
             position: 'relative',
-            width: '260px', height: '340px',
+            width: 'min(220px, 55vw)', height: 'min(290px, 72vw)',
             background: '#5a3e00',
             border: '3px solid #DAA520',
             overflow: 'hidden',
@@ -113,7 +113,7 @@ export default function SplashPage({ onEnter }) {
         </div>
 
         {/* Text content */}
-        <div style={{ textAlign: 'center', maxWidth: '420px' }}>
+        <div style={{ textAlign: 'center', maxWidth: '420px', width: '100%' }}>
 
           {/* Royal emblem "ว" */}
           <div className="shimmer" style={{
@@ -141,7 +141,7 @@ export default function SplashPage({ onEnter }) {
 
           {/* ทรงพระเจริญ */}
           <div style={{
-            fontSize: '64px', fontWeight: 900,
+            fontSize: 'clamp(40px, 12vw, 64px)', fontWeight: 900,
             color: '#4a2800',
             textShadow: '0 2px 4px rgba(255,255,255,0.4), 3px 3px 0 rgba(139,105,20,0.3)',
             letterSpacing: '4px', marginBottom: '16px',
@@ -171,6 +171,7 @@ export default function SplashPage({ onEnter }) {
 
           {/* Button */}
           <button onClick={handleEnter} style={{
+            marginBottom: '24px',
             background: 'linear-gradient(135deg, #8B6914, #DAA520, #8B6914)',
             border: '2px solid #5a3e00',
             color: '#3a1f00',
