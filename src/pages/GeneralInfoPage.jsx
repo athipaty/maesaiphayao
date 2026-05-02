@@ -2,6 +2,16 @@ export default function GeneralInfoPage() {
   return (
     <div className="space-y-5">
 
+      {/* Header */}
+      <div className="rounded-xl overflow-hidden shadow-sm"
+        style={{ background: 'linear-gradient(135deg, #1a5276 0%, #2980b9 60%, #1abc9c 100%)' }}>
+        <div className="px-8 py-10 text-white text-center">
+          <div className="text-5xl mb-3">🏛️</div>
+          <h1 className="text-2xl font-bold mb-1">องค์การบริหารส่วนตำบลแม่ใส</h1>
+          <p className="text-white/80 text-sm">ตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา 56000</p>
+        </div>
+      </div>
+
       {/* ข้อมูลพื้นฐาน */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <div className="bg-secondary px-5 py-3 flex items-center gap-2">
