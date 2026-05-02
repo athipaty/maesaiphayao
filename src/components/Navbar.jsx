@@ -58,6 +58,20 @@ export default function Navbar() {
               `block px-4 py-2.5 text-white text-sm font-medium hover:bg-secondary transition-colors ${isActive ? 'bg-secondary' : ''}`
             }>หน้าหลัก</NavLink>
 
+            {/* ข้อมูลทั่วไป dropdown */}
+            <div className="relative group">
+              <button className="flex items-center gap-1 px-4 py-2.5 text-white text-sm font-medium hover:bg-secondary transition-colors">
+                ข้อมูลทั่วไป <span className="text-xs">▾</span>
+              </button>
+              <div className="absolute top-full left-0 hidden group-hover:block bg-white shadow-lg min-w-[260px] z-50 border-t-2 border-secondary">
+                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">› ข้อมูลทั่วไป</a>
+                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">› ภารกิจ อำนาจหน้าที่</a>
+                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">› ประกาศผลการลดพลังงานไฟฟ้าและน้ำมัน</a>
+                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">› ข้อมูลภูมิปัญญาท้องถิ่นตำบลแม่ใส</a>
+                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary">› ประวัติความเป็นมา</a>
+              </div>
+            </div>
+
             {/* News dropdown */}
             <div className="relative group">
               <button className="flex items-center gap-1 px-4 py-2.5 text-white text-sm font-medium hover:bg-secondary transition-colors">
