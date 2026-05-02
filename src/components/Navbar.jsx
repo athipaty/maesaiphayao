@@ -65,7 +65,7 @@ export default function Navbar() {
               </button>
               <div className="absolute top-full left-0 hidden group-hover:block bg-white shadow-lg min-w-[260px] z-50 border-t-2 border-secondary">
                 <NavLink to="/general-info" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">› ข้อมูลทั่วไป</NavLink>
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">› ภารกิจ อำนาจหน้าที่</a>
+                <NavLink to="/mission" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">› ภารกิจ อำนาจหน้าที่</NavLink>
                 <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">› ประกาศผลการลดพลังงานไฟฟ้าและน้ำมัน</a>
                 <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">› ข้อมูลภูมิปัญญาท้องถิ่นตำบลแม่ใส</a>
                 <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary">› ประวัติความเป็นมา</a>
