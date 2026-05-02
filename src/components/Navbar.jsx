@@ -68,7 +68,7 @@ export default function Navbar() {
                 <NavLink to="/general-info" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">› ข้อมูลทั่วไป</NavLink>
                 <NavLink to="/mission" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">› ภารกิจ อำนาจหน้าที่</NavLink>
                 <NavLink to="/local-wisdom" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">› ภูมิปัญญาท้องถิ่น</NavLink>
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary">› ประวัติความเป็นมา</a>
+                <NavLink to="/history" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary">› ประวัติความเป็นมา</NavLink>
               </div>
             </div>
 
@@ -157,8 +157,8 @@ export default function Navbar() {
                     className="block px-6 py-2.5 text-white/90 text-sm border-t border-white/10">› ภารกิจ อำนาจหน้าที่</Link>
                   <Link to="/local-wisdom" onClick={() => { setMobileOpen(false); setInfoOpen(false) }}
                     className="block px-6 py-2.5 text-white/90 text-sm border-t border-white/10">› ภูมิปัญญาท้องถิ่น</Link>
-                  <a href="#" onClick={() => { setMobileOpen(false); setInfoOpen(false) }}
-                    className="block px-6 py-2.5 text-white/90 text-sm border-t border-white/10">› ประวัติความเป็นมา</a>
+                  <Link to="/history" onClick={() => { setMobileOpen(false); setInfoOpen(false) }}
+                    className="block px-6 py-2.5 text-white/90 text-sm border-t border-white/10">› ประวัติความเป็นมา</Link>
                 </div>
               )}
             </div>
