@@ -8,6 +8,7 @@ export default function AdminSettings() {
     mayorPosition: '',
     mayorPhone:    '',
     mayorImage:    '',
+    logoImage:     '',
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving]   = useState(false)
@@ -96,6 +97,27 @@ export default function AdminSettings() {
                 />
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Logo section */}
+        <div>
+          <h2 className="text-sm font-bold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+            🏛️ โลโก้เว็บไซต์ (แสดงในแถบ Header)
+          </h2>
+          <div className="flex items-start gap-5">
+            <div className="flex-1">
+              <p className="text-xs text-gray-400 mb-3">รูปโลโก้จะแสดงแทนตัวอักษร "อบต. แม่ใส" ในมุมบนซ้ายของเว็บ แนะนำรูปแบบ PNG พื้นหลังโปร่งใส</p>
+              <div className="border-2 border-dashed border-gray-200 rounded-lg p-3 hover:border-blue-300 transition-colors max-w-xs">
+                <ImageUpload value={form.logoImage} onChange={url => handleChange('logoImage', url)} />
+              </div>
+            </div>
+            {form.logoImage && (
+              <div className="bg-primary rounded-lg p-3 flex items-center gap-2">
+                <img src={form.logoImage} alt="logo preview" className="w-10 h-10 object-contain" />
+                <span className="text-white text-xs">ตัวอย่าง</span>
+              </div>
+            )}
           </div>
         </div>
 
