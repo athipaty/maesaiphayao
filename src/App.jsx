@@ -17,6 +17,7 @@ import GeneralInfoPage from './pages/GeneralInfoPage'
 import MissionPage     from './pages/MissionPage'
 import LocalWisdomPage from './pages/LocalWisdomPage'
 import HistoryPage     from './pages/HistoryPage'
+import BudgetPage      from './pages/BudgetPage'
 
 // Admin pages
 import AdminLayout      from './pages/admin/AdminLayout'
@@ -60,6 +61,7 @@ export default function App() {
           <Route path="/mission"         element={<MissionPage />} />
           <Route path="/local-wisdom"    element={<LocalWisdomPage />} />
           <Route path="/history"          element={<HistoryPage />} />
+          <Route path="/budget"           element={<BudgetPage />} />
         </Route>
 
         {/* Admin panel */}

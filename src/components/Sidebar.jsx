@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { getSettings } from '../services/api'
 
@@ -53,6 +53,7 @@ const DEFAULT_SETTINGS = {
 
 export default function Sidebar() {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
+  const [planOpen, setPlanOpen] = useState(false)
 
   useEffect(() => {
     getSettings()
@@ -122,6 +123,37 @@ export default function Sidebar() {
             </a>
           ))}
         </div>
+      </div>
+
+      {/* งานแผนและงบประมาณ accordion */}
+      <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
+        <button
+          onClick={() => setPlanOpen(v => !v)}
+          className="w-full flex items-center justify-between px-3.5 py-3 text-sm font-semibold text-primary hover:bg-pink-50 transition-colors"
+          style={{ borderLeft: '4px solid #e91e8c' }}
+        >
+          <span>📋 งานแผนและงบประมาณ</span>
+          <span style={{ transition: 'transform 0.2s', display: 'inline-block', transform: planOpen ? 'rotate(180deg)' : 'rotate(0deg)', fontSize: '12px' }}>▾</span>
+        </button>
+        {planOpen && (
+          <div className="border-t border-pink-100">
+            {[
+              { label: 'แผนพัฒนา อบต.แม่ใส',                    path: '#' },
+              { label: 'การเปิดโอกาสให้เกิดการมีส่วนร่วม',       path: '#' },
+              { label: 'แผนดำเนินงาน',                           path: '#' },
+              { label: 'ข้อบัญญัติงบประมาณรายจ่าย',              path: '/budget' },
+            ].map(item => (
+              <NavLink
+                key={item.label}
+                to={item.path}
+                className="flex items-center gap-2 px-5 py-2.5 text-sm text-gray-700 hover:bg-pink-50 hover:text-primary border-b border-gray-50 transition-colors"
+              >
+                <span className="text-pink-400 text-xs">▶</span>
+                <span>{item.label}</span>
+              </NavLink>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ITA */}
