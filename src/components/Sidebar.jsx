@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import { getSettings } from '../services/api'
 
 const MENU = [
-  { label: 'งานแผนและงบประมาณ',       path: '/announcements' },
   { label: 'งานพัสดุการคลัง',          path: '/procurement' },
   { label: 'งานการเงินและบัญชี',        path: '/announcements' },
   { label: 'งานจัดเก็บรายได้',          path: '/announcements' },
