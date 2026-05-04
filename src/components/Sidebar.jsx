@@ -19,17 +19,24 @@ const MENU = [
   { label: 'งานเลือกตั้ง',              path: '/announcements' },
 ]
 
+const PLAN_ITEMS = [
+  { label: 'แผนพัฒนา อบต.แม่ใส',                path: '#' },
+  { label: 'การเปิดโอกาสให้เกิดการมีส่วนร่วม',   path: '#' },
+  { label: 'แผนดำเนินงาน',                       path: '#' },
+  { label: 'ข้อบัญญัติงบประมาณรายจ่าย',          path: '/budget' },
+]
+
 const ESERVICES = [
-  { icon: '🏛️', label: 'ศูนย์บริการออนไลน์',                        href: 'https://www.dla.go.th/oss.htm' },
-  { icon: '💬', label: 'แชท Messenger',                              href: 'https://m.me/MaesaiSAOPhayao' },
-  { icon: '📘', label: 'Facebook Page',                               href: 'https://www.facebook.com/MaesaiSAOPhayao' },
-  { icon: '📍', label: 'Traffy Fondue',                               href: 'https://liff.line.me/1645278921-kWRPP32q/?accountId=traffyfondue' },
-  { icon: '💧', label: 'แจ้งขอน้ำอุปโภค/บริโภค',                    href: 'https://docs.google.com/forms/d/e/1FAIpQLSc9j_NSPrflDIV17OqlsPpy4P7efwYzEmVYZz1W4idy0Eg5ig/viewform' },
-  { icon: '🏢', label: 'ขอใช้ห้องประชุม',                            href: 'https://docs.google.com/forms/d/e/1FAIpQLSdvfTFLcgGGpn0wL6lkL1GOOAGLafXEWRAe0ff1JR3abUYY8A/viewform' },
-  { icon: '💭', label: 'ช่องทางการรับฟังความคิดเห็น',                href: 'https://docs.google.com/forms/d/e/1FAIpQLSc9j_NSPrflDIV17OqlsPpy4P7efwYzEmVYZz1W4idy0Eg5ig/viewform' },
-  { icon: '🚨', label: 'แจ้งเรื่องร้องเรียนการทุจริตฯ',              href: 'https://docs.google.com/forms/d/e/1FAIpQLSftgMaWJXsdPBmZ8lG4lTBSQcmLGQMykSfajGTYF8L7bdiCBA/viewform' },
-  { icon: '⚠️', label: 'แจ้งเบาะแสป้ายโฆษณารุกล้ำทางสาธารณะ',      href: 'https://docs.google.com/forms/d/e/1FAIpQLSfnTOvwpWrq-lOU9LsxjKOHce7_10EdfpXQfCtORSRUpfl_PQ/viewform' },
-  { icon: '📊', label: 'แบบสำรวจความพึงพอใจ',                        href: 'https://docs.google.com/forms/d/e/1FAIpQLSeoxWq5gYJ4XWgmThe4PoKBdyNB5yVKNDPrvSdu87Jl_YmlTg/viewform' },
+  { icon: '🏛️', label: 'ศูนย์บริการออนไลน์',                   href: 'https://www.dla.go.th/oss.htm' },
+  { icon: '💬', label: 'แชท Messenger',                         href: 'https://m.me/MaesaiSAOPhayao' },
+  { icon: '📘', label: 'Facebook Page',                          href: 'https://www.facebook.com/MaesaiSAOPhayao' },
+  { icon: '📍', label: 'Traffy Fondue',                          href: 'https://liff.line.me/1645278921-kWRPP32q/?accountId=traffyfondue' },
+  { icon: '💧', label: 'แจ้งขอน้ำอุปโภค/บริโภค',               href: 'https://docs.google.com/forms/d/e/1FAIpQLSc9j_NSPrflDIV17OqlsPpy4P7efwYzEmVYZz1W4idy0Eg5ig/viewform' },
+  { icon: '🏢', label: 'ขอใช้ห้องประชุม',                       href: 'https://docs.google.com/forms/d/e/1FAIpQLSdvfTFLcgGGpn0wL6lkL1GOOAGLafXEWRAe0ff1JR3abUYY8A/viewform' },
+  { icon: '💭', label: 'ช่องทางการรับฟังความคิดเห็น',           href: 'https://docs.google.com/forms/d/e/1FAIpQLSc9j_NSPrflDIV17OqlsPpy4P7efwYzEmVYZz1W4idy0Eg5ig/viewform' },
+  { icon: '🚨', label: 'แจ้งเรื่องร้องเรียนการทุจริตฯ',         href: 'https://docs.google.com/forms/d/e/1FAIpQLSftgMaWJXsdPBmZ8lG4lTBSQcmLGQMykSfajGTYF8L7bdiCBA/viewform' },
+  { icon: '⚠️', label: 'แจ้งเบาะแสป้ายโฆษณารุกล้ำทางสาธารณะ', href: 'https://docs.google.com/forms/d/e/1FAIpQLSfnTOvwpWrq-lOU9LsxjKOHce7_10EdfpXQfCtORSRUpfl_PQ/viewform' },
+  { icon: '📊', label: 'แบบสำรวจความพึงพอใจ',                   href: 'https://docs.google.com/forms/d/e/1FAIpQLSeoxWq5gYJ4XWgmThe4PoKBdyNB5yVKNDPrvSdu87Jl_YmlTg/viewform' },
 ]
 
 const LINKS = [
@@ -52,7 +59,7 @@ const DEFAULT_SETTINGS = {
 
 export default function Sidebar() {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
-  const [planOpen, setPlanOpen] = useState(false)
+  const [planOpen, setPlanOpen]  = useState(false)
 
   useEffect(() => {
     getSettings()
@@ -65,7 +72,7 @@ export default function Sidebar() {
   return (
     <aside className="w-[230px] flex-shrink-0 hidden lg:block">
 
-      {/* President card */}
+      {/* Mayor card */}
       <div className="bg-white rounded-md shadow-sm mb-3 p-4 text-center">
         {settings.mayorImage ? (
           <img src={settings.mayorImage} alt={settings.mayorName}
@@ -86,6 +93,48 @@ export default function Sidebar() {
           <span className="w-1 h-3.5 bg-accent rounded-sm inline-block"></span>
           เมนูหลัก
         </div>
+
+        {/* งานแผนและงบประมาณ accordion */}
+        <div className="border-b border-gray-100">
+          <button
+            onClick={() => setPlanOpen(v => !v)}
+            className="w-full flex items-center justify-between px-3.5 py-2.5 text-sm text-gray-700 hover:bg-pink-50 hover:text-primary transition-colors"
+          >
+            <span className="flex items-center gap-1.5">
+              <span className="text-secondary">›</span>
+              งานแผนและงบประมาณ
+            </span>
+            <span style={{
+              transition: 'transform 0.2s',
+              display: 'inline-block',
+              transform: planOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              fontSize: '11px',
+              color: '#aaa'
+            }}>▾</span>
+          </button>
+          {planOpen && (
+            <div className="bg-pink-50/50">
+              {PLAN_ITEMS.map(item => (
+                <NavLink
+                  key={item.label}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 pl-7 pr-3 py-2 text-xs border-b border-pink-100/60 transition-colors ${
+                      isActive
+                        ? 'bg-pink-100 text-pink-700 font-medium'
+                        : 'text-gray-600 hover:bg-pink-100 hover:text-primary'
+                    }`
+                  }
+                >
+                  <span className="text-pink-300" style={{ fontSize: '9px' }}>▶</span>
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Other menu items */}
         <ul>
           {MENU.map(m => (
             <li key={m.label}>
@@ -99,7 +148,6 @@ export default function Sidebar() {
 
       {/* E-Service */}
       <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
-        {/* Banner */}
         <div style={{
           background: 'linear-gradient(135deg, #1a5276 0%, #2980b9 60%, #1abc9c 100%)',
           padding: '14px 16px 10px',
@@ -110,8 +158,6 @@ export default function Sidebar() {
           </div>
           <p className="text-white/70 text-xs">บริการออนไลน์สำหรับประชาชน</p>
         </div>
-
-        {/* Menu list - 1 column */}
         <div className="p-2 space-y-1">
           {ESERVICES.map(e => (
             <a key={e.label} href={e.href} target="_blank" rel="noreferrer"
@@ -122,37 +168,6 @@ export default function Sidebar() {
             </a>
           ))}
         </div>
-      </div>
-
-      {/* งานแผนและงบประมาณ accordion */}
-      <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
-        <button
-          onClick={() => setPlanOpen(v => !v)}
-          className="w-full flex items-center justify-between px-3.5 py-3 text-sm font-semibold text-primary hover:bg-pink-50 transition-colors"
-          style={{ borderLeft: '4px solid #e91e8c' }}
-        >
-          <span>📋 งานแผนและงบประมาณ</span>
-          <span style={{ transition: 'transform 0.2s', display: 'inline-block', transform: planOpen ? 'rotate(180deg)' : 'rotate(0deg)', fontSize: '12px' }}>▾</span>
-        </button>
-        {planOpen && (
-          <div className="border-t border-pink-100">
-            {[
-              { label: 'แผนพัฒนา อบต.แม่ใส',                    path: '#' },
-              { label: 'การเปิดโอกาสให้เกิดการมีส่วนร่วม',       path: '#' },
-              { label: 'แผนดำเนินงาน',                           path: '#' },
-              { label: 'ข้อบัญญัติงบประมาณรายจ่าย',              path: '/budget' },
-            ].map(item => (
-              <NavLink
-                key={item.label}
-                to={item.path}
-                className="flex items-center gap-2 px-5 py-2.5 text-sm text-gray-700 hover:bg-pink-50 hover:text-primary border-b border-gray-50 transition-colors"
-              >
-                <span className="text-pink-400 text-xs">▶</span>
-                <span>{item.label}</span>
-              </NavLink>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* ITA */}
