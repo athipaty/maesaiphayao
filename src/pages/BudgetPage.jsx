@@ -1,11 +1,4 @@
 export default function BudgetPage() {
-  const plans = [
-    { label: 'แผนพัฒนา อบต.แม่ใส',              path: '#' },
-    { label: 'การเปิดโอกาสให้เกิดการมีส่วนร่วม', path: '#' },
-    { label: 'แผนดำเนินงาน',                     path: '#' },
-    { label: 'ข้อบัญญัติงบประมาณรายจ่าย',        path: '/budget', active: true },
-  ]
-
   const budgetItems = [
     { icon: '🏛️', label: 'งบกลาง',       amount: 16951402, pct: 40.4, color: '#3266ad' },
     { icon: '👥', label: 'งบบุคลากร',    amount: 14053460, pct: 33.5, color: '#0F6E56' },
@@ -40,27 +33,6 @@ export default function BudgetPage() {
         <span>›</span>
         <span className="text-gray-600">ข้อบัญญัติงบประมาณรายจ่าย</span>
       </nav>
-
-      {/* Sub menu */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="px-4 py-2.5 text-sm font-semibold text-white"
-          style={{ background: 'linear-gradient(90deg, #e91e8c, #f06292)' }}>
-          📋 งานแผนและงบประมาณ
-        </div>
-        <div className="divide-y divide-gray-50">
-          {plans.map(item => (
-            <a key={item.label} href={item.path}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${
-                item.active
-                  ? 'bg-pink-50 text-pink-700 font-medium border-l-4 border-pink-400'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-primary'
-              }`}>
-              <span className="text-xs" style={{ color: item.active ? '#e91e8c' : '#aaa' }}>▶</span>
-              {item.label}
-            </a>
-          ))}
-        </div>
-      </div>
 
       {/* Header */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
