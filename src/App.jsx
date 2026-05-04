@@ -4,20 +4,21 @@ import Layout from './components/Layout'
 import SplashPage from './pages/SplashPage'
 
 // Public pages
-import HomePage        from './pages/HomePage'
-import NewsListPage    from './pages/NewsListPage'
-import NewsDetailPage  from './pages/NewsDetailPage'
-import AnnouncePage    from './pages/AnnouncePage'
-import ProcurementPage from './pages/ProcurementPage'
-import StaffPage       from './pages/StaffPage'
-import TravelPage      from './pages/TravelPage'
-import ProductsPage    from './pages/ProductsPage'
-import ContactPage     from './pages/ContactPage'
-import GeneralInfoPage from './pages/GeneralInfoPage'
-import MissionPage     from './pages/MissionPage'
-import LocalWisdomPage from './pages/LocalWisdomPage'
-import HistoryPage     from './pages/HistoryPage'
-import BudgetPage      from './pages/BudgetPage'
+import HomePage            from './pages/HomePage'
+import NewsListPage        from './pages/NewsListPage'
+import NewsDetailPage      from './pages/NewsDetailPage'
+import AnnouncePage        from './pages/AnnouncePage'
+import ProcurementPage     from './pages/ProcurementPage'
+import StaffPage           from './pages/StaffPage'
+import TravelPage          from './pages/TravelPage'
+import ProductsPage        from './pages/ProductsPage'
+import ContactPage         from './pages/ContactPage'
+import GeneralInfoPage     from './pages/GeneralInfoPage'
+import MissionPage         from './pages/MissionPage'
+import LocalWisdomPage     from './pages/LocalWisdomPage'
+import HistoryPage         from './pages/HistoryPage'
+import BudgetPage          from './pages/BudgetPage'
+import DevelopmentPlanPage from './pages/DevelopmentPlanPage'
 
 // Admin pages
 import AdminLayout      from './pages/admin/AdminLayout'
@@ -60,8 +61,9 @@ export default function App() {
           <Route path="/general-info"    element={<GeneralInfoPage />} />
           <Route path="/mission"         element={<MissionPage />} />
           <Route path="/local-wisdom"    element={<LocalWisdomPage />} />
-          <Route path="/history"          element={<HistoryPage />} />
-          <Route path="/budget"           element={<BudgetPage />} />
+          <Route path="/history"         element={<HistoryPage />} />
+          <Route path="/budget"          element={<BudgetPage />} />
+          <Route path="/development-plan" element={<DevelopmentPlanPage />} />
         </Route>
 
         {/* Admin panel */}
