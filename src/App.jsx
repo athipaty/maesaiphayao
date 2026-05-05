@@ -21,7 +21,7 @@ import BudgetPage from "./pages/BudgetPage";
 import DevelopmentPlanPage from "./pages/DevelopmentPlanPage";
 import ParticipationPage   from './pages/ParticipationPage';
 import ActionPlanPage from './pages/ActionPlanPage';
-
+import ProcurementPlanPage from './pages/ProcurementPlanPage';
 
 // Admin pages
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -33,6 +33,7 @@ import AdminStaff from "./pages/admin/AdminStaff";
 import AdminTravel from "./pages/admin/AdminTravel";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminProcurementPlan from "./pages/admin/AdminProcurementPlan";
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(
@@ -57,6 +58,7 @@ export default function App() {
           <Route path="/news/detail/:id" element={<NewsDetailPage />} />
           <Route path="/announcements" element={<AnnouncePage />} />
           <Route path="/procurement" element={<ProcurementPage />} />
+          <Route path="/procurement-plans" element={<ProcurementPlanPage />} />
           <Route path="/staff" element={<StaffPage />} />
           <Route path="/travel" element={<TravelPage />} />
           <Route path="/products" element={<ProductsPage />} />
@@ -81,6 +83,7 @@ export default function App() {
           <Route path="travel" element={<AdminTravel />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="settings" element={<AdminSettings />} />
+          <Route path="procurement-plans" element={<AdminProcurementPlan />} />
         </Route>
       </Routes>
     </>

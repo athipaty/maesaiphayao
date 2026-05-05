@@ -55,6 +55,12 @@ export const createProduct  = (data)      => api.post('/products', data)
 export const updateProduct  = (id, data)  => api.put(`/products/${id}`, data)
 export const deleteProduct  = (id)        => api.delete(`/products/${id}`)
 
+// ── Procurement Plans ─────────────────────────────────────────────────────────
+export const getProcurementPlans    = (params)    => api.get('/procurement-plans', { params })
+export const createProcurementPlan  = (data)      => api.post('/procurement-plans', data)
+export const updateProcurementPlan  = (id, data)  => api.put(`/procurement-plans/${id}`, data)
+export const deleteProcurementPlan  = (id)        => api.delete(`/procurement-plans/${id}`)
+
 // ── Settings ──────────────────────────────────────────────────────────────────
 export const getSettings   = ()           => api.get('/settings')
 export const updateSetting = (key, value) => api.put(`/settings/${key}`, { value })

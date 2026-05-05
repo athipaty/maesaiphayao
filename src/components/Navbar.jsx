@@ -91,9 +91,16 @@ export default function Navbar() {
               `block px-4 py-2.5 text-white text-sm font-medium hover:bg-secondary transition-colors ${isActive ? 'bg-secondary' : ''}`
             }>ประชาสัมพันธ์</NavLink>
 
-            <NavLink to="/procurement" className={({ isActive }) =>
-              `block px-4 py-2.5 text-white text-sm font-medium hover:bg-secondary transition-colors ${isActive ? 'bg-secondary' : ''}`
-            }>จัดซื้อจัดจ้าง</NavLink>
+            {/* จัดซื้อจัดจ้าง dropdown */}
+            <div className="relative group">
+              <button className="flex items-center gap-1 px-4 py-2.5 text-white text-sm font-medium hover:bg-secondary transition-colors">
+                จัดซื้อจัดจ้าง <span className="text-xs">▾</span>
+              </button>
+              <div className="absolute top-full left-0 hidden group-hover:block bg-white shadow-lg min-w-[220px] z-50 border-t-2 border-secondary">
+                <Link to="/procurement"       className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">› รายการจัดซื้อจัดจ้าง</Link>
+                <Link to="/procurement-plans" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary">› แผนการจัดหาพัสดุ</Link>
+              </div>
+            </div>
 
             {/* Staff dropdown */}
             <div className="relative group">
@@ -168,7 +175,9 @@ export default function Navbar() {
             <Link to="/announcements" onClick={() => setMobileOpen(false)}
               className="block px-4 py-3 text-white text-sm border-b border-white/10">ประชาสัมพันธ์</Link>
             <Link to="/procurement" onClick={() => setMobileOpen(false)}
-              className="block px-4 py-3 text-white text-sm border-b border-white/10">จัดซื้อจัดจ้าง</Link>
+              className="block px-4 py-3 text-white text-sm border-b border-white/10">รายการจัดซื้อจัดจ้าง</Link>
+            <Link to="/procurement-plans" onClick={() => setMobileOpen(false)}
+              className="block px-4 py-3 text-white text-sm border-b border-white/10">แผนการจัดหาพัสดุ</Link>
             <Link to="/staff" onClick={() => setMobileOpen(false)}
               className="block px-4 py-3 text-white text-sm border-b border-white/10">บุคลากร</Link>
             <Link to="/travel" onClick={() => setMobileOpen(false)}
