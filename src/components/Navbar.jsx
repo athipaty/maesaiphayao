@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { getSettings } from '../services/api'
 
-export default function Navbar() {
+export default function Navbar({ onMenuClick }) {
   const [logoImage, setLogoImage] = useState('')
 
   useEffect(() => {
@@ -14,7 +14,17 @@ export default function Navbar() {
   return (
     <header className="bg-gradient-to-r from-primary via-secondary to-accent text-white">
       <div className="max-w-[1200px] mx-auto px-3 py-2.5 flex items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-3 min-w-0">
+
+        {/* Hamburger — mobile only */}
+        <button
+          className="lg:hidden flex-shrink-0 text-white text-2xl w-10 h-10 flex items-center justify-center rounded hover:bg-white/20 transition-colors"
+          onClick={onMenuClick}
+          aria-label="เปิดเมนู"
+        >
+          ☰
+        </button>
+
+        <Link to="/" className="flex items-center gap-3 min-w-0 flex-1">
           {logoImage ? (
             <img src={logoImage} alt="logo" className="w-14 h-14 rounded-full object-cover flex-shrink-0" />
           ) : (
@@ -24,7 +34,7 @@ export default function Navbar() {
           )}
           <div className="min-w-0">
             <h1 className="text-lg font-bold leading-tight">องค์การบริหารส่วนตำบลแม่ใส</h1>
-            <p className="text-xs opacity-85">ตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา 56000</p>
+            <p className="text-xs opacity-85 hidden sm:block">ตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา 56000</p>
           </div>
         </Link>
 

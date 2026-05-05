@@ -46,7 +46,7 @@ const DEFAULT_SETTINGS = {
   mayorImage:    '',
 }
 
-export default function Sidebar() {
+export default function Sidebar({ onNavigate }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function Sidebar() {
         <ul>
           {MAIN_MENU.map(m => (
             <li key={m.path}>
-              <NavLink to={m.path} end={m.path === '/'}
+              <NavLink to={m.path} end={m.path === '/'} onClick={onNavigate}
                 className={({ isActive }) =>
                   `flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors ${
                     isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
