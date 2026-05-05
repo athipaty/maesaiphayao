@@ -21,7 +21,7 @@ const MENU = [
 
 const PLAN_ITEMS = [
   { label: 'แผนพัฒนา อบต.แม่ใส',                path: '/development-plan' },
-  { label: 'การเปิดโอกาสให้เกิดการมีส่วนร่วม',   path: '#' },
+  { label: 'การเปิดโอกาสให้เกิดการมีส่วนร่วม',   path: '/participation' },
   { label: 'แผนดำเนินงาน',                       path: '#' },
   { label: 'ข้อบัญญัติงบประมาณรายจ่าย',          path: '/budget' },
 ]
