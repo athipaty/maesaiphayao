@@ -3,15 +3,19 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { loginAdmin, verifyAdmin } from '../../services/api'
 
 const MENU = [
-  { path: '/admin',               label: 'Dashboard',        icon: '📊', end: true },
-  { path: '/admin/news',          label: 'ข่าวสารกิจกรรม',   icon: '📰' },
-  { path: '/admin/announcements', label: 'ประชาสัมพันธ์',     icon: '📢' },
+  { path: '/admin',               label: 'Dashboard',          icon: '📊', end: true },
+  { path: '/admin/news',          label: 'ข่าวสารกิจกรรม',     icon: '📰' },
+  { path: '/admin/announcements', label: 'ประชาสัมพันธ์',       icon: '📢' },
   { path: '/admin/procurement',       label: 'จัดซื้อจัดจ้าง',   icon: '📦' },
   { path: '/admin/procurement-plans', label: 'แผนการจัดหาพัสดุ', icon: '📋' },
-  { path: '/admin/staff',         label: 'บุคลากร',           icon: '👥' },
-  { path: '/admin/travel',        label: 'สถานที่ท่องเที่ยว', icon: '🗺️' },
-  { path: '/admin/products',      label: 'สินค้า OTOP',       icon: '🛍️' },
-  { path: '/admin/settings',      label: 'ตั้งค่าเว็บไซต์',  icon: '⚙️' },
+  { path: '/admin/ita',           label: 'ITA / OIT',           icon: '🏆' },
+  { path: '/admin/documents',     label: 'คลังเอกสาร',          icon: '📂' },
+  { path: '/admin/eservice',      label: 'คำร้อง e-Service',    icon: '🌐' },
+  { path: '/admin/complaints',    label: 'เรื่องร้องเรียน',      icon: '📮' },
+  { path: '/admin/staff',         label: 'บุคลากร',             icon: '👥' },
+  { path: '/admin/travel',        label: 'สถานที่ท่องเที่ยว',   icon: '🗺️' },
+  { path: '/admin/products',      label: 'สินค้า OTOP',         icon: '🛍️' },
+  { path: '/admin/settings',      label: 'ตั้งค่าเว็บไซต์',    icon: '⚙️' },
 ]
 
 const ChevronLeft = () => (

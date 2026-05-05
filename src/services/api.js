@@ -65,6 +65,31 @@ export const deleteProcurementPlan  = (id)        => api.delete(`/procurement-pl
 export const getSettings   = ()           => api.get('/settings')
 export const updateSetting = (key, value) => api.put(`/settings/${key}`, { value })
 
+// ── ITA / OIT ─────────────────────────────────────────────────────────────────
+export const getOIT      = (params)    => api.get('/oit', { params })
+export const getOITYears = ()          => api.get('/oit/years')
+export const saveOIT     = (data)      => api.post('/oit', data)
+export const updateOIT   = (id, data)  => api.put(`/oit/${id}`, data)
+export const deleteOIT   = (id)        => api.delete(`/oit/${id}`)
+
+// ── E-Service ─────────────────────────────────────────────────────────────────
+export const getEServices     = (params)    => api.get('/eservice', { params })
+export const trackEService    = (no)        => api.get(`/eservice/track/${no}`)
+export const submitEService   = (data)      => api.post('/eservice', data)
+export const updateEService   = (id, data)  => api.put(`/eservice/${id}`, data)
+
+// ── Complaints ────────────────────────────────────────────────────────────────
+export const getComplaints    = (params)    => api.get('/complaints', { params })
+export const trackComplaint   = (no)        => api.get(`/complaints/track/${no}`)
+export const submitComplaint  = (data)      => api.post('/complaints', data)
+export const updateComplaint  = (id, data)  => api.put(`/complaints/${id}`, data)
+
+// ── Documents ─────────────────────────────────────────────────────────────────
+export const getDocuments     = (params)    => api.get('/documents', { params })
+export const createDocument   = (data)      => api.post('/documents', data)
+export const updateDocument   = (id, data)  => api.put(`/documents/${id}`, data)
+export const deleteDocument   = (id)        => api.delete(`/documents/${id}`)
+
 // ── Image upload ──────────────────────────────────────────────────────────────
 export const uploadImage = (file) => {
   const form = new FormData()

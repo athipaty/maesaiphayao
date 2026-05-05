@@ -34,6 +34,14 @@ import AdminTravel from "./pages/admin/AdminTravel";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminProcurementPlan from "./pages/admin/AdminProcurementPlan";
+import ItaPage from './pages/ItaPage';
+import EServicePage from './pages/EServicePage';
+import ComplaintPage from './pages/ComplaintPage';
+import DocumentPage from './pages/DocumentPage';
+import AdminIta from './pages/admin/AdminIta';
+import AdminEService from './pages/admin/AdminEService';
+import AdminComplaint from './pages/admin/AdminComplaint';
+import AdminDocument from './pages/admin/AdminDocument';
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(
@@ -71,6 +79,10 @@ export default function App() {
           <Route path="/development-plan" element={<DevelopmentPlanPage />} />
           <Route path="/participation" element={<ParticipationPage />} />
           <Route path="/action-plan" element={<ActionPlanPage />} />
+          <Route path="/ita" element={<ItaPage />} />
+          <Route path="/eservice" element={<EServicePage />} />
+          <Route path="/complaint" element={<ComplaintPage />} />
+          <Route path="/documents" element={<DocumentPage />} />
         </Route>
 
         {/* Admin panel */}
@@ -79,11 +91,15 @@ export default function App() {
           <Route path="news" element={<AdminNews />} />
           <Route path="announcements" element={<AdminAnnounce />} />
           <Route path="procurement" element={<AdminProcurement />} />
+          <Route path="procurement-plans" element={<AdminProcurementPlan />} />
           <Route path="staff" element={<AdminStaff />} />
           <Route path="travel" element={<AdminTravel />} />
           <Route path="products" element={<AdminProducts />} />
+          <Route path="ita" element={<AdminIta />} />
+          <Route path="eservice" element={<AdminEService />} />
+          <Route path="complaints" element={<AdminComplaint />} />
+          <Route path="documents" element={<AdminDocument />} />
           <Route path="settings" element={<AdminSettings />} />
-          <Route path="procurement-plans" element={<AdminProcurementPlan />} />
         </Route>
       </Routes>
     </>

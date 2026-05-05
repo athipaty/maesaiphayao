@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "WebFetch(domain:maesaiphayao.go.th)",
+      "Bash(node scripts/seedAbtProcurementPlans.js)",
+      "Bash(git commit *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\loret\\\\tong\\\\abt\\\\src\" -Recurse -File | Select-Object FullName | ForEach-Object { $_.FullName -replace [regex]::Escape\\(\"C:\\\\Users\\\\loret\\\\tong\\\\abt\\\\\"\\), \"\" } | Sort-Object)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend\" -Recurse -File | Select-Object FullName | ForEach-Object { $_.FullName -replace [regex]::Escape\\(\"C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\\"\\), \"\" } | Sort-Object)"
+    ]
+  }
+}

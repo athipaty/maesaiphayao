@@ -8,19 +8,21 @@ const PROCUREMENT_ITEMS = [
 ]
 
 const MENU = [
-  { label: 'งานการเงินและบัญชี',        path: '/announcements' },
+  { label: 'งานการเงินและบัญชี',        path: '/documents?category=finance' },
   { label: 'งานจัดเก็บรายได้',          path: '/announcements' },
   { label: 'งานพัฒนาสังคม',            path: '/announcements' },
-  { label: 'ศูนย์ข้อมูลข่าวสาร',        path: '/announcements' },
+  { label: 'ศูนย์ข้อมูลข่าวสาร',        path: '/documents' },
   { label: 'งานการเจ้าหน้าที่',          path: '/staff' },
   { label: 'งานสาธารณสุขฯ',            path: '/news/health' },
-  { label: 'งานป้องกันการทุจริต',        path: '/announcements' },
-  { label: 'งานกิจการสภา',             path: '/news/council' },
+  { label: 'งานป้องกันการทุจริต',        path: '/documents?category=integrity' },
+  { label: 'งานกิจการสภา',             path: '/documents?category=council' },
   { label: 'งานป้องกันสาธารณภัย',       path: '/news/disaster' },
   { label: 'กองช่าง',                  path: '/news/engineering' },
-  { label: 'งานตรวจสอบภายใน',          path: '/announcements' },
+  { label: 'งานตรวจสอบภายใน',          path: '/documents?category=audit' },
   { label: 'งานการศึกษา',              path: '/announcements' },
   { label: 'งานเลือกตั้ง',              path: '/announcements' },
+  { label: '📮 ร้องเรียน/ร้องทุกข์',    path: '/complaint' },
+  { label: '🌐 e-Service คำร้องออนไลน์', path: '/eservice' },
 ]
 
 const PLAN_ITEMS = [
@@ -217,11 +219,11 @@ export default function Sidebar() {
 
       {/* ITA */}
       <div className="bg-white rounded-md shadow-sm mb-3 p-3 text-center">
-        <a href="#" className="block bg-gradient-to-br from-primary to-secondary text-white rounded-md p-3 text-sm font-bold leading-snug hover:opacity-90 transition-opacity">
+        <Link to="/ita" className="block bg-gradient-to-br from-primary to-secondary text-white rounded-md p-3 text-sm font-bold leading-snug hover:opacity-90 transition-opacity">
           ITA : อบต.แม่ใส<br />
           <span className="text-xs font-normal opacity-90">การประเมินคุณธรรมและความโปร่งใส</span>
-        </a>
-        <p className="text-xs text-gray-400 mt-1.5">คลิกเพื่อดูผลการประเมิน ITA</p>
+        </Link>
+        <p className="text-xs text-gray-400 mt-1.5">OIT 26 ข้อ เปิดเผยข้อมูลสาธารณะ</p>
       </div>
 
       {/* Related links */}
