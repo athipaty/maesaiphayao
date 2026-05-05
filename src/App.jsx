@@ -19,7 +19,8 @@ import LocalWisdomPage from "./pages/LocalWisdomPage";
 import HistoryPage from "./pages/HistoryPage";
 import BudgetPage from "./pages/BudgetPage";
 import DevelopmentPlanPage from "./pages/DevelopmentPlanPage";
-import ParticipationPage   from './pages/ParticipationPage'
+import ParticipationPage   from './pages/ParticipationPage';
+import ActionPlanPage from './pages/ActionPlanPage';
 
 
 // Admin pages
@@ -67,6 +68,7 @@ export default function App() {
           <Route path="/budget" element={<BudgetPage />} />
           <Route path="/development-plan" element={<DevelopmentPlanPage />} />
           <Route path="/participation" element={<ParticipationPage />} />
+          <Route path="/action-plan" element={<ActionPlanPage />} />
         </Route>
 
         {/* Admin panel */}

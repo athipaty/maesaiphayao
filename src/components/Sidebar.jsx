@@ -22,7 +22,7 @@ const MENU = [
 const PLAN_ITEMS = [
   { label: 'แผนพัฒนา อบต.แม่ใส',                path: '/development-plan' },
   { label: 'การเปิดโอกาสให้เกิดการมีส่วนร่วม',   path: '/participation' },
-  { label: 'แผนดำเนินงาน',                       path: '#' },
+  { label: 'แผนดำเนินงาน',                       path: '/action-plan' },
   { label: 'ข้อบัญญัติงบประมาณรายจ่าย',          path: '/budget' },
 ]
 
@@ -53,7 +53,7 @@ const LINKS = [
 const DEFAULT_SETTINGS = {
   mayorName:     'นายสันติ สารเร็ว',
   mayorPosition: 'นายกองค์การบริหารส่วนตำบลแม่ใส',
-  mayorPhone:    '089-7577366',
+  mayorPhone:    '089-757-7366',
   mayorImage:    '',
 }
 
