@@ -1,15 +1,16 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { submitComplaint, trackComplaint } from '../services/api'
 
 const STATUS_CONFIG = {
-  received:     { label: 'รับเรื่องแล้ว',     color: 'bg-blue-100 text-blue-700',   dot: '🔵' },
-  investigating:{ label: 'กำลังสอบสวน',        color: 'bg-yellow-100 text-yellow-700', dot: '🟡' },
-  done:         { label: 'ดำเนินการเสร็จแล้ว', color: 'bg-green-100 text-green-700', dot: '🟢' },
-  rejected:     { label: 'ไม่รับเรื่อง',        color: 'bg-red-100 text-red-600',    dot: '🔴' },
+  received:     { label: 'รับเรื่องแล้ว',      color: 'bg-blue-100 text-blue-700',    dot: '🔵' },
+  investigating:{ label: 'กำลังดำเนินการ',      color: 'bg-yellow-100 text-yellow-700', dot: '🟡' },
+  done:         { label: 'ดำเนินการเสร็จแล้ว',  color: 'bg-green-100 text-green-700',  dot: '🟢' },
+  rejected:     { label: 'ไม่รับเรื่อง',         color: 'bg-red-100 text-red-600',      dot: '🔴' },
 }
 
 export default function ComplaintPage() {
-  const [tab, setTab]           = useState('general') // 'general' | 'corruption' | 'track'
+  const [tab, setTab]           = useState('form') // 'form' | 'track'
   const [anonymous, setAnonymous] = useState(false)
   const [form, setForm]         = useState({ citizenName: '', phone: '', detail: '' })
   const [submitting, setSubmitting] = useState(false)
@@ -27,14 +28,13 @@ export default function ComplaintPage() {
     if (!anonymous && (!form.citizenName || !form.phone)) return
     setSubmitting(true)
     try {
-      const payload = {
-        type: tab,
+      const r = await submitComplaint({
+        type: 'general',
         isAnonymous: anonymous,
         detail: form.detail,
         citizenName: anonymous ? '' : form.citizenName,
         phone: anonymous ? '' : form.phone,
-      }
-      const r = await submitComplaint(payload)
+      })
       setSubmitted(r.data)
       setForm({ citizenName: '', phone: '', detail: '' })
       setAnonymous(false)
@@ -61,8 +61,6 @@ export default function ComplaintPage() {
     }
   }
 
-  const isFormTab = tab === 'general' || tab === 'corruption'
-
   return (
     <div>
       {/* Header */}
@@ -71,24 +69,30 @@ export default function ComplaintPage() {
           <h1 className="text-sm font-semibold">📮 ร้องเรียน/ร้องทุกข์</h1>
         </div>
         <div className="px-4 py-3 text-sm text-gray-500 leading-relaxed">
-          ช่องทางรับเรื่องร้องเรียนจากประชาชน ทั้งเรื่องทั่วไปและการร้องเรียนเรื่องทุจริตของเจ้าหน้าที่
-          ทุกเรื่องจะได้รับการพิจารณาอย่างเป็นธรรม และข้อมูลผู้ร้องจะได้รับการคุ้มครอง
+          ช่องทางรับเรื่องร้องเรียนและร้องทุกข์ของประชาชน เพื่อแก้ไขปัญหาความเดือดร้อน
+          ทุกเรื่องจะได้รับการพิจารณาและดำเนินการอย่างเป็นธรรม
+          ข้อมูลของผู้ร้องจะได้รับการคุ้มครองตามกฎหมาย
         </div>
       </div>
 
+      {/* Corruption channel link */}
+      <Link to="/corruption"
+        className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-4 mb-5 hover:bg-red-100 transition-colors">
+        <span className="text-2xl flex-shrink-0">🚨</span>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-red-700">ต้องการแจ้งเบาะแสการทุจริต?</p>
+          <p className="text-xs text-red-600">คลิกเพื่อไปยังช่องทางร้องเรียนการทุจริตและประพฤติมิชอบ (แยกต่างหาก)</p>
+        </div>
+        <span className="text-red-400 text-sm">›</span>
+      </Link>
+
       {/* Tabs */}
-      <div className="flex flex-wrap gap-2 mb-5">
-        <button onClick={() => setTab('general')}
+      <div className="flex gap-2 mb-5">
+        <button onClick={() => setTab('form')}
           className={`text-xs px-4 py-2 rounded-full border font-medium transition-colors ${
-            tab === 'general' ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-600 hover:border-primary hover:text-primary'
+            tab === 'form' ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-600 hover:border-primary hover:text-primary'
           }`}>
-          📝 ร้องเรียนทั่วไป
-        </button>
-        <button onClick={() => setTab('corruption')}
-          className={`text-xs px-4 py-2 rounded-full border font-medium transition-colors ${
-            tab === 'corruption' ? 'bg-red-600 text-white border-red-600' : 'border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-500'
-          }`}>
-          🚨 แจ้งเบาะแสทุจริต
+          📝 ยื่นเรื่องร้องเรียน
         </button>
         <button onClick={() => setTab('track')}
           className={`text-xs px-4 py-2 rounded-full border font-medium transition-colors ${
@@ -98,19 +102,8 @@ export default function ComplaintPage() {
         </button>
       </div>
 
-      {isFormTab && (
+      {tab === 'form' && (
         <div className="card p-5">
-          {tab === 'corruption' && (
-            <div className="mb-4 bg-red-50 border border-red-100 rounded-lg p-4 flex gap-3">
-              <span className="text-xl flex-shrink-0">⚠️</span>
-              <div className="text-xs text-red-700 leading-relaxed">
-                <p className="font-semibold mb-1">การร้องเรียนเรื่องทุจริตและประพฤติมิชอบ</p>
-                <p>ข้อมูลของท่านจะถูกเก็บรักษาเป็นความลับและได้รับความคุ้มครองตามพระราชบัญญัติคุ้มครองผู้แจ้งเบาะแส
-                  การแจ้งข้อมูลเท็จอาจมีความผิดตามกฎหมาย</p>
-              </div>
-            </div>
-          )}
-
           {submitted ? (
             <div className="text-center py-6">
               <div className="text-5xl mb-4">✅</div>
@@ -125,7 +118,6 @@ export default function ComplaintPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Anonymous toggle */}
               <div className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
                 <input type="checkbox" id="anon" checked={anonymous}
                   onChange={e => setAnonymous(e.target.checked)} className="w-4 h-4 accent-blue-500" />
@@ -138,39 +130,24 @@ export default function ComplaintPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">ชื่อ-สกุล <span className="text-red-400">*</span></label>
-                    <input
-                      className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-                      value={form.citizenName} onChange={e => set('citizenName', e.target.value)}
-                      placeholder="ชื่อ-สกุล"
-                    />
+                    <input className="input" value={form.citizenName} onChange={e => set('citizenName', e.target.value)} placeholder="ชื่อ-สกุล" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">เบอร์โทรศัพท์ <span className="text-red-400">*</span></label>
-                    <input
-                      className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-                      value={form.phone} onChange={e => set('phone', e.target.value)}
-                      placeholder="08x-xxx-xxxx"
-                    />
+                    <input className="input" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="08x-xxx-xxxx" />
                   </div>
                 </div>
               )}
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">รายละเอียด <span className="text-red-400">*</span></label>
-                <textarea
-                  rows={5}
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 resize-none"
-                  value={form.detail} onChange={e => set('detail', e.target.value)}
-                  placeholder={tab === 'corruption'
-                    ? 'อธิบายเหตุการณ์ที่พบ ระบุเจ้าหน้าที่ที่เกี่ยวข้อง วันเวลา สถานที่ และพยานหลักฐานที่มี...'
-                    : 'อธิบายรายละเอียดเรื่องที่ต้องการร้องเรียน...'}
-                />
+                <textarea rows={5} className="input resize-none" value={form.detail}
+                  onChange={e => set('detail', e.target.value)}
+                  placeholder="อธิบายรายละเอียดปัญหาหรือเรื่องที่ต้องการร้องเรียน สถานที่ วันเวลา และข้อมูลที่เกี่ยวข้อง..." />
               </div>
 
               <button type="submit" disabled={submitting}
-                className={`w-full py-3 rounded-lg text-sm font-semibold text-white transition-colors disabled:opacity-50 ${
-                  tab === 'corruption' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary hover:bg-primary/90'
-                }`}>
+                className="w-full bg-primary text-white py-3 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50">
                 {submitting ? 'กำลังส่งเรื่อง...' : '📤 ส่งเรื่องร้องเรียน'}
               </button>
             </form>
@@ -181,11 +158,8 @@ export default function ComplaintPage() {
       {tab === 'track' && (
         <div className="card p-5">
           <form onSubmit={handleTrack} className="flex gap-2 mb-4">
-            <input
-              className="flex-1 border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-              value={trackNo} onChange={e => setTrackNo(e.target.value)}
-              placeholder="กรอกเลขที่เรื่องร้องเรียน เช่น CP6804xxxx"
-            />
+            <input className="input flex-1" value={trackNo} onChange={e => setTrackNo(e.target.value)}
+              placeholder="กรอกเลขที่เรื่องร้องเรียน เช่น CP6804xxxx" />
             <button type="submit" disabled={tracking}
               className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50">
               {tracking ? '...' : 'ค้นหา'}
@@ -202,21 +176,16 @@ export default function ComplaintPage() {
               <div className="border border-gray-100 rounded-xl overflow-hidden">
                 <div className="bg-gray-50 px-4 py-3 flex items-center justify-between">
                   <span className="text-sm font-bold text-gray-800">{tracked.complaintNo}</span>
-                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${sc.color}`}>
-                    {sc.dot} {sc.label}
-                  </span>
+                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${sc.color}`}>{sc.dot} {sc.label}</span>
                 </div>
                 <div className="p-4 space-y-2 text-sm">
-                  <div className="flex gap-2">
-                    <span className="text-gray-400 w-28">ประเภท</span>
-                    <span>{tracked.type === 'corruption' ? '🚨 ร้องเรียนทุจริต' : '📝 ร้องเรียนทั่วไป'}</span>
-                  </div>
-                  {!tracked.isAnonymous && tracked.citizenName && (
-                    <div className="flex gap-2"><span className="text-gray-400 w-28">ผู้ร้องเรียน</span><span>{tracked.citizenName}</span></div>
-                  )}
+                  {tracked.isAnonymous
+                    ? <div className="flex gap-2"><span className="text-gray-400 w-28">ผู้ร้องเรียน</span><span className="text-gray-400">ไม่ระบุตัวตน</span></div>
+                    : tracked.citizenName && <div className="flex gap-2"><span className="text-gray-400 w-28">ผู้ร้องเรียน</span><span>{tracked.citizenName}</span></div>
+                  }
                   <div className="flex gap-2"><span className="text-gray-400 w-28">รายละเอียด</span><span className="flex-1">{tracked.detail}</span></div>
                   {tracked.officerNote && (
-                    <div className="flex gap-2"><span className="text-gray-400 w-28">ผลการดำเนินการ</span><span className="flex-1 text-secondary">{tracked.officerNote}</span></div>
+                    <div className="flex gap-2"><span className="text-gray-400 w-28">ผลดำเนินการ</span><span className="flex-1 text-secondary">{tracked.officerNote}</span></div>
                   )}
                   <div className="flex gap-2">
                     <span className="text-gray-400 w-28">วันที่แจ้ง</span>
