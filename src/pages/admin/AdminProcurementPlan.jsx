@@ -14,7 +14,7 @@ const FILE_COLOR = {
   pdf:   'bg-red-50 text-red-700',
 }
 
-const EMPTY = { year: '', title: '', fileUrl: '', fileType: 'pdf', isActive: true }
+const EMPTY = { year: '', title: '', fileUrl: '', fileType: 'pdf', totalItems: '', totalBudget: '', period: '', note: '', isActive: true }
 
 export default function AdminProcurementPlan() {
   const [items, setItems]     = useState([])
@@ -117,6 +117,52 @@ export default function AdminProcurementPlan() {
                 </a>
               )}
             </div>
+
+            {/* Optional summary fields */}
+            <div className="border-t border-gray-100 pt-4">
+              <p className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">ข้อมูลสรุป (ไม่บังคับ — แสดงบนหน้าเว็บ)</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">จำนวนรายการ</label>
+                  <input
+                    type="number"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                    value={data.totalItems}
+                    onChange={e => onChange('totalItems', e.target.value ? Number(e.target.value) : '')}
+                    placeholder="เช่น 45"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">งบประมาณรวม (บาท)</label>
+                  <input
+                    type="number"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                    value={data.totalBudget}
+                    onChange={e => onChange('totalBudget', e.target.value ? Number(e.target.value) : '')}
+                    placeholder="เช่น 5000000"
+                  />
+                </div>
+              </div>
+              <div className="mt-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">ช่วงเวลาดำเนินการ</label>
+                <input
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                  value={data.period}
+                  onChange={e => onChange('period', e.target.value)}
+                  placeholder="เช่น ตุลาคม 2566 – กันยายน 2567"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">หมายเหตุ</label>
+                <input
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                  value={data.note}
+                  onChange={e => onChange('note', e.target.value)}
+                  placeholder="หมายเหตุเพิ่มเติม..."
+                />
+              </div>
+            </div>
+
             <div className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
               <input type="checkbox" id="isActivePP" checked={data.isActive} onChange={e => onChange('isActive', e.target.checked)} className="w-4 h-4 accent-blue-500" />
               <div>
