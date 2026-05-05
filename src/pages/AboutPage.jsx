@@ -79,9 +79,57 @@ function TabInfo() {
               </div>
             ))}
           </div>
-          <div className="bg-gradient-to-r from-primary to-secondary rounded-xl p-4 text-center text-white">
+          <div className="bg-gradient-to-r from-primary to-secondary rounded-xl p-4 text-center text-white mb-5">
             <p className="text-sm opacity-80 mb-1">ประชากรรวมทั้งหมด</p>
             <p className="text-4xl font-bold">5,916 <span className="text-xl font-normal">คน</span></p>
+          </div>
+
+          {/* ตารางรายหมู่บ้าน */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-blue-50">
+                  <th className="px-3 py-2 text-left text-primary font-semibold text-xs">หมู่ที่</th>
+                  <th className="px-3 py-2 text-left text-primary font-semibold text-xs">ชื่อหมู่บ้าน</th>
+                  <th className="px-3 py-2 text-center text-primary font-semibold text-xs">ครัวเรือน</th>
+                  <th className="px-3 py-2 text-center text-primary font-semibold text-xs">ชาย</th>
+                  <th className="px-3 py-2 text-center text-primary font-semibold text-xs">หญิง</th>
+                  <th className="px-3 py-2 text-center text-primary font-semibold text-xs">รวม</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { mu: 1,  name: 'บ้านร่องไฮ',           hh: 228, m: 237, f: 268, t: 505 },
+                  { mu: 2,  name: 'บ้านแม่ใสกลาง',        hh: 194, m: 251, f: 310, t: 561 },
+                  { mu: 3,  name: 'บ้านแม่ใสทุ่งวัวแดง',  hh: 298, m: 293, f: 354, t: 647 },
+                  { mu: 4,  name: 'บ้านแม่ใสเหล่า',       hh: 211, m: 237, f: 243, t: 480 },
+                  { mu: 5,  name: 'บ้านบ่อแฮ้ว',          hh: 275, m: 317, f: 381, t: 698 },
+                  { mu: 6,  name: 'บ้านสันป่าถ่อน',       hh: 184, m: 172, f: 188, t: 360 },
+                  { mu: 7,  name: 'บ้านสันช้างหิน',       hh: 100, m: 142, f: 148, t: 290 },
+                  { mu: 8,  name: 'บ้านแม่ใสหัวขัว',      hh: 127, m: 169, f: 210, t: 379 },
+                  { mu: 9,  name: 'บ้านแม่ใสเหนือ',       hh: 198, m: 243, f: 292, t: 535 },
+                  { mu: 10, name: 'บ้านสันป่าถ่อน',       hh: 192, m: 198, f: 225, t: 423 },
+                  { mu: 11, name: 'บ้านร่องไฮ',           hh: 283, m: 282, f: 281, t: 563 },
+                  { mu: 12, name: 'บ้านแม่ใสเหล่าใต้',    hh: 186, m: 242, f: 233, t: 475 },
+                ].map((row, i) => (
+                  <tr key={row.mu} className={`border-b border-gray-50 ${i % 2 === 1 ? 'bg-gray-50/50' : ''} hover:bg-blue-50/50`}>
+                    <td className="px-3 py-2 text-center font-medium text-primary text-xs">{row.mu}</td>
+                    <td className="px-3 py-2 text-gray-700 text-xs">{row.name}</td>
+                    <td className="px-3 py-2 text-center text-gray-600 text-xs">{row.hh.toLocaleString()}</td>
+                    <td className="px-3 py-2 text-center text-blue-600 text-xs">{row.m.toLocaleString()}</td>
+                    <td className="px-3 py-2 text-center text-pink-600 text-xs">{row.f.toLocaleString()}</td>
+                    <td className="px-3 py-2 text-center font-semibold text-primary text-xs">{row.t.toLocaleString()}</td>
+                  </tr>
+                ))}
+                <tr className="bg-primary/10 font-bold">
+                  <td colSpan={2} className="px-3 py-2 text-primary text-xs">รวมทั้งหมด</td>
+                  <td className="px-3 py-2 text-center text-primary text-xs">2,476</td>
+                  <td className="px-3 py-2 text-center text-blue-700 text-xs">2,783</td>
+                  <td className="px-3 py-2 text-center text-pink-700 text-xs">3,133</td>
+                  <td className="px-3 py-2 text-center text-primary text-xs">5,916</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
