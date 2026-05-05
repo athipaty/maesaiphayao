@@ -2,8 +2,12 @@ import { Link, NavLink } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { getSettings } from '../services/api'
 
+const PROCUREMENT_ITEMS = [
+  { label: 'รายการจัดซื้อจัดจ้าง',                      path: '/procurement' },
+  { label: 'แผนการจัดหาพัสดุหรือการจัดซื้อจัดจ้าง',    path: '/procurement-plans' },
+]
+
 const MENU = [
-  { label: 'งานพัสดุการคลัง',          path: '/procurement' },
   { label: 'งานการเงินและบัญชี',        path: '/announcements' },
   { label: 'งานจัดเก็บรายได้',          path: '/announcements' },
   { label: 'งานพัฒนาสังคม',            path: '/announcements' },
@@ -59,7 +63,8 @@ const DEFAULT_SETTINGS = {
 
 export default function Sidebar() {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
-  const [planOpen, setPlanOpen]  = useState(false)
+  const [planOpen, setPlanOpen]           = useState(false)
+  const [procurementOpen, setProcurementOpen] = useState(false)
 
   useEffect(() => {
     getSettings()
@@ -115,6 +120,46 @@ export default function Sidebar() {
           {planOpen && (
             <div className="bg-pink-50/50">
               {PLAN_ITEMS.map(item => (
+                <NavLink
+                  key={item.label}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 pl-7 pr-3 py-2 text-xs border-b border-pink-100/60 transition-colors ${
+                      isActive
+                        ? 'bg-pink-100 text-pink-700 font-medium'
+                        : 'text-gray-600 hover:bg-pink-100 hover:text-primary'
+                    }`
+                  }
+                >
+                  <span className="text-pink-300" style={{ fontSize: '9px' }}>▶</span>
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* งานพัสดุการคลัง accordion */}
+        <div className="border-b border-gray-100">
+          <button
+            onClick={() => setProcurementOpen(v => !v)}
+            className="w-full flex items-center justify-between px-3.5 py-2.5 text-sm text-gray-700 hover:bg-pink-50 hover:text-primary transition-colors"
+          >
+            <span className="flex items-center gap-1.5">
+              <span className="text-secondary">›</span>
+              งานพัสดุการคลัง
+            </span>
+            <span style={{
+              transition: 'transform 0.2s',
+              display: 'inline-block',
+              transform: procurementOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              fontSize: '11px',
+              color: '#aaa'
+            }}>▾</span>
+          </button>
+          {procurementOpen && (
+            <div className="bg-pink-50/50">
+              {PROCUREMENT_ITEMS.map(item => (
                 <NavLink
                   key={item.label}
                   to={item.path}
