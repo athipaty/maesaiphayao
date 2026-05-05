@@ -11,7 +11,7 @@ export default function AdminProducts() {
 
   async function load() {
     setLoading(true)
-    try { const r = await getProducts(); setItems(r?.data || []) }
+    try { const r = await getProducts({ all: 1 }); setItems(r?.data || []) }
     finally { setLoading(false) }
   }
 

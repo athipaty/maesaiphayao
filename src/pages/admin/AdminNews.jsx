@@ -23,7 +23,7 @@ export default function AdminNews() {
   async function load() {
     setLoading(true)
     try {
-      const r = await getNews()
+      const r = await getNews({ all: 1 })
       // normalize — ถ้าไม่มี images ให้ใช้ image เดิม
       const normalized = (r?.data || []).map(item => ({
         ...item,

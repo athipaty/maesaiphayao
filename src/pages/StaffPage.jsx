@@ -40,7 +40,7 @@ export default function StaffPage() {
           const members = grouped[dept]
           if (!members || members.length === 0) return null
           return (
-            <div key={dept} className="card mb-4">
+            <div key={dept} id={`dept-${dept}`} className="card mb-4">
               <div className="section-head">
                 <h2 className="text-sm font-semibold">👥 {label}</h2>
               </div>

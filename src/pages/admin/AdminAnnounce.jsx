@@ -11,7 +11,7 @@ export default function AdminAnnounce() {
 
   async function load() {
     setLoading(true)
-    try { const r = await getAnnouncements(); setItems(r?.data || []) }
+    try { const r = await getAnnouncements({ all: 1 }); setItems(r?.data || []) }
     finally { setLoading(false) }
   }
 

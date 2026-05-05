@@ -101,15 +101,15 @@ export default function Navbar() {
                 บุคลากร <span className="text-xs">▾</span>
               </button>
               <div className="absolute top-full left-0 hidden group-hover:block bg-white shadow-lg min-w-[240px] z-50 border-t-2 border-secondary">
-                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">สำนักปลัด</NavLink>
-                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">กองคลัง</NavLink>
-                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">กองช่าง</NavLink>
-                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">ทำเนียบผู้บริหาร</NavLink>
-                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">กองสาธารณสุขและสิ่งแวดล้อม</NavLink>
-                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">สมาชิกสภาองค์การบริหารส่วนตำบล</NavLink>
-                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">หน่วยตรวจสอบภายใน</NavLink>
-                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">แผนผังโครงสร้างส่วนราชการ</NavLink>
-                <NavLink to="/staff" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary">หัวหน้าส่วนราชการ</NavLink>
+                <Link to="/staff#dept-executive"    className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">ทำเนียบผู้บริหาร</Link>
+                <Link to="/staff#dept-office"       className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">สำนักปลัด</Link>
+                <Link to="/staff#dept-finance"      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">กองคลัง</Link>
+                <Link to="/staff#dept-engineering"  className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">กองช่าง</Link>
+                <Link to="/staff#dept-health"       className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">กองสาธารณสุขและสิ่งแวดล้อม</Link>
+                <Link to="/staff#dept-council"      className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">สมาชิกสภาองค์การบริหารส่วนตำบล</Link>
+                <Link to="/staff#dept-audit"        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">หน่วยตรวจสอบภายใน</Link>
+                <Link to="/staff"                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary border-b border-gray-100">แผนผังโครงสร้างส่วนราชการ</Link>
+                <Link to="/staff"                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary">หัวหน้าส่วนราชการ</Link>
               </div>
             </div>
 

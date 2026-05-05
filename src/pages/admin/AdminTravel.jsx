@@ -11,7 +11,7 @@ export default function AdminTravel() {
 
   async function load() {
     setLoading(true)
-    try { const r = await getTravel(); setItems(r?.data || []) }
+    try { const r = await getTravel({ all: 1 }); setItems(r?.data || []) }
     finally { setLoading(false) }
   }
 

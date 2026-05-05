@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom'
 import { getNews, getAnnouncements, getProcurement, getStaff, getTravel, getProducts } from '../../services/api'
 
 const CARDS = [
-  { label: 'ข่าวสารกิจกรรม',   icon: '📰', path: '/admin/news',          fetch: () => getNews()              },
-  { label: 'ประชาสัมพันธ์',     icon: '📢', path: '/admin/announcements', fetch: () => getAnnouncements()     },
-  { label: 'จัดซื้อจัดจ้าง',   icon: '📦', path: '/admin/procurement',   fetch: () => getProcurement()        },
-  { label: 'บุคลากร',           icon: '👥', path: '/admin/staff',         fetch: () => getStaff()             },
-  { label: 'สถานที่ท่องเที่ยว', icon: '🗺️', path: '/admin/travel',        fetch: () => getTravel()            },
-  { label: 'สินค้า OTOP',       icon: '🛍️', path: '/admin/products',      fetch: () => getProducts()          },
+  { label: 'ข่าวสารกิจกรรม',   icon: '📰', path: '/admin/news',          fetch: () => getNews({ all: 1 })           },
+  { label: 'ประชาสัมพันธ์',     icon: '📢', path: '/admin/announcements', fetch: () => getAnnouncements({ all: 1 })  },
+  { label: 'จัดซื้อจัดจ้าง',   icon: '📦', path: '/admin/procurement',   fetch: () => getProcurement({ all: 1 })    },
+  { label: 'บุคลากร',           icon: '👥', path: '/admin/staff',         fetch: () => getStaff({ all: 1 })          },
+  { label: 'สถานที่ท่องเที่ยว', icon: '🗺️', path: '/admin/travel',        fetch: () => getTravel({ all: 1 })         },
+  { label: 'สินค้า OTOP',       icon: '🛍️', path: '/admin/products',      fetch: () => getProducts({ all: 1 })       },
 ]
 
 export default function AdminDashboard() {

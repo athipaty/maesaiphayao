@@ -10,7 +10,7 @@ export default function AdminProcurement() {
 
   async function load() {
     setLoading(true)
-    try { const r = await getProcurement(); setItems(r?.data || []) }
+    try { const r = await getProcurement({ all: 1 }); setItems(r?.data || []) }
     finally { setLoading(false) }
   }
 

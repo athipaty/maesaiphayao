@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin1234'
+import { loginAdmin, verifyAdmin } from '../../services/api'
 
 const MENU = [
   { path: '/admin',               label: 'Dashboard',        icon: '📊', end: true },
@@ -27,26 +26,46 @@ const ChevronRight = () => (
 )
 
 export default function AdminLayout() {
-  const [authed, setAuthed]       = useState(() => sessionStorage.getItem('abt_admin') === '1')
+  const [authed, setAuthed]       = useState(false)
+  const [checking, setChecking]   = useState(true)
   const [pw, setPw]               = useState('')
   const [showPw, setShowPw]       = useState(false)
   const [err, setErr]             = useState('')
   const [collapsed, setCollapsed] = useState(false)
   const navigate                  = useNavigate()
 
-  function login() {
-    if (pw === ADMIN_PASSWORD) {
-      sessionStorage.setItem('abt_admin', '1')
+  useEffect(() => {
+    const token = sessionStorage.getItem('abt_token')
+    if (!token) { setChecking(false); return }
+    verifyAdmin(token)
+      .then(r => { if (r.data.valid) setAuthed(true) })
+      .catch(() => {})
+      .finally(() => setChecking(false))
+  }, [])
+
+  async function login() {
+    setErr('')
+    try {
+      const r = await loginAdmin(pw)
+      sessionStorage.setItem('abt_token', r.data.token)
       setAuthed(true)
-    } else {
+    } catch {
       setErr('รหัสผ่านไม่ถูกต้อง')
     }
   }
 
   function logout() {
-    sessionStorage.removeItem('abt_admin')
+    sessionStorage.removeItem('abt_token')
     setAuthed(false)
     navigate('/admin')
+  }
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-gray-400 text-sm">กำลังตรวจสอบ...</div>
+      </div>
+    )
   }
 
   if (!authed) {
@@ -65,7 +84,7 @@ export default function AdminLayout() {
                 <input
                   type={showPw ? 'text' : 'password'}
                   className="w-full border border-gray-200 rounded-lg px-4 py-3 pr-12 text-sm focus:outline-none focus:border-secondary focus:ring-2 focus:ring-blue-100 transition-all"
-                  placeholder="กรอกรหัสผ่าน"
+                  placeholder="รหัสผ่านวันนี้ (YYMMDD)"
                   value={pw}
                   onChange={e => { setPw(e.target.value); setErr('') }}
                   onKeyDown={e => e.key === 'Enter' && login()}
@@ -156,7 +175,7 @@ export default function AdminLayout() {
           </button>
         </div>
 
-        {/* Toggle button — ลูกศรติดขอบขวา */}
+        {/* Toggle button */}
         <button
           onClick={() => setCollapsed(v => !v)}
           className="absolute -right-3 top-7 z-50 w-6 h-6 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-200"

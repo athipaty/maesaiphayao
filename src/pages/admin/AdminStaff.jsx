@@ -21,7 +21,7 @@ export default function AdminStaff() {
 
   async function load() {
     setLoading(true)
-    try { const r = await getStaff(); setItems(r?.data || []) }
+    try { const r = await getStaff({ all: 1 }); setItems(r?.data || []) }
     finally { setLoading(false) }
   }
 
