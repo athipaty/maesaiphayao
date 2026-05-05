@@ -117,7 +117,7 @@ export default function ParticipationPage() {
               <h2 className="text-white font-bold text-sm">🔄 กระบวนการมีส่วนร่วม</h2>
             </div>
             <div className="p-5">
-              <div className="flex items-start gap-0 overflow-x-auto">
+              <div className="flex items-start gap-0 overflow-x-auto justify-center">
                 {[
                   { step:'1', label:'จัดประชุมประชาคม', detail:'12–14 ต.ค. 2567\nอาคารอเนกประสงค์' },
                   { step:'2', label:'รับข้อเสนอ',        detail:'476 คน\n55 โครงการ' },
