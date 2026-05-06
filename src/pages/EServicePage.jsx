@@ -21,7 +21,7 @@ const STATUS_CONFIG = {
 const EMPTY = { type: 'general', citizenName: '', phone: '', address: '', villageNo: '', detail: '' }
 
 export default function EServicePage() {
-  const [tab, setTab]           = useState('form') // 'form' | 'track'
+  const [tab, setTab]           = useState('form') // 'form' | 'track' | 'stat'
   const [form, setForm]         = useState(EMPTY)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted]   = useState(null)
@@ -76,19 +76,19 @@ export default function EServicePage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-5">
-        <button onClick={() => setTab('form')}
-          className={`text-xs px-4 py-2 rounded-full border font-medium transition-colors ${
-            tab === 'form' ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-600 hover:border-primary hover:text-primary'
-          }`}>
-          📝 ยื่นคำร้อง
-        </button>
-        <button onClick={() => setTab('track')}
-          className={`text-xs px-4 py-2 rounded-full border font-medium transition-colors ${
-            tab === 'track' ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-600 hover:border-primary hover:text-primary'
-          }`}>
-          🔍 ติดตามสถานะ
-        </button>
+      <div className="flex flex-wrap gap-2 mb-5">
+        {[
+          { id: 'form',  label: '📝 ยื่นคำร้อง' },
+          { id: 'track', label: '🔍 ติดตามสถานะ' },
+          { id: 'stat',  label: '📊 สถิติการให้บริการ' },
+        ].map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            className={`text-xs px-4 py-2 rounded-full border font-medium transition-colors ${
+              tab === t.id ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-600 hover:border-primary hover:text-primary'
+            }`}>
+            {t.label}
+          </button>
+        ))}
       </div>
 
       {tab === 'form' && (
@@ -173,6 +173,83 @@ export default function EServicePage() {
               </button>
             </form>
           )}
+        </div>
+      )}
+
+      {tab === 'stat' && (
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3">
+            <span className="text-xl flex-shrink-0">📊</span>
+            <div>
+              <p className="text-sm font-semibold text-blue-800 mb-1">สถิติการให้บริการออนไลน์ (O10)</p>
+              <p className="text-xs text-blue-700">ข้อมูลสถิติการรับคำร้องผ่านระบบ e-Service ประจำปีงบประมาณ 2568 แยกตามประเภทบริการและไตรมาส</p>
+            </div>
+          </div>
+
+          {[
+            { year: '2568', rows: [
+              { service: 'เสียภาษีที่ดินและสิ่งปลูกสร้าง/ป้าย', q1: 0, q2: 0, q3: 0, q4: 0 },
+              { service: 'แจ้งซ่อม/ไฟฟ้าสาธารณะ/ประปา',        q1: 0, q2: 0, q3: 0, q4: 0 },
+              { service: 'แจ้งตัดต้นไม้/กิ่งไม้',               q1: 0, q2: 0, q3: 0, q4: 0 },
+              { service: 'ยื่นคำร้องขออนุมัติ/อนุญาต',          q1: 0, q2: 0, q3: 0, q4: 0 },
+              { service: 'คำร้องทั่วไป/อื่น ๆ',                 q1: 0, q2: 0, q3: 0, q4: 0 },
+            ]},
+          ].map(({ year, rows }) => {
+            const quarters = [
+              { label: 'ไตรมาส 1', sub: 'ต.ค.–ธ.ค.' },
+              { label: 'ไตรมาส 2', sub: 'ม.ค.–มี.ค.' },
+              { label: 'ไตรมาส 3', sub: 'เม.ย.–มิ.ย.' },
+              { label: 'ไตรมาส 4', sub: 'ก.ค.–ก.ย.' },
+            ]
+            return (
+              <div key={year} className="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div className="section-head">
+                  <h2 className="text-sm font-semibold">สถิติการให้บริการออนไลน์ ปีงบประมาณ {year}</h2>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="bg-blue-50">
+                        <th className="px-3 py-2.5 text-left text-primary font-semibold min-w-[160px]">ประเภทบริการ</th>
+                        {quarters.map(q => (
+                          <th key={q.label} className="px-3 py-2.5 text-center text-primary font-semibold">
+                            {q.label}<br/><span className="font-normal text-gray-400">{q.sub}</span>
+                          </th>
+                        ))}
+                        <th className="px-3 py-2.5 text-center text-primary font-semibold">รวม</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((r, i) => {
+                        const total = r.q1 + r.q2 + r.q3 + r.q4
+                        return (
+                          <tr key={i} className={`border-b border-gray-50 ${i % 2 === 1 ? 'bg-gray-50/50' : ''}`}>
+                            <td className="px-3 py-2.5 text-gray-700">{r.service}</td>
+                            {[r.q1, r.q2, r.q3, r.q4].map((v, j) => (
+                              <td key={j} className="px-3 py-2.5 text-center text-gray-600">{v || '–'}</td>
+                            ))}
+                            <td className="px-3 py-2.5 text-center font-semibold text-primary">{total || '–'}</td>
+                          </tr>
+                        )
+                      })}
+                      <tr className="bg-primary/10 font-bold">
+                        <td className="px-3 py-2.5 text-primary">รวมทั้งหมด</td>
+                        {[1,2,3,4].map(q => (
+                          <td key={q} className="px-3 py-2.5 text-center text-primary">
+                            {rows.reduce((s, r) => s + (r[`q${q}`] || 0), 0) || '–'}
+                          </td>
+                        ))}
+                        <td className="px-3 py-2.5 text-center text-primary">
+                          {rows.reduce((s, r) => s + r.q1 + r.q2 + r.q3 + r.q4, 0) || '–'}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-xs text-gray-400 px-4 py-2">* ข้อมูลอ้างอิง ณ 30 กันยายน {year} — อัปเดตโดยเจ้าหน้าที่</p>
+              </div>
+            )
+          })}
         </div>
       )}
 

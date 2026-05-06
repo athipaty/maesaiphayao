@@ -198,24 +198,58 @@ export default function CorruptionPage() {
       )}
 
       {tab === 'channel' && (
-        <div className="card p-5 space-y-3">
-          <p className="text-sm font-semibold text-gray-700 mb-3">ช่องทางร้องเรียนการทุจริตเพิ่มเติม</p>
-          {[
-            { icon: '🏛️', label: 'สำนักงาน ป.ป.ช. ประจำจังหวัดพะเยา', desc: 'โทร 0-5441-2060', href: 'https://www.nacc.go.th/' },
-            { icon: '📱', label: 'แอปพลิเคชัน NACC Space', desc: 'แจ้งเบาะแสทุจริตผ่านมือถือ', href: 'https://www.nacc.go.th/' },
-            { icon: '📘', label: 'Facebook Page อบต.แม่ใส', desc: 'MaesaiSAOPhayao', href: 'https://www.facebook.com/MaesaiSAOPhayao' },
-            { icon: '📞', label: 'โทรศัพท์สายตรง', desc: '0-5488-9909 ต่อ 18 (สายด่วน)', href: 'tel:054889909' },
-          ].map(item => (
-            <a key={item.label} href={item.href} target="_blank" rel="noreferrer"
-              className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:border-red-200 hover:bg-red-50/50 transition-colors">
-              <span className="text-xl flex-shrink-0">{item.icon}</span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-800">{item.label}</p>
-                <p className="text-xs text-gray-500">{item.desc}</p>
+        <div className="space-y-4">
+          {/* O17 — ช่องทางร้องเรียน */}
+          <div className="card p-5">
+            <p className="text-sm font-semibold text-gray-700 mb-3">📢 ช่องทางร้องเรียนการทุจริต (O17)</p>
+            <div className="space-y-2">
+              {[
+                { icon: '🏛️', label: 'สำนักงาน ป.ป.ช. ประจำจังหวัดพะเยา', desc: 'โทร 0-5441-2060', href: 'https://www.nacc.go.th/' },
+                { icon: '📱', label: 'แอปพลิเคชัน NACC Space', desc: 'แจ้งเบาะแสทุจริตผ่านมือถือ (ป.ป.ช.)', href: 'https://www.nacc.go.th/' },
+                { icon: '🏢', label: 'สำนักงาน ป.ป.ท. (เขต 5 เชียงใหม่)', desc: 'โทร 0-5389-1599 | www.pacc.go.th', href: 'https://www.pacc.go.th/' },
+                { icon: '📲', label: 'แอปพลิเคชัน PACC', desc: 'แจ้งเบาะแสผ่าน ป.ป.ท.', href: 'https://www.pacc.go.th/' },
+                { icon: '📘', label: 'Facebook Page อบต.แม่ใส', desc: 'MaesaiSAOPhayao', href: 'https://www.facebook.com/MaesaiSAOPhayao' },
+                { icon: '📞', label: 'โทรศัพท์สายตรง', desc: '0-5488-9909 ต่อ 18 (สายด่วน)', href: 'tel:054889909' },
+              ].map(item => (
+                <a key={item.label} href={item.href} target="_blank" rel="noreferrer"
+                  className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:border-red-200 hover:bg-red-50/50 transition-colors">
+                  <span className="text-xl flex-shrink-0">{item.icon}</span>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-gray-800">{item.label}</p>
+                    <p className="text-xs text-gray-500">{item.desc}</p>
+                  </div>
+                  <span className="text-gray-300 text-xs">›</span>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* O18 — สถิติเรื่องร้องเรียนการทุจริต */}
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="section-head" style={{ background: 'linear-gradient(135deg, #c0392b, #e74c3c)' }}>
+              <h2 className="text-sm font-semibold">📈 สถิติเรื่องร้องเรียนการทุจริต (O18)</h2>
+            </div>
+            <div className="p-4">
+              <p className="text-xs text-gray-500 mb-4">ข้อมูลสถิติเรื่องร้องเรียนการทุจริตและประพฤติมิชอบ ประจำปีงบประมาณ 2568 (1 ต.ค. 67 – 30 ก.ย. 68)</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                {[
+                  { label: 'รับเรื่องทั้งหมด',   value: '0', color: 'bg-blue-50 border-blue-200 text-blue-700' },
+                  { label: 'อยู่ระหว่างสอบสวน',  value: '0', color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+                  { label: 'ดำเนินการเสร็จแล้ว', value: '0', color: 'bg-green-50 border-green-200 text-green-700' },
+                  { label: 'ไม่รับเรื่อง',        value: '0', color: 'bg-gray-50 border-gray-200 text-gray-600' },
+                ].map(s => (
+                  <div key={s.label} className={`text-center p-3 rounded-xl border ${s.color}`}>
+                    <div className="text-2xl font-bold">{s.value}</div>
+                    <div className="text-xs mt-1">{s.label}</div>
+                  </div>
+                ))}
               </div>
-              <span className="text-gray-300 text-xs">›</span>
-            </a>
-          ))}
+              <div className="bg-gray-50 rounded-lg p-3 flex items-center justify-between">
+                <span className="text-xs text-gray-500">ดาวน์โหลดรายงานสถิติฉบับสมบูรณ์ (PDF/Excel)</span>
+                <span className="text-xs text-gray-400 italic">— อยู่ระหว่างจัดทำ —</span>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

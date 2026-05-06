@@ -10,7 +10,11 @@
       "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\loret\\\\tong\\\\abt\\\\src\" -Recurse -File | Select-Object FullName | ForEach-Object { $_.FullName -replace [regex]::Escape\\(\"C:\\\\Users\\\\loret\\\\tong\\\\abt\\\\\"\\), \"\" } | Sort-Object)",
       "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend\" -Recurse -File | Select-Object FullName | ForEach-Object { $_.FullName -replace [regex]::Escape\\(\"C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\\"\\), \"\" } | Sort-Object)",
       "Bash(del *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(python -c ' *)",
+      "PowerShell(Add-Type -AssemblyName System.IO.Compression.FileSystem; $null)",
+      "Bash(pip install *)",
+      "Bash(python *)"
     ]
   }
 }
