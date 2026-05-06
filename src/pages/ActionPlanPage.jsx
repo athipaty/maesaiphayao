@@ -1,5 +1,6 @@
 // แผนดำเนินงาน ประจำปีงบประมาณ พ.ศ.2568
 import { useState } from 'react'
+import PageHeader from '../components/PageHeader'
 
 const summary6M = { total:69, totalBudget:37556572.56, done:30, doneBudget:6479411.42, inProgress:19, inProgressBudget:7204672.56, notStarted:20, notStartedBudget:12018500 }
 
@@ -93,21 +94,11 @@ export default function ActionPlanPage() {
   return (
     <div className="space-y-4">
 
-      {/* Breadcrumb */}
-      <nav className="text-xs text-gray-400 flex items-center gap-1.5">
-        <a href="/" className="hover:text-secondary">หน้าหลัก</a>
-        <span>›</span>
-        <span className="text-gray-600">งานแผนและงบประมาณ</span>
-        <span>›</span>
-        <span className="text-gray-600">แผนดำเนินงาน</span>
-      </nav>
+      <PageHeader icon="📅" title="แผนการดำเนินงาน ประจำปีงบประมาณ พ.ศ. 2568"
+        desc="รายงานความก้าวหน้าการดำเนินโครงการรอบ 6 เดือน (ต.ค. 2567 – มี.ค. 2568) ครอบคลุม 5 ยุทธศาสตร์ รวม 69 โครงการ" />
 
-      {/* Header */}
+      {/* Action plan summary */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100">
-          <h1 className="text-lg font-bold text-primary">แผนการดำเนินงาน ประจำปีงบประมาณ พ.ศ. 2568</h1>
-          <p className="text-sm text-gray-500 mt-1">อบต.แม่ใส อ.เมืองพะเยา จ.พะเยา | รายงานความก้าวหน้ารอบ 6 เดือน (ต.ค.67–มี.ค.68)</p>
-        </div>
         <div className="px-6 py-5 bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-between">
           <div>
             <p className="text-white/70 text-sm">งบประมาณตามแผนดำเนินงานทั้งหมด</p>

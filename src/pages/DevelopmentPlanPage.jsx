@@ -1,7 +1,5 @@
-// แผนพัฒนาท้องถิ่น (พ.ศ. 2566-2570) เพิ่มเติม ฉบับที่ 3
-// ข้อมูลจาก: _6_รวมไฟล์_เพิ่มเติมแผน_ฉบับที่_3_ประจำปี_2567.pdf
-
 import { useState } from 'react'
+import PageHeader from '../components/PageHeader'
 
 const summaryData = [
   { plan: '1.1 แผนงานอุตสาหกรรมและการโยธา (ผ.02)',                    y2566: 0, y2567: 0,       y2568: 821000,   y2569: 0,       y2570: 0,       total: 821000   },
@@ -61,21 +59,11 @@ export default function DevelopmentPlanPage() {
   return (
     <div className="space-y-4">
 
-      {/* Breadcrumb */}
-      <nav className="text-xs text-gray-400 flex items-center gap-1.5">
-        <a href="/" className="hover:text-secondary">หน้าหลัก</a>
-        <span>›</span>
-        <span className="text-gray-600">งานแผนและงบประมาณ</span>
-        <span>›</span>
-        <span className="text-gray-600">แผนพัฒนาท้องถิ่น</span>
-      </nav>
+      <PageHeader icon="📑" title="แผนพัฒนาท้องถิ่น (พ.ศ. 2566–2570) เพิ่มเติม ฉบับที่ 3"
+        desc="แผนพัฒนาท้องถิ่นขององค์การบริหารส่วนตำบลแม่ใส ประจำปีงบประมาณ พ.ศ. 2567 ครอบคลุม 4 แผนงาน รวม 38 โครงการ งบประมาณรวม 18,428,000 บาท" />
 
-      {/* Header */}
+      {/* Development plan summary */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100">
-          <h1 className="text-lg font-bold text-primary">แผนพัฒนาท้องถิ่น (พ.ศ. 2566–2570) เพิ่มเติม ฉบับที่ 3</h1>
-          <p className="text-sm text-gray-500 mt-1">ประจำปีงบประมาณ พ.ศ. 2567 | อบต.แม่ใส อ.เมืองพะเยา จ.พะเยา</p>
-        </div>
         <div className="px-6 py-5 bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-between">
           <div>
             <p className="text-white/70 text-sm">งบประมาณรวม 5 ปี</p>

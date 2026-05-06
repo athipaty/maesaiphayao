@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getProducts } from '../services/api'
+import PageHeader from '../components/PageHeader'
 
 export default function ProductsPage() {
   const [items, setItems]     = useState([])
@@ -13,10 +14,10 @@ export default function ProductsPage() {
   }, [])
 
   return (
-    <div className="card">
-      <div className="section-head">
-        <h2 className="text-sm font-semibold">🛍️ สินค้าผลิตภัณฑ์ตำบลแม่ใส (OTOP)</h2>
-      </div>
+    <div>
+      <PageHeader icon="🛍️" title="สินค้าผลิตภัณฑ์ตำบลแม่ใส (OTOP)"
+        desc="สินค้าและผลิตภัณฑ์ชุมชนของตำบลแม่ใส ส่งเสริมภูมิปัญญาท้องถิ่นและเพิ่มรายได้ให้ประชาชน" />
+      <div className="card">
       {loading ? (
         <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
       ) : items.length === 0 ? (
@@ -49,6 +50,7 @@ export default function ProductsPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }

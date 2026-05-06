@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getAnnouncements } from '../services/api'
+import PageHeader from '../components/PageHeader'
 
 export default function AnnouncePage() {
   const [tab, setTab]             = useState('announcement')
@@ -16,10 +17,9 @@ export default function AnnouncePage() {
 
   return (
     <div>
+      <PageHeader icon="📢" title="ข่าวประชาสัมพันธ์และจดหมายข่าว"
+        desc="ข่าวประชาสัมพันธ์ ประกาศ และจดหมายข่าวขององค์การบริหารส่วนตำบลแม่ใส" />
       <div className="card">
-        <div className="section-head">
-          <h2 className="text-sm font-semibold">📢 ข่าวประชาสัมพันธ์และจดหมายข่าว</h2>
-        </div>
 
         {/* Tabs */}
         <div className="flex border-b border-gray-200">

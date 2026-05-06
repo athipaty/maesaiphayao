@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import { getSettings } from '../services/api'
 
 const MAIN_MENU = [
-  { label: 'หน้าแรก',                    path: '/' },
   { label: 'เกี่ยวกับ อบต.แม่ใส',        path: '/about' },
   { label: 'ข่าวสาร/ประชาสัมพันธ์',       path: '/news' },
   { label: 'แผนงาน/งบประมาณ',           path: '/development-plan' },

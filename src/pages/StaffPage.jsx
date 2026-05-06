@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getStaff } from '../services/api'
+import PageHeader from '../components/PageHeader'
 
 const DEPT_LABELS = {
   executive:   'ผู้บริหาร',
@@ -31,6 +32,8 @@ export default function StaffPage() {
 
   return (
     <div>
+      <PageHeader icon="👥" title="บุคลากร/กิจการสภา"
+        desc="ข้อมูลผู้บริหาร สมาชิกสภา และบุคลากรองค์การบริหารส่วนตำบลแม่ใส แยกตามสังกัดกอง/สำนัก" />
       {loading ? (
         <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
       ) : staff.length === 0 ? (

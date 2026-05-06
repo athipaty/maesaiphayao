@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getTravel } from '../services/api'
+import PageHeader from '../components/PageHeader'
 
 export default function TravelPage() {
   const [items, setItems]     = useState([])
@@ -13,10 +14,10 @@ export default function TravelPage() {
   }, [])
 
   return (
-    <div className="card">
-      <div className="section-head">
-        <h2 className="text-sm font-semibold">🗺️ แนะนำสถานที่ท่องเที่ยว</h2>
-      </div>
+    <div>
+      <PageHeader icon="🗺️" title="แนะนำสถานที่ท่องเที่ยว"
+        desc="แหล่งท่องเที่ยวและสถานที่น่าสนใจในตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา" />
+      <div className="card">
       {loading ? (
         <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
       ) : items.length === 0 ? (
@@ -49,6 +50,7 @@ export default function TravelPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }

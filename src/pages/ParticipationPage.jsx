@@ -1,5 +1,5 @@
-// การเปิดโอกาสให้เกิดการมีส่วนร่วม พ.ศ.2568
 import { useState } from 'react'
+import PageHeader from '../components/PageHeader'
 
 const villages = [
   { no:1,  people:30,  projects:5 }, { no:2,  people:39,  projects:5 },
@@ -53,21 +53,11 @@ export default function ParticipationPage() {
   return (
     <div className="space-y-4">
 
-      {/* Breadcrumb */}
-      <nav className="text-xs text-gray-400 flex items-center gap-1.5">
-        <a href="/" className="hover:text-secondary">หน้าหลัก</a>
-        <span>›</span>
-        <span className="text-gray-600">งานแผนและงบประมาณ</span>
-        <span>›</span>
-        <span className="text-gray-600">การเปิดโอกาสให้เกิดการมีส่วนร่วม</span>
-      </nav>
+      <PageHeader icon="🤝" title="การเปิดโอกาสให้เกิดการมีส่วนร่วม พ.ศ. 2568"
+        desc="โครงการ อบต.แม่ใสพบประชาชน ประจำปี 2568 จัดประชุมรับฟังความคิดเห็น 12–14 ตุลาคม 2567 ครบ 12 หมู่บ้าน" />
 
-      {/* Header */}
+      {/* Participation summary */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100">
-          <h1 className="text-lg font-bold text-primary">การเปิดโอกาสให้เกิดการมีส่วนร่วม พ.ศ. 2568</h1>
-          <p className="text-sm text-gray-500 mt-1">โครงการ อบต.แม่ใสพบประชาชน | 12–14 ตุลาคม 2567</p>
-        </div>
         <div className="px-6 py-5 bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-between">
           <div>
             <p className="text-white/70 text-sm">งบประมาณโครงการที่ได้รับอนุมัติ</p>

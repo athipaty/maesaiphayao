@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getDocuments } from '../services/api'
+import PageHeader from '../components/PageHeader'
 
 const CATEGORIES = [
   { value: 'all',       label: 'ทั้งหมด',                 icon: '📂' },
@@ -49,14 +50,8 @@ export default function DocumentPage() {
 
   return (
     <div>
-      <div className="card mb-5">
-        <div className="section-head">
-          <h1 className="text-sm font-semibold">📂 คลังเอกสารราชการ</h1>
-        </div>
-        <div className="px-4 py-3 text-sm text-gray-500 leading-relaxed">
-          รวมเอกสารราชการ รายงานทางการเงิน เอกสารสภา กฎหมาย และเอกสารด้านธรรมาภิบาล
-          ขององค์การบริหารส่วนตำบลแม่ใส
-        </div>
+      <PageHeader icon="📂" title="คลังเอกสารราชการ"
+        desc="รวมเอกสารราชการ รายงานทางการเงิน เอกสารสภา กฎหมาย และเอกสารด้านธรรมาภิบาลขององค์การบริหารส่วนตำบลแม่ใส" />
       </div>
 
       {loading ? (

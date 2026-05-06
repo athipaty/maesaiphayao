@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import PageHeader from '../components/PageHeader'
 
 const DEPT_SUB_ID = '6560105'
 const BASE_URL = 'http://process3.gprocurement.go.th/EPROCRssFeedWeb/egpannouncerss.xml'
@@ -53,11 +54,9 @@ export default function ProcurementPage() {
 
   return (
     <div>
+      <PageHeader icon="📦" title="การจัดซื้อจัดจ้าง"
+        desc="ประกาศการจัดซื้อจัดจ้างขององค์การบริหารส่วนตำบลแม่ใส ดึงข้อมูลแบบเรียลไทม์จากระบบ e-GP กรมบัญชีกลาง" />
       <div className="card">
-        <div className="section-head">
-          <h2 className="text-sm font-semibold">📦 การจัดซื้อจัดจ้าง — องค์การบริหารส่วนตำบลแม่ใส</h2>
-          <span className="text-xs opacity-75">ข้อมูลจากระบบ e-GP กรมบัญชีกลาง</span>
-        </div>
 
         {/* Tabs */}
         <div className="flex flex-wrap border-b border-gray-200 bg-white">

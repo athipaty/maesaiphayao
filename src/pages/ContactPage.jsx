@@ -1,10 +1,11 @@
+import PageHeader from '../components/PageHeader'
+
 export default function ContactPage() {
   return (
     <div>
+      <PageHeader icon="📍" title="ติดต่อเรา"
+        desc="ช่องทางการติดต่อองค์การบริหารส่วนตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา" />
       <div className="card">
-        <div className="section-head">
-          <h2 className="text-sm font-semibold">📍 ติดต่อเรา</h2>
-        </div>
         <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Info */}
           <div>

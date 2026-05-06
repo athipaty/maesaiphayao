@@ -1,3 +1,5 @@
+import PageHeader from '../components/PageHeader'
+
 export default function BudgetPage() {
   const budgetItems = [
     { icon: '🏛️', label: 'งบกลาง',       amount: 16951402, pct: 40.4, color: '#3266ad' },
@@ -25,21 +27,11 @@ export default function BudgetPage() {
   return (
     <div className="space-y-4">
 
-      {/* Breadcrumb */}
-      <nav className="text-xs text-gray-400 flex items-center gap-1.5">
-        <a href="/" className="hover:text-secondary">หน้าหลัก</a>
-        <span>›</span>
-        <span className="text-gray-600">งานแผนและงบประมาณ</span>
-        <span>›</span>
-        <span className="text-gray-600">ข้อบัญญัติงบประมาณรายจ่าย</span>
-      </nav>
+      <PageHeader icon="📋" title="ข้อบัญญัติงบประมาณรายจ่ายประจำปีงบประมาณ พ.ศ. 2568"
+        desc="งบประมาณรายจ่ายประจำปีขององค์การบริหารส่วนตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา วงเงินรวมทั้งสิ้น 42,000,000 บาท" />
 
-      {/* Header */}
+      {/* Budget summary */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100">
-          <h1 className="text-lg font-bold text-primary">ข้อบัญญัติงบประมาณรายจ่ายประจำปีงบประมาณ พ.ศ. 2568</h1>
-          <p className="text-sm text-gray-500 mt-1">องค์การบริหารส่วนตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา</p>
-        </div>
 
         {/* Total */}
         <div className="px-6 py-5 bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-between">
