@@ -29,7 +29,6 @@ export default function NewsListPage() {
       <div className="card mb-4">
         <div className="section-head">
           <h1 className="text-sm font-semibold">{pageTitle}</h1>
-          <span className="text-xs opacity-75">{items.length} รายการ</span>
         </div>
         <div className="px-4 py-3 text-sm text-gray-500 leading-relaxed">
           {activeDept
