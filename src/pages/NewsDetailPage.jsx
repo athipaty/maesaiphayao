@@ -89,7 +89,7 @@ export default function NewsDetailPage() {
         </div>
       </div>
 
-      <Link to="/news"
+      <Link to="/news" onClick={() => window.scrollTo(0, 0)}
         className="inline-flex items-center gap-1 text-sm text-secondary hover:text-primary mt-3">
         ‹ กลับไปหน้าข่าวสาร
       </Link>

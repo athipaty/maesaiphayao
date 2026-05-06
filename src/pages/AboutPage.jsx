@@ -358,6 +358,9 @@ export default function AboutPage() {
         <div className="section-head">
           <h1 className="text-sm font-semibold">🏛️ เกี่ยวกับ อบต.แม่ใส</h1>
         </div>
+        <div className="px-4 py-3 text-sm text-gray-500 leading-relaxed">
+          ข้อมูลพื้นฐาน ประวัติความเป็นมา วิสัยทัศน์ พันธกิจ และอำนาจหน้าที่ขององค์การบริหารส่วนตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา
+        </div>
         <div className="flex flex-wrap gap-1 p-2">
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
