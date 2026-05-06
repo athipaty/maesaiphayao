@@ -13,7 +13,7 @@ const DEPTS = [
   { value: 'audit',       label: 'หน่วยตรวจสอบภายใน' },
 ]
 
-const EMPTY = { name: '', position: '', department: 'executive', image: '', phone: '', order: 0, isActive: true }
+const EMPTY = { name: '', position: '', department: 'executive', image: '', phone: '', order: 0, level: 1, isActive: true }
 
 export default function AdminStaff() {
   const [items, setItems]     = useState([])
@@ -93,23 +93,37 @@ export default function AdminStaff() {
                 />
               </div>
             </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">ตำแหน่ง <span className="text-red-400">*</span></label>
+              <input
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                value={data.position}
+                onChange={e => onChange('position', e.target.value)}
+                placeholder="นักวิชาการ / ผู้อำนวยการ..."
+              />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">ตำแหน่ง <span className="text-red-400">*</span></label>
-                <input
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
-                  value={data.position}
-                  onChange={e => onChange('position', e.target.value)}
-                  placeholder="นักวิชาการ / ผู้อำนวยการ..."
-                />
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">ชั้นลำดับ (row)</label>
+                <select
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all bg-white"
+                  value={data.level}
+                  onChange={e => onChange('level', parseInt(e.target.value))}
+                >
+                  <option value={1}>ชั้น 1 — บนสุด (นายก / หัวหน้ากอง)</option>
+                  <option value={2}>ชั้น 2 — รองลงมา (รองนายก / หัวหน้าฝ่าย)</option>
+                  <option value={3}>ชั้น 3 — ลำดับถัดไป</option>
+                  <option value={4}>ชั้น 4 — เจ้าหน้าที่</option>
+                </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">ลำดับการแสดงผล</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">ลำดับในชั้น</label>
                 <input
                   type="number"
                   className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
                   value={data.order}
                   onChange={e => onChange('order', parseInt(e.target.value))}
+                  placeholder="1, 2, 3..."
                 />
               </div>
             </div>
