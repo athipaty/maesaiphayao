@@ -181,7 +181,7 @@ export default function ItaPage() {
                 การวิเคราะห์ผลการดำเนินการตามตัวชี้วัดทุกข้อ (O01–O26) เพื่อประเมินระดับความครบถ้วนและคุณภาพของข้อมูลที่เปิดเผย
                 ตามกรอบการประเมิน ITA ของสำนักงาน ป.ป.ช.
               </p>
-              <div className="grid grid-cols-3 gap-3 mb-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
                 {[
                   { label: 'ตัวชี้วัดทั้งหมด', value: total, color: 'bg-gray-50 border-gray-200 text-gray-700' },
                   { label: 'ครบถ้วน',           value: complete, color: 'bg-green-50 border-green-200 text-green-700' },

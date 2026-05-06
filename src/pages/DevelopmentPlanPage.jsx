@@ -64,14 +64,14 @@ export default function DevelopmentPlanPage() {
 
       {/* Development plan summary */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-5 bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-between">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-between">
           <div>
             <p className="text-white/70 text-sm">งบประมาณรวม 5 ปี</p>
-            <p className="text-3xl font-bold mt-1">18,428,000 บาท</p>
+            <p className="text-xl sm:text-3xl font-bold mt-1">18,428,000 บาท</p>
           </div>
-          <div className="text-5xl opacity-30">📋</div>
+          <div className="text-4xl sm:text-5xl opacity-30 hidden sm:block">📋</div>
         </div>
-        <div className="p-5 grid grid-cols-3 gap-3">
+        <div className="p-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
             { label: 'โครงการทั้งหมด', value: '38 โครงการ', sub: 'รวม 4 แผนงาน', color: 'bg-blue-50 border-blue-100 text-primary' },
             { label: 'งบสูงสุด ปี 2567', value: '8,894,000 บาท', sub: '8 โครงการ', color: 'bg-green-50 border-green-100 text-green-700' },

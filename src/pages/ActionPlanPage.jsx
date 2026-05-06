@@ -99,12 +99,12 @@ export default function ActionPlanPage() {
 
       {/* Action plan summary */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-5 bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-between">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-between">
           <div>
             <p className="text-white/70 text-sm">งบประมาณตามแผนดำเนินงานทั้งหมด</p>
-            <p className="text-3xl font-bold mt-1">37,556,572.56 บาท</p>
+            <p className="text-xl sm:text-3xl font-bold mt-1">37,556,572.56 บาท</p>
           </div>
-          <div className="text-5xl opacity-30">📅</div>
+          <div className="text-4xl sm:text-5xl opacity-30 hidden sm:block">📅</div>
         </div>
         <div className="p-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
@@ -170,7 +170,7 @@ export default function ActionPlanPage() {
               <h2 className="text-white font-bold text-sm">💰 งบประมาณ (บาท)</h2>
             </div>
             <div className="p-5">
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                   { label:'งบทั้งหมด',   val:summary6M.totalBudget,                               color:'text-primary' },
                   { label:'เบิกจ่ายแล้ว', val:summary6M.doneBudget,                               color:'text-green-600' },

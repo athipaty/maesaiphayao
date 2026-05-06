@@ -135,8 +135,8 @@ export default function AdminStaff() {
             <div className="flex items-center gap-3 bg-orange-50 border border-orange-100 rounded-lg px-4 py-3">
               <input type="checkbox" id="isVacantS" checked={data.isVacant} onChange={e => onChange('isVacant', e.target.checked)} className="w-4 h-4 accent-orange-500" />
               <div>
-                <label htmlFor="isVacantS" className="text-sm font-medium text-orange-700 cursor-pointer">ว่างตำแหน่ง</label>
-                <p className="text-xs text-orange-400">จะแสดงเป็น "ว่างตำแหน่ง" โดยไม่ต้องกรอกชื่อ</p>
+                <label htmlFor="isVacantS" className="text-sm font-medium text-orange-700 cursor-pointer">ตำแหน่งว่าง</label>
+                <p className="text-xs text-orange-400">จะแสดงเป็น "ตำแหน่งว่าง" โดยไม่ต้องกรอกชื่อ</p>
               </div>
             </div>
             <div className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">

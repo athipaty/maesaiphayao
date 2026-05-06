@@ -31,7 +31,7 @@ a {
     @apply border border-secondary text-secondary px-4 py-2 rounded text-sm font-medium hover:bg-secondary hover:text-white transition-colors;
   }
   .section-head {
-    @apply bg-gradient-to-r from-primary to-secondary text-white px-4 py-2.5 flex items-center justify-between;
+    @apply bg-gradient-to-r from-primary to-secondary text-white px-4 py-2.5 flex items-center justify-between flex-wrap gap-1;
   }
   .card {
     @apply bg-white rounded-md shadow-sm overflow-hidden mb-3;

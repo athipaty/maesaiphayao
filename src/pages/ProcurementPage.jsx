@@ -85,12 +85,13 @@ export default function ProcurementPage() {
         ) : items.length === 0 ? (
           <div className="p-10 text-center text-gray-400 text-sm">ไม่พบข้อมูลในขณะนี้</div>
         ) : (
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-blue-50">
                 <th className="px-3 py-2.5 text-left text-primary font-semibold w-10">ที่</th>
                 <th className="px-3 py-2.5 text-left text-primary font-semibold">รายการ</th>
-                <th className="px-3 py-2.5 text-left text-primary font-semibold w-36">วันที่ประกาศ</th>
+                <th className="px-3 py-2.5 text-left text-primary font-semibold w-36 whitespace-nowrap">วันที่ประกาศ</th>
               </tr>
             </thead>
             <tbody>
@@ -116,6 +117,7 @@ export default function ProcurementPage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
 
         <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">

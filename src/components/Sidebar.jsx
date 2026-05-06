@@ -45,7 +45,7 @@ const DEFAULT_SETTINGS = {
   mayorImage:    '',
 }
 
-export default function Sidebar({ onNavigate }) {
+export default function Sidebar({ onNavigate, mobile = false }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export default function Sidebar({ onNavigate }) {
   }, [])
 
   return (
-    <aside className="w-[230px] flex-shrink-0 hidden lg:block">
+    <aside className={`w-[230px] flex-shrink-0 ${mobile ? 'block' : 'hidden lg:block'}`}>
 
       {/* Mayor card */}
       <div className="bg-white rounded-md shadow-sm mb-3 p-4 text-center">

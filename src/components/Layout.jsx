@@ -17,7 +17,7 @@ export default function Layout() {
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
           <div className="absolute left-0 top-0 bottom-0 w-[260px] bg-white overflow-y-auto z-50 shadow-xl">
-            <Sidebar onNavigate={() => setSidebarOpen(false)} />
+            <Sidebar mobile onNavigate={() => setSidebarOpen(false)} />
           </div>
         </div>
       )}

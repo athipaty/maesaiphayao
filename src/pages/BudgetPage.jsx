@@ -34,12 +34,12 @@ export default function BudgetPage() {
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
 
         {/* Total */}
-        <div className="px-6 py-5 bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-between">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-between">
           <div>
             <p className="text-white/70 text-sm">งบประมาณรวมทั้งสิ้น</p>
-            <p className="text-3xl font-bold mt-1">42,000,000 บาท</p>
+            <p className="text-xl sm:text-3xl font-bold mt-1">42,000,000 บาท</p>
           </div>
-          <div className="text-5xl opacity-30">💰</div>
+          <div className="text-4xl sm:text-5xl opacity-30 hidden sm:block">💰</div>
         </div>
 
         {/* Summary cards */}
@@ -127,7 +127,7 @@ export default function BudgetPage() {
           <h2 className="text-white font-bold text-sm">📈 เปรียบเทียบงบประมาณ 3 ปี</h2>
         </div>
         <div className="p-5">
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
             {[
               { year: '2566', amount: '33.85 ล้าน', change: '' },
               { year: '2567', amount: '40.00 ล้าน', change: '+18.2%' },

@@ -19,7 +19,7 @@ function StaffCard({ s }) {
         <div className="border-2 border-dashed border-gray-300 flex flex-col items-center justify-center mx-auto mb-2 rounded bg-gray-50"
           style={{ width: 100, height: 140 }}>
           <span className="text-2xl mb-1">👤</span>
-          <span className="text-xs text-gray-400">ว่างตำแหน่ง</span>
+          <span className="text-xs text-gray-400">ตำแหน่งว่าง</span>
         </div>
         <p className="text-xs text-gray-400 italic leading-snug">{s.position}</p>
       </div>
