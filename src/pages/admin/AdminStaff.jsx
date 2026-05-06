@@ -13,7 +13,7 @@ const DEPTS = [
   { value: 'audit',       label: 'หน่วยตรวจสอบภายใน' },
 ]
 
-const EMPTY = { name: '', position: '', department: 'executive', image: '', phone: '', order: 0, level: 1, isActive: true }
+const EMPTY = { name: '', position: '', department: 'executive', image: '', phone: '', order: 0, level: 1, isVacant: false, isActive: true }
 
 export default function AdminStaff() {
   const [items, setItems]     = useState([])
@@ -110,10 +110,9 @@ export default function AdminStaff() {
                   value={data.level}
                   onChange={e => onChange('level', parseInt(e.target.value))}
                 >
-                  <option value={1}>ชั้น 1 — บนสุด (นายก / หัวหน้ากอง)</option>
-                  <option value={2}>ชั้น 2 — รองลงมา (รองนายก / หัวหน้าฝ่าย)</option>
-                  <option value={3}>ชั้น 3 — ลำดับถัดไป</option>
-                  <option value={4}>ชั้น 4 — เจ้าหน้าที่</option>
+                  {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                    <option key={n} value={n}>ชั้น {n}</option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -131,6 +130,13 @@ export default function AdminStaff() {
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">รูปภาพ</label>
               <div className="border-2 border-dashed border-gray-200 rounded-lg p-3 hover:border-blue-300 transition-colors">
                 <ImageUpload value={data.image} onChange={url => onChange('image', url)} />
+              </div>
+            </div>
+            <div className="flex items-center gap-3 bg-orange-50 border border-orange-100 rounded-lg px-4 py-3">
+              <input type="checkbox" id="isVacantS" checked={data.isVacant} onChange={e => onChange('isVacant', e.target.checked)} className="w-4 h-4 accent-orange-500" />
+              <div>
+                <label htmlFor="isVacantS" className="text-sm font-medium text-orange-700 cursor-pointer">ว่างตำแหน่ง</label>
+                <p className="text-xs text-orange-400">จะแสดงเป็น "ว่างตำแหน่ง" โดยไม่ต้องกรอกชื่อ</p>
               </div>
             </div>
             <div className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">

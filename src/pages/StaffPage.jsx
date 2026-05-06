@@ -12,34 +12,40 @@ const DEPT_LABELS = {
   audit:       'หน่วยตรวจสอบภายใน',
 }
 
-function StaffCard({ s, size = 'md' }) {
-  const sizes = {
-    lg: { img: [120, 165], name: 'text-sm', pos: 'text-xs' },
-    md: { img: [100, 140], name: 'text-xs', pos: 'text-xs' },
-    sm: { img: [80,  110], name: 'text-xs', pos: 'text-xs' },
+function StaffCard({ s }) {
+  if (s.isVacant) {
+    return (
+      <div className="text-center">
+        <div className="border-2 border-dashed border-gray-300 flex flex-col items-center justify-center mx-auto mb-2 rounded bg-gray-50"
+          style={{ width: 100, height: 140 }}>
+          <span className="text-2xl mb-1">👤</span>
+          <span className="text-xs text-gray-400">ว่างตำแหน่ง</span>
+        </div>
+        <p className="text-xs text-gray-400 italic leading-snug">{s.position}</p>
+      </div>
+    )
   }
-  const cfg = sizes[size]
+
   return (
     <div className="text-center">
       {s.image ? (
         <img src={s.image} alt={s.name}
           className="object-cover mx-auto mb-2 border-2 border-blue-100 rounded"
-          style={{ width: cfg.img[0], height: cfg.img[1], objectFit: 'cover', objectPosition: 'top center' }} />
+          style={{ width: 100, height: 140, objectFit: 'cover', objectPosition: 'top center' }} />
       ) : (
         <div className="bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-2xl text-white mx-auto mb-2 rounded"
-          style={{ width: cfg.img[0], height: cfg.img[1] }}>
+          style={{ width: 100, height: 140 }}>
           👤
         </div>
       )}
-      <h4 className={`font-semibold text-primary leading-snug ${cfg.name}`}>{s.name}</h4>
-      <p className={`text-gray-500 mt-0.5 leading-snug ${cfg.pos}`}>{s.position}</p>
+      <h4 className="text-xs font-semibold text-primary leading-snug">{s.name}</h4>
+      <p className="text-xs text-gray-500 mt-0.5 leading-snug">{s.position}</p>
       {s.phone && <p className="text-xs text-secondary mt-0.5">{s.phone}</p>}
     </div>
   )
 }
 
-function DeptSection({ dept, label, members }) {
-  // group by level, sort within each level by order
+function DeptSection({ dept, members }) {
   const byLevel = members.reduce((acc, s) => {
     const lv = s.level || 1
     if (!acc[lv]) acc[lv] = []
@@ -48,47 +54,31 @@ function DeptSection({ dept, label, members }) {
   }, {})
 
   const levels = Object.keys(byLevel).map(Number).sort((a, b) => a - b)
-
-  // connector line colour per dept
   const lineColor = dept === 'executive' ? 'bg-primary' : 'bg-secondary'
 
   return (
-    <div id={`dept-${dept}`} className="card mb-4">
-      <div className="section-head">
-        <h2 className="text-sm font-semibold">👥 {label}</h2>
-      </div>
+    <div className="px-4 py-5 space-y-0">
+      {levels.map((lv, lvIdx) => {
+        const row = [...byLevel[lv]].sort((a, b) => (a.order || 0) - (b.order || 0))
+        const isFirst = lvIdx === 0
+        const indent = `${(lv - 1) * 16}px`
 
-      <div className="px-4 py-5 space-y-0">
-        {levels.map((lv, lvIdx) => {
-          const row = [...byLevel[lv]].sort((a, b) => (a.order || 0) - (b.order || 0))
-          const cardSize = lv === 1 ? 'lg' : lv === 2 ? 'md' : 'sm'
-          const isFirst  = lvIdx === 0
-
-          // indent per level
-          const indent = `${(lv - 1) * 16}px`
-
-          return (
-            <div key={lv}>
-              {/* connector line down from previous level */}
-              {!isFirst && (
-                <div className="flex justify-center">
-                  <div className={`w-0.5 h-6 ${lineColor} opacity-30`} />
-                </div>
-              )}
-
-              {/* row of cards */}
-              <div
-                className="flex flex-wrap justify-center gap-4 py-2"
-                style={{ paddingLeft: indent, paddingRight: indent }}
-              >
-                {row.map(s => (
-                  <StaffCard key={s._id} s={s} size={cardSize} />
-                ))}
+        return (
+          <div key={lv}>
+            {!isFirst && (
+              <div className="flex justify-center">
+                <div className={`w-0.5 h-6 ${lineColor} opacity-30`} />
               </div>
+            )}
+            <div
+              className="flex flex-wrap justify-center gap-4 py-2"
+              style={{ paddingLeft: indent, paddingRight: indent }}
+            >
+              {row.map(s => <StaffCard key={s._id} s={s} />)}
             </div>
-          )
-        })}
-      </div>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -96,6 +86,7 @@ function DeptSection({ dept, label, members }) {
 export default function StaffPage() {
   const [staff, setStaff]     = useState([])
   const [loading, setLoading] = useState(true)
+  const [activeDept, setActiveDept] = useState('all')
 
   useEffect(() => {
     getStaff()
@@ -110,20 +101,55 @@ export default function StaffPage() {
     return acc
   }, {})
 
+  const deptKeys = Object.keys(DEPT_LABELS).filter(d => grouped[d]?.length > 0)
+
+  const visibleDepts = activeDept === 'all'
+    ? deptKeys
+    : deptKeys.filter(d => d === activeDept)
+
   return (
     <div>
       <PageHeader icon="👥" title="บุคลากร/กิจการสภา"
         desc="ข้อมูลผู้บริหาร สมาชิกสภา และบุคลากรองค์การบริหารส่วนตำบลแม่ใส แยกตามสังกัดกอง/สำนัก" />
+
+      {/* Dept filter buttons */}
+      {!loading && deptKeys.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm mb-4 p-3 flex flex-wrap gap-2">
+          <button
+            onClick={() => setActiveDept('all')}
+            className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
+              activeDept === 'all'
+                ? 'bg-secondary text-white border-secondary'
+                : 'border-gray-300 text-gray-600 hover:border-secondary hover:text-secondary'
+            }`}>
+            ทั้งหมด
+          </button>
+          {deptKeys.map(d => (
+            <button key={d} onClick={() => setActiveDept(d)}
+              className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
+                activeDept === d
+                  ? 'bg-secondary text-white border-secondary'
+                  : 'border-gray-300 text-gray-600 hover:border-secondary hover:text-secondary'
+              }`}>
+              {DEPT_LABELS[d]}
+            </button>
+          ))}
+        </div>
+      )}
+
       {loading ? (
         <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
       ) : staff.length === 0 ? (
         <div className="card p-10 text-center text-gray-400">ยังไม่มีข้อมูลบุคลากร</div>
       ) : (
-        Object.entries(DEPT_LABELS).map(([dept, label]) => {
-          const members = grouped[dept]
-          if (!members || members.length === 0) return null
-          return <DeptSection key={dept} dept={dept} label={label} members={members} />
-        })
+        visibleDepts.map(dept => (
+          <div key={dept} id={`dept-${dept}`} className="card mb-4">
+            <div className="section-head">
+              <h2 className="text-sm font-semibold">👥 {DEPT_LABELS[dept]}</h2>
+            </div>
+            <DeptSection dept={dept} members={grouped[dept]} />
+          </div>
+        ))
       )}
     </div>
   )
