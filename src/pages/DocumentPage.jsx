@@ -52,7 +52,6 @@ export default function DocumentPage() {
     <div>
       <PageHeader icon="📂" title="คลังเอกสารราชการ"
         desc="รวมเอกสารราชการ รายงานทางการเงิน เอกสารสภา กฎหมาย และเอกสารด้านธรรมาภิบาลขององค์การบริหารส่วนตำบลแม่ใส" />
-      </div>
 
       {loading ? (
         <div className="card p-10 text-center text-gray-400">กำลังโหลด...</div>
