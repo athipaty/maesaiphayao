@@ -116,7 +116,7 @@ const smallInp = 'border border-gray-200 rounded-md px-2 py-1.5 text-sm focus:ou
 function emptyBlock(type) {
   if (type === 'text')  return { type, data: { title: '', content: '' } }
   if (type === 'links') return { type, data: { title: '', items: [{ icon: '🔗', label: '', url: '', external: true }] } }
-  if (type === 'cards') return { type, data: { title: '', cols: 2, items: [{ icon: '📄', title: '', desc: '', link: '' }] } }
+  if (type === 'cards') return { type, data: { title: '', cols: 2, size: 'md', items: [{ icon: '📄', title: '', desc: '', link: '', color: 'white' }] } }
   if (type === 'image') return { type, data: { layout: 'single', align: 'center', size: 'lg', height: 'auto', images: [] } }
   if (type === 'table') return { type, data: { title: '', headers: ['หัวข้อ', 'รายละเอียด'], rows: [['', '']] } }
   if (type === 'pdf')      return { type, data: { url: '', label: '', title: '', description: '' } }
@@ -184,42 +184,91 @@ function LinksBlockEdit({ data, onChange }) {
   )
 }
 
+const CARD_COLOR_OPTIONS = [
+  { key: 'white',  bg: 'bg-white',       border: 'border-gray-300',     label: 'ขาว'   },
+  { key: 'blue',   bg: 'bg-blue-100',    border: 'border-blue-300',     label: 'ฟ้า'   },
+  { key: 'green',  bg: 'bg-green-100',   border: 'border-green-300',    label: 'เขียว' },
+  { key: 'purple', bg: 'bg-purple-100',  border: 'border-purple-300',   label: 'ม่วง'  },
+  { key: 'amber',  bg: 'bg-amber-100',   border: 'border-amber-300',    label: 'เหลือง'},
+  { key: 'red',    bg: 'bg-red-100',     border: 'border-red-300',      label: 'แดง'   },
+  { key: 'teal',   bg: 'bg-teal-100',    border: 'border-teal-300',     label: 'เทียล' },
+  { key: 'pink',   bg: 'bg-pink-100',    border: 'border-pink-300',     label: 'ชมพู'  },
+  { key: 'indigo', bg: 'bg-indigo-100',  border: 'border-indigo-300',   label: 'คราม' },
+  { key: 'gray',   bg: 'bg-gray-200',    border: 'border-gray-400',     label: 'เทา'   },
+]
+
 function CardsBlockEdit({ data, onChange }) {
   function updateItem(i, field, val) {
     const items = [...(data.items || [])]
     items[i] = { ...items[i], [field]: val }
     onChange({ ...data, items })
   }
-  function addItem()    { onChange({ ...data, items: [...(data.items || []), { icon: '📄', title: '', desc: '', link: '' }] }) }
+  function addItem()    { onChange({ ...data, items: [...(data.items || []), { icon: '📄', title: '', desc: '', link: '', color: 'white' }] }) }
   function removeItem(i){ onChange({ ...data, items: data.items.filter((_, idx) => idx !== i) }) }
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-3">
-        <Field label="หัวข้อ block">
-          <input className={inp} placeholder="ไม่บังคับ" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
-        </Field>
+      {/* Header options row */}
+      <div className="flex gap-3 flex-wrap">
+        <div className="flex-1 min-w-[140px]">
+          <Field label="หัวข้อ block">
+            <input className={inp} placeholder="ไม่บังคับ" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
+          </Field>
+        </div>
         <div className="flex-shrink-0">
-          <Field label="จำนวนคอลัมน์">
-            <select className={`${inp} w-32`} value={data.cols || 2} onChange={e => onChange({ ...data, cols: parseInt(e.target.value) })}>
+          <Field label="คอลัมน์">
+            <select className={`${inp} w-28`} value={data.cols || 2} onChange={e => onChange({ ...data, cols: parseInt(e.target.value) })}>
               <option value={1}>1 คอลัมน์</option>
               <option value={2}>2 คอลัมน์</option>
               <option value={3}>3 คอลัมน์</option>
             </select>
           </Field>
         </div>
+        <div className="flex-shrink-0">
+          <Field label="ขนาดการ์ด">
+            <div className="flex rounded-lg overflow-hidden border border-gray-200">
+              {[
+                { v: 'sm', l: 'เล็ก',  sub: 'S' },
+                { v: 'md', l: 'กลาง',  sub: 'M' },
+                { v: 'lg', l: 'ใหญ่',  sub: 'L' },
+              ].map(({ v, l, sub }) => (
+                <button key={v} type="button" onClick={() => onChange({ ...data, size: v })}
+                  className={`flex-1 py-1.5 px-3 text-xs font-semibold transition-colors flex flex-col items-center leading-tight ${(data.size||'md')===v ? 'bg-purple-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
+                  <span>{sub}</span>
+                  <span className="text-[9px] opacity-70">{l}</span>
+                </button>
+              ))}
+            </div>
+          </Field>
+        </div>
       </div>
+
+      {/* Card list */}
       <Field label={`การ์ด (${(data.items||[]).length} รายการ)`}>
-        <div className="space-y-2">
+        <div className={`grid gap-2 ${{ 1:'grid-cols-1', 2:'grid-cols-2', 3:'grid-cols-3' }[data.cols||2]||'grid-cols-2'}`}>
           {(data.items || []).map((item, i) => (
-            <div key={i} className="bg-gray-50 border border-gray-100 rounded-xl p-3 space-y-2">
+            <div key={i} className={`border rounded-xl p-3 space-y-2.5 transition-colors ${CARD_COLOR_OPTIONS.find(c=>c.key===(item.color||'white'))?.bg||'bg-white'} ${CARD_COLOR_OPTIONS.find(c=>c.key===(item.color||'white'))?.border||'border-gray-200'}`}>
+              {/* Row 1: icon + title + delete */}
               <div className="flex items-center gap-2">
                 <EmojiPicker value={item.icon || '📄'} onChange={v => updateItem(i, 'icon', v)} accentColor="purple" />
                 <input className={`${smallInp} flex-1 font-medium`} placeholder="ชื่อการ์ด" value={item.title} onChange={e => updateItem(i, 'title', e.target.value)} />
-                <button onClick={() => removeItem(i)} className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors text-sm flex-shrink-0">✕</button>
+                <button onClick={() => removeItem(i)} className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-100 transition-colors text-sm flex-shrink-0">✕</button>
               </div>
-              <input className={`${smallInp} w-full`} placeholder="คำอธิบายสั้นๆ" value={item.desc} onChange={e => updateItem(i, 'desc', e.target.value)} />
-              <input className={`${smallInp} w-full`} placeholder="ลิงค์ (ไม่บังคับ) เช่น /about หรือ https://..." value={item.link} onChange={e => updateItem(i, 'link', e.target.value)} />
+              {/* Row 2: description */}
+              <input className={`${smallInp} w-full bg-white/70`} placeholder="คำอธิบายสั้นๆ" value={item.desc} onChange={e => updateItem(i, 'desc', e.target.value)} />
+              {/* Row 3: link */}
+              <input className={`${smallInp} w-full bg-white/70`} placeholder="ลิงค์ (ไม่บังคับ) เช่น /about หรือ https://..." value={item.link} onChange={e => updateItem(i, 'link', e.target.value)} />
+              {/* Row 4: color picker */}
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-gray-400 flex-shrink-0">สีพื้นหลัง</span>
+                <div className="flex gap-1 flex-wrap">
+                  {CARD_COLOR_OPTIONS.map(c => (
+                    <button key={c.key} type="button" title={c.label}
+                      onClick={() => updateItem(i, 'color', c.key)}
+                      className={`w-5 h-5 rounded-full border-2 transition-all ${c.bg} ${c.border} ${(item.color||'white')===c.key ? 'ring-2 ring-offset-1 ring-purple-400 scale-110' : 'hover:scale-105'}`} />
+                  ))}
+                </div>
+              </div>
             </div>
           ))}
         </div>

@@ -49,31 +49,51 @@ function LinksBlock({ data }) {
   )
 }
 
+const CARD_BG = {
+  white:  'bg-white border-gray-100',
+  blue:   'bg-blue-50 border-blue-200',
+  green:  'bg-green-50 border-green-200',
+  purple: 'bg-purple-50 border-purple-200',
+  amber:  'bg-amber-50 border-amber-200',
+  red:    'bg-red-50 border-red-200',
+  teal:   'bg-teal-50 border-teal-200',
+  pink:   'bg-pink-50 border-pink-200',
+  indigo: 'bg-indigo-50 border-indigo-200',
+  gray:   'bg-gray-100 border-gray-200',
+}
+const CARD_SIZE = {
+  sm: { p: 'p-3',   icon: 'text-xl',    title: 'text-xs',    desc: 'text-[11px]', gap: 'gap-2' },
+  md: { p: 'p-4',   icon: 'text-2xl',   title: 'text-sm',    desc: 'text-xs',     gap: 'gap-3' },
+  lg: { p: 'p-5',   icon: 'text-3xl',   title: 'text-base',  desc: 'text-sm',     gap: 'gap-4' },
+}
+
 function CardsBlock({ data }) {
   const items = data.items || []
   const cols = data.cols || 2
+  const sz = CARD_SIZE[data.size || 'md'] || CARD_SIZE.md
   const gridClass = cols === 1 ? 'grid-cols-1' : cols === 3 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'
   return (
     <div className="mb-4">
       {data.title && <h3 className="text-sm font-semibold text-gray-700 mb-2 px-1">{data.title}</h3>}
       <div className={`grid ${gridClass} gap-3`}>
         {items.map((item, i) => {
+          const bg = CARD_BG[item.color || 'white'] || CARD_BG.white
           const inner = (
-            <div className="flex items-start gap-3">
-              {item.icon && <span className="text-2xl flex-shrink-0">{item.icon}</span>}
+            <div className={`flex items-start ${sz.gap}`}>
+              {item.icon && <span className={`${sz.icon} flex-shrink-0`}>{item.icon}</span>}
               <div>
-                <p className="text-sm font-semibold text-primary">{item.title}{item.link ? ' →' : ''}</p>
-                {item.desc && <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>}
+                <p className={`${sz.title} font-semibold text-primary`}>{item.title}{item.link ? ' →' : ''}</p>
+                {item.desc && <p className={`${sz.desc} text-gray-500 mt-0.5 leading-relaxed`}>{item.desc}</p>}
               </div>
             </div>
           )
           return item.link ? (
             <Link key={i} to={item.link}
-              className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 hover:border-primary/30 hover:bg-blue-50/50 transition-colors">
+              className={`rounded-lg shadow-sm border ${sz.p} ${bg} hover:opacity-80 transition-opacity`}>
               {inner}
             </Link>
           ) : (
-            <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">{inner}</div>
+            <div key={i} className={`rounded-lg shadow-sm border ${sz.p} ${bg}`}>{inner}</div>
           )
         })}
       </div>
