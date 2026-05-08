@@ -2,6 +2,12 @@ import { Link, NavLink } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { getSettings, getPages } from '../services/api'
 
+const TOP_NAV = [
+  { label: 'เกี่ยวกับ อบต.แม่ใส', path: '/about',   slug: 'about',   icon: '🏛️' },
+  { label: 'บุคลากร/กิจการสภา',   path: '/staff',   slug: 'staff',   icon: '👥' },
+  { label: 'ติดต่อเรา',            path: '/contact', slug: 'contact', icon: '📞' },
+]
+
 const DEFAULT_DEPTS = [
   { value: 'executive',   label: 'ผู้บริหาร' },
   { value: 'council',     label: 'สมาชิกสภา อบต.' },
@@ -26,10 +32,6 @@ export default function Navbar({ onMenuClick }) {
     }).catch(() => {})
     getPages().then(r => setPages((r?.data || []).filter(p => p.isActive))).catch(() => {})
   }, [])
-
-  const topLevel = pages
-    .filter(p => !p.parentSlug)
-    .sort((a, b) => a.order - b.order)
 
   function getChildren(slug) {
     return pages.filter(p => p.parentSlug === slug).sort((a, b) => a.order - b.order)
@@ -82,17 +84,16 @@ export default function Navbar({ onMenuClick }) {
 
       {/* Secondary nav row — desktop only */}
       <nav className="hidden lg:block bg-primary/90 border-t border-white/10">
-        <div className="max-w-[1200px] mx-auto px-3 flex items-center gap-1 overflow-x-auto">
-          {topLevel.map(m => {
-            const linkPath    = m.isBuiltin ? m.path : `/page/${m.slug}`
-            const isStaff     = m.path === '/staff' || m.slug === 'staff'
+        <div className="max-w-[1200px] mx-auto px-3 flex items-center gap-1">
+          {TOP_NAV.map(m => {
+            const isStaff      = m.slug === 'staff'
             const pageChildren = getChildren(m.slug)
-            // Staff page: use department list as dropdown; others: use sub-pages
-            const dropItems   = isStaff
+            // Staff: departments as dropdown; others: sub-pages from the API
+            const dropItems    = isStaff
               ? depts.map(d => ({ key: d.value, icon: '👥', title: d.label, to: `/staff#dept-${d.value}` }))
               : pageChildren.map(c => ({ key: c.slug, icon: c.icon, title: c.title, to: c.isBuiltin ? c.path : `/page/${c.slug}` }))
-            const hasDropdown = dropItems.length > 0
-            const isOpen      = openSlug === m.slug
+            const hasDropdown  = dropItems.length > 0
+            const isOpen       = openSlug === m.slug
             return (
               <div key={m.slug} className="relative flex-shrink-0"
                 onMouseEnter={() => openMenu(m.slug)}
@@ -103,12 +104,12 @@ export default function Navbar({ onMenuClick }) {
                     onClick={() => (isOpen ? setOpenSlug(null) : openMenu(m.slug))}
                     className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-colors whitespace-nowrap text-white/80 hover:bg-white/10 hover:text-white">
                     {m.icon && <span>{m.icon}</span>}
-                    {m.title}
+                    {m.label}
                     <span className="text-[10px] transition-transform duration-150 inline-block"
                       style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
                   </button>
                 ) : (
-                  <NavLink to={linkPath}
+                  <NavLink to={m.path}
                     className={({ isActive }) =>
                       `flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-colors whitespace-nowrap ${
                         isActive
@@ -117,7 +118,7 @@ export default function Navbar({ onMenuClick }) {
                       }`
                     }>
                     {m.icon && <span>{m.icon}</span>}
-                    {m.title}
+                    {m.label}
                   </NavLink>
                 )}
 
