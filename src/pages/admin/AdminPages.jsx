@@ -56,7 +56,7 @@ function emptyBlock(type) {
   if (type === 'text')  return { type, data: { title: '', content: '' } }
   if (type === 'links') return { type, data: { title: '', items: [{ icon: '🔗', label: '', url: '', external: true }] } }
   if (type === 'cards') return { type, data: { title: '', cols: 2, items: [{ icon: '📄', title: '', desc: '', link: '' }] } }
-  if (type === 'image') return { type, data: { layout: 'single', align: 'center', size: 'lg', images: [] } }
+  if (type === 'image') return { type, data: { layout: 'single', align: 'center', size: 'lg', height: 'auto', images: [] } }
   if (type === 'table') return { type, data: { title: '', headers: ['หัวข้อ', 'รายละเอียด'], rows: [['', '']] } }
   if (type === 'pdf')      return { type, data: { url: '', label: '', title: '', description: '' } }
   if (type === 'banner')   return { type, data: { icon: '', title: '', subtitle: '', color: 'primary', align: 'center' } }
@@ -227,6 +227,27 @@ function ImageBlockEdit({ data, onChange }) {
           ))}
         </div>
       </Field>
+
+      {/* Grid height */}
+      {layout !== 'single' && (
+        <Field label="ความสูงรูป" hint="เลือก fixed height หรือแสดงตามสัดส่วนจริง">
+          <div className="grid grid-cols-5 gap-1.5">
+            {[
+              { v: 'auto',   l: 'ตามสัดส่วน', sub: 'natural' },
+              { v: 'sm',     l: 'เล็ก',        sub: '128px'   },
+              { v: 'md',     l: 'กลาง',        sub: '192px'   },
+              { v: 'lg',     l: 'ใหญ่',        sub: '256px'   },
+              { v: 'square', l: 'สี่เหลี่ยม',  sub: '1 : 1'   },
+            ].map(({ v, l, sub }) => (
+              <button key={v} type="button" onClick={() => onChange({ ...data, height: v })}
+                className={`py-2 rounded-xl border-2 text-center transition-all ${(data.height||'auto')===v ? 'border-amber-400 bg-amber-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
+                <p className={`text-[11px] font-semibold ${(data.height||'auto')===v ? 'text-amber-700' : 'text-gray-600'}`}>{l}</p>
+                <p className={`text-[9px] mt-0.5 ${(data.height||'auto')===v ? 'text-amber-500' : 'text-gray-400'}`}>{sub}</p>
+              </button>
+            ))}
+          </div>
+        </Field>
+      )}
 
       {/* Single-mode options */}
       {layout === 'single' && (

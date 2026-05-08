@@ -110,12 +110,20 @@ function ImageBlock({ data }) {
   const colMap = { 'grid-2': 'grid-cols-2', 'grid-3': 'grid-cols-2 sm:grid-cols-3', 'grid-4': 'grid-cols-2 sm:grid-cols-4' }
   const gridClass = colMap[layout] || 'grid-cols-2'
 
+  const heightCls = {
+    auto:   'w-full',
+    sm:     'w-full h-32 object-cover',
+    md:     'w-full h-48 object-cover',
+    lg:     'w-full h-64 object-cover',
+    square: 'w-full aspect-square object-cover',
+  }[data.height || 'auto'] || 'w-full'
+
   return (
     <div className="mb-4">
       <div className={`grid ${gridClass} gap-2`}>
         {images.map((img, i) => (
           <div key={i}>
-            <img src={img.url} alt={img.caption || ''} className="w-full rounded-lg shadow-sm object-cover h-40" />
+            <img src={img.url} alt={img.caption || ''} className={`rounded-lg shadow-sm ${heightCls}`} />
             {img.caption && <p className="text-xs text-gray-400 mt-1 text-center">{img.caption}</p>}
           </div>
         ))}
