@@ -39,7 +39,7 @@ function EmojiPicker({ value, onChange, accentColor = 'purple' }) {
       {/* Trigger button */}
       <button type="button" onClick={() => setOpen(true)}
         title="เลือก icon"
-        className={`w-10 h-10 flex items-center justify-center text-xl rounded-xl border-2 transition-all ${open ? 'border-purple-400 bg-purple-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
+        className={`w-10 h-10 flex items-center justify-center text-xl rounded-xl border-2 transition-colors ${open ? 'border-purple-400 bg-purple-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
         {value || <span className="text-[11px] text-gray-300 font-bold">✕</span>}
       </button>
 
@@ -73,13 +73,13 @@ function EmojiPicker({ value, onChange, accentColor = 'purple' }) {
                 <button type="button"
                   onClick={() => { onChange(''); setOpen(false) }}
                   title="ไม่มี icon"
-                  className={`w-full aspect-square flex items-center justify-center rounded-xl border-2 border-dashed transition-all hover:bg-red-50 hover:border-red-300 ${!value ? 'border-red-300 bg-red-50' : 'border-gray-200 text-gray-300'}`}>
+                  className={`w-full aspect-square flex items-center justify-center rounded-xl border-2 border-dashed transition-colors hover:bg-red-50 hover:border-red-300 ${!value ? 'border-red-300 bg-red-50' : 'border-gray-200 text-gray-300'}`}>
                   <span className="text-xs font-bold">✕</span>
                 </button>
                 {CARD_ICONS.map(ic => (
                   <button key={ic} type="button"
                     onClick={() => { onChange(ic); setOpen(false) }}
-                    className={`w-full aspect-square flex items-center justify-center text-2xl rounded-xl transition-all hover:bg-gray-100 hover:scale-110 active:scale-95 ${value === ic ? selCls : ''}`}>
+                    className={`w-full aspect-square flex items-center justify-center text-2xl rounded-xl transition-[transform,background-color] hover:bg-gray-100 hover:scale-110 active:scale-95 ${value === ic ? selCls : ''}`}>
                     {ic}
                   </button>
                 ))}
@@ -141,8 +141,8 @@ function Field({ label, hint, children }) {
   )
 }
 
-const inp = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all bg-white'
-const smallInp = 'border border-gray-200 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition-all bg-white'
+const inp = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-[border-color,box-shadow] bg-white'
+const smallInp = 'border border-gray-200 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition-[border-color,box-shadow] bg-white'
 
 function emptyBlock(type) {
   if (type === 'text')  return { type, data: { title: '', content: '' } }
@@ -1000,31 +1000,58 @@ function BlockEdit({ block, onChange }) {
 
 // ── Block Editor view ─────────────────────────────────────────────────────────
 
+function DeferredBlockEdit({ initialBlock, onDraftChange }) {
+  const [local, setLocal] = useState(initialBlock)
+  function handleChange(b) { setLocal(b); onDraftChange(b) }
+  return <BlockEdit block={local} onChange={handleChange} />
+}
+
 function BlockEditorView({ page, onBack, onPageSaved }) {
   const [blocks, setBlocks]   = useState(page.blocks || [])
   const [saving, setSaving]   = useState(false)
   const [openIdx, setOpenIdx] = useState(null)
   const [err, setErr]         = useState('')
   const [saved, setSaved]     = useState(false)
+  const draftRef              = useRef(null)  // latest typed data for open block, no re-render
+
+  function commitDraft() {
+    if (draftRef.current !== null && openIdx !== null) {
+      const draft = draftRef.current
+      setBlocks(prev => prev.map((x, i) => i === openIdx ? draft : x))
+      draftRef.current = null
+    }
+  }
+
+  function switchBlock(newIdx) { commitDraft(); setOpenIdx(newIdx) }
+
+  function getBlocksWithDraft() {
+    if (draftRef.current === null || openIdx === null) return blocks
+    return blocks.map((x, i) => i === openIdx ? draftRef.current : x)
+  }
 
   function addBlock(type) {
+    commitDraft()
     const b = emptyBlock(type)
     b._tempKey = 'tmp-' + Date.now()
-    setBlocks(prev => [...prev, b])
-    setOpenIdx(blocks.length)
+    setBlocks(prev => {
+      setOpenIdx(prev.length)
+      return [...prev, b]
+    })
   }
 
   function updateBlock(i, b) { setBlocks(prev => prev.map((x, idx) => idx === i ? b : x)) }
   function deleteBlock(i)    {
+    commitDraft()
     setBlocks(prev => prev.filter((_, idx) => idx !== i))
     if (openIdx === i) setOpenIdx(null)
     else if (openIdx !== null && openIdx > i) setOpenIdx(openIdx - 1)
   }
   function moveBlock(i, dir) {
-    const next = [...blocks]
+    const next = [...getBlocksWithDraft()]
     const target = i + dir
     if (target < 0 || target >= next.length) return
     ;[next[i], next[target]] = [next[target], next[i]]
+    draftRef.current = null
     setBlocks(next)
     setOpenIdx(target)
   }
@@ -1033,7 +1060,7 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
     setSaving(true); setErr(''); setSaved(false)
     try {
       // eslint-disable-next-line no-unused-vars
-      const cleanBlocks = blocks.map(({ _tempKey, ...rest }) => rest)
+      const cleanBlocks = getBlocksWithDraft().map(({ _tempKey, ...rest }) => rest)
       const updated = await updatePage(page._id, { blocks: cleanBlocks })
       onPageSaved(updated.data)
       setSaved(true)
@@ -1059,7 +1086,7 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
           {err   && <span className="text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg max-w-[220px] truncate">⚠️ {err}</span>}
           {saved && <span className="text-xs text-green-700 bg-green-50 border border-green-200 px-3 py-1.5 rounded-lg">✓ บันทึกแล้ว</span>}
           <button onClick={save} disabled={saving}
-            className="flex items-center gap-1.5 bg-primary text-white text-sm font-medium px-4 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 transition-all shadow-sm">
+            className="flex items-center gap-1.5 bg-primary text-white text-sm font-medium px-4 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity shadow-sm">
             {saving ? <><span className="animate-spin inline-block">⏳</span> กำลังบันทึก...</> : '💾 บันทึก'}
           </button>
         </div>
@@ -1072,11 +1099,11 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
           {BLOCK_TYPES.map(bt => (
             <div key={bt.type} className="relative group">
               <button onClick={() => addBlock(bt.type)}
-                className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl transition-all hover:scale-110 active:scale-95 ${bt.color}`}>
+                className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl transition-[transform,border-color,background-color] hover:scale-110 active:scale-95 ${bt.color}`}>
                 {bt.icon}
               </button>
               {/* Tooltip */}
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 opacity-0 group-hover:opacity-100 pointer-events-none z-50 transition-all duration-150 scale-95 group-hover:scale-100">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 opacity-0 group-hover:opacity-100 pointer-events-none z-50 transition-[opacity,transform] duration-150 scale-95 group-hover:scale-100">
                 <div className="bg-gray-900 text-white rounded-xl px-3 py-2 shadow-xl whitespace-nowrap">
                   <p className="text-xs font-semibold">{bt.label}</p>
                   <p className="text-[10px] text-gray-400 mt-0.5 leading-snug max-w-[160px] whitespace-normal">{bt.desc}</p>
@@ -1101,8 +1128,8 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
             const isSel = openIdx === i
             return (
               <div key={block._id || block._tempKey || i} className="relative group">
-                <button onClick={() => setOpenIdx(isSel ? null : i)}
-                  className={`w-11 h-11 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${bt?.color || 'bg-gray-50 border-gray-200'} ${isSel ? 'ring-2 ring-offset-1 ring-blue-400 scale-110 shadow-md' : 'hover:scale-105'}`}>
+                <button onClick={() => switchBlock(isSel ? null : i)}
+                  className={`w-11 h-11 rounded-xl border-2 flex flex-col items-center justify-center transition-[transform,border-color,background-color] ${bt?.color || 'bg-gray-50 border-gray-200'} ${isSel ? 'ring-2 ring-offset-1 ring-blue-400 scale-110 shadow-md' : 'hover:scale-105'}`}>
                   <span className="text-lg leading-none">{meta.icon}</span>
                   <span className="text-[9px] font-medium text-gray-500 leading-none mt-0.5">{i + 1}</span>
                 </button>
@@ -1112,7 +1139,7 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
                   ×
                 </button>
                 {/* Name tooltip */}
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none z-50 transition-all duration-100">
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none z-50 transition-opacity duration-100">
                   <div className="bg-gray-900 text-white rounded-lg px-2.5 py-1 text-[10px] font-medium whitespace-nowrap shadow-xl">{meta.label}</div>
                   <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-4 border-transparent border-t-gray-900" />
                 </div>
@@ -1134,15 +1161,15 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
               <span className="text-[11px] text-gray-400 bg-white border border-gray-200 px-2 py-0.5 rounded-lg">#{openIdx + 1}</span>
               <div className="flex gap-1">
                 <button onClick={() => moveBlock(openIdx, -1)} disabled={openIdx === 0}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 disabled:opacity-20 transition-all text-xs">◀</button>
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 disabled:opacity-20 transition-colors text-xs">◀</button>
                 <button onClick={() => moveBlock(openIdx, 1)} disabled={openIdx === blocks.length - 1}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 disabled:opacity-20 transition-all text-xs">▶</button>
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 disabled:opacity-20 transition-colors text-xs">▶</button>
               </div>
-              <button onClick={() => setOpenIdx(null)}
+              <button onClick={() => switchBlock(null)}
                 className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors text-sm">✕</button>
             </div>
             <div className="p-5">
-              <BlockEdit block={block} onChange={b => updateBlock(openIdx, b)} />
+              <DeferredBlockEdit key={openIdx} initialBlock={block} onDraftChange={b => { draftRef.current = b }} />
             </div>
           </div>
         )
@@ -1355,9 +1382,9 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
           </button>
           <div className="flex gap-1 flex-shrink-0">
             <button onClick={() => move(page, -1)} disabled={isFirst || saving}
-              className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 disabled:opacity-20 transition-all text-xs">▲</button>
+              className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 disabled:opacity-20 transition-colors text-xs">▲</button>
             <button onClick={() => move(page, 1)} disabled={isLast || saving}
-              className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 disabled:opacity-20 transition-all text-xs">▼</button>
+              className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 disabled:opacity-20 transition-colors text-xs">▼</button>
           </div>
           <button onClick={() => { setEditPage(page); setShowForm(true) }}
             className="text-xs font-medium text-secondary hover:text-primary bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg transition-colors flex-shrink-0">
