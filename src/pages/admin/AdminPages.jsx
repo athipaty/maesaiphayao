@@ -1,10 +1,71 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getPages, createPage, updatePage, deletePage, uploadImage } from '../../services/api'
 import ImageUpload from '../../components/ImageUpload'
 import PdfUpload from '../../components/PdfUpload'
 import BlockRenderer from '../../components/BlockRenderer'
 
 const ICONS = ['📄','🏛️','📰','📊','💰','📋','👥','🌐','📮','🚨','📝','📚','⚖️','📞','🎭','🌿','🗺️','🛍️','🏠','ℹ️','📌','🔔','✉️','🎓','🏥','🌾','🔨','🤝','⚡','🔗']
+
+const CARD_ICONS = [
+  '📄','📝','📋','📊','📈','📉','📌','📍','📎','🔗',
+  '🏛️','🏠','🏢','🏥','🏫','🏪','🏗️','🌐','🗺️','📮',
+  '💰','💳','💼','🏆','🥇','🎓','📚','🎭','🌿','🌾',
+  '👥','👤','🤝','🧑‍💼','👮','🧑‍🔬','🧑‍🏫','🧑‍⚕️','🏃','🚶',
+  '📞','✉️','📧','📱','💬','🔔','📢','📣','🚨','⚡',
+  '🔨','⚙️','🔧','🛠️','🔑','🗝️','🔒','💡','🔍','🔎',
+  '🌟','⭐','💫','✨','🎯','❤️','💙','💚','💛','🧡',
+  '🚗','🚌','✈️','🚢','🚲','🛵','🚑','🚒','🏘️','🌅',
+  '🛍️','🍎','🌱','🌺','🌻','🦋','🐦','🌈','☀️','🌙',
+  '📅','⏰','💻','🖥️','📷','🎪','🎨','🎵','🎬','🏅',
+]
+
+function EmojiPicker({ value, onChange, accentColor = 'purple' }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    function onDown(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [open])
+
+  const ring = accentColor === 'purple'
+    ? 'border-purple-400 bg-purple-50'
+    : accentColor === 'green'
+    ? 'border-green-400 bg-green-50'
+    : accentColor === 'orange'
+    ? 'border-orange-400 bg-orange-50'
+    : 'border-blue-400 bg-blue-50'
+
+  const sel = accentColor === 'purple' ? 'bg-purple-100'
+    : accentColor === 'green' ? 'bg-green-100'
+    : accentColor === 'orange' ? 'bg-orange-100'
+    : 'bg-blue-100'
+
+  return (
+    <div className="relative flex-shrink-0" ref={ref}>
+      <button type="button" onClick={() => setOpen(v => !v)}
+        title="เลือก icon"
+        className={`w-10 h-10 flex items-center justify-center text-xl rounded-xl border-2 transition-all ${open ? ring : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
+        {value || '📄'}
+      </button>
+      {open && (
+        <div className="absolute top-full left-0 mt-1.5 z-50 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2.5" style={{ width: 300 }}>
+          <div className="grid grid-cols-10 gap-0.5 max-h-[220px] overflow-y-auto">
+            {CARD_ICONS.map(ic => (
+              <button key={ic} type="button"
+                onClick={() => { onChange(ic); setOpen(false) }}
+                className={`w-7 h-7 flex items-center justify-center text-base rounded-lg transition-colors hover:bg-gray-100 active:scale-90 ${value === ic ? sel : ''}`}>
+                {ic}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 const BLOCK_TYPES = [
   { type: 'text',  icon: '📝', label: 'ข้อความ/บทความ', desc: 'เนื้อหา ย่อหน้า บทความ',  color: 'bg-indigo-50 border-indigo-200 hover:border-indigo-400', accent: 'bg-indigo-500' },
@@ -153,7 +214,7 @@ function CardsBlockEdit({ data, onChange }) {
           {(data.items || []).map((item, i) => (
             <div key={i} className="bg-gray-50 border border-gray-100 rounded-xl p-3 space-y-2">
               <div className="flex items-center gap-2">
-                <input className={`${smallInp} w-14 text-center text-base`} placeholder="📄" value={item.icon || ''} onChange={e => updateItem(i, 'icon', e.target.value)} />
+                <EmojiPicker value={item.icon || '📄'} onChange={v => updateItem(i, 'icon', v)} accentColor="purple" />
                 <input className={`${smallInp} flex-1 font-medium`} placeholder="ชื่อการ์ด" value={item.title} onChange={e => updateItem(i, 'title', e.target.value)} />
                 <button onClick={() => removeItem(i)} className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors text-sm flex-shrink-0">✕</button>
               </div>
