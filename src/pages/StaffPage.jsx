@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
-import { getStaff } from '../services/api'
+import { getStaff, getSettings } from '../services/api'
 import PageHeader from '../components/PageHeader'
 
-const DEPT_LABELS = {
-  executive:   'ผู้บริหาร',
-  council:     'สมาชิกสภา อบต.',
-  office:      'สำนักปลัด',
-  finance:     'กองคลัง',
-  engineering: 'กองช่าง',
-  health:      'กองสาธารณสุขและสิ่งแวดล้อม',
-  audit:       'หน่วยตรวจสอบภายใน',
-}
+const DEFAULT_DEPTS = [
+  { value: 'executive',   label: 'ผู้บริหาร' },
+  { value: 'council',     label: 'สมาชิกสภา อบต.' },
+  { value: 'office',      label: 'สำนักปลัด' },
+  { value: 'finance',     label: 'กองคลัง' },
+  { value: 'engineering', label: 'กองช่าง' },
+  { value: 'health',      label: 'กองสาธารณสุขฯ' },
+  { value: 'audit',       label: 'หน่วยตรวจสอบภายใน' },
+]
 
 function StaffCard({ s }) {
   if (s.isVacant) {
@@ -85,15 +85,23 @@ function DeptSection({ dept, members }) {
 
 export default function StaffPage() {
   const [staff, setStaff]     = useState([])
+  const [depts, setDepts]     = useState(DEFAULT_DEPTS)
   const [loading, setLoading] = useState(true)
   const [activeDept, setActiveDept] = useState('all')
 
   useEffect(() => {
-    getStaff()
-      .then(r => setStaff(r?.data || []))
+    Promise.all([getStaff(), getSettings()])
+      .then(([staffRes, settingsRes]) => {
+        setStaff(staffRes?.data || [])
+        if (settingsRes?.data?.departments?.length) {
+          setDepts(settingsRes.data.departments)
+        }
+      })
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
+
+  const deptMap = Object.fromEntries(depts.map(d => [d.value, d.label]))
 
   const grouped = staff.reduce((acc, s) => {
     if (!acc[s.department]) acc[s.department] = []
@@ -101,7 +109,7 @@ export default function StaffPage() {
     return acc
   }, {})
 
-  const deptKeys = Object.keys(DEPT_LABELS).filter(d => grouped[d]?.length > 0)
+  const deptKeys = depts.map(d => d.value).filter(v => grouped[v]?.length > 0)
 
   const visibleDepts = activeDept === 'all'
     ? deptKeys
@@ -131,7 +139,7 @@ export default function StaffPage() {
                   ? 'bg-secondary text-white border-secondary'
                   : 'border-gray-300 text-gray-600 hover:border-secondary hover:text-secondary'
               }`}>
-              {DEPT_LABELS[d]}
+              {deptMap[d]}
             </button>
           ))}
         </div>
@@ -145,7 +153,7 @@ export default function StaffPage() {
         visibleDepts.map(dept => (
           <div key={dept} id={`dept-${dept}`} className="card mb-4">
             <div className="section-head">
-              <h2 className="text-sm font-semibold">👥 {DEPT_LABELS[dept]}</h2>
+              <h2 className="text-sm font-semibold">👥 {deptMap[dept]}</h2>
             </div>
             <DeptSection dept={dept} members={grouped[dept]} />
           </div>
