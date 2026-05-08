@@ -5,14 +5,42 @@ import PdfUpload from '../../components/PdfUpload'
 import BlockRenderer from '../../components/BlockRenderer'
 
 const ICONS = ['📄','🏛️','📰','📊','💰','📋','👥','🌐','📮','🚨','📝','📚','⚖️','📞','🎭','🌿','🗺️','🛍️','🏠','ℹ️','📌','🔔','✉️','🎓','🏥','🌾','🔨','🤝','⚡','🔗']
+
 const BLOCK_TYPES = [
-  { type: 'text',  label: '📝 ข้อความ/บทความ' },
-  { type: 'links', label: '🔗 รายการลิงค์' },
-  { type: 'cards', label: '🃏 การ์ด' },
-  { type: 'image', label: '🖼️ รูปภาพ' },
-  { type: 'table', label: '📊 ตาราง' },
-  { type: 'pdf',   label: '📄 ไฟล์ PDF' },
+  { type: 'text',  icon: '📝', label: 'ข้อความ/บทความ', desc: 'เนื้อหา ย่อหน้า บทความ',  color: 'bg-indigo-50 border-indigo-200 hover:border-indigo-400', accent: 'bg-indigo-500' },
+  { type: 'links', icon: '🔗', label: 'รายการลิงค์',     desc: 'รายการลิงค์ภายใน/ภายนอก', color: 'bg-green-50 border-green-200 hover:border-green-400',   accent: 'bg-green-500'  },
+  { type: 'cards', icon: '🃏', label: 'การ์ด',           desc: 'กริดการ์ด มีไอคอนและคำอธิบาย', color: 'bg-purple-50 border-purple-200 hover:border-purple-400', accent: 'bg-purple-500' },
+  { type: 'image', icon: '🖼️', label: 'รูปภาพ',          desc: 'อัปโหลดรูป + คำบรรยาย',    color: 'bg-amber-50 border-amber-200 hover:border-amber-400',   accent: 'bg-amber-500'  },
+  { type: 'table', icon: '📊', label: 'ตาราง',           desc: 'ตารางข้อมูลแบบกำหนดเอง',   color: 'bg-cyan-50 border-cyan-200 hover:border-cyan-400',     accent: 'bg-cyan-500'   },
+  { type: 'pdf',   icon: '📄', label: 'ไฟล์ PDF',        desc: 'แนบและแสดงไฟล์ PDF',      color: 'bg-red-50 border-red-200 hover:border-red-400',        accent: 'bg-red-500'    },
 ]
+const BLOCK_META = Object.fromEntries(BLOCK_TYPES.map(b => [b.type, b]))
+
+const ACCENT_BORDER = {
+  text:  'border-l-indigo-400',
+  links: 'border-l-green-400',
+  cards: 'border-l-purple-400',
+  image: 'border-l-amber-400',
+  table: 'border-l-cyan-400',
+  pdf:   'border-l-red-400',
+}
+
+// ── Shared field helpers ──────────────────────────────────────────────────────
+
+function Field({ label, hint, children }) {
+  return (
+    <div>
+      <div className="flex items-baseline justify-between mb-1.5">
+        <label className="text-xs font-semibold text-gray-600">{label}</label>
+        {hint && <span className="text-[10px] text-gray-400">{hint}</span>}
+      </div>
+      {children}
+    </div>
+  )
+}
+
+const inp = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all bg-white'
+const smallInp = 'border border-gray-200 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition-all bg-white'
 
 function emptyBlock(type) {
   if (type === 'text')  return { type, data: { title: '', content: '' } }
@@ -28,9 +56,13 @@ function emptyBlock(type) {
 
 function TextBlockEdit({ data, onChange }) {
   return (
-    <div className="space-y-3">
-      <input className="input text-sm" placeholder="หัวข้อ block (ไม่บังคับ)" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
-      <textarea className="input text-sm min-h-[140px]" placeholder="เนื้อหา (เว้นบรรทัดเปล่าเพื่อแบ่งย่อหน้า)" value={data.content || ''} onChange={e => onChange({ ...data, content: e.target.value })} />
+    <div className="space-y-4">
+      <Field label="หัวข้อ block" hint="ไม่บังคับ">
+        <input className={inp} placeholder="เช่น ข้อมูลทั่วไป" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
+      </Field>
+      <Field label="เนื้อหา" hint="เว้นบรรทัดเปล่า = แบ่งย่อหน้า">
+        <textarea className={`${inp} min-h-[160px] leading-relaxed`} placeholder="พิมพ์เนื้อหาที่นี่..." value={data.content || ''} onChange={e => onChange({ ...data, content: e.target.value })} />
+      </Field>
     </div>
   )
 }
@@ -41,27 +73,37 @@ function LinksBlockEdit({ data, onChange }) {
     items[i] = { ...items[i], [field]: val }
     onChange({ ...data, items })
   }
-  function addItem() { onChange({ ...data, items: [...(data.items || []), { icon: '🔗', label: '', url: '', external: true }] }) }
-  function removeItem(i) { onChange({ ...data, items: data.items.filter((_, idx) => idx !== i) }) }
+  function addItem()    { onChange({ ...data, items: [...(data.items || []), { icon: '🔗', label: '', url: '', external: true }] }) }
+  function removeItem(i){ onChange({ ...data, items: data.items.filter((_, idx) => idx !== i) }) }
 
   return (
-    <div className="space-y-3">
-      <input className="input text-sm" placeholder="หัวข้อ block (ไม่บังคับ)" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
-      <div className="space-y-2">
-        {(data.items || []).map((item, i) => (
-          <div key={i} className="flex gap-2 items-start bg-gray-50 rounded-lg p-2">
-            <input className="w-12 border border-gray-200 rounded px-2 py-1.5 text-sm text-center" placeholder="🔗" value={item.icon || ''} onChange={e => updateItem(i, 'icon', e.target.value)} />
-            <input className="flex-1 border border-gray-200 rounded px-2 py-1.5 text-sm" placeholder="ชื่อลิงค์" value={item.label} onChange={e => updateItem(i, 'label', e.target.value)} />
-            <input className="flex-1 border border-gray-200 rounded px-2 py-1.5 text-sm" placeholder="URL หรือ /path" value={item.url} onChange={e => updateItem(i, 'url', e.target.value)} />
-            <label className="flex items-center gap-1 text-xs text-gray-500 whitespace-nowrap pt-2">
-              <input type="checkbox" checked={!!item.external} onChange={e => updateItem(i, 'external', e.target.checked)} />
-              ภายนอก
-            </label>
-            <button onClick={() => removeItem(i)} className="text-red-400 hover:text-red-600 text-xs pt-2">✕</button>
-          </div>
-        ))}
-      </div>
-      <button onClick={addItem} className="text-xs text-secondary hover:underline">+ เพิ่มลิงค์</button>
+    <div className="space-y-4">
+      <Field label="หัวข้อ block" hint="ไม่บังคับ">
+        <input className={inp} placeholder="เช่น ลิงค์ที่เกี่ยวข้อง" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
+      </Field>
+      <Field label={`รายการลิงค์ (${(data.items||[]).length} รายการ)`}>
+        <div className="space-y-2">
+          {(data.items || []).map((item, i) => (
+            <div key={i} className="bg-gray-50 border border-gray-100 rounded-xl p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <input className={`${smallInp} w-14 text-center text-base`} placeholder="🔗" value={item.icon || ''} onChange={e => updateItem(i, 'icon', e.target.value)} />
+                <input className={`${smallInp} flex-1`} placeholder="ชื่อลิงค์" value={item.label} onChange={e => updateItem(i, 'label', e.target.value)} />
+                <button onClick={() => removeItem(i)} className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors text-sm flex-shrink-0">✕</button>
+              </div>
+              <div className="flex items-center gap-2">
+                <input className={`${smallInp} flex-1`} placeholder="URL หรือ /path เช่น /about หรือ https://..." value={item.url} onChange={e => updateItem(i, 'url', e.target.value)} />
+                <label className="flex items-center gap-1.5 text-xs text-gray-500 whitespace-nowrap cursor-pointer select-none">
+                  <input type="checkbox" checked={!!item.external} onChange={e => updateItem(i, 'external', e.target.checked)} className="w-3.5 h-3.5 accent-blue-500" />
+                  เปิดแท็บใหม่
+                </label>
+              </div>
+            </div>
+          ))}
+        </div>
+        <button onClick={addItem} className="mt-2 flex items-center gap-1.5 text-xs font-medium text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 px-3 py-1.5 rounded-lg transition-colors">
+          + เพิ่มลิงค์
+        </button>
+      </Field>
     </div>
   )
 }
@@ -72,44 +114,58 @@ function CardsBlockEdit({ data, onChange }) {
     items[i] = { ...items[i], [field]: val }
     onChange({ ...data, items })
   }
-  function addItem() { onChange({ ...data, items: [...(data.items || []), { icon: '📄', title: '', desc: '', link: '' }] }) }
-  function removeItem(i) { onChange({ ...data, items: data.items.filter((_, idx) => idx !== i) }) }
+  function addItem()    { onChange({ ...data, items: [...(data.items || []), { icon: '📄', title: '', desc: '', link: '' }] }) }
+  function removeItem(i){ onChange({ ...data, items: data.items.filter((_, idx) => idx !== i) }) }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex gap-3">
-        <input className="input text-sm flex-1" placeholder="หัวข้อ block (ไม่บังคับ)" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
-        <select className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white" value={data.cols || 2} onChange={e => onChange({ ...data, cols: parseInt(e.target.value) })}>
-          <option value={1}>1 คอลัมน์</option>
-          <option value={2}>2 คอลัมน์</option>
-          <option value={3}>3 คอลัมน์</option>
-        </select>
+        <Field label="หัวข้อ block">
+          <input className={inp} placeholder="ไม่บังคับ" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
+        </Field>
+        <div className="flex-shrink-0">
+          <Field label="จำนวนคอลัมน์">
+            <select className={`${inp} w-32`} value={data.cols || 2} onChange={e => onChange({ ...data, cols: parseInt(e.target.value) })}>
+              <option value={1}>1 คอลัมน์</option>
+              <option value={2}>2 คอลัมน์</option>
+              <option value={3}>3 คอลัมน์</option>
+            </select>
+          </Field>
+        </div>
       </div>
-      <div className="space-y-2">
-        {(data.items || []).map((item, i) => (
-          <div key={i} className="bg-gray-50 rounded-lg p-3 space-y-2">
-            <div className="flex gap-2">
-              <input className="w-12 border border-gray-200 rounded px-2 py-1.5 text-sm text-center" placeholder="📄" value={item.icon || ''} onChange={e => updateItem(i, 'icon', e.target.value)} />
-              <input className="flex-1 border border-gray-200 rounded px-2 py-1.5 text-sm" placeholder="ชื่อการ์ด" value={item.title} onChange={e => updateItem(i, 'title', e.target.value)} />
-              <button onClick={() => removeItem(i)} className="text-red-400 hover:text-red-600 text-xs">✕</button>
+      <Field label={`การ์ด (${(data.items||[]).length} รายการ)`}>
+        <div className="space-y-2">
+          {(data.items || []).map((item, i) => (
+            <div key={i} className="bg-gray-50 border border-gray-100 rounded-xl p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <input className={`${smallInp} w-14 text-center text-base`} placeholder="📄" value={item.icon || ''} onChange={e => updateItem(i, 'icon', e.target.value)} />
+                <input className={`${smallInp} flex-1 font-medium`} placeholder="ชื่อการ์ด" value={item.title} onChange={e => updateItem(i, 'title', e.target.value)} />
+                <button onClick={() => removeItem(i)} className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors text-sm flex-shrink-0">✕</button>
+              </div>
+              <input className={`${smallInp} w-full`} placeholder="คำอธิบายสั้นๆ" value={item.desc} onChange={e => updateItem(i, 'desc', e.target.value)} />
+              <input className={`${smallInp} w-full`} placeholder="ลิงค์ (ไม่บังคับ) เช่น /about หรือ https://..." value={item.link} onChange={e => updateItem(i, 'link', e.target.value)} />
             </div>
-            <input className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm" placeholder="คำอธิบาย" value={item.desc} onChange={e => updateItem(i, 'desc', e.target.value)} />
-            <input className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm" placeholder="ลิงค์ (ไม่บังคับ) เช่น /about หรือ https://..." value={item.link} onChange={e => updateItem(i, 'link', e.target.value)} />
-          </div>
-        ))}
-      </div>
-      <button onClick={addItem} className="text-xs text-secondary hover:underline">+ เพิ่มการ์ด</button>
+          ))}
+        </div>
+        <button onClick={addItem} className="mt-2 flex items-center gap-1.5 text-xs font-medium text-purple-600 hover:text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 px-3 py-1.5 rounded-lg transition-colors">
+          + เพิ่มการ์ด
+        </button>
+      </Field>
     </div>
   )
 }
 
 function ImageBlockEdit({ data, onChange }) {
   return (
-    <div className="space-y-3">
-      <div className="border-2 border-dashed border-gray-200 rounded-lg p-3">
-        <ImageUpload value={data.url} onChange={url => onChange({ ...data, url })} />
-      </div>
-      <input className="input text-sm" placeholder="คำบรรยายใต้รูป (ไม่บังคับ)" value={data.caption || ''} onChange={e => onChange({ ...data, caption: e.target.value })} />
+    <div className="space-y-4">
+      <Field label="รูปภาพ">
+        <div className="border-2 border-dashed border-gray-200 hover:border-amber-300 rounded-xl p-4 transition-colors bg-gray-50">
+          <ImageUpload value={data.url} onChange={url => onChange({ ...data, url })} />
+        </div>
+      </Field>
+      <Field label="คำบรรยายใต้รูป" hint="ไม่บังคับ">
+        <input className={inp} placeholder="เช่น ภาพการประชุมสภา ปี 2567" value={data.caption || ''} onChange={e => onChange({ ...data, caption: e.target.value })} />
+      </Field>
     </div>
   )
 }
@@ -120,73 +176,75 @@ function TableBlockEdit({ data, onChange }) {
 
   function setHeaders(h) { onChange({ ...data, headers: h }) }
   function setRows(r)    { onChange({ ...data, rows: r }) }
-
-  function addCol() {
-    setHeaders([...headers, ''])
-    setRows(rows.map(r => [...r, '']))
-  }
-  function removeCol(ci) {
-    setHeaders(headers.filter((_, i) => i !== ci))
-    setRows(rows.map(r => r.filter((_, i) => i !== ci)))
-  }
-  function addRow() { setRows([...rows, headers.map(() => '')]) }
+  function addCol()      { setHeaders([...headers, '']); setRows(rows.map(r => [...r, ''])) }
+  function removeCol(ci) { setHeaders(headers.filter((_, i) => i !== ci)); setRows(rows.map(r => r.filter((_, i) => i !== ci))) }
+  function addRow()      { setRows([...rows, headers.map(() => '')]) }
   function removeRow(ri) { setRows(rows.filter((_, i) => i !== ri)) }
   function updateCell(ri, ci, val) {
-    const r = rows.map((row, i) => i === ri ? row.map((c, j) => j === ci ? val : c) : row)
-    setRows(r)
+    setRows(rows.map((row, i) => i === ri ? row.map((c, j) => j === ci ? val : c) : row))
   }
 
   return (
-    <div className="space-y-3">
-      <input className="input text-sm" placeholder="หัวข้อตาราง (ไม่บังคับ)" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
-      <div className="overflow-x-auto border border-gray-200 rounded-lg">
-        <table className="w-full text-xs">
-          <thead>
-            <tr className="bg-gray-50">
-              {headers.map((h, ci) => (
-                <th key={ci} className="border-b border-gray-200 p-1">
-                  <div className="flex gap-1">
-                    <input className="flex-1 border border-gray-200 rounded px-1.5 py-1 text-xs font-semibold" placeholder={`คอลัมน์ ${ci+1}`} value={h} onChange={e => { const nh = [...headers]; nh[ci] = e.target.value; setHeaders(nh) }} />
-                    {headers.length > 1 && <button onClick={() => removeCol(ci)} className="text-red-400 text-xs">✕</button>}
-                  </div>
-                </th>
-              ))}
-              <th className="border-b border-gray-200 p-1 w-8">
-                <button onClick={addCol} className="text-secondary text-xs">+คอล</button>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, ri) => (
-              <tr key={ri}>
-                {row.map((cell, ci) => (
-                  <td key={ci} className="border-b border-gray-100 p-1">
-                    <input className="w-full border border-gray-200 rounded px-1.5 py-1 text-xs" value={cell} onChange={e => updateCell(ri, ci, e.target.value)} />
-                  </td>
+    <div className="space-y-4">
+      <Field label="หัวข้อตาราง" hint="ไม่บังคับ">
+        <input className={inp} placeholder="เช่น ข้อมูลงบประมาณประจำปี" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
+      </Field>
+      <Field label={`ตาราง (${headers.length} คอลัมน์ × ${rows.length} แถว)`}>
+        <div className="overflow-x-auto rounded-xl border border-gray-200">
+          <table className="w-full text-xs border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="w-8 border-b border-r border-gray-200 p-1 text-gray-400 font-normal">#</th>
+                {headers.map((h, ci) => (
+                  <th key={ci} className="border-b border-r border-gray-200 p-1.5 min-w-[100px]">
+                    <div className="flex gap-1 items-center">
+                      <input className="flex-1 bg-white border border-gray-200 rounded px-2 py-1 text-xs font-semibold focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100" placeholder={`คอลัมน์ ${ci+1}`} value={h} onChange={e => { const nh = [...headers]; nh[ci] = e.target.value; setHeaders(nh) }} />
+                      {headers.length > 1 && <button onClick={() => removeCol(ci)} className="w-5 h-5 flex items-center justify-center rounded text-red-400 hover:bg-red-50 text-[10px] flex-shrink-0">✕</button>}
+                    </div>
+                  </th>
                 ))}
-                <td className="border-b border-gray-100 p-1">
-                  <button onClick={() => removeRow(ri)} className="text-red-400 text-xs">✕</button>
-                </td>
+                <th className="border-b border-gray-200 p-1 w-16">
+                  <button onClick={addCol} className="text-[10px] text-cyan-600 bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 px-2 py-1 rounded font-medium transition-colors whitespace-nowrap">+ คอล</button>
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <button onClick={addRow} className="text-xs text-secondary hover:underline">+ เพิ่มแถว</button>
+            </thead>
+            <tbody>
+              {rows.map((row, ri) => (
+                <tr key={ri} className="hover:bg-blue-50/30">
+                  <td className="border-b border-r border-gray-100 p-1 text-center text-gray-400 font-mono">{ri+1}</td>
+                  {row.map((cell, ci) => (
+                    <td key={ci} className="border-b border-r border-gray-100 p-1">
+                      <input className="w-full bg-transparent border border-transparent hover:border-gray-200 focus:border-blue-400 focus:bg-white rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-100 transition-all" value={cell} onChange={e => updateCell(ri, ci, e.target.value)} />
+                    </td>
+                  ))}
+                  <td className="border-b border-gray-100 p-1 text-center">
+                    {rows.length > 1 && <button onClick={() => removeRow(ri)} className="w-5 h-5 flex items-center justify-center rounded text-red-400 hover:bg-red-50 text-[10px] mx-auto">✕</button>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <button onClick={addRow} className="mt-2 flex items-center gap-1.5 text-xs font-medium text-cyan-600 hover:text-cyan-700 bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 px-3 py-1.5 rounded-lg transition-colors">
+          + เพิ่มแถว
+        </button>
+      </Field>
     </div>
   )
 }
 
 function PdfBlockEdit({ data, onChange }) {
   return (
-    <div className="space-y-3">
-      <input className="input text-sm" placeholder="ชื่อหัวข้อ PDF" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
-      <input className="input text-sm" placeholder="คำอธิบาย (ไม่บังคับ)" value={data.description || ''} onChange={e => onChange({ ...data, description: e.target.value })} />
-      <PdfUpload
-        value={data.url}
-        label={data.label}
-        onChange={(url, label) => onChange({ ...data, url, label })}
-      />
+    <div className="space-y-4">
+      <Field label="ชื่อหัวข้อ PDF">
+        <input className={inp} placeholder="เช่น แผนพัฒนาท้องถิ่น พ.ศ. 2566-2570" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
+      </Field>
+      <Field label="คำอธิบาย" hint="ไม่บังคับ">
+        <input className={inp} placeholder="อธิบายสั้นๆ เกี่ยวกับเอกสาร" value={data.description || ''} onChange={e => onChange({ ...data, description: e.target.value })} />
+      </Field>
+      <Field label="ไฟล์ PDF">
+        <PdfUpload value={data.url} label={data.label} onChange={(url, label) => onChange({ ...data, url, label })} />
+      </Field>
     </div>
   )
 }
@@ -231,9 +289,7 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
   }
 
   async function save() {
-    setSaving(true)
-    setErr('')
-    setSaved(false)
+    setSaving(true); setErr(''); setSaved(false)
     try {
       // eslint-disable-next-line no-unused-vars
       const cleanBlocks = blocks.map(({ _tempKey, ...rest }) => rest)
@@ -243,70 +299,96 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
       setTimeout(() => setSaved(false), 2500)
     } catch (e) {
       setErr(e?.response?.data?.error || e?.message || 'บันทึกไม่สำเร็จ กรุณาลองใหม่')
-    } finally {
-      setSaving(false)
-    }
+    } finally { setSaving(false) }
   }
 
-  const blockLabel = { text: '📝 ข้อความ', links: '🔗 ลิงค์', cards: '🃏 การ์ด', image: '🖼️ รูปภาพ', table: '📊 ตาราง' }
-
   return (
-    <div>
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-5">
-        <button onClick={onBack} className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1">← กลับ</button>
-        <div className="flex-1">
-          <h1 className="text-lg font-bold text-gray-800">{page.icon} {page.title}</h1>
-          <p className="text-xs text-gray-400">แก้ไขเนื้อหา — {blocks.length} block</p>
+    <div className="max-w-3xl">
+      {/* Header bar */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-4 mb-6 flex items-center gap-4">
+        <button onClick={onBack}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0">
+          ← กลับ
+        </button>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-base font-bold text-gray-800 truncate">{page.icon} {page.title}</h1>
+          <p className="text-xs text-gray-400">{blocks.length} block{blocks.length !== 1 ? 's' : ''}</p>
         </div>
-        <div className="flex items-center gap-3">
-          {err  && <span className="text-xs text-red-500 bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg">⚠️ {err}</span>}
-          {saved && <span className="text-xs text-green-600 bg-green-50 border border-green-200 px-3 py-1.5 rounded-lg">✓ บันทึกแล้ว</span>}
-          <button onClick={save} disabled={saving} className="btn-primary text-xs disabled:opacity-50">
-            {saving ? 'กำลังบันทึก...' : '💾 บันทึกทั้งหมด'}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {err   && <span className="text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg max-w-[220px] truncate">⚠️ {err}</span>}
+          {saved && <span className="text-xs text-green-700 bg-green-50 border border-green-200 px-3 py-1.5 rounded-lg">✓ บันทึกแล้ว</span>}
+          <button onClick={save} disabled={saving}
+            className="flex items-center gap-1.5 bg-primary text-white text-sm font-medium px-4 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 transition-all shadow-sm">
+            {saving ? <><span className="animate-spin inline-block">⏳</span> กำลังบันทึก...</> : '💾 บันทึก'}
           </button>
         </div>
       </div>
 
       {/* Block list */}
-      <div className="space-y-3 mb-4">
+      <div className="space-y-3 mb-5">
         {blocks.length === 0 && (
-          <div className="bg-white rounded-xl border-2 border-dashed border-gray-200 p-8 text-center text-gray-400 text-sm">
-            ยังไม่มี block — กดปุ่มด้านล่างเพื่อเพิ่ม
+          <div className="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
+            <p className="text-3xl mb-2">✨</p>
+            <p className="text-gray-500 text-sm font-medium">ยังไม่มี block</p>
+            <p className="text-gray-400 text-xs mt-1">เลือกประเภท block ด้านล่างเพื่อเริ่มต้น</p>
           </div>
         )}
-        {blocks.map((block, i) => (
-          <div key={block._id || block._tempKey || i} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            {/* Block header */}
-            <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 border-b border-gray-100">
-              <span className="text-sm font-medium text-gray-600 flex-1">{blockLabel[block.type] || block.type}</span>
-              <div className="flex gap-0.5">
-                <button onClick={() => moveBlock(i, -1)} disabled={i === 0} className="text-gray-300 hover:text-gray-600 disabled:opacity-20 text-xs px-1">▲</button>
-                <button onClick={() => moveBlock(i, 1)} disabled={i === blocks.length - 1} className="text-gray-300 hover:text-gray-600 disabled:opacity-20 text-xs px-1">▼</button>
+
+        {blocks.map((block, i) => {
+          const meta = BLOCK_META[block.type] || { icon: '📦', label: block.type, accent: 'bg-gray-400' }
+          const isOpen = openIdx === i
+          return (
+            <div key={block._id || block._tempKey || i}
+              className={`bg-white rounded-2xl shadow-sm border-l-4 ${ACCENT_BORDER[block.type] || 'border-l-gray-300'} border border-gray-100 overflow-hidden transition-shadow ${isOpen ? 'shadow-md' : ''}`}>
+
+              {/* Block header */}
+              <div className={`flex items-center gap-3 px-4 py-3 ${isOpen ? 'bg-gray-50 border-b border-gray-100' : ''}`}>
+                <span className="text-base flex-shrink-0">{meta.icon}</span>
+                <span className="text-sm font-semibold text-gray-700 flex-1">{meta.label}</span>
+
+                {/* Move buttons */}
+                <div className="flex gap-1 flex-shrink-0">
+                  <button onClick={() => moveBlock(i, -1)} disabled={i === 0}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 disabled:opacity-20 transition-all text-xs">▲</button>
+                  <button onClick={() => moveBlock(i, 1)} disabled={i === blocks.length - 1}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 disabled:opacity-20 transition-all text-xs">▼</button>
+                </div>
+
+                <button onClick={() => setOpenIdx(isOpen ? null : i)}
+                  className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-all ${isOpen ? 'bg-primary text-white border-primary' : 'bg-white text-secondary border-secondary hover:bg-blue-50'}`}>
+                  {isOpen ? '✕ ปิด' : '✏️ แก้ไข'}
+                </button>
+
+                <button onClick={() => deleteBlock(i)}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all text-sm flex-shrink-0">
+                  🗑️
+                </button>
               </div>
-              <button onClick={() => setOpenIdx(openIdx === i ? null : i)} className="text-xs text-secondary hover:underline px-2">
-                {openIdx === i ? 'ย่อ' : 'แก้ไข'}
-              </button>
-              <button onClick={() => deleteBlock(i)} className="text-xs text-red-400 hover:text-red-600 px-1">ลบ</button>
+
+              {/* Edit form */}
+              {isOpen && (
+                <div className="p-5">
+                  <BlockEdit block={block} onChange={b => updateBlock(i, b)} />
+                </div>
+              )}
             </div>
-            {/* Block edit form */}
-            {openIdx === i && (
-              <div className="p-4">
-                <BlockEdit block={block} onChange={b => updateBlock(i, b)} />
-              </div>
-            )}
-          </div>
-        ))}
+          )
+        })}
       </div>
 
-      {/* Add block */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-        <p className="text-xs font-semibold text-gray-500 mb-3">เพิ่ม Block ใหม่</p>
-        <div className="flex flex-wrap gap-2">
+      {/* Add block panel */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-8">
+        <p className="text-sm font-bold text-gray-700 mb-1">เพิ่ม Block ใหม่</p>
+        <p className="text-xs text-gray-400 mb-4">เลือกประเภทเนื้อหาที่ต้องการเพิ่ม</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
           {BLOCK_TYPES.map(bt => (
             <button key={bt.type} onClick={() => addBlock(bt.type)}
-              className="text-xs px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 hover:border-secondary hover:text-secondary hover:bg-blue-50 transition-colors">
-              {bt.label}
+              className={`flex items-start gap-3 p-3 rounded-xl border-2 text-left transition-all ${bt.color}`}>
+              <span className="text-xl flex-shrink-0 mt-0.5">{bt.icon}</span>
+              <div>
+                <p className="text-xs font-semibold text-gray-700">{bt.label}</p>
+                <p className="text-[10px] text-gray-500 mt-0.5 leading-relaxed">{bt.desc}</p>
+              </div>
             </button>
           ))}
         </div>
@@ -314,37 +396,34 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
 
       {/* Live preview */}
       {blocks.length > 0 && (
-        <div className="mt-8">
-          <div className="flex items-center gap-3 mb-3">
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-4">
             <div className="flex-1 border-t border-dashed border-gray-200" />
-            <span className="text-xs font-semibold text-gray-400 px-2">👁️ ตัวอย่างหน้าแสดงผล</span>
+            <span className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 bg-white border border-gray-200 px-3 py-1 rounded-full">
+              👁️ ตัวอย่างหน้าแสดงผล
+            </span>
             <div className="flex-1 border-t border-dashed border-gray-200" />
           </div>
-
-          {/* Simulate site layout: navbar strip + body with sidebar + content */}
-          <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+          <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
             {/* Fake navbar */}
             <div className="bg-primary h-10 flex items-center px-4 gap-2">
-              <div className="w-6 h-6 rounded bg-white/20" />
-              <div className="h-3 w-32 rounded bg-white/30" />
+              <div className="w-7 h-7 rounded-full bg-white/20" />
+              <div className="h-2.5 w-36 rounded-full bg-white/30" />
               <div className="flex-1" />
-              <div className="h-3 w-16 rounded bg-white/20" />
+              <div className="h-2.5 w-16 rounded-full bg-white/20" />
             </div>
-
             {/* Body */}
-            <div className="bg-[#f0f2f5] flex gap-4 p-3" style={{ minHeight: 300 }}>
-              {/* Fake sidebar */}
-              <div className="flex-shrink-0 space-y-2" style={{ width: 160 }}>
-                <div className="bg-white rounded-md p-2 space-y-1">
-                  <div className="h-2 w-full rounded bg-secondary/40" />
-                  {[1,2,3,4,5].map(i => <div key={i} className="h-2 rounded bg-gray-200" style={{ width: `${60+i*8}%` }} />)}
-                </div>
-                <div className="bg-white rounded-md p-2 space-y-1">
-                  {[1,2,3].map(i => <div key={i} className="h-2 rounded bg-gray-100" style={{ width: `${50+i*10}%` }} />)}
+            <div className="bg-[#f0f2f5] flex gap-3 p-3" style={{ minHeight: 200 }}>
+              {/* Skeleton sidebar */}
+              <div className="flex-shrink-0 space-y-2" style={{ width: 150 }}>
+                <div className="bg-white rounded-md overflow-hidden">
+                  <div className="h-7 bg-secondary/30" />
+                  <div className="p-2 space-y-1.5">
+                    {[80,65,75,60,70].map((w,i) => <div key={i} className="h-2 rounded bg-gray-200" style={{ width: `${w}%` }} />)}
+                  </div>
                 </div>
               </div>
-
-              {/* Actual content — matches real main area */}
+              {/* Real content */}
               <div className="flex-1 min-w-0">
                 <div className="card mb-3">
                   <div className="section-head">
@@ -368,88 +447,74 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
 function PageFormModal({ pages, editPage, onClose, onSaved }) {
   const isEdit = !!editPage
   const [form, setForm] = useState(editPage ? {
-    title:      editPage.title,
-    icon:       editPage.icon,
-    parentSlug: editPage.parentSlug || '',
-    isActive:   editPage.isActive,
-  } : {
-    title: '', icon: '📄', parentSlug: '', isActive: true,
-  })
+    title: editPage.title, icon: editPage.icon,
+    parentSlug: editPage.parentSlug || '', isActive: editPage.isActive,
+  } : { title: '', icon: '📄', parentSlug: '', isActive: true })
   const [saving, setSaving] = useState(false)
-  const [err, setErr] = useState('')
+  const [err, setErr]       = useState('')
 
   function set(k, v) { setForm(prev => ({ ...prev, [k]: v })) }
 
   async function submit() {
     if (!form.title.trim()) { setErr('กรุณากรอกชื่อเมนู'); return }
-    setErr('')
-    setSaving(true)
+    setErr(''); setSaving(true)
     try {
       if (isEdit) {
-        const r = await updatePage(editPage._id, form)
-        onSaved(r.data)
+        const r = await updatePage(editPage._id, form); onSaved(r.data)
       } else {
         const slug = 'page-' + Date.now()
-        const path = '/page/' + slug
-        const r = await createPage({ ...form, slug, path, isBuiltin: false, order: 999, blocks: [] })
+        const r = await createPage({ ...form, slug, path: '/page/'+slug, isBuiltin: false, order: 999, blocks: [] })
         onSaved(r.data)
       }
       onClose()
-    } catch (e) {
-      setErr(e?.response?.data?.error || 'เกิดข้อผิดพลาด')
-    } finally { setSaving(false) }
+    } catch (e) { setErr(e?.response?.data?.error || 'เกิดข้อผิดพลาด') }
+    finally { setSaving(false) }
   }
 
   const topLevelPages = pages.filter(p => !p.parentSlug && (!isEdit || p._id !== editPage._id))
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h2 className="text-sm font-semibold text-gray-800">{isEdit ? '✏️ แก้ไขเมนู' : '➕ เพิ่มเมนูใหม่'}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-lg">×</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h2 className="text-sm font-bold text-gray-800">{isEdit ? '✏️ แก้ไขเมนู' : '➕ เพิ่มเมนูใหม่'}</h2>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors text-xl">×</button>
         </div>
-        <div className="p-5 space-y-4">
-          {/* Icon picker */}
+        <div className="p-6 space-y-5">
           <div>
-            <label className="form-label">ไอคอน</label>
-            <div className="flex flex-wrap gap-1.5 mb-2">
+            <label className="text-xs font-semibold text-gray-600 mb-2 block">ไอคอน</label>
+            <div className="flex flex-wrap gap-1.5 p-3 bg-gray-50 rounded-xl border border-gray-100 mb-2 max-h-32 overflow-y-auto">
               {ICONS.map(ic => (
                 <button key={ic} onClick={() => set('icon', ic)}
-                  className={`text-xl w-9 h-9 rounded-lg border transition-all ${form.icon === ic ? 'border-secondary bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                  className={`text-lg w-9 h-9 rounded-lg border-2 transition-all hover:scale-110 ${form.icon === ic ? 'border-secondary bg-blue-50 shadow-sm' : 'border-transparent hover:border-gray-200'}`}>
                   {ic}
                 </button>
               ))}
             </div>
-            <input className="input text-sm" placeholder="หรือพิมพ์ emoji เอง" value={form.icon} onChange={e => set('icon', e.target.value)} />
+            <input className={inp} placeholder="หรือพิมพ์ emoji / ข้อความ" value={form.icon} onChange={e => set('icon', e.target.value)} />
           </div>
-
-          {/* Title */}
           <div>
-            <label className="form-label">ชื่อเมนู <span className="text-red-400">*</span></label>
-            <input className="input" placeholder="เช่น บริการประชาชน" value={form.title} onChange={e => set('title', e.target.value)} />
+            <label className="text-xs font-semibold text-gray-600 mb-1.5 block">ชื่อเมนู <span className="text-red-400">*</span></label>
+            <input className={inp} placeholder="เช่น บริการประชาชน" value={form.title} onChange={e => set('title', e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && submit()} />
           </div>
-
-          {/* Parent */}
           <div>
-            <label className="form-label">เมนูหลัก (ถ้าเป็นเมนูย่อย)</label>
-            <select className="input bg-white" value={form.parentSlug} onChange={e => set('parentSlug', e.target.value)}>
+            <label className="text-xs font-semibold text-gray-600 mb-1.5 block">เมนูหลัก <span className="text-gray-400 font-normal">(ถ้าเป็นเมนูย่อย)</span></label>
+            <select className={`${inp}`} value={form.parentSlug} onChange={e => set('parentSlug', e.target.value)}>
               <option value="">— ไม่มี (เมนูหลัก) —</option>
-              {topLevelPages.map(p => (
-                <option key={p.slug} value={p.slug}>{p.icon} {p.title}</option>
-              ))}
+              {topLevelPages.map(p => <option key={p.slug} value={p.slug}>{p.icon} {p.title}</option>)}
             </select>
           </div>
-
-          {/* Active */}
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex items-center gap-3 cursor-pointer bg-blue-50 border border-blue-100 rounded-xl px-4 py-3">
             <input type="checkbox" checked={form.isActive} onChange={e => set('isActive', e.target.checked)} className="w-4 h-4 accent-blue-500" />
-            <span className="text-sm text-gray-700">แสดงในเมนู</span>
+            <div>
+              <p className="text-sm font-medium text-blue-800">แสดงในเมนู</p>
+              <p className="text-xs text-blue-500">ถ้าไม่เลือก จะซ่อนจาก sidebar</p>
+            </div>
           </label>
-
-          {err && <p className="text-xs text-red-500">⚠️ {err}</p>}
+          {err && <p className="text-xs text-red-500 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">⚠️ {err}</p>}
         </div>
-        <div className="flex justify-end gap-2 px-5 py-4 border-t border-gray-100 bg-gray-50">
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
           <button onClick={onClose} className="btn-ghost text-xs">ยกเลิก</button>
           <button onClick={submit} disabled={saving} className="btn-primary text-xs disabled:opacity-50">
             {saving ? 'กำลังบันทึก...' : '💾 บันทึก'}
@@ -465,80 +530,79 @@ function PageFormModal({ pages, editPage, onClose, onSaved }) {
 function MenuManagerView({ pages, loading, onReload, onEditContent }) {
   const [showForm, setShowForm] = useState(false)
   const [editPage, setEditPage] = useState(null)
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving]     = useState(false)
 
   const topLevel = pages.filter(p => !p.parentSlug).sort((a, b) => a.order - b.order)
   function getChildren(slug) {
     return pages.filter(p => p.parentSlug === slug).sort((a, b) => a.order - b.order)
   }
 
-  function openAdd()    { setEditPage(null); setShowForm(true) }
-  function openEdit(p)  { setEditPage(p);    setShowForm(true) }
-
   async function toggleActive(page) {
-    await updatePage(page._id, { isActive: !page.isActive })
-    onReload()
+    await updatePage(page._id, { isActive: !page.isActive }); onReload()
   }
 
   async function move(page, dir) {
     const siblings = page.parentSlug
       ? pages.filter(p => p.parentSlug === page.parentSlug).sort((a, b) => a.order - b.order)
       : topLevel
-    const idx = siblings.findIndex(p => p._id === page._id)
+    const idx    = siblings.findIndex(p => p._id === page._id)
     const target = siblings[idx + dir]
     if (!target) return
     setSaving(true)
     try {
-      await Promise.all([
-        updatePage(page._id,   { order: target.order }),
-        updatePage(target._id, { order: page.order }),
-      ])
+      await Promise.all([updatePage(page._id, { order: target.order }), updatePage(target._id, { order: page.order })])
       onReload()
     } finally { setSaving(false) }
   }
 
   async function remove(page) {
-    if (!window.confirm(`ลบ "${page.title}"? เนื้อหาทั้งหมดจะหายไป`)) return
-    await deletePage(page._id)
-    onReload()
+    if (!window.confirm(`ลบ "${page.title}"?\nเนื้อหาทั้งหมดจะหายไปถาวร`)) return
+    await deletePage(page._id); onReload()
   }
 
-  function onSaved() { onReload() }
-
   function renderRow(page, siblings, idx) {
-    const children  = getChildren(page.slug)
-    const isChild   = !!page.parentSlug
-    const isFirst   = idx === 0
-    const isLast    = idx === siblings.length - 1
+    const children   = getChildren(page.slug)
+    const isChild    = !!page.parentSlug
+    const isFirst    = idx === 0
+    const isLast     = idx === siblings.length - 1
     const publicPath = page.isBuiltin ? page.path : `/page/${page.slug}`
 
     return (
       <div key={page._id}>
-        <div className={`flex items-center gap-2 px-4 py-2.5 border-b border-gray-50 hover:bg-gray-50/50 transition-colors ${isChild ? 'pl-10 bg-gray-50/30' : ''}`}>
-          {isChild && <span className="text-gray-300 text-xs mr-1">└</span>}
-          <span className="text-base w-6 text-center flex-shrink-0">{page.icon}</span>
+        <div className={`flex items-center gap-3 px-4 py-3 border-b border-gray-50 hover:bg-gray-50/60 transition-colors ${isChild ? 'pl-10 bg-gray-50/40' : ''}`}>
+          {isChild && <span className="text-gray-300 mr-1">└</span>}
+          <span className="text-lg w-7 text-center flex-shrink-0">{page.icon}</span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-800 truncate">{page.title}</p>
-            <p className="text-xs text-gray-400 truncate">{publicPath}</p>
+            <p className="text-sm font-semibold text-gray-800 truncate">{page.title}</p>
+            <p className="text-xs text-gray-400 font-mono truncate">{publicPath}</p>
           </div>
-          {page.isBuiltin && <span className="text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded flex-shrink-0">ระบบ</span>}
-
+          {page.isBuiltin && (
+            <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium flex-shrink-0">ระบบ</span>
+          )}
           <button onClick={() => toggleActive(page)}
-            className={`text-xs px-2 py-1 rounded flex-shrink-0 transition-colors ${page.isActive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
-            {page.isActive ? 'แสดง' : 'ซ่อน'}
+            className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 transition-colors ${page.isActive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
+            {page.isActive ? '● แสดง' : '○ ซ่อน'}
           </button>
-
-          <div className="flex flex-col gap-0.5 flex-shrink-0">
-            <button onClick={() => move(page, -1)} disabled={isFirst || saving} className="text-gray-300 hover:text-gray-600 disabled:opacity-20 text-[10px] leading-none">▲</button>
-            <button onClick={() => move(page, 1)}  disabled={isLast  || saving} className="text-gray-300 hover:text-gray-600 disabled:opacity-20 text-[10px] leading-none">▼</button>
+          <div className="flex gap-1 flex-shrink-0">
+            <button onClick={() => move(page, -1)} disabled={isFirst || saving}
+              className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 disabled:opacity-20 transition-all text-xs">▲</button>
+            <button onClick={() => move(page, 1)} disabled={isLast || saving}
+              className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 disabled:opacity-20 transition-all text-xs">▼</button>
           </div>
-
-          <button onClick={() => openEdit(page)} className="text-xs text-secondary hover:underline flex-shrink-0">แก้ไข</button>
-
+          <button onClick={() => { setEditPage(page); setShowForm(true) }}
+            className="text-xs font-medium text-secondary hover:text-primary bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg transition-colors flex-shrink-0">
+            แก้ไข
+          </button>
           {!page.isBuiltin && (
             <>
-              <button onClick={() => onEditContent(page)} className="text-xs text-primary hover:underline flex-shrink-0">เนื้อหา</button>
-              <button onClick={() => remove(page)} className="text-xs text-red-400 hover:text-red-600 flex-shrink-0">ลบ</button>
+              <button onClick={() => onEditContent(page)}
+                className="text-xs font-medium text-white bg-primary hover:opacity-90 px-2.5 py-1 rounded-lg transition-colors flex-shrink-0">
+                เนื้อหา
+              </button>
+              <button onClick={() => remove(page)}
+                className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all text-sm flex-shrink-0">
+                🗑️
+              </button>
             </>
           )}
         </div>
@@ -549,24 +613,27 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-lg font-bold text-gray-800">🗂️ จัดการเมนูและหน้า</h1>
-          <p className="text-xs text-gray-400 mt-0.5">จัดลำดับ เพิ่ม/ลบ และแก้ไขเนื้อหาหน้าต่างๆ</p>
+          <h1 className="text-xl font-bold text-gray-800">🗂️ จัดการเมนูและหน้า</h1>
+          <p className="text-xs text-gray-400 mt-1">จัดลำดับ เพิ่ม/ลบ และแก้ไขเนื้อหาหน้าต่างๆ</p>
         </div>
-        <button onClick={openAdd} className="btn-primary text-xs">+ เพิ่มหน้าใหม่</button>
+        <button onClick={() => { setEditPage(null); setShowForm(true) }}
+          className="btn-primary text-xs flex items-center gap-1.5">
+          + เพิ่มหน้าใหม่
+        </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         {loading ? (
-          <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
+          <div className="p-12 text-center text-gray-400">กำลังโหลด...</div>
         ) : (
           topLevel.map((p, i) => renderRow(p, topLevel, i))
         )}
       </div>
 
       {showForm && (
-        <PageFormModal pages={pages} editPage={editPage} onClose={() => setShowForm(false)} onSaved={onSaved} />
+        <PageFormModal pages={pages} editPage={editPage} onClose={() => setShowForm(false)} onSaved={() => onReload()} />
       )}
     </div>
   )
@@ -581,10 +648,8 @@ export default function AdminPages() {
 
   async function load() {
     setLoading(true)
-    try {
-      const r = await getPages()
-      setPages(r.data || [])
-    } finally { setLoading(false) }
+    try { const r = await getPages(); setPages(r.data || []) }
+    finally { setLoading(false) }
   }
 
   useEffect(() => { load() }, [])
@@ -595,21 +660,8 @@ export default function AdminPages() {
   }
 
   if (editingPage) {
-    return (
-      <BlockEditorView
-        page={editingPage}
-        onBack={() => { setEditingPage(null); load() }}
-        onPageSaved={handlePageSaved}
-      />
-    )
+    return <BlockEditorView page={editingPage} onBack={() => { setEditingPage(null); load() }} onPageSaved={handlePageSaved} />
   }
 
-  return (
-    <MenuManagerView
-      pages={pages}
-      loading={loading}
-      onReload={load}
-      onEditContent={setEditingPage}
-    />
-  )
+  return <MenuManagerView pages={pages} loading={loading} onReload={load} onEditContent={setEditingPage} />
 }
