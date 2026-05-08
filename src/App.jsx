@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import SplashPage from "./pages/SplashPage";
@@ -30,22 +30,22 @@ import DocumentPage from "./pages/DocumentPage";
 import ContactPage from "./pages/ContactPage";
 import DynamicPage from "./pages/DynamicPage";
 
-// Admin pages
+// Admin pages — lazy loaded so each page is its own chunk
 import AdminLayout from "./pages/admin/AdminLayout";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminNews from "./pages/admin/AdminNews";
-import AdminAnnounce from "./pages/admin/AdminAnnounce";
-import AdminProcurement from "./pages/admin/AdminProcurement";
-import AdminProcurementPlan from "./pages/admin/AdminProcurementPlan";
-import AdminStaff from "./pages/admin/AdminStaff";
-import AdminTravel from "./pages/admin/AdminTravel";
-import AdminProducts from "./pages/admin/AdminProducts";
-import AdminIta from "./pages/admin/AdminIta";
-import AdminEService from "./pages/admin/AdminEService";
-import AdminComplaint from "./pages/admin/AdminComplaint";
-import AdminDocument from "./pages/admin/AdminDocument";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminPages from "./pages/admin/AdminPages";
+const AdminDashboard      = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminNews           = lazy(() => import("./pages/admin/AdminNews"));
+const AdminAnnounce       = lazy(() => import("./pages/admin/AdminAnnounce"));
+const AdminProcurement    = lazy(() => import("./pages/admin/AdminProcurement"));
+const AdminProcurementPlan = lazy(() => import("./pages/admin/AdminProcurementPlan"));
+const AdminStaff          = lazy(() => import("./pages/admin/AdminStaff"));
+const AdminTravel         = lazy(() => import("./pages/admin/AdminTravel"));
+const AdminProducts       = lazy(() => import("./pages/admin/AdminProducts"));
+const AdminIta            = lazy(() => import("./pages/admin/AdminIta"));
+const AdminEService       = lazy(() => import("./pages/admin/AdminEService"));
+const AdminComplaint      = lazy(() => import("./pages/admin/AdminComplaint"));
+const AdminDocument       = lazy(() => import("./pages/admin/AdminDocument"));
+const AdminSettings       = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminPages          = lazy(() => import("./pages/admin/AdminPages"));
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(
@@ -126,20 +126,20 @@ export default function App() {
 
         {/* Admin panel */}
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="news" element={<AdminNews />} />
-          <Route path="announcements" element={<AdminAnnounce />} />
-          <Route path="procurement" element={<AdminProcurement />} />
-          <Route path="procurement-plans" element={<AdminProcurementPlan />} />
-          <Route path="staff" element={<AdminStaff />} />
-          <Route path="travel" element={<AdminTravel />} />
-          <Route path="products" element={<AdminProducts />} />
-          <Route path="ita" element={<AdminIta />} />
-          <Route path="eservice" element={<AdminEService />} />
-          <Route path="complaints" element={<AdminComplaint />} />
-          <Route path="documents" element={<AdminDocument />} />
-          <Route path="settings" element={<AdminSettings />} />
-          <Route path="pages"    element={<AdminPages />} />
+          <Route index element={<Suspense fallback={null}><AdminDashboard /></Suspense>} />
+          <Route path="news"             element={<Suspense fallback={null}><AdminNews /></Suspense>} />
+          <Route path="announcements"    element={<Suspense fallback={null}><AdminAnnounce /></Suspense>} />
+          <Route path="procurement"      element={<Suspense fallback={null}><AdminProcurement /></Suspense>} />
+          <Route path="procurement-plans" element={<Suspense fallback={null}><AdminProcurementPlan /></Suspense>} />
+          <Route path="staff"            element={<Suspense fallback={null}><AdminStaff /></Suspense>} />
+          <Route path="travel"           element={<Suspense fallback={null}><AdminTravel /></Suspense>} />
+          <Route path="products"         element={<Suspense fallback={null}><AdminProducts /></Suspense>} />
+          <Route path="ita"              element={<Suspense fallback={null}><AdminIta /></Suspense>} />
+          <Route path="eservice"         element={<Suspense fallback={null}><AdminEService /></Suspense>} />
+          <Route path="complaints"       element={<Suspense fallback={null}><AdminComplaint /></Suspense>} />
+          <Route path="documents"        element={<Suspense fallback={null}><AdminDocument /></Suspense>} />
+          <Route path="settings"         element={<Suspense fallback={null}><AdminSettings /></Suspense>} />
+          <Route path="pages"            element={<Suspense fallback={null}><AdminPages /></Suspense>} />
         </Route>
       </Routes>
     </>

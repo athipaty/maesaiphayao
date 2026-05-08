@@ -147,7 +147,7 @@ export default function AdminLayout() {
             <NavLink key={m.path} to={m.path} end={m.end}
               title={collapsed ? m.label : ''}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-150 ${
+                `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-150 ${
                   isActive
                     ? 'bg-white/20 text-white font-semibold border-r-4 border-accent'
                     : 'text-white/70 hover:bg-white/10 hover:text-white'
