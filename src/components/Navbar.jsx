@@ -3,9 +3,12 @@ import { useState, useEffect, useRef } from 'react'
 import { getSettings, getPages } from '../services/api'
 
 const TOP_NAV = [
-  { label: 'เกี่ยวกับ อบต.แม่ใส', path: '/about',   slug: 'builtin-about',   icon: '🏛️' },
-  { label: 'บุคลากร/กิจการสภา',   path: '/staff',   slug: 'builtin-staff',   icon: '👥' },
-  { label: 'ติดต่อเรา',            path: '/contact', slug: 'builtin-contact', icon: '📞' },
+  { label: 'เกี่ยวกับ อบต.แม่ใส', path: '/about',      slug: 'builtin-about',     icon: '🏛️' },
+  { label: 'บุคลากร/กิจการสภา',   path: '/staff',      slug: 'builtin-staff',     icon: '👥' },
+  { label: 'e-Service',            path: '/eservice',   slug: null,                icon: '🌐' },
+  { label: 'ร้องเรียน/ร้องทุกข์',              path: '/complaint',  slug: 'builtin-complaint',  icon: '📮' },
+  { label: 'ร้องเรียนการทุจริตและประพฤติมิชอบ', path: '/corruption', slug: 'builtin-corruption', icon: '🚨' },
+  { label: 'ติดต่อเรา',                         path: '/contact',    slug: 'builtin-contact',    icon: '📞' },
 ]
 
 const DEFAULT_DEPTS = [
@@ -87,7 +90,7 @@ export default function Navbar({ onMenuClick }) {
         <div className="max-w-[1200px] mx-auto px-3 flex items-center gap-1">
           {TOP_NAV.map(m => {
             const isStaff      = m.slug === 'builtin-staff'
-            const pageChildren = getChildren(m.slug)
+            const pageChildren = m.slug ? getChildren(m.slug) : []
             // Staff: departments as dropdown; others: sub-pages from the API
             const dropItems    = isStaff
               ? depts.map(d => ({ key: d.value, icon: '👥', title: d.label, to: `/staff#dept-${d.value}` }))
