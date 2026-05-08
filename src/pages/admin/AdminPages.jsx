@@ -1288,12 +1288,18 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
     const siblings = page.parentSlug
       ? pages.filter(p => p.parentSlug === page.parentSlug).sort((a, b) => a.order - b.order)
       : topLevel
-    const idx    = siblings.findIndex(p => p._id === page._id)
-    const target = siblings[idx + dir]
-    if (!target) return
+    const idx     = siblings.findIndex(p => p._id === page._id)
+    const swapIdx = idx + dir
+    if (swapIdx < 0 || swapIdx >= siblings.length) return
     setSaving(true)
     try {
-      await Promise.all([updatePage(page._id, { order: target.order }), updatePage(target._id, { order: page.order })])
+      // Assign fresh sequential orders then swap the two positions to avoid
+      // duplicate-order values (e.g. newly created pages all start at 999)
+      const ordered = siblings.map((p, i) => ({ id: p._id, order: i * 10 }))
+      const tmp = ordered[idx].order
+      ordered[idx].order = ordered[swapIdx].order
+      ordered[swapIdx].order = tmp
+      await Promise.all(ordered.map(({ id, order }) => updatePage(id, { order })))
       onReload()
     } finally { setSaving(false) }
   }
