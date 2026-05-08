@@ -34,6 +34,7 @@ export const getProcurement    = (params)    => api.get('/procurement', { params
 export const createProcurement = (data)      => api.post('/procurement', data)
 export const updateProcurement = (id, data)  => api.put(`/procurement/${id}`, data)
 export const deleteProcurement = (id)        => api.delete(`/procurement/${id}`)
+export const getEgpRss         = (params)    => api.get('/egp-rss', { params })
 
 // ── Staff ─────────────────────────────────────────────────────────────────────
 export const getStaff    = (params)    => api.get('/staff', { params })
