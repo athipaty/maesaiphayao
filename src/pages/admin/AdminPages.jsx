@@ -683,7 +683,11 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
   }
 
   function updateBlock(i, b) { setBlocks(prev => prev.map((x, idx) => idx === i ? b : x)) }
-  function deleteBlock(i)    { setBlocks(prev => prev.filter((_, idx) => idx !== i)); if (openIdx === i) setOpenIdx(null) }
+  function deleteBlock(i)    {
+    setBlocks(prev => prev.filter((_, idx) => idx !== i))
+    if (openIdx === i) setOpenIdx(null)
+    else if (openIdx !== null && openIdx > i) setOpenIdx(openIdx - 1)
+  }
   function moveBlock(i, dir) {
     const next = [...blocks]
     const target = i + dir
@@ -752,57 +756,65 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
         </div>
       </div>
 
-      {/* Block list */}
-      <div className="space-y-3 mb-8">
-        {blocks.length === 0 && (
-          <div className="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
-            <p className="text-3xl mb-2">✨</p>
-            <p className="text-gray-500 text-sm font-medium">ยังไม่มี block</p>
-            <p className="text-gray-400 text-xs mt-1">กดไอคอนด้านบนเพื่อเพิ่ม block</p>
-          </div>
-        )}
-
-        {blocks.map((block, i) => {
-          const meta = BLOCK_META[block.type] || { icon: '📦', label: block.type, accent: 'bg-gray-400' }
-          const isOpen = openIdx === i
-          return (
-            <div key={block._id || block._tempKey || i}
-              className={`bg-white rounded-2xl shadow-sm border-l-4 ${ACCENT_BORDER[block.type] || 'border-l-gray-300'} border border-gray-100 overflow-hidden transition-shadow ${isOpen ? 'shadow-md' : ''}`}>
-
-              {/* Block header */}
-              <div className={`flex items-center gap-3 px-4 py-3 ${isOpen ? 'bg-gray-50 border-b border-gray-100' : ''}`}>
-                <span className="text-base flex-shrink-0">{meta.icon}</span>
-                <span className="text-sm font-semibold text-gray-700 flex-1">{meta.label}</span>
-
-                {/* Move buttons */}
-                <div className="flex gap-1 flex-shrink-0">
-                  <button onClick={() => moveBlock(i, -1)} disabled={i === 0}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 disabled:opacity-20 transition-all text-xs">▲</button>
-                  <button onClick={() => moveBlock(i, 1)} disabled={i === blocks.length - 1}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 disabled:opacity-20 transition-all text-xs">▼</button>
-                </div>
-
-                <button onClick={() => setOpenIdx(isOpen ? null : i)}
-                  className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-all ${isOpen ? 'bg-primary text-white border-primary' : 'bg-white text-secondary border-secondary hover:bg-blue-50'}`}>
-                  {isOpen ? '✕ ปิด' : '✏️ แก้ไข'}
+      {/* Block icon strip */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-3 mb-4">
+        <p className="text-xs font-semibold text-gray-400 mb-2.5">Block ในหน้านี้ ({blocks.length})</p>
+        <div className="flex flex-wrap gap-2 min-h-[2.75rem] items-start">
+          {blocks.length === 0 && (
+            <p className="text-xs text-gray-300 py-1.5">ยังไม่มี block — กดไอคอนด้านบนเพื่อเพิ่ม</p>
+          )}
+          {blocks.map((block, i) => {
+            const meta = BLOCK_META[block.type] || { icon: '📦', label: block.type }
+            const bt   = BLOCK_TYPES.find(b => b.type === block.type)
+            const isSel = openIdx === i
+            return (
+              <div key={block._id || block._tempKey || i} className="relative group">
+                <button onClick={() => setOpenIdx(isSel ? null : i)}
+                  className={`w-11 h-11 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${bt?.color || 'bg-gray-50 border-gray-200'} ${isSel ? 'ring-2 ring-offset-1 ring-blue-400 scale-110 shadow-md' : 'hover:scale-105'}`}>
+                  <span className="text-lg leading-none">{meta.icon}</span>
+                  <span className="text-[9px] font-medium text-gray-500 leading-none mt-0.5">{i + 1}</span>
                 </button>
-
+                {/* Delete × on hover */}
                 <button onClick={() => deleteBlock(i)}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all text-sm flex-shrink-0">
-                  🗑️
+                  className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 w-[18px] h-[18px] bg-red-500 hover:bg-red-600 text-white rounded-full text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow z-10">
+                  ×
                 </button>
-              </div>
-
-              {/* Edit form */}
-              {isOpen && (
-                <div className="p-5">
-                  <BlockEdit block={block} onChange={b => updateBlock(i, b)} />
+                {/* Name tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none z-50 transition-all duration-100">
+                  <div className="bg-gray-900 text-white rounded-lg px-2.5 py-1 text-[10px] font-medium whitespace-nowrap shadow-xl">{meta.label}</div>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-4 border-transparent border-t-gray-900" />
                 </div>
-              )}
-            </div>
-          )
-        })}
+              </div>
+            )
+          })}
+        </div>
       </div>
+
+      {/* Edit panel — single block at a time */}
+      {openIdx !== null && openIdx < blocks.length && (() => {
+        const block = blocks[openIdx]
+        const meta  = BLOCK_META[block.type] || { icon: '📦', label: block.type }
+        return (
+          <div className={`bg-white rounded-2xl shadow-sm border-l-4 ${ACCENT_BORDER[block.type] || 'border-l-gray-300'} border border-gray-100 overflow-hidden mb-8`}>
+            <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 border-b border-gray-100">
+              <span className="text-base flex-shrink-0">{meta.icon}</span>
+              <span className="text-sm font-semibold text-gray-700 flex-1">{meta.label}</span>
+              <span className="text-[11px] text-gray-400 bg-white border border-gray-200 px-2 py-0.5 rounded-lg">#{openIdx + 1}</span>
+              <div className="flex gap-1">
+                <button onClick={() => moveBlock(openIdx, -1)} disabled={openIdx === 0}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 disabled:opacity-20 transition-all text-xs">◀</button>
+                <button onClick={() => moveBlock(openIdx, 1)} disabled={openIdx === blocks.length - 1}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 disabled:opacity-20 transition-all text-xs">▶</button>
+              </div>
+              <button onClick={() => setOpenIdx(null)}
+                className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors text-sm">✕</button>
+            </div>
+            <div className="p-5">
+              <BlockEdit block={block} onChange={b => updateBlock(openIdx, b)} />
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Live preview */}
       {blocks.length > 0 && (
