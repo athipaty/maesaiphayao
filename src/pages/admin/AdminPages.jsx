@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getPages, createPage, updatePage, deletePage } from '../../services/api'
+import { getPages, createPage, updatePage, deletePage, uploadImage } from '../../services/api'
 import ImageUpload from '../../components/ImageUpload'
 import PdfUpload from '../../components/PdfUpload'
 import BlockRenderer from '../../components/BlockRenderer'
@@ -12,17 +12,27 @@ const BLOCK_TYPES = [
   { type: 'cards', icon: '🃏', label: 'การ์ด',           desc: 'กริดการ์ด มีไอคอนและคำอธิบาย', color: 'bg-purple-50 border-purple-200 hover:border-purple-400', accent: 'bg-purple-500' },
   { type: 'image', icon: '🖼️', label: 'รูปภาพ',          desc: 'อัปโหลดรูป + คำบรรยาย',    color: 'bg-amber-50 border-amber-200 hover:border-amber-400',   accent: 'bg-amber-500'  },
   { type: 'table', icon: '📊', label: 'ตาราง',           desc: 'ตารางข้อมูลแบบกำหนดเอง',   color: 'bg-cyan-50 border-cyan-200 hover:border-cyan-400',     accent: 'bg-cyan-500'   },
-  { type: 'pdf',   icon: '📄', label: 'ไฟล์ PDF',        desc: 'แนบและแสดงไฟล์ PDF',      color: 'bg-red-50 border-red-200 hover:border-red-400',        accent: 'bg-red-500'    },
+  { type: 'pdf',      icon: '📄', label: 'ไฟล์ PDF',         desc: 'แนบและแสดงไฟล์ PDF',                color: 'bg-red-50 border-red-200 hover:border-red-400',          accent: 'bg-red-500'     },
+  { type: 'banner',   icon: '🎨', label: 'Banner/หัวข้อ',  desc: 'กรอบสีพร้อมหัวข้อใหญ่ เลือกสีได้', color: 'bg-rose-50 border-rose-200 hover:border-rose-400',         accent: 'bg-rose-500'    },
+  { type: 'inforows', icon: 'ℹ️', label: 'แถวข้อมูล',      desc: 'ไอคอน + ชื่อ + ค่า (ที่อยู่/โทร)', color: 'bg-orange-50 border-orange-200 hover:border-orange-400',   accent: 'bg-orange-500'  },
+  { type: 'stats',    icon: '📈', label: 'การ์ดสถิติ',     desc: 'ตัวเลขใหญ่พร้อมไอคอนและสี',        color: 'bg-sky-50 border-sky-200 hover:border-sky-400',            accent: 'bg-sky-500'     },
+  { type: 'alert',    icon: '🔔', label: 'กล่อง Alert',    desc: 'ไฮไลต์ข้อมูล/แจ้งเตือน/สำเร็จ',   color: 'bg-yellow-50 border-yellow-200 hover:border-yellow-400',   accent: 'bg-yellow-500'  },
+  { type: 'timeline', icon: '🕐', label: 'Timeline',       desc: 'เหตุการณ์เรียงตามเวลา',              color: 'bg-violet-50 border-violet-200 hover:border-violet-400',   accent: 'bg-violet-500'  },
 ]
 const BLOCK_META = Object.fromEntries(BLOCK_TYPES.map(b => [b.type, b]))
 
 const ACCENT_BORDER = {
-  text:  'border-l-indigo-400',
-  links: 'border-l-green-400',
-  cards: 'border-l-purple-400',
-  image: 'border-l-amber-400',
-  table: 'border-l-cyan-400',
-  pdf:   'border-l-red-400',
+  text:     'border-l-indigo-400',
+  links:    'border-l-green-400',
+  cards:    'border-l-purple-400',
+  image:    'border-l-amber-400',
+  table:    'border-l-cyan-400',
+  pdf:      'border-l-red-400',
+  banner:   'border-l-rose-400',
+  inforows: 'border-l-orange-400',
+  stats:    'border-l-sky-400',
+  alert:    'border-l-yellow-400',
+  timeline: 'border-l-violet-400',
 }
 
 // ── Shared field helpers ──────────────────────────────────────────────────────
@@ -48,7 +58,12 @@ function emptyBlock(type) {
   if (type === 'cards') return { type, data: { title: '', cols: 2, items: [{ icon: '📄', title: '', desc: '', link: '' }] } }
   if (type === 'image') return { type, data: { layout: 'single', align: 'center', size: 'lg', images: [] } }
   if (type === 'table') return { type, data: { title: '', headers: ['หัวข้อ', 'รายละเอียด'], rows: [['', '']] } }
-  if (type === 'pdf')   return { type, data: { url: '', label: '', title: '', description: '' } }
+  if (type === 'pdf')      return { type, data: { url: '', label: '', title: '', description: '' } }
+  if (type === 'banner')   return { type, data: { icon: '', title: '', subtitle: '', color: 'primary', align: 'center' } }
+  if (type === 'inforows') return { type, data: { title: '', items: [{ icon: '📋', label: '', value: '' }] } }
+  if (type === 'stats')    return { type, data: { title: '', cols: 4, items: [{ icon: '📊', label: '', value: '', unit: '', color: 'blue' }], total: { label: '', value: '', unit: '' } } }
+  if (type === 'alert')    return { type, data: { variant: 'info', icon: '', title: '', content: '' } }
+  if (type === 'timeline') return { type, data: { title: '', items: [{ icon: '📌', year: '', title: '', desc: '', color: 'primary' }] } }
   return { type, data: {} }
 }
 
@@ -183,7 +198,6 @@ function ImageBlockEdit({ data, onChange }) {
     const files = Array.from(e.target.files); if (!files.length) return
     setBulkUploading(true)
     try {
-      const { uploadImage } = await import('../../services/api')
       const results = await Promise.all(files.map(f => uploadImage(f)))
       const newImgs = results.map(r => ({ url: r.data.url, caption: '' }))
       onChange({ ...data, images: [...images, ...newImgs] })
@@ -367,6 +381,274 @@ function PdfBlockEdit({ data, onChange }) {
   )
 }
 
+// ── Color dot picker (shared) ─────────────────────────────────────────────────
+const DOT_COLORS = {
+  blue:'bg-blue-400', green:'bg-green-400', indigo:'bg-indigo-400', pink:'bg-pink-400',
+  amber:'bg-amber-400', teal:'bg-teal-400', red:'bg-red-400', purple:'bg-purple-400',
+}
+function ColorDots({ keys, value, onChange }) {
+  return (
+    <div className="flex gap-1.5 flex-wrap">
+      {(keys || Object.keys(DOT_COLORS)).map(c => (
+        <button key={c} type="button" onClick={() => onChange(c)}
+          className={`w-6 h-6 rounded-full transition-all ${DOT_COLORS[c]||'bg-gray-400'} ${value===c ? 'ring-2 ring-offset-1 ring-gray-500 scale-110' : 'opacity-50 hover:opacity-90'}`}
+          title={c} />
+      ))}
+    </div>
+  )
+}
+
+// ── Banner editor ─────────────────────────────────────────────────────────────
+const BANNER_COLORS = [
+  { key:'primary',   label:'น้ำเงิน', cls:'from-primary to-secondary' },
+  { key:'secondary', label:'ฟ้า',    cls:'from-secondary to-accent' },
+  { key:'gold',      label:'ทอง',    cls:'from-yellow-700 to-amber-500' },
+  { key:'green',     label:'เขียว',  cls:'from-green-700 to-green-500' },
+  { key:'red',       label:'แดง',    cls:'from-red-800 to-red-600' },
+  { key:'teal',      label:'เทียล',  cls:'from-teal-700 to-teal-500' },
+  { key:'gray',      label:'เทา',    cls:'from-gray-700 to-gray-500' },
+]
+function BannerBlockEdit({ data, onChange }) {
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-3">
+        <Field label="ไอคอน (emoji)" hint="ไม่บังคับ">
+          <input className={`${inp} text-xl text-center`} placeholder="🏛️" style={{ width: 72 }}
+            value={data.icon||''} onChange={e => onChange({ ...data, icon: e.target.value })} />
+        </Field>
+        <Field label="การจัดวาง">
+          <div className="flex rounded-lg overflow-hidden border border-gray-200 mt-0.5">
+            {[['center','■ กลาง'],['left','◀ ซ้าย']].map(([v,l]) => (
+              <button key={v} type="button" onClick={() => onChange({ ...data, align: v })}
+                className={`flex-1 py-2 text-xs font-medium transition-colors ${(data.align||'center')===v ? 'bg-rose-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </Field>
+      </div>
+      <Field label="หัวข้อหลัก">
+        <input className={inp} placeholder="เช่น ประวัติความเป็นมา" value={data.title||''} onChange={e => onChange({ ...data, title: e.target.value })} />
+      </Field>
+      <Field label="คำอธิบาย" hint="ไม่บังคับ">
+        <input className={inp} placeholder="คำอธิบายสั้นๆ ใต้หัวข้อ" value={data.subtitle||''} onChange={e => onChange({ ...data, subtitle: e.target.value })} />
+      </Field>
+      <Field label="สีพื้นหลัง">
+        <div className="grid grid-cols-4 gap-2">
+          {BANNER_COLORS.map(c => (
+            <button key={c.key} type="button" onClick={() => onChange({ ...data, color: c.key })}
+              className={`h-10 rounded-xl bg-gradient-to-r ${c.cls} flex items-center justify-center transition-all ${(data.color||'primary')===c.key ? 'ring-2 ring-offset-2 ring-rose-400 scale-105' : 'opacity-60 hover:opacity-90'}`}>
+              <span className="text-white text-[11px] font-semibold drop-shadow">{c.label}</span>
+            </button>
+          ))}
+        </div>
+      </Field>
+      {/* Mini preview */}
+      {(data.title || data.subtitle) && (
+        <div className={`rounded-xl overflow-hidden bg-gradient-to-r ${BANNER_COLORS.find(c=>c.key===(data.color||'primary'))?.cls||'from-primary to-secondary'}`}>
+          <div className={`px-6 py-5 text-white ${data.align==='left' ? 'text-left' : 'text-center'}`}>
+            {data.icon && <div className="text-2xl mb-1">{data.icon}</div>}
+            {data.title && <p className="text-base font-bold">{data.title}</p>}
+            {data.subtitle && <p className="text-white/75 text-xs mt-0.5">{data.subtitle}</p>}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Info rows editor ──────────────────────────────────────────────────────────
+function InfoRowsBlockEdit({ data, onChange }) {
+  function updateItem(i, field, val) {
+    const items = [...(data.items||[])]; items[i] = { ...items[i], [field]: val }
+    onChange({ ...data, items })
+  }
+  function addItem()     { onChange({ ...data, items: [...(data.items||[]), { icon: '📋', label: '', value: '' }] }) }
+  function removeItem(i) { onChange({ ...data, items: (data.items||[]).filter((_,idx) => idx!==i) }) }
+  function moveItem(i,d) {
+    const items=[...(data.items||[])],t=i+d
+    if(t<0||t>=items.length) return
+    ;[items[i],items[t]]=[items[t],items[i]]
+    onChange({ ...data, items })
+  }
+  return (
+    <div className="space-y-4">
+      <Field label="หัวข้อ section" hint="ไม่บังคับ">
+        <input className={inp} placeholder="เช่น ข้อมูลติดต่อ" value={data.title||''} onChange={e => onChange({ ...data, title: e.target.value })} />
+      </Field>
+      <Field label={`รายการ (${(data.items||[]).length} รายการ)`}>
+        <div className="space-y-2">
+          {(data.items||[]).map((item,i) => (
+            <div key={i} className="bg-gray-50 border border-gray-100 rounded-xl p-3 flex gap-2 items-center">
+              <input className={`${smallInp} w-14 text-center text-xl`} placeholder="📍" value={item.icon||''} onChange={e => updateItem(i,'icon',e.target.value)} />
+              <input className={`${smallInp} w-28`} placeholder="ชื่อฟิลด์" value={item.label||''} onChange={e => updateItem(i,'label',e.target.value)} />
+              <input className={`${smallInp} flex-1`} placeholder="ค่าข้อมูล" value={item.value||''} onChange={e => updateItem(i,'value',e.target.value)} />
+              <button type="button" onClick={() => moveItem(i,-1)} disabled={i===0} className="w-6 h-6 flex items-center justify-center rounded border border-gray-200 text-gray-400 disabled:opacity-20 text-xs">▲</button>
+              <button type="button" onClick={() => moveItem(i,1)} disabled={i===(data.items||[]).length-1} className="w-6 h-6 flex items-center justify-center rounded border border-gray-200 text-gray-400 disabled:opacity-20 text-xs">▼</button>
+              <button type="button" onClick={() => removeItem(i)} className="w-6 h-6 flex items-center justify-center rounded text-red-400 hover:bg-red-50 text-sm">✕</button>
+            </div>
+          ))}
+        </div>
+        <button type="button" onClick={addItem}
+          className="mt-2 flex items-center gap-1.5 text-xs font-medium text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 px-3 py-1.5 rounded-lg transition-colors">
+          + เพิ่มรายการ
+        </button>
+      </Field>
+    </div>
+  )
+}
+
+// ── Stats editor ──────────────────────────────────────────────────────────────
+const STAT_KEYS = ['blue','green','indigo','pink','amber','teal','red','purple']
+function StatsBlockEdit({ data, onChange }) {
+  function updateItem(i, field, val) {
+    const items=[...(data.items||[])]; items[i]={...items[i],[field]:val}
+    onChange({ ...data, items })
+  }
+  function addItem() {
+    const color = STAT_KEYS[(data.items||[]).length % STAT_KEYS.length]
+    onChange({ ...data, items: [...(data.items||[]), { icon:'📊', label:'', value:'', unit:'', color }] })
+  }
+  function removeItem(i) { onChange({ ...data, items: (data.items||[]).filter((_,idx) => idx!==i) }) }
+  function setTotal(field, val) { onChange({ ...data, total: { ...(data.total||{}), [field]: val } }) }
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-3">
+        <Field label="หัวข้อ" hint="ไม่บังคับ">
+          <input className={inp} placeholder="สถิติข้อมูล" value={data.title||''} onChange={e => onChange({ ...data, title: e.target.value })} />
+        </Field>
+        <div className="flex-shrink-0">
+          <Field label="คอลัมน์">
+            <select className={`${inp} w-28`} value={data.cols||4} onChange={e => onChange({ ...data, cols: parseInt(e.target.value) })}>
+              <option value={2}>2 คอล</option><option value={3}>3 คอล</option><option value={4}>4 คอล</option>
+            </select>
+          </Field>
+        </div>
+      </div>
+      <Field label={`การ์ด (${(data.items||[]).length} ใบ)`}>
+        <div className="space-y-2">
+          {(data.items||[]).map((item,i) => (
+            <div key={i} className="bg-gray-50 border border-gray-100 rounded-xl p-3 space-y-2">
+              <div className="flex gap-2 items-center">
+                <input className={`${smallInp} w-14 text-center text-xl`} placeholder="🏘️" value={item.icon||''} onChange={e => updateItem(i,'icon',e.target.value)} />
+                <input className={`${smallInp} flex-1`} placeholder="ชื่อ (เช่น หมู่บ้าน)" value={item.label||''} onChange={e => updateItem(i,'label',e.target.value)} />
+                <button type="button" onClick={() => removeItem(i)} className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:bg-red-50 text-sm flex-shrink-0">🗑️</button>
+              </div>
+              <div className="flex gap-2 items-center">
+                <input className={`${smallInp} flex-1`} placeholder="ตัวเลข เช่น 5,916" value={item.value||''} onChange={e => updateItem(i,'value',e.target.value)} />
+                <input className={`${smallInp} w-24`} placeholder="หน่วย เช่น คน" value={item.unit||''} onChange={e => updateItem(i,'unit',e.target.value)} />
+                <ColorDots keys={STAT_KEYS} value={item.color||'blue'} onChange={v => updateItem(i,'color',v)} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <button type="button" onClick={addItem}
+          className="mt-2 flex items-center gap-1.5 text-xs font-medium text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 px-3 py-1.5 rounded-lg transition-colors">
+          + เพิ่มการ์ด
+        </button>
+      </Field>
+      <Field label="การ์ดยอดรวม" hint="กล่อง gradient สีน้ำเงิน ไม่บังคับ">
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 space-y-2">
+          <input className={inp} placeholder="ชื่อ เช่น ประชากรรวมทั้งหมด" value={data.total?.label||''} onChange={e => setTotal('label', e.target.value)} />
+          <div className="flex gap-2">
+            <input className={`${smallInp} flex-1`} placeholder="ค่า เช่น 5,916" value={data.total?.value||''} onChange={e => setTotal('value', e.target.value)} />
+            <input className={`${smallInp} w-28`} placeholder="หน่วย เช่น คน" value={data.total?.unit||''} onChange={e => setTotal('unit', e.target.value)} />
+          </div>
+        </div>
+      </Field>
+    </div>
+  )
+}
+
+// ── Alert editor ──────────────────────────────────────────────────────────────
+const ALERT_VARIANTS = [
+  { key:'info',    label:'ℹ️ ข้อมูล',    cls:'bg-blue-50 border-blue-200 text-blue-700' },
+  { key:'warning', label:'⚠️ แจ้งเตือน', cls:'bg-amber-50 border-amber-200 text-amber-700' },
+  { key:'success', label:'✅ สำเร็จ',    cls:'bg-green-50 border-green-200 text-green-700' },
+  { key:'danger',  label:'🚨 สำคัญ',    cls:'bg-red-50 border-red-200 text-red-700' },
+]
+function AlertBlockEdit({ data, onChange }) {
+  return (
+    <div className="space-y-4">
+      <Field label="ประเภท">
+        <div className="grid grid-cols-2 gap-2">
+          {ALERT_VARIANTS.map(v => (
+            <button key={v.key} type="button" onClick={() => onChange({ ...data, variant: v.key })}
+              className={`py-2.5 px-3 rounded-xl border-2 text-xs font-semibold transition-all ${(data.variant||'info')===v.key ? `${v.cls} border-current` : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white'}`}>
+              {v.label}
+            </button>
+          ))}
+        </div>
+      </Field>
+      <Field label="ไอคอนกำหนดเอง" hint="ถ้าว่างจะใช้ไอคอนของประเภท">
+        <input className={`${inp} text-xl`} placeholder="เช่น 📢" value={data.icon||''} onChange={e => onChange({ ...data, icon: e.target.value })} />
+      </Field>
+      <Field label="หัวข้อ" hint="ไม่บังคับ">
+        <input className={inp} placeholder="เช่น หมายเหตุสำคัญ" value={data.title||''} onChange={e => onChange({ ...data, title: e.target.value })} />
+      </Field>
+      <Field label="เนื้อหา">
+        <textarea className={`${inp} min-h-[100px] leading-relaxed`} placeholder="รายละเอียด..." value={data.content||''} onChange={e => onChange({ ...data, content: e.target.value })} />
+      </Field>
+    </div>
+  )
+}
+
+// ── Timeline editor ───────────────────────────────────────────────────────────
+const TIMELINE_KEYS = ['primary','blue','green','amber','red','purple','teal','cyan','indigo','pink']
+const TIMELINE_DOT  = {
+  primary:'bg-primary', blue:'bg-blue-500', green:'bg-green-500', amber:'bg-amber-500',
+  red:'bg-red-500', purple:'bg-purple-500', teal:'bg-teal-500', cyan:'bg-cyan-500',
+  indigo:'bg-indigo-500', pink:'bg-pink-500',
+}
+function TimelineBlockEdit({ data, onChange }) {
+  function updateItem(i, field, val) {
+    const items=[...(data.items||[])]; items[i]={...items[i],[field]:val}
+    onChange({ ...data, items })
+  }
+  function addItem()     { onChange({ ...data, items: [...(data.items||[]), { icon:'📌', year:'', title:'', desc:'', color:'primary' }] }) }
+  function removeItem(i) { onChange({ ...data, items: (data.items||[]).filter((_,idx) => idx!==i) }) }
+  function moveItem(i,d) {
+    const items=[...(data.items||[])],t=i+d
+    if(t<0||t>=items.length) return
+    ;[items[i],items[t]]=[items[t],items[i]]
+    onChange({ ...data, items })
+  }
+  return (
+    <div className="space-y-4">
+      <Field label="หัวข้อ section" hint="ไม่บังคับ">
+        <input className={inp} placeholder="เช่น เส้นทางประวัติศาสตร์" value={data.title||''} onChange={e => onChange({ ...data, title: e.target.value })} />
+      </Field>
+      <Field label={`เหตุการณ์ (${(data.items||[]).length} รายการ)`}>
+        <div className="space-y-3">
+          {(data.items||[]).map((item,i) => (
+            <div key={i} className="bg-gray-50 border border-gray-100 rounded-xl p-3 space-y-2">
+              <div className="flex gap-2 items-center">
+                <input className={`${smallInp} w-14 text-center text-xl`} placeholder="📌" value={item.icon||''} onChange={e => updateItem(i,'icon',e.target.value)} />
+                <input className={`${smallInp} flex-1`} placeholder="ปี / ช่วงเวลา เช่น พ.ศ. 2539" value={item.year||''} onChange={e => updateItem(i,'year',e.target.value)} />
+                <div className="flex gap-1 flex-wrap">
+                  {TIMELINE_KEYS.map(c => (
+                    <button key={c} type="button" onClick={() => updateItem(i,'color',c)}
+                      className={`w-5 h-5 rounded-full ${TIMELINE_DOT[c]||'bg-gray-400'} transition-all ${item.color===c ? 'ring-2 ring-offset-1 ring-gray-400 scale-110' : 'opacity-50 hover:opacity-90'}`} title={c} />
+                  ))}
+                </div>
+                <button type="button" onClick={() => moveItem(i,-1)} disabled={i===0} className="w-6 h-6 flex items-center justify-center rounded border border-gray-200 text-gray-400 disabled:opacity-20 text-xs">▲</button>
+                <button type="button" onClick={() => moveItem(i,1)} disabled={i===(data.items||[]).length-1} className="w-6 h-6 flex items-center justify-center rounded border border-gray-200 text-gray-400 disabled:opacity-20 text-xs">▼</button>
+                <button type="button" onClick={() => removeItem(i)} className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:bg-red-50 text-sm">🗑️</button>
+              </div>
+              <input className={inp} placeholder="หัวข้อเหตุการณ์" value={item.title||''} onChange={e => updateItem(i,'title',e.target.value)} />
+              <textarea className={`${inp} min-h-[60px]`} placeholder="รายละเอียด (ไม่บังคับ)" value={item.desc||''} onChange={e => updateItem(i,'desc',e.target.value)} />
+            </div>
+          ))}
+        </div>
+        <button type="button" onClick={addItem}
+          className="mt-2 flex items-center gap-1.5 text-xs font-medium text-violet-600 hover:text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-3 py-1.5 rounded-lg transition-colors">
+          + เพิ่มเหตุการณ์
+        </button>
+      </Field>
+    </div>
+  )
+}
+
 function BlockEdit({ block, onChange }) {
   switch (block.type) {
     case 'text':  return <TextBlockEdit  data={block.data} onChange={d => onChange({ ...block, data: d })} />
@@ -374,8 +656,13 @@ function BlockEdit({ block, onChange }) {
     case 'cards': return <CardsBlockEdit data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'image': return <ImageBlockEdit data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'table': return <TableBlockEdit data={block.data} onChange={d => onChange({ ...block, data: d })} />
-    case 'pdf':   return <PdfBlockEdit   data={block.data} onChange={d => onChange({ ...block, data: d })} />
-    default:      return null
+    case 'pdf':      return <PdfBlockEdit      data={block.data} onChange={d => onChange({ ...block, data: d })} />
+    case 'banner':   return <BannerBlockEdit   data={block.data} onChange={d => onChange({ ...block, data: d })} />
+    case 'inforows': return <InfoRowsBlockEdit data={block.data} onChange={d => onChange({ ...block, data: d })} />
+    case 'stats':    return <StatsBlockEdit    data={block.data} onChange={d => onChange({ ...block, data: d })} />
+    case 'alert':    return <AlertBlockEdit    data={block.data} onChange={d => onChange({ ...block, data: d })} />
+    case 'timeline': return <TimelineBlockEdit data={block.data} onChange={d => onChange({ ...block, data: d })} />
+    default:         return null
   }
 }
 
