@@ -120,7 +120,7 @@ function emptyBlock(type) {
   if (type === 'image') return { type, data: { layout: 'single', align: 'center', size: 'lg', height: 'auto', images: [] } }
   if (type === 'table') return { type, data: { title: '', headers: ['หัวข้อ', 'รายละเอียด'], rows: [['', '']] } }
   if (type === 'pdf')      return { type, data: { url: '', label: '', title: '', description: '' } }
-  if (type === 'banner')   return { type, data: { icon: '', title: '', subtitle: '', color: 'primary', align: 'center' } }
+  if (type === 'banner')   return { type, data: { icon: '', title: '', subtitle: '', color: 'primary', align: 'center', height: 'md' } }
   if (type === 'inforows') return { type, data: { title: '', items: [{ icon: '📋', label: '', value: '' }] } }
   if (type === 'stats')    return { type, data: { title: '', cols: 4, items: [{ icon: '📊', label: '', value: '', unit: '', color: 'blue' }], total: { label: '', value: '', unit: '' } } }
   if (type === 'alert')    return { type, data: { variant: 'info', icon: '', title: '', content: '' } }
@@ -645,6 +645,22 @@ function BannerBlockEdit({ data, onChange }) {
       </Field>
       <Field label="คำอธิบาย" hint="ไม่บังคับ">
         <input className={inp} placeholder="คำอธิบายสั้นๆ ใต้หัวข้อ" value={data.subtitle||''} onChange={e => onChange({ ...data, subtitle: e.target.value })} />
+      </Field>
+      <Field label="ความสูง Banner">
+        <div className="flex rounded-lg overflow-hidden border border-gray-200">
+          {[
+            { v: 'sm', l: 'เตี้ย',   sub: 'S' },
+            { v: 'md', l: 'กลาง',    sub: 'M' },
+            { v: 'lg', l: 'สูง',     sub: 'L' },
+            { v: 'xl', l: 'สูงมาก', sub: 'XL' },
+          ].map(({ v, l, sub }) => (
+            <button key={v} type="button" onClick={() => onChange({ ...data, height: v })}
+              className={`flex-1 py-1.5 text-xs font-semibold transition-colors flex flex-col items-center leading-tight ${(data.height||'md')===v ? 'bg-rose-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
+              <span>{sub}</span>
+              <span className="text-[9px] opacity-70">{l}</span>
+            </button>
+          ))}
+        </div>
       </Field>
       <Field label="สีพื้นหลัง">
         <div className="grid grid-cols-4 gap-2">

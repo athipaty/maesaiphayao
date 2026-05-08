@@ -242,12 +242,15 @@ const BANNER_GRAD = {
   teal:      'from-teal-700 to-teal-500',
   gray:      'from-gray-700 to-gray-500',
 }
+const BANNER_HEIGHT = { sm: 'py-3', md: 'py-8', lg: 'py-14', xl: 'py-24' }
+
 function BannerBlock({ data }) {
   const grad  = BANNER_GRAD[data.color || 'primary'] || BANNER_GRAD.primary
   const align = data.align === 'left' ? 'text-left' : 'text-center'
+  const py    = BANNER_HEIGHT[data.height || 'md'] || BANNER_HEIGHT.md
   return (
     <div className={`mb-4 rounded-xl overflow-hidden bg-gradient-to-r ${grad}`}>
-      <div className={`px-8 py-8 text-white ${align}`}>
+      <div className={`px-8 ${py} text-white ${align}`}>
         {data.icon    && <div className="text-4xl mb-2">{data.icon}</div>}
         {data.title   && <h2 className="text-xl font-bold mb-1">{data.title}</h2>}
         {data.subtitle && <p className="text-white/75 text-sm">{data.subtitle}</p>}
