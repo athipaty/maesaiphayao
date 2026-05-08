@@ -249,11 +249,6 @@ function PdfBlock({ data, preview }) {
   const viewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
   return (
     <div className="card mb-4 overflow-hidden">
-      {data.title && (
-        <div className="section-head">
-          <h3 className="text-sm font-semibold">📄 {data.title}</h3>
-        </div>
-      )}
       <div className="p-4">
         {data.description && <p className="text-xs text-gray-500 mb-3 leading-relaxed">{data.description}</p>}
 

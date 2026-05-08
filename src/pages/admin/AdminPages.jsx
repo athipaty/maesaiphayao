@@ -643,7 +643,7 @@ function TableBlockEdit({ data, onChange }) {
 function PdfBlockEdit({ data, onChange }) {
   return (
     <div className="space-y-4">
-      <Field label="ชื่อหัวข้อ PDF">
+      <Field label="ชื่อไฟล์เอกสาร (ใช้เป็นชื่อเมื่อดาวน์โหลด)">
         <input className={inp} placeholder="เช่น แผนพัฒนาท้องถิ่น พ.ศ. 2566-2570" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
       </Field>
       <Field label="คำอธิบาย" hint="ไม่บังคับ">
