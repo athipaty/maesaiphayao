@@ -107,26 +107,12 @@ export default function PublicServicePage() {
       </div>
 
       {/* e-Service shortcut */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+      <div className="mb-5">
         <Link to="/eservice" className="bg-primary text-white rounded-xl p-4 flex items-center gap-3 hover:bg-primary/90 transition-colors">
           <span className="text-2xl">🌐</span>
           <div>
             <p className="text-sm font-bold">e-Service</p>
             <p className="text-xs opacity-80">ยื่นคำร้องออนไลน์</p>
-          </div>
-        </Link>
-        <Link to="/complaint" className="bg-secondary text-white rounded-xl p-4 flex items-center gap-3 hover:bg-secondary/90 transition-colors">
-          <span className="text-2xl">📮</span>
-          <div>
-            <p className="text-sm font-bold">ร้องเรียน/ร้องทุกข์</p>
-            <p className="text-xs opacity-80">แจ้งปัญหา ติดตามสถานะ</p>
-          </div>
-        </Link>
-        <Link to="/corruption" className="bg-red-600 text-white rounded-xl p-4 flex items-center gap-3 hover:bg-red-700 transition-colors">
-          <span className="text-2xl">🚨</span>
-          <div>
-            <p className="text-sm font-bold">แจ้งเบาะแสทุจริต</p>
-            <p className="text-xs opacity-80">ป้องกันการทุจริต</p>
           </div>
         </Link>
       </div>
