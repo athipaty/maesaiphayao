@@ -10,6 +10,8 @@ const MAIN_MENU = [
   { label: 'จัดซื้อจัดจ้าง',             path: '/procurement' },
   { label: 'บุคลากร/กิจการสภา',          path: '/staff' },
   { label: 'บริการสาธารณะ',              path: '/public-service' },
+  { label: 'ร้องเรียน/ร้องทุกข์',        path: '/complaint' },
+  { label: 'แจ้งเบาะแสทุจริต',           path: '/corruption' },
   { label: 'ITA/OIT',                    path: '/ita' },
   { label: 'ศูนย์ข้อมูลข่าวสาร',          path: '/info-center' },
   { label: 'กฎหมาย/ข้อบัญญัติ',          path: '/laws' },
