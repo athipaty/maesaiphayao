@@ -17,8 +17,8 @@ function StaffCard({ s }) {
     return (
       <div className="text-center">
         <div className="border-2 border-dashed border-gray-300 flex flex-col items-center justify-center mx-auto mb-2 rounded bg-gray-50"
-          style={{ width: 100, height: 140 }}>
-          <span className="text-2xl mb-1">👤</span>
+          style={{ width: 130, height: 180 }}>
+          <span className="text-3xl mb-1">👤</span>
           <span className="text-xs text-gray-400">ตำแหน่งว่าง</span>
         </div>
         <p className="text-xs text-gray-400 italic leading-snug">{s.position}</p>
@@ -31,10 +31,10 @@ function StaffCard({ s }) {
       {s.image ? (
         <img src={s.image} alt={s.name}
           className="object-cover mx-auto mb-2 border-2 border-blue-100 rounded"
-          style={{ width: 100, height: 140, objectFit: 'cover', objectPosition: 'top center' }} />
+          style={{ width: 130, height: 180, objectFit: 'cover', objectPosition: 'top center' }} />
       ) : (
-        <div className="bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-2xl text-white mx-auto mb-2 rounded"
-          style={{ width: 100, height: 140 }}>
+        <div className="bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl text-white mx-auto mb-2 rounded"
+          style={{ width: 130, height: 180 }}>
           👤
         </div>
       )}
