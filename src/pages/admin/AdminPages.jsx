@@ -193,7 +193,7 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
 
   function addBlock(type) {
     const b = emptyBlock(type)
-    b._id = 'new-' + Date.now()
+    b._tempKey = 'tmp-' + Date.now()
     setBlocks(prev => [...prev, b])
     setOpenIdx(blocks.length)
   }
@@ -212,7 +212,9 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
   async function save() {
     setSaving(true)
     try {
-      const updated = await updatePage(page._id, { blocks })
+      // eslint-disable-next-line no-unused-vars
+      const cleanBlocks = blocks.map(({ _tempKey, ...rest }) => rest)
+      const updated = await updatePage(page._id, { blocks: cleanBlocks })
       onPageSaved(updated.data)
     } finally { setSaving(false) }
   }
@@ -241,7 +243,7 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
           </div>
         )}
         {blocks.map((block, i) => (
-          <div key={block._id || i} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div key={block._id || block._tempKey || i} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             {/* Block header */}
             <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 border-b border-gray-100">
               <span className="text-sm font-medium text-gray-600 flex-1">{blockLabel[block.type] || block.type}</span>
