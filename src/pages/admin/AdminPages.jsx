@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getPages, createPage, updatePage, deletePage } from '../../services/api'
 import ImageUpload from '../../components/ImageUpload'
+import BlockRenderer from '../../components/BlockRenderer'
 
 const ICONS = ['📄','🏛️','📰','📊','💰','📋','👥','🌐','📮','🚨','📝','📚','⚖️','📞','🎭','🌿','🗺️','🛍️','🏠','ℹ️','📌','🔔','✉️','🎓','🏥','🌾','🔨','🤝','⚡','🔗']
 const BLOCK_TYPES = [
@@ -278,6 +279,29 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
           ))}
         </div>
       </div>
+
+      {/* Live preview */}
+      {blocks.length > 0 && (
+        <div className="mt-8">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="flex-1 border-t border-dashed border-gray-200" />
+            <span className="text-xs font-semibold text-gray-400 px-2">👁️ ตัวอย่างหน้าแสดงผล</span>
+            <div className="flex-1 border-t border-dashed border-gray-200" />
+          </div>
+          <div className="bg-gray-100 rounded-xl p-4">
+            <div className="max-w-2xl mx-auto">
+              <div className="card mb-3">
+                <div className="section-head">
+                  <h1 className="text-sm font-semibold">{page.icon} {page.title}</h1>
+                </div>
+              </div>
+              {blocks.map((block, i) => (
+                <BlockRenderer key={block._id || block._tempKey || i} block={block} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
