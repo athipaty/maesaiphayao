@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 function TextBlock({ data }) {
@@ -199,6 +200,7 @@ function TableBlock({ data }) {
 }
 
 function PdfBlock({ data, preview }) {
+  const [open, setOpen] = useState(false)
   if (!data.url) return null
   const viewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
   return (
@@ -210,19 +212,39 @@ function PdfBlock({ data, preview }) {
       )}
       <div className="p-4">
         {data.description && <p className="text-xs text-gray-500 mb-3 leading-relaxed">{data.description}</p>}
+
         {preview ? (
-          <div className="w-full rounded-lg border border-dashed border-red-200 bg-red-50 flex items-center justify-center gap-3 mb-3" style={{ height: 120 }}>
+          /* Admin preview — always show placeholder */
+          <div className="w-full rounded-lg border border-dashed border-red-200 bg-red-50 flex items-center justify-center gap-3 mb-3" style={{ height: 100 }}>
             <span className="text-3xl">📄</span>
             <div>
               <p className="text-sm font-medium text-red-700">{data.title || 'ไฟล์ PDF'}</p>
               <p className="text-xs text-red-400 mt-0.5">จะแสดง PDF viewer ในหน้าจริง</p>
             </div>
           </div>
-        ) : (
-          <div className="w-full rounded-lg overflow-hidden border border-gray-200 mb-3" style={{ height: '500px' }}>
-            <iframe src={viewUrl} className="w-full h-full" title={data.title || 'PDF'} />
+        ) : open ? (
+          /* Expanded — show iframe + close button */
+          <div className="mb-3">
+            <div className="w-full rounded-lg overflow-hidden border border-gray-200" style={{ height: '520px' }}>
+              <iframe src={viewUrl} className="w-full h-full" title={data.title || 'PDF'} />
+            </div>
+            <button onClick={() => setOpen(false)}
+              className="mt-2 flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors">
+              ▲ ซ่อน PDF
+            </button>
           </div>
+        ) : (
+          /* Collapsed — show open button */
+          <button onClick={() => setOpen(true)}
+            className="mb-3 w-full flex items-center justify-center gap-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl py-5 transition-colors group">
+            <span className="text-3xl group-hover:scale-110 transition-transform">📄</span>
+            <div className="text-left">
+              <p className="text-sm font-semibold text-red-700">{data.title || 'ไฟล์ PDF'}</p>
+              <p className="text-xs text-red-400 mt-0.5">กดเพื่อแสดง PDF ▼</p>
+            </div>
+          </button>
         )}
+
         <a href={data.url} target="_blank" rel="noreferrer"
           className="inline-flex items-center gap-2 text-xs bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors font-medium">
           📥 ดาวน์โหลด PDF
