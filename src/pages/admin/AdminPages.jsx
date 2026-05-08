@@ -303,7 +303,7 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
   }
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-5xl mx-auto">
       {/* Header bar */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-4 mb-6 flex items-center gap-4">
         <button onClick={onBack}
@@ -612,7 +612,7 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
   }
 
   return (
-    <div>
+    <div className="max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-gray-800">🗂️ จัดการเมนูและหน้า</h1>
