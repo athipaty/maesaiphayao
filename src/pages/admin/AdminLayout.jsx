@@ -90,7 +90,7 @@ export default function AdminLayout() {
                 <input
                   type={showPw ? 'text' : 'password'}
                   className="w-full border border-gray-200 rounded-lg px-4 py-3 pr-12 text-sm focus:outline-none focus:border-secondary focus:ring-2 focus:ring-blue-100 transition-all"
-                  placeholder="รหัสผ่านวันนี้ (YYMMDD)"
+                  placeholder="รหัสผ่าน"
                   value={pw}
                   onChange={e => { setPw(e.target.value); setErr('') }}
                   onKeyDown={e => e.key === 'Enter' && login()}

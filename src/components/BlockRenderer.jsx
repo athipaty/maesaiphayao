@@ -118,11 +118,15 @@ function ImageBlock({ data }) {
     square: 'w-full aspect-square object-cover',
   }[data.height || 'auto'] || 'w-full'
 
+  const isSingle  = images.length === 1
+  const gridWrap  = isSingle ? 'flex justify-center' : `grid ${gridClass} gap-2`
+  const singleW   = isSingle ? ({ 'grid-2': 'w-1/2', 'grid-3': 'w-1/3', 'grid-4': 'w-1/4' }[layout] || 'w-1/2') : ''
+
   return (
     <div className="mb-4">
-      <div className={`grid ${gridClass} gap-2`}>
+      <div className={gridWrap}>
         {images.map((img, i) => (
-          <div key={i}>
+          <div key={i} className={singleW}>
             <img src={img.url} alt={img.caption || ''} className={`rounded-lg shadow-sm ${heightCls}`} />
             {img.caption && <p className="text-xs text-gray-400 mt-1 text-center">{img.caption}</p>}
           </div>
