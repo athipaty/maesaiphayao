@@ -646,16 +646,18 @@ function BannerBlockEdit({ data, onChange }) {
       <Field label="คำอธิบาย" hint="ไม่บังคับ">
         <input className={inp} placeholder="คำอธิบายสั้นๆ ใต้หัวข้อ" value={data.subtitle||''} onChange={e => onChange({ ...data, subtitle: e.target.value })} />
       </Field>
-      <Field label="ความสูง Banner">
+      <Field label="ความสูง Banner (ตัวอักษรปรับอัตโนมัติ)">
         <div className="flex rounded-lg overflow-hidden border border-gray-200">
           {[
-            { v: 'sm', l: 'เตี้ย',   sub: 'S' },
-            { v: 'md', l: 'กลาง',    sub: 'M' },
-            { v: 'lg', l: 'สูง',     sub: 'L' },
-            { v: 'xl', l: 'สูงมาก', sub: 'XL' },
+            { v: 'xs',  sub: 'XS',  l: 'เล็กมาก'  },
+            { v: 'sm',  sub: 'S',   l: 'เตี้ย'     },
+            { v: 'md',  sub: 'M',   l: 'กลาง'      },
+            { v: 'lg',  sub: 'L',   l: 'สูง'       },
+            { v: 'xl',  sub: 'XL',  l: 'สูงมาก'   },
+            { v: 'xxl', sub: 'XXL', l: 'ใหญ่มาก'  },
           ].map(({ v, l, sub }) => (
             <button key={v} type="button" onClick={() => onChange({ ...data, height: v })}
-              className={`flex-1 py-1.5 text-xs font-semibold transition-colors flex flex-col items-center leading-tight ${(data.height||'md')===v ? 'bg-rose-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
+              className={`flex-1 py-1.5 text-[11px] font-semibold transition-colors flex flex-col items-center leading-tight ${(data.height||'md')===v ? 'bg-rose-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
               <span>{sub}</span>
               <span className="text-[9px] opacity-70">{l}</span>
             </button>

@@ -242,18 +242,28 @@ const BANNER_GRAD = {
   teal:      'from-teal-700 to-teal-500',
   gray:      'from-gray-700 to-gray-500',
 }
-const BANNER_HEIGHT = { sm: 'py-3', md: 'py-8', lg: 'py-14', xl: 'py-24' }
+const BANNER_HEIGHT = { xs: 'py-2', sm: 'py-4', md: 'py-8', lg: 'py-14', xl: 'py-20', xxl: 'py-32' }
+const BANNER_FONT   = {
+  xs:  { icon: 'text-lg',   title: 'text-xs',   sub: 'text-[11px]' },
+  sm:  { icon: 'text-2xl',  title: 'text-sm',   sub: 'text-xs'     },
+  md:  { icon: 'text-3xl',  title: 'text-xl',   sub: 'text-sm'     },
+  lg:  { icon: 'text-4xl',  title: 'text-2xl',  sub: 'text-base'   },
+  xl:  { icon: 'text-5xl',  title: 'text-3xl',  sub: 'text-lg'     },
+  xxl: { icon: 'text-6xl',  title: 'text-4xl',  sub: 'text-xl'     },
+}
 
 function BannerBlock({ data }) {
   const grad  = BANNER_GRAD[data.color || 'primary'] || BANNER_GRAD.primary
   const align = data.align === 'left' ? 'text-left' : 'text-center'
-  const py    = BANNER_HEIGHT[data.height || 'md'] || BANNER_HEIGHT.md
+  const h     = data.height || 'md'
+  const py    = BANNER_HEIGHT[h] || BANNER_HEIGHT.md
+  const font  = BANNER_FONT[h]   || BANNER_FONT.md
   return (
     <div className={`mb-4 rounded-xl overflow-hidden bg-gradient-to-r ${grad}`}>
       <div className={`px-8 ${py} text-white ${align}`}>
-        {data.icon    && <div className="text-4xl mb-2">{data.icon}</div>}
-        {data.title   && <h2 className="text-xl font-bold mb-1">{data.title}</h2>}
-        {data.subtitle && <p className="text-white/75 text-sm">{data.subtitle}</p>}
+        {data.icon     && <div className={`${font.icon} mb-2`}>{data.icon}</div>}
+        {data.title    && <h2 className={`${font.title} font-bold mb-1`}>{data.title}</h2>}
+        {data.subtitle && <p className={`${font.sub} text-white/75`}>{data.subtitle}</p>}
       </div>
     </div>
   )
