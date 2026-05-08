@@ -125,30 +125,6 @@ export default function StaffPage() {
 
   return (
     <div>
-      {/* Dept filter buttons */}
-      {!loading && deptKeys.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm mb-4 p-3 flex flex-wrap gap-2">
-          <button
-            onClick={() => setActiveDept('all')}
-            className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
-              activeDept === 'all'
-                ? 'bg-secondary text-white border-secondary'
-                : 'border-gray-300 text-gray-600 hover:border-secondary hover:text-secondary'
-            }`}>
-            ทั้งหมด
-          </button>
-          {deptKeys.map(d => (
-            <button key={d} onClick={() => setActiveDept(d)}
-              className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
-                activeDept === d
-                  ? 'bg-secondary text-white border-secondary'
-                  : 'border-gray-300 text-gray-600 hover:border-secondary hover:text-secondary'
-              }`}>
-              {deptMap[d]}
-            </button>
-          ))}
-        </div>
-      )}
 
       {loading ? (
         <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
