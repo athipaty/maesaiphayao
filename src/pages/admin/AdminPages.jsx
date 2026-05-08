@@ -1288,7 +1288,9 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
   const [editPage, setEditPage] = useState(null)
   const [saving, setSaving]     = useState(false)
 
-  const topLevel = pages.filter(p => !p.parentSlug).sort((a, b) => a.order - b.order)
+  const topLevel        = pages.filter(p => !p.parentSlug).sort((a, b) => a.order - b.order)
+  const navbarPages     = topLevel.filter(p => p.showInNavbar)
+  const sidebarPages    = topLevel.filter(p => !p.showInNavbar)
   function getChildren(slug) {
     return pages.filter(p => p.parentSlug === slug).sort((a, b) => a.order - b.order)
   }
@@ -1386,13 +1388,41 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        {loading ? (
-          <div className="p-12 text-center text-gray-400">กำลังโหลด...</div>
-        ) : (
-          topLevel.map((p, i) => renderRow(p, topLevel, i))
-        )}
-      </div>
+      {loading ? (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-400">กำลังโหลด...</div>
+      ) : (
+        <>
+          {/* Navbar section */}
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-semibold text-purple-700 bg-purple-100 px-2.5 py-1 rounded-full">Navbar (แถบด้านบน)</span>
+              <span className="text-xs text-gray-400">{navbarPages.length} รายการ</span>
+            </div>
+            <div className="bg-white rounded-2xl shadow-sm border border-purple-100 overflow-hidden">
+              {navbarPages.length === 0 ? (
+                <div className="p-6 text-center text-gray-300 text-sm">ไม่มีเมนูใน Navbar</div>
+              ) : (
+                navbarPages.map((p, i) => renderRow(p, navbarPages, i))
+              )}
+            </div>
+          </div>
+
+          {/* Sidebar section */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-semibold text-blue-700 bg-blue-100 px-2.5 py-1 rounded-full">Sidebar (แถบด้านข้าง)</span>
+              <span className="text-xs text-gray-400">{sidebarPages.length} รายการ</span>
+            </div>
+            <div className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
+              {sidebarPages.length === 0 ? (
+                <div className="p-6 text-center text-gray-300 text-sm">ไม่มีเมนูใน Sidebar</div>
+              ) : (
+                sidebarPages.map((p, i) => renderRow(p, sidebarPages, i))
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       {showForm && (
         <PageFormModal pages={pages} editPage={editPage} onClose={() => setShowForm(false)} onSaved={() => onReload()} />
