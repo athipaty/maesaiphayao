@@ -191,6 +191,8 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
   const [blocks, setBlocks]   = useState(page.blocks || [])
   const [saving, setSaving]   = useState(false)
   const [openIdx, setOpenIdx] = useState(null)
+  const [err, setErr]         = useState('')
+  const [saved, setSaved]     = useState(false)
 
   function addBlock(type) {
     const b = emptyBlock(type)
@@ -212,12 +214,20 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
 
   async function save() {
     setSaving(true)
+    setErr('')
+    setSaved(false)
     try {
       // eslint-disable-next-line no-unused-vars
       const cleanBlocks = blocks.map(({ _tempKey, ...rest }) => rest)
       const updated = await updatePage(page._id, { blocks: cleanBlocks })
       onPageSaved(updated.data)
-    } finally { setSaving(false) }
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2500)
+    } catch (e) {
+      setErr(e?.response?.data?.error || e?.message || 'บันทึกไม่สำเร็จ กรุณาลองใหม่')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const blockLabel = { text: '📝 ข้อความ', links: '🔗 ลิงค์', cards: '🃏 การ์ด', image: '🖼️ รูปภาพ', table: '📊 ตาราง' }
@@ -231,9 +241,13 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
           <h1 className="text-lg font-bold text-gray-800">{page.icon} {page.title}</h1>
           <p className="text-xs text-gray-400">แก้ไขเนื้อหา — {blocks.length} block</p>
         </div>
-        <button onClick={save} disabled={saving} className="btn-primary text-xs disabled:opacity-50">
-          {saving ? 'กำลังบันทึก...' : '💾 บันทึกทั้งหมด'}
-        </button>
+        <div className="flex items-center gap-3">
+          {err  && <span className="text-xs text-red-500 bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg">⚠️ {err}</span>}
+          {saved && <span className="text-xs text-green-600 bg-green-50 border border-green-200 px-3 py-1.5 rounded-lg">✓ บันทึกแล้ว</span>}
+          <button onClick={save} disabled={saving} className="btn-primary text-xs disabled:opacity-50">
+            {saving ? 'กำลังบันทึก...' : '💾 บันทึกทั้งหมด'}
+          </button>
+        </div>
       </div>
 
       {/* Block list */}
