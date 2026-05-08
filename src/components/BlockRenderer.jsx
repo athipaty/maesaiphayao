@@ -219,23 +219,34 @@ function PdfFileIcon({ size = 44 }) {
   )
 }
 
-function buildPdfDownloadUrl(url) {
-  if (!url) return url
-  if (url.includes('cloudinary.com') && url.includes('/raw/upload/')) {
-    // Use fl_attachment:filename so Cloudinary sets Content-Disposition with the
-    // correct .pdf filename — without it the browser saves with no extension.
-    const lastSegment = url.split('?')[0].split('/').pop()
-    const filename = lastSegment.toLowerCase().endsWith('.pdf') ? lastSegment : lastSegment + '.pdf'
-    return url.replace('/raw/upload/', `/raw/upload/fl_attachment:${filename}/`)
+async function downloadPdf(url, title) {
+  // Derive a safe .pdf filename from the title or the URL's last path segment
+  const base = title
+    ? title.replace(/[^a-zA-Z0-9ก-๙\s_-]/g, '').trim() || 'document'
+    : url.split('?')[0].split('/').pop() || 'document'
+  const filename = base.toLowerCase().endsWith('.pdf') ? base : base + '.pdf'
+
+  try {
+    const res = await fetch(url)
+    if (!res.ok) throw new Error('fetch failed')
+    const blob = await res.blob()
+    const blobUrl = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }))
+    const a = document.createElement('a')
+    a.href = blobUrl
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(blobUrl) }, 200)
+  } catch {
+    // CORS fallback: open directly
+    window.open(url, '_blank')
   }
-  return url
 }
 
 function PdfBlock({ data, preview }) {
   const [open, setOpen] = useState(false)
   if (!data.url) return null
-  const viewUrl    = `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
-  const downloadUrl = buildPdfDownloadUrl(data.url)
+  const viewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
   return (
     <div className="card mb-4 overflow-hidden">
       {data.title && (
@@ -278,10 +289,10 @@ function PdfBlock({ data, preview }) {
           </button>
         )}
 
-        <a href={downloadUrl} target="_blank" rel="noreferrer"
+        <button onClick={() => downloadPdf(data.url, data.title)}
           className="inline-flex items-center gap-2 text-xs bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors font-medium">
           📥 ดาวน์โหลด PDF
-        </a>
+        </button>
       </div>
     </div>
   )
