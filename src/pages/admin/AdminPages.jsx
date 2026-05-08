@@ -729,13 +729,36 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
         </div>
       </div>
 
+      {/* Add block panel — icon-only with tooltip */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-3 mb-5">
+        <p className="text-xs font-semibold text-gray-400 mb-2.5">+ เพิ่ม Block</p>
+        <div className="flex flex-wrap gap-2">
+          {BLOCK_TYPES.map(bt => (
+            <div key={bt.type} className="relative group">
+              <button onClick={() => addBlock(bt.type)}
+                className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl transition-all hover:scale-110 active:scale-95 ${bt.color}`}>
+                {bt.icon}
+              </button>
+              {/* Tooltip */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 opacity-0 group-hover:opacity-100 pointer-events-none z-50 transition-all duration-150 scale-95 group-hover:scale-100">
+                <div className="bg-gray-900 text-white rounded-xl px-3 py-2 shadow-xl whitespace-nowrap">
+                  <p className="text-xs font-semibold">{bt.label}</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5 leading-snug max-w-[160px] whitespace-normal">{bt.desc}</p>
+                </div>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-4 border-transparent border-t-gray-900" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Block list */}
-      <div className="space-y-3 mb-5">
+      <div className="space-y-3 mb-8">
         {blocks.length === 0 && (
           <div className="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
             <p className="text-3xl mb-2">✨</p>
             <p className="text-gray-500 text-sm font-medium">ยังไม่มี block</p>
-            <p className="text-gray-400 text-xs mt-1">เลือกประเภท block ด้านล่างเพื่อเริ่มต้น</p>
+            <p className="text-gray-400 text-xs mt-1">กดไอคอนด้านบนเพื่อเพิ่ม block</p>
           </div>
         )}
 
@@ -779,24 +802,6 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
             </div>
           )
         })}
-      </div>
-
-      {/* Add block panel */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-8">
-        <p className="text-sm font-bold text-gray-700 mb-1">เพิ่ม Block ใหม่</p>
-        <p className="text-xs text-gray-400 mb-4">เลือกประเภทเนื้อหาที่ต้องการเพิ่ม</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-          {BLOCK_TYPES.map(bt => (
-            <button key={bt.type} onClick={() => addBlock(bt.type)}
-              className={`flex items-start gap-3 p-3 rounded-xl border-2 text-left transition-all ${bt.color}`}>
-              <span className="text-xl flex-shrink-0 mt-0.5">{bt.icon}</span>
-              <div>
-                <p className="text-xs font-semibold text-gray-700">{bt.label}</p>
-                <p className="text-[10px] text-gray-500 mt-0.5 leading-relaxed">{bt.desc}</p>
-              </div>
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Live preview */}
