@@ -9,7 +9,6 @@ import AboutPage from "./pages/AboutPage";
 import NewsListPage from "./pages/NewsListPage";
 import NewsDetailPage from "./pages/NewsDetailPage";
 import AnnouncePage from "./pages/AnnouncePage";
-import DevelopmentPlanPage from "./pages/DevelopmentPlanPage";
 import ActionPlanPage from "./pages/ActionPlanPage";
 import BudgetPage from "./pages/BudgetPage";
 import ParticipationPage from "./pages/ParticipationPage";
@@ -76,7 +75,6 @@ export default function App() {
           <Route path="/announcements" element={<AnnouncePage />} />
 
           {/* 4. แผนงาน/งบประมาณ */}
-          <Route path="/development-plan" element={<DevelopmentPlanPage />} />
           <Route path="/action-plan" element={<ActionPlanPage />} />
           <Route path="/budget" element={<BudgetPage />} />
           <Route path="/participation" element={<ParticipationPage />} />
