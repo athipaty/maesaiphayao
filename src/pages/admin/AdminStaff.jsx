@@ -143,13 +143,24 @@ export default function AdminStaff() {
   }
 
   // ── Filter logic ─────────────────────────────────────────────────────────
-  const filteredItems = items.filter(item => {
-    const q = search.toLowerCase()
-    const matchSearch = !q || [item.name, item.position, item.phone]
-      .some(v => (v || '').toLowerCase().includes(q))
-    const matchDept = filterDept === 'all' || item.department === filterDept
-    return matchSearch && matchDept
-  })
+  const filteredItems = items
+    .filter(item => {
+      const q = search.toLowerCase()
+      const matchSearch = !q || [item.name, item.position, item.phone]
+        .some(v => (v || '').toLowerCase().includes(q))
+      const matchDept = filterDept === 'all' || item.department === filterDept
+      return matchSearch && matchDept
+    })
+    .sort((a, b) => {
+      // 1. เรียงตามกอง (department) a-z
+      const deptA = depts.findIndex(d => d.value === a.department)
+      const deptB = depts.findIndex(d => d.value === b.department)
+      if (deptA !== deptB) return deptA - deptB
+      // 2. เรียงตามชั้น (level)
+      if ((a.level ?? 0) !== (b.level ?? 0)) return (a.level ?? 0) - (b.level ?? 0)
+      // 3. เรียงตามลำดับ (order)
+      return (a.order ?? 0) - (b.order ?? 0)
+    })
 
   const emptyForm = {
     name: '', position: '',
