@@ -59,11 +59,11 @@ export default function ComplaintPage() {
     <div className="space-y-4">
 
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="card mb-5">
         <div className="section-head">
           <h1 className="text-sm font-semibold">📮 ร้องเรียน/ร้องทุกข์</h1>
         </div>
-        <div className="px-5 py-4 text-sm text-gray-500 leading-relaxed">
+        <div className="px-4 py-3 text-sm text-gray-500 leading-relaxed">
           ช่องทางรับเรื่องร้องเรียนและร้องทุกข์ของประชาชน เพื่อแก้ไขปัญหาความเดือดร้อน
           ทุกเรื่องจะได้รับการพิจารณาและดำเนินการอย่างเป็นธรรม
           ข้อมูลของผู้ร้องจะได้รับการคุ้มครองตามกฎหมาย

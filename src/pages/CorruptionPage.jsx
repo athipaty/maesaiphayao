@@ -58,11 +58,11 @@ export default function CorruptionPage() {
     <div className="space-y-4">
 
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="section-head" style={{ background: 'linear-gradient(135deg, #c0392b, #e74c3c)' }}>
+      <div className="card mb-5">
+        <div className="section-head">
           <h1 className="text-sm font-semibold">🚨 ร้องเรียนการทุจริตและประพฤติมิชอบ</h1>
         </div>
-        <div className="px-5 py-4 text-sm text-gray-500 leading-relaxed">
+        <div className="px-4 py-3 text-sm text-gray-500 leading-relaxed">
           ช่องทางรับแจ้งเบาะแสการทุจริต ประพฤติมิชอบของเจ้าหน้าที่ ข้อมูลของผู้แจ้งจะได้รับการคุ้มครอง
           ตามพระราชบัญญัติคุ้มครองผู้แจ้งเบาะแส การแจ้งข้อมูลเท็จมีความผิดตามกฎหมาย
         </div>

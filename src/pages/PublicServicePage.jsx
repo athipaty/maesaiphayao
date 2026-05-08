@@ -106,16 +106,6 @@ export default function PublicServicePage() {
         </div>
       </div>
 
-      {/* e-Service shortcut */}
-      <div className="mb-5">
-        <Link to="/eservice" className="bg-primary text-white rounded-xl p-4 flex items-center gap-3 hover:bg-primary/90 transition-colors">
-          <span className="text-2xl">🌐</span>
-          <div>
-            <p className="text-sm font-bold">e-Service</p>
-            <p className="text-xs opacity-80">ยื่นคำร้องออนไลน์</p>
-          </div>
-        </Link>
-      </div>
 
       {/* Service sections */}
       <div className="space-y-4">
