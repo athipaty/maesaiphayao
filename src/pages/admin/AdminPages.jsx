@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getPages, createPage, updatePage, deletePage } from '../../services/api'
 import ImageUpload from '../../components/ImageUpload'
+import PdfUpload from '../../components/PdfUpload'
 import BlockRenderer from '../../components/BlockRenderer'
 
 const ICONS = ['📄','🏛️','📰','📊','💰','📋','👥','🌐','📮','🚨','📝','📚','⚖️','📞','🎭','🌿','🗺️','🛍️','🏠','ℹ️','📌','🔔','✉️','🎓','🏥','🌾','🔨','🤝','⚡','🔗']
@@ -10,6 +11,7 @@ const BLOCK_TYPES = [
   { type: 'cards', label: '🃏 การ์ด' },
   { type: 'image', label: '🖼️ รูปภาพ' },
   { type: 'table', label: '📊 ตาราง' },
+  { type: 'pdf',   label: '📄 ไฟล์ PDF' },
 ]
 
 function emptyBlock(type) {
@@ -18,6 +20,7 @@ function emptyBlock(type) {
   if (type === 'cards') return { type, data: { title: '', cols: 2, items: [{ icon: '📄', title: '', desc: '', link: '' }] } }
   if (type === 'image') return { type, data: { url: '', caption: '' } }
   if (type === 'table') return { type, data: { title: '', headers: ['หัวข้อ', 'รายละเอียด'], rows: [['', '']] } }
+  if (type === 'pdf')   return { type, data: { url: '', label: '', title: '', description: '' } }
   return { type, data: {} }
 }
 
@@ -174,6 +177,20 @@ function TableBlockEdit({ data, onChange }) {
   )
 }
 
+function PdfBlockEdit({ data, onChange }) {
+  return (
+    <div className="space-y-3">
+      <input className="input text-sm" placeholder="ชื่อหัวข้อ PDF" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
+      <input className="input text-sm" placeholder="คำอธิบาย (ไม่บังคับ)" value={data.description || ''} onChange={e => onChange({ ...data, description: e.target.value })} />
+      <PdfUpload
+        value={data.url}
+        label={data.label}
+        onChange={(url, label) => onChange({ ...data, url, label })}
+      />
+    </div>
+  )
+}
+
 function BlockEdit({ block, onChange }) {
   switch (block.type) {
     case 'text':  return <TextBlockEdit  data={block.data} onChange={d => onChange({ ...block, data: d })} />
@@ -181,6 +198,7 @@ function BlockEdit({ block, onChange }) {
     case 'cards': return <CardsBlockEdit data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'image': return <ImageBlockEdit data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'table': return <TableBlockEdit data={block.data} onChange={d => onChange({ ...block, data: d })} />
+    case 'pdf':   return <PdfBlockEdit   data={block.data} onChange={d => onChange({ ...block, data: d })} />
     default:      return null
   }
 }
@@ -302,16 +320,41 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
             <span className="text-xs font-semibold text-gray-400 px-2">👁️ ตัวอย่างหน้าแสดงผล</span>
             <div className="flex-1 border-t border-dashed border-gray-200" />
           </div>
-          <div className="bg-gray-100 rounded-xl p-4">
-            <div className="max-w-2xl mx-auto">
-              <div className="card mb-3">
-                <div className="section-head">
-                  <h1 className="text-sm font-semibold">{page.icon} {page.title}</h1>
+
+          {/* Simulate site layout: navbar strip + body with sidebar + content */}
+          <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+            {/* Fake navbar */}
+            <div className="bg-primary h-10 flex items-center px-4 gap-2">
+              <div className="w-6 h-6 rounded bg-white/20" />
+              <div className="h-3 w-32 rounded bg-white/30" />
+              <div className="flex-1" />
+              <div className="h-3 w-16 rounded bg-white/20" />
+            </div>
+
+            {/* Body */}
+            <div className="bg-[#f0f2f5] flex gap-4 p-3" style={{ minHeight: 300 }}>
+              {/* Fake sidebar */}
+              <div className="flex-shrink-0 space-y-2" style={{ width: 160 }}>
+                <div className="bg-white rounded-md p-2 space-y-1">
+                  <div className="h-2 w-full rounded bg-secondary/40" />
+                  {[1,2,3,4,5].map(i => <div key={i} className="h-2 rounded bg-gray-200" style={{ width: `${60+i*8}%` }} />)}
+                </div>
+                <div className="bg-white rounded-md p-2 space-y-1">
+                  {[1,2,3].map(i => <div key={i} className="h-2 rounded bg-gray-100" style={{ width: `${50+i*10}%` }} />)}
                 </div>
               </div>
-              {blocks.map((block, i) => (
-                <BlockRenderer key={block._id || block._tempKey || i} block={block} />
-              ))}
+
+              {/* Actual content — matches real main area */}
+              <div className="flex-1 min-w-0">
+                <div className="card mb-3">
+                  <div className="section-head">
+                    <h1 className="text-sm font-semibold">{page.icon} {page.title}</h1>
+                  </div>
+                </div>
+                {blocks.map((block, i) => (
+                  <BlockRenderer key={block._id || block._tempKey || i} block={block} />
+                ))}
+              </div>
             </div>
           </div>
         </div>

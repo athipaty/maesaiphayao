@@ -103,3 +103,9 @@ export const uploadImage = (file) => {
   form.append('image', file)
   return api.post('/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } })
 }
+
+export const uploadPdf = (file) => {
+  const form = new FormData()
+  form.append('pdf', file)
+  return api.post('/upload-pdf', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+}

@@ -125,6 +125,29 @@ function TableBlock({ data }) {
   )
 }
 
+function PdfBlock({ data }) {
+  if (!data.url) return null
+  return (
+    <div className="card mb-4 overflow-hidden">
+      {data.title && (
+        <div className="section-head">
+          <h3 className="text-sm font-semibold">📄 {data.title}</h3>
+        </div>
+      )}
+      <div className="p-4">
+        {data.description && <p className="text-xs text-gray-500 mb-3 leading-relaxed">{data.description}</p>}
+        <div className="w-full rounded-lg overflow-hidden border border-gray-200 mb-3" style={{ height: '500px' }}>
+          <iframe src={data.url + '#toolbar=1&view=FitH'} className="w-full h-full" title={data.title || 'PDF'} />
+        </div>
+        <a href={data.url} target="_blank" rel="noreferrer"
+          className="inline-flex items-center gap-2 text-xs bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors font-medium">
+          📥 ดาวน์โหลด PDF
+        </a>
+      </div>
+    </div>
+  )
+}
+
 export default function BlockRenderer({ block }) {
   switch (block.type) {
     case 'text':  return <TextBlock  data={block.data} />
@@ -132,6 +155,7 @@ export default function BlockRenderer({ block }) {
     case 'cards': return <CardsBlock data={block.data} />
     case 'image': return <ImageBlock data={block.data} />
     case 'table': return <TableBlock data={block.data} />
+    case 'pdf':   return <PdfBlock   data={block.data} />
     default:      return null
   }
 }
