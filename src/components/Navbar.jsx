@@ -2,15 +2,27 @@ import { Link, NavLink } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { getSettings, getPages } from '../services/api'
 
+const DEFAULT_DEPTS = [
+  { value: 'executive',   label: 'ผู้บริหาร' },
+  { value: 'council',     label: 'สมาชิกสภา อบต.' },
+  { value: 'office',      label: 'สำนักปลัด' },
+  { value: 'finance',     label: 'กองคลัง' },
+  { value: 'engineering', label: 'กองช่าง' },
+  { value: 'health',      label: 'กองสาธารณสุขฯ' },
+  { value: 'audit',       label: 'หน่วยตรวจสอบภายใน' },
+]
+
 export default function Navbar({ onMenuClick }) {
   const [logoImage, setLogoImage] = useState('')
   const [pages, setPages]         = useState([])
+  const [depts, setDepts]         = useState(DEFAULT_DEPTS)
   const [openSlug, setOpenSlug]   = useState(null)
   const closeTimer                = useRef(null)
 
   useEffect(() => {
     getSettings().then(r => {
       if (r?.data?.logoImage) setLogoImage(r.data.logoImage)
+      if (r?.data?.departments?.length) setDepts(r.data.departments)
     }).catch(() => {})
     getPages().then(r => setPages((r?.data || []).filter(p => p.isActive))).catch(() => {})
   }, [])
@@ -73,16 +85,20 @@ export default function Navbar({ onMenuClick }) {
         <div className="max-w-[1200px] mx-auto px-3 flex items-center gap-1 overflow-x-auto">
           {topLevel.map(m => {
             const linkPath    = m.isBuiltin ? m.path : `/page/${m.slug}`
-            const children    = getChildren(m.slug)
-            const hasChildren = children.length > 0
+            const isStaff     = m.path === '/staff' || m.slug === 'staff'
+            const pageChildren = getChildren(m.slug)
+            // Staff page: use department list as dropdown; others: use sub-pages
+            const dropItems   = isStaff
+              ? depts.map(d => ({ key: d.value, icon: '👥', title: d.label, to: `/staff#dept-${d.value}` }))
+              : pageChildren.map(c => ({ key: c.slug, icon: c.icon, title: c.title, to: c.isBuiltin ? c.path : `/page/${c.slug}` }))
+            const hasDropdown = dropItems.length > 0
             const isOpen      = openSlug === m.slug
             return (
               <div key={m.slug} className="relative flex-shrink-0"
                 onMouseEnter={() => openMenu(m.slug)}
                 onMouseLeave={closeMenu}>
 
-                {hasChildren ? (
-                  /* Parent with sub-menu: clicking toggles dropdown, label links to page */
+                {hasDropdown ? (
                   <button
                     onClick={() => (isOpen ? setOpenSlug(null) : openMenu(m.slug))}
                     className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-colors whitespace-nowrap text-white/80 hover:bg-white/10 hover:text-white">
@@ -105,24 +121,21 @@ export default function Navbar({ onMenuClick }) {
                   </NavLink>
                 )}
 
-                {hasChildren && isOpen && (
+                {hasDropdown && isOpen && (
                   <div className="absolute top-full left-0 z-50 mt-0 pt-1"
                     onMouseEnter={() => openMenu(m.slug)}
                     onMouseLeave={closeMenu}>
                     <div className="bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 min-w-[220px] overflow-hidden">
                       <div className="absolute -top-1.5 left-6 w-3 h-3 bg-white border-l border-t border-gray-100 rotate-45" />
-                      {children.map(child => {
-                        const childPath = child.isBuiltin ? child.path : `/page/${child.slug}`
-                        return (
-                          <Link key={child.slug} to={childPath}
-                            onClick={() => setOpenSlug(null)}
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors group">
-                            <span className="text-base w-5 text-center flex-shrink-0">{child.icon}</span>
-                            <span className="flex-1 text-xs font-medium">{child.title}</span>
-                            <span className="text-gray-300 group-hover:text-secondary text-xs">›</span>
-                          </Link>
-                        )
-                      })}
+                      {dropItems.map(item => (
+                        <Link key={item.key} to={item.to}
+                          onClick={() => setOpenSlug(null)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors group">
+                          <span className="text-base w-5 text-center flex-shrink-0">{item.icon}</span>
+                          <span className="flex-1 text-xs font-medium">{item.title}</span>
+                          <span className="text-gray-300 group-hover:text-secondary text-xs">›</span>
+                        </Link>
+                      ))}
                     </div>
                   </div>
                 )}

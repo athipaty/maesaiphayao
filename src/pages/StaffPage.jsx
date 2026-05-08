@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { getStaff, getSettings } from '../services/api'
 import PageHeader from '../components/PageHeader'
 
@@ -88,6 +89,7 @@ export default function StaffPage() {
   const [depts, setDepts]     = useState(DEFAULT_DEPTS)
   const [loading, setLoading] = useState(true)
   const [activeDept, setActiveDept] = useState('all')
+  const location = useLocation()
 
   useEffect(() => {
     Promise.all([getStaff(), getSettings()])
@@ -100,6 +102,17 @@ export default function StaffPage() {
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
+
+  // Scroll to department section when navigated via hash (e.g. /staff#dept-finance)
+  useEffect(() => {
+    if (loading || !location.hash) return
+    const deptValue = location.hash.replace('#dept-', '')
+    setActiveDept('all')
+    setTimeout(() => {
+      const el = document.getElementById(`dept-${deptValue}`)
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 100)
+  }, [loading, location.hash])
 
   const deptMap = Object.fromEntries(depts.map(d => [d.value, d.label]))
 
