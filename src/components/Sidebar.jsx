@@ -1,22 +1,6 @@
 import { Link, NavLink } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { getSettings } from '../services/api'
-
-const MAIN_MENU = [
-  { label: 'เกี่ยวกับ อบต.แม่ใส',        path: '/about' },
-  { label: 'ข่าวสาร/ประชาสัมพันธ์',       path: '/news' },
-  { label: 'แผนงาน/งบประมาณ',           path: '/development-plan' },
-  { label: 'การเงิน/การคลัง',            path: '/finance' },
-  { label: 'จัดซื้อจัดจ้าง',             path: '/procurement' },
-  { label: 'บุคลากร/กิจการสภา',          path: '/staff' },
-  { label: 'บริการสาธารณะ',              path: '/public-service' },
-  { label: 'ร้องเรียน/ร้องทุกข์',        path: '/complaint' },
-  { label: 'แจ้งเบาะแสทุจริต',           path: '/corruption' },
-  { label: 'ITA/OIT',                    path: '/ita' },
-  { label: 'ศูนย์ข้อมูลข่าวสาร',          path: '/info-center' },
-  { label: 'กฎหมาย/ข้อบัญญัติ',          path: '/laws' },
-  { label: 'ติดต่อเรา',                  path: '/contact' },
-]
+import { getSettings, getPages } from '../services/api'
 
 const ESERVICES = [
   { icon: '🌐', label: 'ศูนย์บริการออนไลน์',                   href: 'https://www.dla.go.th/oss.htm' },
@@ -49,12 +33,21 @@ const DEFAULT_SETTINGS = {
 
 export default function Sidebar({ onNavigate, mobile = false }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
+  const [menuPages, setMenuPages] = useState([])
 
   useEffect(() => {
     getSettings()
       .then(r => { if (r?.data) setSettings(prev => ({ ...prev, ...r.data })) })
       .catch(() => {})
+    getPages()
+      .then(r => setMenuPages((r?.data || []).filter(p => p.isActive)))
+      .catch(() => {})
   }, [])
+
+  const topLevel = menuPages.filter(p => !p.parentSlug).sort((a, b) => a.order - b.order)
+  function getChildren(slug) {
+    return menuPages.filter(p => p.parentSlug === slug).sort((a, b) => a.order - b.order)
+  }
 
   return (
     <aside className={`w-[230px] flex-shrink-0 ${mobile ? 'block' : 'hidden lg:block'}`}>
@@ -81,19 +74,35 @@ export default function Sidebar({ onNavigate, mobile = false }) {
           เมนูหลัก
         </div>
         <ul>
-          {MAIN_MENU.map(m => (
-            <li key={m.path}>
-              <NavLink to={m.path} end={m.path === '/'} onClick={onNavigate}
-                className={({ isActive }) =>
-                  `flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors ${
-                    isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
-                  }`
-                }>
-                <span className="text-secondary text-xs">›</span>
-                {m.label}
-              </NavLink>
-            </li>
-          ))}
+          {topLevel.map(m => {
+            const linkPath = m.isBuiltin ? m.path : `/page/${m.slug}`
+            const children = getChildren(m.slug)
+            return (
+              <li key={m.slug}>
+                <NavLink to={linkPath} onClick={onNavigate}
+                  className={({ isActive }) =>
+                    `flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors ${
+                      isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
+                    }`
+                  }>
+                  <span className="text-sm w-5 text-center">{m.icon}</span>
+                  <span className="flex-1">{m.title}</span>
+                  {children.length > 0 && <span className="text-gray-300 text-xs">›</span>}
+                </NavLink>
+                {children.map(c => (
+                  <NavLink key={c.slug} to={c.isBuiltin ? c.path : `/page/${c.slug}`} onClick={onNavigate}
+                    className={({ isActive }) =>
+                      `flex items-center gap-1.5 pl-8 pr-3.5 py-2 text-xs border-b border-gray-50 transition-colors ${
+                        isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-500 hover:bg-pink-50 hover:text-primary'
+                      }`
+                    }>
+                    <span className="text-gray-300">–</span>
+                    <span>{c.title}</span>
+                  </NavLink>
+                ))}
+              </li>
+            )
+          })}
         </ul>
       </div>
 

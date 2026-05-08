@@ -4,6 +4,7 @@ import { loginAdmin, verifyAdmin } from '../../services/api'
 
 const MENU = [
   { path: '/admin',               label: 'Dashboard',          icon: '📊', end: true },
+  { path: '/admin/pages',         label: 'จัดการเมนู/หน้า',    icon: '🗂️' },
   { path: '/admin/news',          label: 'ข่าวสารกิจกรรม',     icon: '📰' },
   { path: '/admin/announcements', label: 'ประชาสัมพันธ์',       icon: '📢' },
   { path: '/admin/procurement',       label: 'จัดซื้อจัดจ้าง',   icon: '📦' },

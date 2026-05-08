@@ -28,6 +28,7 @@ import InfoCenterPage from "./pages/InfoCenterPage";
 import LawPage from "./pages/LawPage";
 import DocumentPage from "./pages/DocumentPage";
 import ContactPage from "./pages/ContactPage";
+import DynamicPage from "./pages/DynamicPage";
 
 // Admin pages
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -44,6 +45,7 @@ import AdminEService from "./pages/admin/AdminEService";
 import AdminComplaint from "./pages/admin/AdminComplaint";
 import AdminDocument from "./pages/admin/AdminDocument";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminPages from "./pages/admin/AdminPages";
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(
@@ -117,6 +119,9 @@ export default function App() {
 
           {/* 15. ติดต่อเรา */}
           <Route path="/contact" element={<ContactPage />} />
+
+          {/* หน้าแบบ dynamic (สร้างจาก admin) */}
+          <Route path="/page/:slug" element={<DynamicPage />} />
         </Route>
 
         {/* Admin panel */}
@@ -134,6 +139,7 @@ export default function App() {
           <Route path="complaints" element={<AdminComplaint />} />
           <Route path="documents" element={<AdminDocument />} />
           <Route path="settings" element={<AdminSettings />} />
+          <Route path="pages"    element={<AdminPages />} />
         </Route>
       </Routes>
     </>

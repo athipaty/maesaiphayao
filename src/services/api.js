@@ -90,6 +90,13 @@ export const createDocument   = (data)      => api.post('/documents', data)
 export const updateDocument   = (id, data)  => api.put(`/documents/${id}`, data)
 export const deleteDocument   = (id)        => api.delete(`/documents/${id}`)
 
+// ── Pages / Menu ──────────────────────────────────────────────────────────────
+export const getPages      = ()          => api.get('/pages')
+export const getPageBySlug = (slug)      => api.get(`/pages/slug/${slug}`)
+export const createPage    = (data)      => api.post('/pages', data)
+export const updatePage    = (id, data)  => api.put(`/pages/${id}`, data)
+export const deletePage    = (id)        => api.delete(`/pages/${id}`)
+
 // ── Image upload ──────────────────────────────────────────────────────────────
 export const uploadImage = (file) => {
   const form = new FormData()

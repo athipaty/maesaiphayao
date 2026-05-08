@@ -14,7 +14,8 @@
       "Bash(python -c ' *)",
       "PowerShell(Add-Type -AssemblyName System.IO.Compression.FileSystem; $null)",
       "Bash(pip install *)",
-      "Bash(python *)"
+      "Bash(python *)",
+      "Bash(npx vite *)"
     ]
   }
 }
