@@ -431,7 +431,7 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
                   </div>
                 </div>
                 {blocks.map((block, i) => (
-                  <BlockRenderer key={block._id || block._tempKey || i} block={block} />
+                  <BlockRenderer key={block._id || block._tempKey || i} block={block} preview={true} />
                 ))}
               </div>
             </div>

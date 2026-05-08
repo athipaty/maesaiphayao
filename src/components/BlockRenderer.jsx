@@ -125,18 +125,9 @@ function TableBlock({ data }) {
   )
 }
 
-function getPdfViewUrl(url) {
-  if (!url) return ''
-  // Force Cloudinary raw PDFs to serve inline (not as attachment download)
-  if (url.includes('/raw/upload/') && !url.includes('fl_attachment')) {
-    return url.replace('/raw/upload/', '/raw/upload/fl_attachment:false/')
-  }
-  return url
-}
-
-function PdfBlock({ data }) {
+function PdfBlock({ data, preview }) {
   if (!data.url) return null
-  const viewUrl = getPdfViewUrl(data.url)
+  const viewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
   return (
     <div className="card mb-4 overflow-hidden">
       {data.title && (
@@ -146,9 +137,19 @@ function PdfBlock({ data }) {
       )}
       <div className="p-4">
         {data.description && <p className="text-xs text-gray-500 mb-3 leading-relaxed">{data.description}</p>}
-        <div className="w-full rounded-lg overflow-hidden border border-gray-200 mb-3" style={{ height: '500px' }}>
-          <iframe src={viewUrl + '#toolbar=1&view=FitH'} className="w-full h-full" title={data.title || 'PDF'} />
-        </div>
+        {preview ? (
+          <div className="w-full rounded-lg border border-dashed border-red-200 bg-red-50 flex items-center justify-center gap-3 mb-3" style={{ height: 120 }}>
+            <span className="text-3xl">📄</span>
+            <div>
+              <p className="text-sm font-medium text-red-700">{data.title || 'ไฟล์ PDF'}</p>
+              <p className="text-xs text-red-400 mt-0.5">จะแสดง PDF viewer ในหน้าจริง</p>
+            </div>
+          </div>
+        ) : (
+          <div className="w-full rounded-lg overflow-hidden border border-gray-200 mb-3" style={{ height: '500px' }}>
+            <iframe src={viewUrl} className="w-full h-full" title={data.title || 'PDF'} />
+          </div>
+        )}
         <a href={data.url} target="_blank" rel="noreferrer"
           className="inline-flex items-center gap-2 text-xs bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors font-medium">
           📥 ดาวน์โหลด PDF
@@ -158,14 +159,14 @@ function PdfBlock({ data }) {
   )
 }
 
-export default function BlockRenderer({ block }) {
+export default function BlockRenderer({ block, preview = false }) {
   switch (block.type) {
     case 'text':  return <TextBlock  data={block.data} />
     case 'links': return <LinksBlock data={block.data} />
     case 'cards': return <CardsBlock data={block.data} />
     case 'image': return <ImageBlock data={block.data} />
     case 'table': return <TableBlock data={block.data} />
-    case 'pdf':   return <PdfBlock   data={block.data} />
+    case 'pdf':   return <PdfBlock   data={block.data} preview={preview} />
     default:      return null
   }
 }
