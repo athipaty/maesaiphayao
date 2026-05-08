@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { submitComplaint, trackComplaint } from '../services/api'
 
 const STATUS_CONFIG = {
@@ -69,17 +68,6 @@ export default function ComplaintPage() {
           ข้อมูลของผู้ร้องจะได้รับการคุ้มครองตามกฎหมาย
         </div>
       </div>
-
-      {/* Corruption channel link */}
-      <Link to="/corruption"
-        className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-4 hover:bg-red-100 transition-colors">
-        <span className="text-2xl flex-shrink-0">🚨</span>
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-red-700">ต้องการแจ้งเบาะแสการทุจริต?</p>
-          <p className="text-xs text-red-500 mt-0.5">คลิกเพื่อไปยังช่องทางร้องเรียนการทุจริตและประพฤติมิชอบ (แยกต่างหาก)</p>
-        </div>
-        <span className="text-red-300 text-lg">›</span>
-      </Link>
 
       {/* Tabs */}
       <div className="flex gap-2">
