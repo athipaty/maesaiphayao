@@ -98,7 +98,13 @@ const BLOCK_TYPES = [
   { type: 'cards', icon: '🃏', label: 'การ์ด',           desc: 'กริดการ์ด มีไอคอนและคำอธิบาย', color: 'bg-purple-50 border-purple-200 hover:border-purple-400', accent: 'bg-purple-500' },
   { type: 'image', icon: '🖼️', label: 'รูปภาพ',          desc: 'อัปโหลดรูป + คำบรรยาย',    color: 'bg-amber-50 border-amber-200 hover:border-amber-400',   accent: 'bg-amber-500'  },
   { type: 'table', icon: '📊', label: 'ตาราง',           desc: 'ตารางข้อมูลแบบกำหนดเอง',   color: 'bg-cyan-50 border-cyan-200 hover:border-cyan-400',     accent: 'bg-cyan-500'   },
-  { type: 'pdf',      icon: '📄', label: 'ไฟล์ PDF',         desc: 'แนบและแสดงไฟล์ PDF',                color: 'bg-red-50 border-red-200 hover:border-red-400',          accent: 'bg-red-500'     },
+  { type: 'pdf',      icon: (
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 2h10l6 6v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#ef4444" />
+        <path d="M14 2l6 6h-4a2 2 0 0 1-2-2V2z" fill="#fca5a5" />
+        <text x="12" y="17" textAnchor="middle" fill="white" fontSize="6.5" fontWeight="bold" fontFamily="Arial,sans-serif" letterSpacing="0.3">PDF</text>
+      </svg>
+    ), label: 'ไฟล์ PDF',         desc: 'แนบและแสดงไฟล์ PDF',                color: 'bg-red-50 border-red-200 hover:border-red-400',          accent: 'bg-red-500'     },
   { type: 'banner',   icon: '🎨', label: 'Banner/หัวข้อ',  desc: 'กรอบสีพร้อมหัวข้อใหญ่ เลือกสีได้', color: 'bg-rose-50 border-rose-200 hover:border-rose-400',         accent: 'bg-rose-500'    },
   { type: 'inforows', icon: 'ℹ️', label: 'แถวข้อมูล',      desc: 'ไอคอน + ชื่อ + ค่า (ที่อยู่/โทร)', color: 'bg-orange-50 border-orange-200 hover:border-orange-400',   accent: 'bg-orange-500'  },
   { type: 'stats',    icon: '📈', label: 'การ์ดสถิติ',     desc: 'ตัวเลขใหญ่พร้อมไอคอนและสี',        color: 'bg-sky-50 border-sky-200 hover:border-sky-400',            accent: 'bg-sky-500'     },
