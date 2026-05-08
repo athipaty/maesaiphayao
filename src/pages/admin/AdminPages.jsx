@@ -353,15 +353,16 @@ const LAYOUTS = [
 
 function ImageBlockEdit({ data, onChange }) {
   const [bulkUploading, setBulkUploading] = useState(false)
-  const images  = data.images || []
-  const layout  = data.layout || 'single'
+  const images = data.images || []
+  const layout = data.layout || 'single'
+  const isGrid = layout !== 'single'
 
   function updateImage(i, field, val) {
     const imgs = [...images]; imgs[i] = { ...imgs[i], [field]: val }
     onChange({ ...data, images: imgs })
   }
-  function addEmpty()      { onChange({ ...data, images: [...images, { url: '', caption: '' }] }) }
-  function removeImage(i)  { onChange({ ...data, images: images.filter((_, idx) => idx !== i) }) }
+  function addEmpty()     { onChange({ ...data, images: [...images, { url: '', caption: '' }] }) }
+  function removeImage(i) { onChange({ ...data, images: images.filter((_, idx) => idx !== i) }) }
   function moveImage(i, d) {
     const imgs = [...images], t = i + d
     if (t < 0 || t >= imgs.length) return
@@ -379,163 +380,193 @@ function ImageBlockEdit({ data, onChange }) {
     finally { setBulkUploading(false); e.target.value = '' }
   }
 
-  return (
-    <div className="space-y-5">
+  const editCols  = { single:'grid-cols-1', 'grid-2':'grid-cols-2', 'grid-3':'grid-cols-3', 'grid-4':'grid-cols-4' }[layout] || 'grid-cols-1'
+  const thumbAsp  = data.height === 'square' ? 'aspect-square' : 'aspect-[4/3]'
+  const isSingle1 = isGrid && images.length === 1
+  const gridWrap  = isSingle1 ? 'flex justify-center' : `grid ${editCols} gap-3`
+  const cellW     = isSingle1 ? ({ 'grid-2':'w-1/2','grid-3':'w-1/3','grid-4':'w-1/4' }[layout]||'w-1/2') : ''
 
-      {/* Layout picker */}
-      <Field label="รูปแบบการแสดงผล">
+  return (
+    <div className="space-y-4">
+
+      {/* ── Section: Layout ── */}
+      <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">รูปแบบการแสดงผล</p>
         <div className="grid grid-cols-4 gap-2">
-          {LAYOUTS.map(l => (
-            <button key={l.key} type="button" onClick={() => onChange({ ...data, layout: l.key })}
-              className={`py-3 px-2 rounded-xl border-2 flex flex-col items-center gap-1.5 transition-all ${
-                layout === l.key ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:border-gray-300 bg-white'
-              }`}>
-              <div className="flex gap-0.5 items-end">
-                {l.boxes.map((b, i) => (
-                  <div key={i} className={`rounded-sm ${layout === l.key ? 'bg-amber-400' : 'bg-gray-300'}`}
-                    style={{ width: b.w * 0.6, height: b.h * 0.6 }} />
+          {LAYOUTS.map(l => {
+            const active = layout === l.key
+            return (
+              <button key={l.key} type="button" onClick={() => onChange({ ...data, layout: l.key })}
+                className={`py-3 px-2 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${active ? 'border-amber-400 bg-amber-50 shadow-sm' : 'border-gray-200 hover:border-amber-200 bg-white'}`}>
+                <div className="flex gap-0.5 items-stretch h-8 w-full px-1 justify-center">
+                  {l.boxes.map((b, i) => (
+                    <div key={i} className={`rounded flex-1 ${active ? 'bg-amber-300' : 'bg-gray-200'}`}
+                      style={{ maxWidth: b.w * 0.8 }} />
+                  ))}
+                </div>
+                <span className={`text-[11px] font-bold ${active ? 'text-amber-600' : 'text-gray-400'}`}>{l.label}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── Section: Options ── */}
+      <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">
+          {isGrid ? 'ความสูงรูป' : 'ขนาดและตำแหน่ง'}
+        </p>
+        {isGrid ? (
+          <div className="grid grid-cols-5 gap-2">
+            {[
+              { v: 'auto',   l: 'ตามสัดส่วน', bar: 'h-3'  },
+              { v: 'sm',     l: 'เล็ก 128px',  bar: 'h-4'  },
+              { v: 'md',     l: 'กลาง 192px',  bar: 'h-6'  },
+              { v: 'lg',     l: 'ใหญ่ 256px',  bar: 'h-8'  },
+              { v: 'square', l: '1 : 1',        bar: 'h-6 w-6 mx-auto' },
+            ].map(({ v, l, bar }) => {
+              const active = (data.height||'auto') === v
+              return (
+                <button key={v} type="button" onClick={() => onChange({ ...data, height: v })}
+                  className={`py-2.5 rounded-xl border-2 flex flex-col items-center gap-1.5 transition-all ${active ? 'border-amber-400 bg-amber-50' : 'border-gray-200 bg-white hover:border-amber-200'}`}>
+                  <div className="flex items-end justify-center" style={{ height: 32 }}>
+                    <div className={`${bar} w-6 rounded-sm ${active ? 'bg-amber-400' : 'bg-gray-200'}`} />
+                  </div>
+                  <span className={`text-[10px] font-semibold leading-snug text-center px-1 ${active ? 'text-amber-700' : 'text-gray-500'}`}>{l}</span>
+                </button>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-gray-500 mb-2">จัดวาง</p>
+              <div className="flex rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+                {[['left','◀ ซ้าย'],['center','■ กลาง'],['right','ขวา ▶']].map(([v, lbl]) => (
+                  <button key={v} type="button" onClick={() => onChange({ ...data, align: v })}
+                    className={`flex-1 py-2 text-xs font-medium transition-colors ${(data.align||'center')===v ? 'bg-amber-400 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
+                    {lbl}
+                  </button>
                 ))}
               </div>
-              <span className={`text-[11px] font-semibold ${layout === l.key ? 'text-amber-600' : 'text-gray-500'}`}>{l.label}</span>
-            </button>
-          ))}
-        </div>
-      </Field>
+            </div>
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-gray-500 mb-2">ขนาด</p>
+              <select className={`${inp} w-full`} value={data.size || 'lg'} onChange={e => onChange({ ...data, size: e.target.value })}>
+                <option value="sm">เล็ก (300px)</option>
+                <option value="md">กลาง (500px)</option>
+                <option value="lg">ใหญ่ (700px)</option>
+                <option value="full">เต็มความกว้าง</option>
+              </select>
+            </div>
+          </div>
+        )}
+      </div>
 
-      {/* Grid height */}
-      {layout !== 'single' && (
-        <Field label="ความสูงรูป" hint="เลือก fixed height หรือแสดงตามสัดส่วนจริง">
-          <div className="grid grid-cols-5 gap-1.5">
-            {[
-              { v: 'auto',   l: 'ตามสัดส่วน', sub: 'natural' },
-              { v: 'sm',     l: 'เล็ก',        sub: '128px'   },
-              { v: 'md',     l: 'กลาง',        sub: '192px'   },
-              { v: 'lg',     l: 'ใหญ่',        sub: '256px'   },
-              { v: 'square', l: 'สี่เหลี่ยม',  sub: '1 : 1'   },
-            ].map(({ v, l, sub }) => (
-              <button key={v} type="button" onClick={() => onChange({ ...data, height: v })}
-                className={`py-2 rounded-xl border-2 text-center transition-all ${(data.height||'auto')===v ? 'border-amber-400 bg-amber-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
-                <p className={`text-[11px] font-semibold ${(data.height||'auto')===v ? 'text-amber-700' : 'text-gray-600'}`}>{l}</p>
-                <p className={`text-[9px] mt-0.5 ${(data.height||'auto')===v ? 'text-amber-500' : 'text-gray-400'}`}>{sub}</p>
-              </button>
+      {/* ── Section: Images ── */}
+      <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+            รูปภาพ {images.length > 0 && <span className="text-amber-500">({images.length} รูป)</span>}
+          </p>
+          <div className="flex gap-2">
+            <button type="button" onClick={addEmpty}
+              className="flex items-center gap-1 text-[11px] font-semibold text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-lg transition-colors">
+              + เพิ่มรูป
+            </button>
+            <label className={`flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${bulkUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+              {bulkUploading ? '⏳...' : '📤 หลายรูป'}
+              <input type="file" accept="image/*" multiple className="hidden" onChange={bulkAdd} disabled={bulkUploading} />
+            </label>
+          </div>
+        </div>
+
+        {images.length === 0 ? (
+          <label className="cursor-pointer block">
+            <div className="border-2 border-dashed border-amber-200 hover:border-amber-300 bg-white rounded-xl py-10 text-center transition-colors">
+              <div className="text-4xl mb-2">🖼️</div>
+              <p className="text-sm font-medium text-gray-500 mb-1">ยังไม่มีรูปภาพ</p>
+              <p className="text-xs text-amber-500">กด + เพิ่มรูป หรืออัปโหลดหลายรูปพร้อมกัน</p>
+            </div>
+          </label>
+        ) : isGrid ? (
+          <div className={gridWrap}>
+            {images.map((img, i) => (
+              <div key={i} className={`rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm group/img ${cellW}`}>
+                {/* Thumbnail */}
+                <div className={`relative overflow-hidden bg-gray-100 ${thumbAsp}`}>
+                  {img.url
+                    ? <img src={img.url} alt="" className="w-full h-full object-cover" />
+                    : <div className="w-full h-full flex flex-col items-center justify-center gap-1 text-gray-300">
+                        <span className="text-3xl">🖼️</span>
+                        <span className="text-[10px]">ยังไม่มีรูป</span>
+                      </div>}
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/40 transition-all rounded-none" />
+                  {/* Order controls */}
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover/img:opacity-100 transition-opacity">
+                    <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0}
+                      className="w-7 h-7 bg-white/95 hover:bg-white rounded-lg text-gray-600 text-xs font-bold disabled:opacity-25 shadow">◀</button>
+                    <button type="button" onClick={() => moveImage(i, 1)} disabled={i === images.length - 1}
+                      className="w-7 h-7 bg-white/95 hover:bg-white rounded-lg text-gray-600 text-xs font-bold disabled:opacity-25 shadow">▶</button>
+                    <button type="button" onClick={() => removeImage(i)}
+                      className="w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-bold shadow">×</button>
+                  </div>
+                  {/* Replace button */}
+                  <div className="absolute bottom-2 left-2 opacity-0 group-hover/img:opacity-100 transition-opacity">
+                    <ImageUpload value={img.url} onChange={url => updateImage(i, 'url', url)} />
+                  </div>
+                  {/* Index badge */}
+                  <div className="absolute top-2 left-2 w-5 h-5 bg-black/40 text-white rounded-md text-[10px] font-bold flex items-center justify-center">
+                    {i + 1}
+                  </div>
+                </div>
+                {/* Caption */}
+                <div className="px-2.5 py-2 bg-white">
+                  <input className={`${smallInp} w-full text-[11px] bg-gray-50`} placeholder="คำบรรยาย (ไม่บังคับ)"
+                    value={img.caption || ''} onChange={e => updateImage(i, 'caption', e.target.value)} />
+                </div>
+              </div>
             ))}
           </div>
-        </Field>
-      )}
-
-      {/* Single-mode options */}
-      {layout === 'single' && (
-        <div className="flex gap-3">
-          <Field label="จัดวาง">
-            <div className="flex rounded-lg overflow-hidden border border-gray-200">
-              {[['left','◀ ซ้าย'],['center','กลาง'],['right','ขวา ▶']].map(([v, lbl]) => (
-                <button key={v} type="button" onClick={() => onChange({ ...data, align: v })}
-                  className={`flex-1 py-1.5 text-xs font-medium transition-colors ${(data.align||'center')===v ? 'bg-amber-400 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
-                  {lbl}
-                </button>
-              ))}
-            </div>
-          </Field>
-          <Field label="ขนาด">
-            <select className={`${inp} w-36`} value={data.size || 'lg'} onChange={e => onChange({ ...data, size: e.target.value })}>
-              <option value="sm">เล็ก (300px)</option>
-              <option value="md">กลาง (500px)</option>
-              <option value="lg">ใหญ่ (700px)</option>
-              <option value="full">เต็มความกว้าง</option>
-            </select>
-          </Field>
-        </div>
-      )}
-
-      {/* Image list */}
-      {(() => {
-        const editCols  = { single:'grid-cols-1', 'grid-2':'grid-cols-2', 'grid-3':'grid-cols-3', 'grid-4':'grid-cols-4' }[layout] || 'grid-cols-1'
-        const thumbAsp  = data.height === 'square' ? 'aspect-square' : 'aspect-[4/3]'
-        const isGrid    = layout !== 'single'
-        const isSingle1 = isGrid && images.length === 1
-        const gridWrap  = isSingle1 ? 'flex justify-center' : `grid ${editCols} gap-2`
-        const cellW     = isSingle1 ? ({ 'grid-2':'w-1/2','grid-3':'w-1/3','grid-4':'w-1/4' }[layout]||'w-1/2') : ''
-        return (
-          <Field label={`รูปภาพ${images.length > 0 ? ` (${images.length} รูป)` : ''}`}
-                 hint={isGrid ? 'hover ที่รูปเพื่อเรียง/ลบ' : ''}>
-            {images.length === 0 ? (
-              <div className="border-2 border-dashed border-amber-200 bg-amber-50/30 rounded-xl p-8 text-center">
-                <p className="text-3xl mb-2">🖼️</p>
-                <p className="text-xs text-gray-400">ยังไม่มีรูป กดปุ่มด้านล่างเพื่อเพิ่ม</p>
-              </div>
-            ) : isGrid ? (
-              /* ── Grid view: แสดงตาม column ที่เลือก ── */
-              <div className={gridWrap}>
-                {images.map((img, i) => (
-                  <div key={i} className={`bg-gray-50 border border-gray-100 rounded-xl overflow-hidden group/img ${cellW}`}>
-                    {/* Thumbnail with hover controls */}
-                    <div className={`relative bg-gray-200 overflow-hidden ${thumbAsp}`}>
-                      {img.url
-                        ? <img src={img.url} alt="" className="w-full h-full object-cover" />
-                        : <div className="w-full h-full flex items-center justify-center text-2xl text-gray-400">🖼️</div>}
-                      <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/25 transition-all" />
-                      <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover/img:opacity-100 transition-opacity">
-                        <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0}
-                          className="w-6 h-6 bg-white/90 hover:bg-white rounded text-gray-700 text-[10px] disabled:opacity-30 shadow-sm">◀</button>
-                        <button type="button" onClick={() => moveImage(i, 1)} disabled={i === images.length - 1}
-                          className="w-6 h-6 bg-white/90 hover:bg-white rounded text-gray-700 text-[10px] disabled:opacity-30 shadow-sm">▶</button>
-                        <button type="button" onClick={() => removeImage(i)}
-                          className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded text-[10px] shadow-sm">×</button>
-                      </div>
-                      <div className="absolute bottom-1 left-1 opacity-0 group-hover/img:opacity-100 transition-opacity">
-                        <ImageUpload value={img.url} onChange={url => updateImage(i, 'url', url)} />
-                      </div>
-                    </div>
-                    {/* Caption */}
-                    <div className="px-2 py-1.5">
-                      <input className={`${smallInp} w-full text-[11px]`} placeholder="คำบรรยาย..."
-                        value={img.caption || ''} onChange={e => updateImage(i, 'caption', e.target.value)} />
-                    </div>
+        ) : (
+          <div className="space-y-2">
+            {images.map((img, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex gap-3 p-3 items-start">
+                {/* Thumb */}
+                <div className="w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 relative group/thumb">
+                  {img.url
+                    ? <img src={img.url} alt="" className="w-full h-full object-cover" />
+                    : <div className="w-full h-full flex items-center justify-center text-3xl text-gray-300">🖼️</div>}
+                  <div className="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/30 transition-all" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/thumb:opacity-100 transition-opacity">
+                    <ImageUpload value={img.url} onChange={url => updateImage(i, 'url', url)} />
                   </div>
-                ))}
-              </div>
-            ) : (
-              /* ── Single / list view ── */
-              <div className="space-y-2">
-                {images.map((img, i) => (
-                  <div key={i} className="bg-gray-50 border border-gray-100 rounded-xl p-3 flex gap-3 items-start">
-                    <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
-                      {img.url
-                        ? <img src={img.url} alt="" className="w-full h-full object-cover" />
-                        : <div className="w-full h-full flex items-center justify-center text-2xl text-gray-300">🖼️</div>}
-                    </div>
-                    <div className="flex-1 min-w-0 space-y-2">
-                      <ImageUpload value={img.url} onChange={url => updateImage(i, 'url', url)} />
-                      <input className={`${smallInp} w-full`} placeholder="คำบรรยายใต้รูป (ไม่บังคับ)"
-                        value={img.caption || ''} onChange={e => updateImage(i, 'caption', e.target.value)} />
-                    </div>
-                    <div className="flex flex-col gap-1 flex-shrink-0">
-                      <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0}
-                        className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 disabled:opacity-20 text-xs">▲</button>
-                      <button type="button" onClick={() => moveImage(i, 1)} disabled={i === images.length - 1}
-                        className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 disabled:opacity-20 text-xs">▼</button>
-                      <button type="button" onClick={() => removeImage(i)}
-                        className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 text-sm">🗑️</button>
-                    </div>
+                </div>
+                {/* Fields */}
+                <div className="flex-1 min-w-0 space-y-2 pt-0.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold text-amber-500 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-md">#{i + 1}</span>
+                    {!img.url && <span className="text-[10px] text-gray-400">ยังไม่ได้อัปโหลด</span>}
                   </div>
-                ))}
+                  <input className={`${smallInp} w-full`} placeholder="คำบรรยายใต้รูป (ไม่บังคับ)"
+                    value={img.caption || ''} onChange={e => updateImage(i, 'caption', e.target.value)} />
+                </div>
+                {/* Controls */}
+                <div className="flex flex-col gap-1 flex-shrink-0">
+                  <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 hover:text-gray-700 hover:border-gray-300 disabled:opacity-20 text-xs shadow-sm">▲</button>
+                  <button type="button" onClick={() => moveImage(i, 1)} disabled={i === images.length - 1}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 hover:text-gray-700 hover:border-gray-300 disabled:opacity-20 text-xs shadow-sm">▼</button>
+                  <button type="button" onClick={() => removeImage(i)}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 text-sm transition-all">🗑️</button>
+                </div>
               </div>
-            )}
+            ))}
+          </div>
+        )}
+      </div>
 
-            {/* Add buttons */}
-            <div className="flex gap-2 mt-3">
-              <button type="button" onClick={addEmpty}
-                className="flex items-center gap-1.5 text-xs font-medium text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-lg transition-colors">
-                + เพิ่ม 1 รูป
-              </button>
-              <label className={`flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${bulkUploading ? 'opacity-50 pointer-events-none' : ''}`}>
-                {bulkUploading ? '⏳ กำลังอัปโหลด...' : '📤 อัปโหลดหลายรูปพร้อมกัน'}
-                <input type="file" accept="image/*" multiple className="hidden" onChange={bulkAdd} disabled={bulkUploading} />
-              </label>
-            </div>
-          </Field>
-        )
-      })()}
     </div>
   )
 }
@@ -1200,15 +1231,10 @@ function PageFormModal({ pages, editPage, onClose, onSaved }) {
         <div className="p-6 space-y-5">
           <div>
             <label className="text-xs font-semibold text-gray-600 mb-2 block">ไอคอน</label>
-            <div className="flex flex-wrap gap-1.5 p-3 bg-gray-50 rounded-xl border border-gray-100 mb-2 max-h-32 overflow-y-auto">
-              {ICONS.map(ic => (
-                <button key={ic} onClick={() => set('icon', ic)}
-                  className={`text-lg w-9 h-9 rounded-lg border-2 transition-all hover:scale-110 ${form.icon === ic ? 'border-secondary bg-blue-50 shadow-sm' : 'border-transparent hover:border-gray-200'}`}>
-                  {ic}
-                </button>
-              ))}
+            <div className="flex items-center gap-3">
+              <EmojiPicker value={form.icon} onChange={v => set('icon', v)} accentColor="blue" />
+              <input className={`${inp} flex-1`} placeholder="หรือพิมพ์ emoji / ข้อความ" value={form.icon} onChange={e => set('icon', e.target.value)} />
             </div>
-            <input className={inp} placeholder="หรือพิมพ์ emoji / ข้อความ" value={form.icon} onChange={e => set('icon', e.target.value)} />
           </div>
           <div>
             <label className="text-xs font-semibold text-gray-600 mb-1.5 block">ชื่อเมนู <span className="text-red-400">*</span></label>

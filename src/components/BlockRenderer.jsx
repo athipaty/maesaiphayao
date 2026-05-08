@@ -264,7 +264,7 @@ function PdfBlock({ data, preview }) {
               <iframe src={viewUrl} className="w-full h-full" title={data.title || 'PDF'} />
             </div>
             <button onClick={() => setOpen(false)}
-              className="mt-2 flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors">
+              className="mt-2 flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors w-full justify-end">
               ▲ ซ่อน PDF
             </button>
           </div>
