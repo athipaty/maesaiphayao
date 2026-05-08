@@ -647,68 +647,107 @@ const BANNER_COLORS = [
   { key:'gray',      label:'เทา',    cls:'from-gray-700 to-gray-500' },
 ]
 function BannerBlockEdit({ data, onChange }) {
+  const currentColor = BANNER_COLORS.find(c => c.key === (data.color || 'primary')) || BANNER_COLORS[0]
+  const HEIGHTS = [
+    { v: 'xs',  sub: 'XS',  l: 'เล็กมาก',  barH: 'h-1.5' },
+    { v: 'sm',  sub: 'S',   l: 'เตี้ย',     barH: 'h-2.5' },
+    { v: 'md',  sub: 'M',   l: 'กลาง',      barH: 'h-4'   },
+    { v: 'lg',  sub: 'L',   l: 'สูง',       barH: 'h-6'   },
+    { v: 'xl',  sub: 'XL',  l: 'สูงมาก',   barH: 'h-8'   },
+    { v: 'xxl', sub: 'XXL', l: 'ใหญ่มาก',  barH: 'h-10'  },
+  ]
+  const h = data.height || 'md'
+  const align = data.align || 'center'
+
   return (
     <div className="space-y-4">
-      <div className="flex gap-3">
-        <Field label="ไอคอน (emoji)" hint="ไม่บังคับ">
-          <input className={`${inp} text-xl text-center`} placeholder="🏛️" style={{ width: 72 }}
-            value={data.icon||''} onChange={e => onChange({ ...data, icon: e.target.value })} />
-        </Field>
-        <Field label="การจัดวาง">
-          <div className="flex rounded-lg overflow-hidden border border-gray-200 mt-0.5">
-            {[['center','■ กลาง'],['left','◀ ซ้าย']].map(([v,l]) => (
+
+      {/* ── Live preview ── */}
+      <div className="rounded-2xl overflow-hidden shadow-lg relative">
+        <div className={`bg-gradient-to-r ${currentColor.cls} px-8 py-10 text-white transition-all ${align === 'left' ? 'text-left' : 'text-center'}`}>
+          {data.icon  && <div className="text-5xl mb-3 leading-none">{data.icon}</div>}
+          <div className={`text-xl font-bold leading-snug ${!data.title ? 'opacity-25' : ''}`}>
+            {data.title || 'หัวข้อ Banner'}
+          </div>
+          {data.subtitle && <div className="text-white/70 text-sm mt-1.5">{data.subtitle}</div>}
+        </div>
+        <div className="absolute top-2 right-2 bg-black/20 text-white/70 text-[10px] px-2 py-0.5 rounded-full backdrop-blur-sm">
+          preview
+        </div>
+      </div>
+
+      {/* ── Section: เนื้อหา ── */}
+      <div className="bg-gray-50 rounded-2xl p-4 space-y-3 border border-gray-100">
+        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">เนื้อหา</p>
+        <div className="flex gap-3 items-start">
+          <div className="flex-shrink-0">
+            <p className="text-xs font-semibold text-gray-600 mb-1.5">ไอคอน</p>
+            <EmojiPicker value={data.icon||''} onChange={v => onChange({ ...data, icon: v })} accentColor="orange" />
+          </div>
+          <div className="flex-1 space-y-2.5">
+            <div>
+              <p className="text-xs font-semibold text-gray-600 mb-1.5">หัวข้อหลัก</p>
+              <input className={inp} placeholder="เช่น ประวัติความเป็นมา"
+                value={data.title||''} onChange={e => onChange({ ...data, title: e.target.value })} />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-600 mb-1.5">คำอธิบาย <span className="font-normal text-gray-400">— ไม่บังคับ</span></p>
+              <input className={inp} placeholder="คำอธิบายสั้นๆ ใต้หัวข้อ"
+                value={data.subtitle||''} onChange={e => onChange({ ...data, subtitle: e.target.value })} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Section: สี + จัดวาง ── */}
+      <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 space-y-3">
+        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">สีและการจัดวาง</p>
+        <div className="flex gap-3 items-start">
+          {/* Color swatches */}
+          <div className="flex-1">
+            <div className="grid grid-cols-4 gap-2">
+              {BANNER_COLORS.map(c => (
+                <button key={c.key} type="button" onClick={() => onChange({ ...data, color: c.key })}
+                  className={`h-10 rounded-xl bg-gradient-to-br ${c.cls} flex items-end justify-center pb-1.5 transition-all overflow-hidden relative ${(data.color||'primary')===c.key ? 'ring-2 ring-offset-2 ring-white shadow-lg scale-105' : 'opacity-60 hover:opacity-90 hover:scale-102'}`}>
+                  <span className="text-white text-[10px] font-bold drop-shadow-md relative z-10">{c.label}</span>
+                  {(data.color||'primary')===c.key && (
+                    <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-white rounded-full shadow" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Align */}
+          <div className="flex-shrink-0 space-y-1.5">
+            <p className="text-xs font-semibold text-gray-600">จัดวาง</p>
+            {[['center','≡ กลาง'],['left','◀ ซ้าย']].map(([v,l]) => (
               <button key={v} type="button" onClick={() => onChange({ ...data, align: v })}
-                className={`flex-1 py-2 text-xs font-medium transition-colors ${(data.align||'center')===v ? 'bg-rose-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
+                className={`w-full px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${align===v ? 'bg-rose-500 text-white shadow-sm' : 'bg-white border border-gray-200 text-gray-500 hover:border-gray-300'}`}>
                 {l}
               </button>
             ))}
           </div>
-        </Field>
+        </div>
       </div>
-      <Field label="หัวข้อหลัก">
-        <input className={inp} placeholder="เช่น ประวัติความเป็นมา" value={data.title||''} onChange={e => onChange({ ...data, title: e.target.value })} />
-      </Field>
-      <Field label="คำอธิบาย" hint="ไม่บังคับ">
-        <input className={inp} placeholder="คำอธิบายสั้นๆ ใต้หัวข้อ" value={data.subtitle||''} onChange={e => onChange({ ...data, subtitle: e.target.value })} />
-      </Field>
-      <Field label="ความสูง Banner (ตัวอักษรปรับอัตโนมัติ)">
-        <div className="flex rounded-lg overflow-hidden border border-gray-200">
-          {[
-            { v: 'xs',  sub: 'XS',  l: 'เล็กมาก'  },
-            { v: 'sm',  sub: 'S',   l: 'เตี้ย'     },
-            { v: 'md',  sub: 'M',   l: 'กลาง'      },
-            { v: 'lg',  sub: 'L',   l: 'สูง'       },
-            { v: 'xl',  sub: 'XL',  l: 'สูงมาก'   },
-            { v: 'xxl', sub: 'XXL', l: 'ใหญ่มาก'  },
-          ].map(({ v, l, sub }) => (
+
+      {/* ── Section: ความสูง ── */}
+      <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">ความสูง</p>
+        <div className="grid grid-cols-6 gap-2">
+          {HEIGHTS.map(({ v, l, sub, barH }) => (
             <button key={v} type="button" onClick={() => onChange({ ...data, height: v })}
-              className={`flex-1 py-1.5 text-[11px] font-semibold transition-colors flex flex-col items-center leading-tight ${(data.height||'md')===v ? 'bg-rose-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
-              <span>{sub}</span>
-              <span className="text-[9px] opacity-70">{l}</span>
+              className={`rounded-xl p-2 flex flex-col items-center gap-1.5 border-2 transition-all ${h===v ? 'border-rose-400 bg-rose-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
+              {/* Visual bar */}
+              <div className="w-6 flex items-end justify-center" style={{ height: 40 }}>
+                <div className={`w-5 rounded-sm ${barH} ${h===v ? 'bg-rose-400' : 'bg-gray-200'}`} />
+              </div>
+              <span className={`text-[10px] font-bold leading-none ${h===v ? 'text-rose-600' : 'text-gray-500'}`}>{sub}</span>
+              <span className={`text-[9px] leading-none ${h===v ? 'text-rose-400' : 'text-gray-400'}`}>{l}</span>
             </button>
           ))}
         </div>
-      </Field>
-      <Field label="สีพื้นหลัง">
-        <div className="grid grid-cols-4 gap-2">
-          {BANNER_COLORS.map(c => (
-            <button key={c.key} type="button" onClick={() => onChange({ ...data, color: c.key })}
-              className={`h-10 rounded-xl bg-gradient-to-r ${c.cls} flex items-center justify-center transition-all ${(data.color||'primary')===c.key ? 'ring-2 ring-offset-2 ring-rose-400 scale-105' : 'opacity-60 hover:opacity-90'}`}>
-              <span className="text-white text-[11px] font-semibold drop-shadow">{c.label}</span>
-            </button>
-          ))}
-        </div>
-      </Field>
-      {/* Mini preview */}
-      {(data.title || data.subtitle) && (
-        <div className={`rounded-xl overflow-hidden bg-gradient-to-r ${BANNER_COLORS.find(c=>c.key===(data.color||'primary'))?.cls||'from-primary to-secondary'}`}>
-          <div className={`px-6 py-5 text-white ${data.align==='left' ? 'text-left' : 'text-center'}`}>
-            {data.icon && <div className="text-2xl mb-1">{data.icon}</div>}
-            {data.title && <p className="text-base font-bold">{data.title}</p>}
-            {data.subtitle && <p className="text-white/75 text-xs mt-0.5">{data.subtitle}</p>}
-          </div>
-        </div>
-      )}
+      </div>
+
     </div>
   )
 }

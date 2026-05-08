@@ -199,6 +199,26 @@ function TableBlock({ data }) {
   )
 }
 
+function PdfFileIcon({ size = 44 }) {
+  const w = size, h = size * 1.3
+  return (
+    <svg width={w} height={h} viewBox="0 0 44 57" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+      {/* Document body */}
+      <path d="M0 5C0 2.239 2.239 0 5 0H30L44 15V52C44 54.761 41.761 57 39 57H5C2.239 57 0 54.761 0 52V5Z" fill="#DC2626"/>
+      {/* Folded corner */}
+      <path d="M30 0L44 15H32C30.895 15 30 14.105 30 13V0Z" fill="#B91C1C"/>
+      {/* White lines (document lines) */}
+      <rect x="7" y="20" width="20" height="2.5" rx="1.25" fill="white" fillOpacity="0.35"/>
+      <rect x="7" y="26" width="30" height="2.5" rx="1.25" fill="white" fillOpacity="0.25"/>
+      {/* Red label band */}
+      <rect x="0" y="34" width="44" height="16" rx="0" fill="#991B1B"/>
+      <rect x="0" y="34" width="44" height="16" rx="0" fill="white" fillOpacity="0.08"/>
+      {/* PDF text */}
+      <text x="22" y="46" textAnchor="middle" fill="white" fontSize="10" fontWeight="800" fontFamily="Arial Black, Arial, sans-serif" letterSpacing="1">PDF</text>
+    </svg>
+  )
+}
+
 function PdfBlock({ data, preview }) {
   const [open, setOpen] = useState(false)
   if (!data.url) return null
@@ -216,7 +236,7 @@ function PdfBlock({ data, preview }) {
         {preview ? (
           /* Admin preview — always show placeholder */
           <div className="w-full rounded-lg border border-dashed border-red-200 bg-red-50 flex items-center justify-center gap-3 mb-3" style={{ height: 100 }}>
-            <span className="text-3xl">📄</span>
+            <PdfFileIcon size={36} />
             <div>
               <p className="text-sm font-medium text-red-700">{data.title || 'ไฟล์ PDF'}</p>
               <p className="text-xs text-red-400 mt-0.5">จะแสดง PDF viewer ในหน้าจริง</p>
@@ -236,8 +256,10 @@ function PdfBlock({ data, preview }) {
         ) : (
           /* Collapsed — show open button */
           <button onClick={() => setOpen(true)}
-            className="mb-3 w-full flex items-center gap-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl px-4 py-4 transition-colors group">
-            <span className="text-2xl group-hover:scale-110 transition-transform flex-shrink-0">📄</span>
+            className="mb-3 w-full flex items-center gap-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl px-4 py-3 transition-colors group">
+            <div className="group-hover:scale-105 transition-transform">
+              <PdfFileIcon size={36} />
+            </div>
             <p className="text-sm font-semibold text-red-700 flex-1 text-left">{data.title || 'ไฟล์ PDF'}</p>
             <p className="text-xs text-red-400 flex-shrink-0">กดเพื่อแสดง PDF ▼</p>
           </button>
