@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { getStaff, getSettings } from '../services/api'
-import PageHeader from '../components/PageHeader'
 
 const DEFAULT_DEPTS = [
   { value: 'executive',   label: 'ผู้บริหาร' },
@@ -103,15 +102,11 @@ export default function StaffPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  // Scroll to department section when navigated via hash (e.g. /staff#dept-finance)
+  // Filter to selected department when navigated via hash (e.g. /staff#dept-finance)
   useEffect(() => {
     if (loading || !location.hash) return
     const deptValue = location.hash.replace('#dept-', '')
-    setActiveDept('all')
-    setTimeout(() => {
-      const el = document.getElementById(`dept-${deptValue}`)
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 100)
+    setActiveDept(deptValue)
   }, [loading, location.hash])
 
   const deptMap = Object.fromEntries(depts.map(d => [d.value, d.label]))
@@ -130,9 +125,6 @@ export default function StaffPage() {
 
   return (
     <div>
-      <PageHeader icon="👥" title="บุคลากร/กิจการสภา"
-        desc="ข้อมูลผู้บริหาร สมาชิกสภา และบุคลากรองค์การบริหารส่วนตำบลแม่ใส แยกตามสังกัดกอง/สำนัก" />
-
       {/* Dept filter buttons */}
       {!loading && deptKeys.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm mb-4 p-3 flex flex-wrap gap-2">
