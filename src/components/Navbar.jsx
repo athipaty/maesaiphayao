@@ -3,9 +3,9 @@ import { useState, useEffect, useRef } from 'react'
 import { getSettings, getPages } from '../services/api'
 
 const TOP_NAV = [
-  { label: 'เกี่ยวกับ อบต.แม่ใส', path: '/about',   slug: 'about',   icon: '🏛️' },
-  { label: 'บุคลากร/กิจการสภา',   path: '/staff',   slug: 'staff',   icon: '👥' },
-  { label: 'ติดต่อเรา',            path: '/contact', slug: 'contact', icon: '📞' },
+  { label: 'เกี่ยวกับ อบต.แม่ใส', path: '/about',   slug: 'builtin-about',   icon: '🏛️' },
+  { label: 'บุคลากร/กิจการสภา',   path: '/staff',   slug: 'builtin-staff',   icon: '👥' },
+  { label: 'ติดต่อเรา',            path: '/contact', slug: 'builtin-contact', icon: '📞' },
 ]
 
 const DEFAULT_DEPTS = [
@@ -86,7 +86,7 @@ export default function Navbar({ onMenuClick }) {
       <nav className="hidden lg:block bg-primary/90 border-t border-white/10">
         <div className="max-w-[1200px] mx-auto px-3 flex items-center gap-1">
           {TOP_NAV.map(m => {
-            const isStaff      = m.slug === 'staff'
+            const isStaff      = m.slug === 'builtin-staff'
             const pageChildren = getChildren(m.slug)
             // Staff: departments as dropdown; others: sub-pages from the API
             const dropItems    = isStaff
