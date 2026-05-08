@@ -236,12 +236,10 @@ function PdfBlock({ data, preview }) {
         ) : (
           /* Collapsed — show open button */
           <button onClick={() => setOpen(true)}
-            className="mb-3 w-full flex items-center justify-center gap-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl py-5 transition-colors group">
-            <span className="text-3xl group-hover:scale-110 transition-transform">📄</span>
-            <div className="text-left">
-              <p className="text-sm font-semibold text-red-700">{data.title || 'ไฟล์ PDF'}</p>
-              <p className="text-xs text-red-400 mt-0.5">กดเพื่อแสดง PDF ▼</p>
-            </div>
+            className="mb-3 w-full flex items-center gap-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl px-4 py-4 transition-colors group">
+            <span className="text-2xl group-hover:scale-110 transition-transform flex-shrink-0">📄</span>
+            <p className="text-sm font-semibold text-red-700 flex-1 text-left">{data.title || 'ไฟล์ PDF'}</p>
+            <p className="text-xs text-red-400 flex-shrink-0">กดเพื่อแสดง PDF ▼</p>
           </button>
         )}
 
