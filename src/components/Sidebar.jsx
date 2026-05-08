@@ -34,6 +34,7 @@ const DEFAULT_SETTINGS = {
 export default function Sidebar({ onNavigate, mobile = false }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
   const [menuPages, setMenuPages] = useState([])
+  const [openSlugs, setOpenSlugs] = useState({})
 
   useEffect(() => {
     getSettings()
@@ -50,6 +51,9 @@ export default function Sidebar({ onNavigate, mobile = false }) {
     .sort((a, b) => a.order - b.order)
   function getChildren(slug) {
     return menuPages.filter(p => p.parentSlug === slug).sort((a, b) => a.order - b.order)
+  }
+  function toggleSlug(slug) {
+    setOpenSlugs(prev => ({ ...prev, [slug]: !prev[slug] }))
   }
 
   return (
@@ -80,29 +84,47 @@ export default function Sidebar({ onNavigate, mobile = false }) {
           {topLevel.map(m => {
             const linkPath = m.isBuiltin ? m.path : `/page/${m.slug}`
             const children = getChildren(m.slug)
+            const hasChildren = children.length > 0
+            const isOpen = !!openSlugs[m.slug]
             return (
               <li key={m.slug}>
-                <NavLink to={linkPath} onClick={onNavigate}
-                  className={({ isActive }) =>
-                    `flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors ${
-                      isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
-                    }`
-                  }>
-                  <span className="text-sm w-5 text-center">{m.icon}</span>
-                  <span className="flex-1">{m.title}</span>
-                  {children.length > 0 && <span className="text-gray-300 text-xs">›</span>}
-                </NavLink>
-                {children.map(c => (
-                  <NavLink key={c.slug} to={c.isBuiltin ? c.path : `/page/${c.slug}`} onClick={onNavigate}
+                <div className="flex items-stretch border-b border-gray-100">
+                  <NavLink to={linkPath} onClick={onNavigate}
                     className={({ isActive }) =>
-                      `flex items-center gap-1.5 pl-8 pr-3.5 py-2 text-xs border-b border-gray-50 transition-colors ${
-                        isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-500 hover:bg-pink-50 hover:text-primary'
+                      `flex items-center gap-1.5 px-3.5 py-2.5 text-sm flex-1 transition-colors ${
+                        isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
                       }`
                     }>
-                    <span className="text-gray-300">–</span>
-                    <span>{c.title}</span>
+                    <span className="text-sm w-5 text-center">{m.icon}</span>
+                    <span className="flex-1">{m.title}</span>
                   </NavLink>
-                ))}
+                  {hasChildren && (
+                    <button
+                      onClick={() => toggleSlug(m.slug)}
+                      className="px-2.5 text-gray-400 hover:text-primary hover:bg-pink-50 transition-colors border-l border-gray-100 flex-shrink-0 flex items-center"
+                      title={isOpen ? 'ซ่อนเมนูย่อย' : 'แสดงเมนูย่อย'}>
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                        style={{ transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                        <polyline points="2 4 6 8 10 4"/>
+                      </svg>
+                    </button>
+                  )}
+                </div>
+                {hasChildren && isOpen && (
+                  <ul>
+                    {children.map(c => (
+                      <NavLink key={c.slug} to={c.isBuiltin ? c.path : `/page/${c.slug}`} onClick={onNavigate}
+                        className={({ isActive }) =>
+                          `flex items-center gap-1.5 pl-8 pr-3.5 py-2 text-xs border-b border-gray-50 transition-colors ${
+                            isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-500 hover:bg-pink-50 hover:text-primary'
+                          }`
+                        }>
+                        <span className="text-gray-300">–</span>
+                        <span>{c.title}</span>
+                      </NavLink>
+                    ))}
+                  </ul>
+                )}
               </li>
             )
           })}
