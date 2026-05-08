@@ -88,28 +88,27 @@ export default function Sidebar({ onNavigate, mobile = false }) {
             const isOpen = !!openSlugs[m.slug]
             return (
               <li key={m.slug}>
-                <div className="flex items-stretch border-b border-gray-100">
+                {hasChildren ? (
+                  <button onClick={() => toggleSlug(m.slug)}
+                    className="w-full flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors text-gray-700 hover:bg-pink-50 hover:text-primary">
+                    <span className="text-sm w-5 text-center">{m.icon}</span>
+                    <span className="flex-1 text-left">{m.title}</span>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      style={{ transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }}>
+                      <polyline points="2 4 6 8 10 4"/>
+                    </svg>
+                  </button>
+                ) : (
                   <NavLink to={linkPath} onClick={onNavigate}
                     className={({ isActive }) =>
-                      `flex items-center gap-1.5 px-3.5 py-2.5 text-sm flex-1 transition-colors ${
+                      `flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors ${
                         isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
                       }`
                     }>
                     <span className="text-sm w-5 text-center">{m.icon}</span>
                     <span className="flex-1">{m.title}</span>
                   </NavLink>
-                  {hasChildren && (
-                    <button
-                      onClick={() => toggleSlug(m.slug)}
-                      className="px-2.5 text-gray-400 hover:text-primary hover:bg-pink-50 transition-colors border-l border-gray-100 flex-shrink-0 flex items-center"
-                      title={isOpen ? 'ซ่อนเมนูย่อย' : 'แสดงเมนูย่อย'}>
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                        style={{ transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-                        <polyline points="2 4 6 8 10 4"/>
-                      </svg>
-                    </button>
-                  )}
-                </div>
+                )}
                 {hasChildren && isOpen && (
                   <ul>
                     {children.map(c => (
