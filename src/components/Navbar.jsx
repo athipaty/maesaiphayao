@@ -2,12 +2,6 @@ import { Link, NavLink } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { getSettings, getPages } from '../services/api'
 
-const TOP_NAV = [
-  { label: 'เกี่ยวกับ อบต.แม่ใส', path: '/about',   slug: 'about',   icon: '🏛️' },
-  { label: 'บุคลากร/กิจการสภา',   path: '/staff',   slug: 'staff',   icon: '👥' },
-  { label: 'ติดต่อเรา',            path: '/contact', slug: 'contact', icon: '📞' },
-]
-
 export default function Navbar({ onMenuClick }) {
   const [logoImage, setLogoImage] = useState('')
   const [pages, setPages]         = useState([])
@@ -20,6 +14,10 @@ export default function Navbar({ onMenuClick }) {
     }).catch(() => {})
     getPages().then(r => setPages((r?.data || []).filter(p => p.isActive))).catch(() => {})
   }, [])
+
+  const topLevel = pages
+    .filter(p => !p.parentSlug)
+    .sort((a, b) => a.order - b.order)
 
   function getChildren(slug) {
     return pages.filter(p => p.parentSlug === slug).sort((a, b) => a.order - b.order)
@@ -72,36 +70,46 @@ export default function Navbar({ onMenuClick }) {
 
       {/* Secondary nav row — desktop only */}
       <nav className="hidden lg:block bg-primary/90 border-t border-white/10">
-        <div className="max-w-[1200px] mx-auto px-3 flex items-center gap-1">
-          {TOP_NAV.map(m => {
-            const children = getChildren(m.slug)
+        <div className="max-w-[1200px] mx-auto px-3 flex items-center gap-1 overflow-x-auto">
+          {topLevel.map(m => {
+            const linkPath    = m.isBuiltin ? m.path : `/page/${m.slug}`
+            const children    = getChildren(m.slug)
             const hasChildren = children.length > 0
-            const isOpen = openSlug === m.slug
+            const isOpen      = openSlug === m.slug
             return (
-              <div key={m.path} className="relative"
+              <div key={m.slug} className="relative flex-shrink-0"
                 onMouseEnter={() => openMenu(m.slug)}
                 onMouseLeave={closeMenu}>
-                <NavLink to={m.path}
-                  className={({ isActive }) =>
-                    `flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-colors whitespace-nowrap ${
-                      isActive
-                        ? 'bg-white/20 text-white border-b-2 border-accent'
-                        : 'text-white/80 hover:bg-white/10 hover:text-white'
-                    }`
-                  }>
-                  <span>{m.icon}</span>
-                  {m.label}
-                  {hasChildren && (
-                    <span className={`text-[10px] transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`}>▾</span>
-                  )}
-                </NavLink>
+
+                {hasChildren ? (
+                  /* Parent with sub-menu: clicking toggles dropdown, label links to page */
+                  <button
+                    onClick={() => (isOpen ? setOpenSlug(null) : openMenu(m.slug))}
+                    className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-colors whitespace-nowrap text-white/80 hover:bg-white/10 hover:text-white">
+                    {m.icon && <span>{m.icon}</span>}
+                    {m.title}
+                    <span className="text-[10px] transition-transform duration-150 inline-block"
+                      style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
+                  </button>
+                ) : (
+                  <NavLink to={linkPath}
+                    className={({ isActive }) =>
+                      `flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-colors whitespace-nowrap ${
+                        isActive
+                          ? 'bg-white/20 text-white border-b-2 border-accent'
+                          : 'text-white/80 hover:bg-white/10 hover:text-white'
+                      }`
+                    }>
+                    {m.icon && <span>{m.icon}</span>}
+                    {m.title}
+                  </NavLink>
+                )}
 
                 {hasChildren && isOpen && (
                   <div className="absolute top-full left-0 z-50 mt-0 pt-1"
                     onMouseEnter={() => openMenu(m.slug)}
                     onMouseLeave={closeMenu}>
                     <div className="bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 min-w-[220px] overflow-hidden">
-                      {/* arrow tip */}
                       <div className="absolute -top-1.5 left-6 w-3 h-3 bg-white border-l border-t border-gray-100 rotate-45" />
                       {children.map(child => {
                         const childPath = child.isBuiltin ? child.path : `/page/${child.slug}`
