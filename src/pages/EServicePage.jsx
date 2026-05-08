@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { submitEService, trackEService } from '../services/api'
+import PhotoUploader from '../components/PhotoUploader'
 
 const TYPES = [
   { value: 'general',      label: '📝 คำร้องทั่วไป' },
@@ -18,7 +19,7 @@ const STATUS_CONFIG = {
   rejected:    { label: 'ไม่สามารถดำเนินการ', color: 'bg-red-100 text-red-600',    dot: '🔴' },
 }
 
-const EMPTY = { type: 'general', citizenName: '', phone: '', address: '', villageNo: '', detail: '' }
+const EMPTY = { type: 'general', citizenName: '', phone: '', address: '', villageNo: '', detail: '', images: [] }
 
 export default function EServicePage() {
   const [tab, setTab]           = useState('form') // 'form' | 'track' | 'stat'
@@ -166,6 +167,8 @@ export default function EServicePage() {
                   placeholder="อธิบายรายละเอียดปัญหาหรือความต้องการ..."
                 />
               </div>
+
+              <PhotoUploader photos={form.images} onChange={urls => set('images', urls)} />
 
               <button type="submit" disabled={submitting}
                 className="w-full bg-primary text-white py-3 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50">

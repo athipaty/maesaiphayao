@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { submitComplaint, trackComplaint } from '../services/api'
+import PhotoUploader from '../components/PhotoUploader'
 
 const STATUS_CONFIG = {
   received:     { label: 'รับเรื่องแล้ว',  color: 'bg-blue-100 text-blue-700',    dot: '🔵' },
@@ -13,7 +14,7 @@ const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm foc
 export default function CorruptionPage() {
   const [tab, setTab]             = useState('form')
   const [anonymous, setAnonymous] = useState(false)
-  const [form, setForm]           = useState({ citizenName: '', phone: '', detail: '' })
+  const [form, setForm]           = useState({ citizenName: '', phone: '', detail: '', attachments: [] })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted]   = useState(null)
   const [trackNo, setTrackNo]     = useState('')
@@ -33,9 +34,10 @@ export default function CorruptionPage() {
         type: 'corruption', isAnonymous: anonymous, detail: form.detail,
         citizenName: anonymous ? '' : form.citizenName,
         phone: anonymous ? '' : form.phone,
+        attachments: form.attachments,
       })
       setSubmitted(r.data)
-      setForm({ citizenName: '', phone: '', detail: '' })
+      setForm({ citizenName: '', phone: '', detail: '', attachments: [] })
       setAnonymous(false)
     } catch (err) {
       alert('เกิดข้อผิดพลาด: ' + (err?.response?.data?.error || err.message))
@@ -169,6 +171,8 @@ export default function CorruptionPage() {
                   onChange={e => set('detail', e.target.value)}
                   placeholder="ระบุ: ชื่อเจ้าหน้าที่/ผู้ถูกกล่าวหา, วัน เวลา สถานที่, พฤติการณ์ที่เกิดขึ้น, พยานหลักฐาน..." />
               </div>
+
+              <PhotoUploader photos={form.attachments} onChange={urls => set('attachments', urls)} />
 
               <button type="submit" disabled={submitting}
                 className="w-full bg-red-600 text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 shadow-sm">
