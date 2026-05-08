@@ -15,7 +15,8 @@
       "PowerShell(Add-Type -AssemblyName System.IO.Compression.FileSystem; $null)",
       "Bash(pip install *)",
       "Bash(python *)",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(Remove-Item *)"
     ]
   }
 }

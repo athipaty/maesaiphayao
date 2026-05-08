@@ -1,5 +1,5 @@
 import { useState, lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import SplashPage from "./pages/SplashPage";
 
@@ -31,7 +31,6 @@ import DynamicPage from "./pages/DynamicPage";
 
 // Admin pages — lazy loaded so each page is its own chunk
 import AdminLayout from "./pages/admin/AdminLayout";
-const AdminDashboard      = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminNews           = lazy(() => import("./pages/admin/AdminNews"));
 const AdminAnnounce       = lazy(() => import("./pages/admin/AdminAnnounce"));
 const AdminProcurement    = lazy(() => import("./pages/admin/AdminProcurement"));
@@ -124,7 +123,7 @@ export default function App() {
 
         {/* Admin panel */}
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Suspense fallback={null}><AdminDashboard /></Suspense>} />
+          <Route index element={<Navigate to="/admin/pages" replace />} />
           <Route path="news"             element={<Suspense fallback={null}><AdminNews /></Suspense>} />
           <Route path="announcements"    element={<Suspense fallback={null}><AdminAnnounce /></Suspense>} />
           <Route path="procurement"      element={<Suspense fallback={null}><AdminProcurement /></Suspense>} />
