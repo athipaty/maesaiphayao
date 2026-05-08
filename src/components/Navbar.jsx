@@ -86,58 +86,60 @@ export default function Navbar({ onMenuClick }) {
       </div>
 
       {/* Secondary nav row — desktop only */}
-      <nav className="hidden lg:block bg-primary/90 border-t border-white/10">
-        <div className="max-w-[1200px] mx-auto px-3 flex items-center gap-1">
+      <nav className="hidden lg:block bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-[1200px] mx-auto px-3 flex items-center">
           {TOP_NAV.map(m => {
             const isStaff      = m.slug === 'builtin-staff'
             const pageChildren = m.slug ? getChildren(m.slug) : []
-            // Staff: departments as dropdown; others: sub-pages from the API
             const dropItems    = isStaff
-              ? depts.map(d => ({ key: d.value, icon: '👥', title: d.label, to: `/staff#dept-${d.value}` }))
-              : pageChildren.map(c => ({ key: c.slug, icon: c.icon, title: c.title, to: c.isBuiltin ? c.path : `/page/${c.slug}` }))
+              ? depts.map(d => ({ key: d.value, title: d.label, to: `/staff#dept-${d.value}` }))
+              : pageChildren.map(c => ({ key: c.slug, title: c.title, to: c.isBuiltin ? c.path : `/page/${c.slug}` }))
             const hasDropdown  = dropItems.length > 0
             const isOpen       = openSlug === m.slug
             return (
-              <div key={m.slug} className="relative flex-shrink-0"
-                onMouseEnter={() => openMenu(m.slug)}
+              <div key={m.slug ?? m.path} className="relative flex-shrink-0"
+                onMouseEnter={() => openMenu(m.slug ?? m.path)}
                 onMouseLeave={closeMenu}>
 
                 {hasDropdown ? (
                   <button
-                    onClick={() => (isOpen ? setOpenSlug(null) : openMenu(m.slug))}
-                    className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-colors whitespace-nowrap text-white/80 hover:bg-white/10 hover:text-white">
-                    {m.icon && <span>{m.icon}</span>}
+                    onClick={() => (isOpen ? setOpenSlug(null) : openMenu(m.slug ?? m.path))}
+                    className={`flex items-center gap-1 px-4 py-3 text-[13px] font-medium transition-all whitespace-nowrap border-b-2 ${
+                      isOpen
+                        ? 'text-primary border-primary'
+                        : 'text-gray-600 border-transparent hover:text-primary hover:border-primary/50'
+                    }`}>
                     {m.label}
-                    <span className="text-[10px] transition-transform duration-150 inline-block"
-                      style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      style={{ transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }}>
+                      <polyline points="2 3 5 7 8 3"/>
+                    </svg>
                   </button>
                 ) : (
                   <NavLink to={m.path}
                     className={({ isActive }) =>
-                      `flex items-center gap-1.5 px-4 py-2 text-xs font-medium transition-colors whitespace-nowrap ${
+                      `flex items-center px-4 py-3 text-[13px] font-medium transition-all whitespace-nowrap border-b-2 ${
                         isActive
-                          ? 'bg-white/20 text-white border-b-2 border-accent'
-                          : 'text-white/80 hover:bg-white/10 hover:text-white'
+                          ? 'text-primary border-primary'
+                          : 'text-gray-600 border-transparent hover:text-primary hover:border-primary/50'
                       }`
                     }>
-                    {m.icon && <span>{m.icon}</span>}
                     {m.label}
                   </NavLink>
                 )}
 
                 {hasDropdown && isOpen && (
-                  <div className="absolute top-full left-0 z-50 mt-0 pt-1"
-                    onMouseEnter={() => openMenu(m.slug)}
+                  <div className="absolute top-full left-0 z-50 pt-1"
+                    onMouseEnter={() => openMenu(m.slug ?? m.path)}
                     onMouseLeave={closeMenu}>
-                    <div className="bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 min-w-[220px] overflow-hidden">
+                    <div className="bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 min-w-[200px] overflow-hidden">
                       <div className="absolute -top-1.5 left-6 w-3 h-3 bg-white border-l border-t border-gray-100 rotate-45" />
                       {dropItems.map(item => (
                         <Link key={item.key} to={item.to}
                           onClick={() => setOpenSlug(null)}
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors group">
-                          <span className="text-base w-5 text-center flex-shrink-0">{item.icon}</span>
-                          <span className="flex-1 text-xs font-medium">{item.title}</span>
-                          <span className="text-gray-300 group-hover:text-secondary text-xs">›</span>
+                          className="flex items-center justify-between px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-blue-50 hover:text-primary transition-colors group">
+                          {item.title}
+                          <span className="text-gray-300 group-hover:text-primary ml-3">›</span>
                         </Link>
                       ))}
                     </div>

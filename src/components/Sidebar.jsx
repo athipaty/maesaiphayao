@@ -45,7 +45,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
       .catch(() => {})
   }, [])
 
-  const NAVBAR_PATHS = ['/about', '/staff', '/contact']
+  const NAVBAR_PATHS = ['/about', '/staff', '/eservice', '/complaint', '/corruption', '/contact']
   const topLevel = menuPages
     .filter(p => !p.parentSlug && !NAVBAR_PATHS.includes(p.path))
     .sort((a, b) => a.order - b.order)
