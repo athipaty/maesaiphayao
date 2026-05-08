@@ -1012,7 +1012,9 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
   const [openIdx, setOpenIdx] = useState(null)
   const [err, setErr]         = useState('')
   const [saved, setSaved]     = useState(false)
-  const draftRef              = useRef(null)  // latest typed data for open block, no re-render
+  const draftRef              = useRef(null)
+  const dragBlockRef          = useRef(null)
+  const [dragOverBlockIdx, setDragOverBlockIdx] = useState(null)
 
   function commitDraft() {
     if (draftRef.current !== null && openIdx !== null) {
@@ -1046,14 +1048,18 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
     if (openIdx === i) setOpenIdx(null)
     else if (openIdx !== null && openIdx > i) setOpenIdx(openIdx - 1)
   }
-  function moveBlock(i, dir) {
+  function reorderBlocks(fromIdx, toIdx) {
+    if (fromIdx === toIdx) return
     const next = [...getBlocksWithDraft()]
-    const target = i + dir
-    if (target < 0 || target >= next.length) return
-    ;[next[i], next[target]] = [next[target], next[i]]
+    const [moved] = next.splice(fromIdx, 1)
+    next.splice(toIdx, 0, moved)
     draftRef.current = null
     setBlocks(next)
-    setOpenIdx(target)
+    if (openIdx === fromIdx) setOpenIdx(toIdx)
+    else if (openIdx !== null) {
+      if (fromIdx < openIdx && toIdx >= openIdx) setOpenIdx(openIdx - 1)
+      else if (fromIdx > openIdx && toIdx <= openIdx) setOpenIdx(openIdx + 1)
+    }
   }
 
   async function save() {
@@ -1126,10 +1132,18 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
             const meta = BLOCK_META[block.type] || { icon: '📦', label: block.type }
             const bt   = BLOCK_TYPES.find(b => b.type === block.type)
             const isSel = openIdx === i
+            const isOver = dragOverBlockIdx === i
             return (
-              <div key={block._id || block._tempKey || i} className="relative group">
+              <div key={block._id || block._tempKey || i}
+                className={`relative group transition-transform ${isOver ? 'scale-110 ring-2 ring-blue-400 ring-offset-1 rounded-xl' : ''}`}
+                draggable
+                onDragStart={e => { e.dataTransfer.effectAllowed = 'move'; dragBlockRef.current = i }}
+                onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverBlockIdx(i) }}
+                onDragLeave={() => setDragOverBlockIdx(null)}
+                onDrop={e => { e.preventDefault(); setDragOverBlockIdx(null); reorderBlocks(dragBlockRef.current, i) }}
+                onDragEnd={() => { dragBlockRef.current = null; setDragOverBlockIdx(null) }}>
                 <button onClick={() => switchBlock(isSel ? null : i)}
-                  className={`w-11 h-11 rounded-xl border-2 flex flex-col items-center justify-center transition-[transform,border-color,background-color] ${bt?.color || 'bg-gray-50 border-gray-200'} ${isSel ? 'ring-2 ring-offset-1 ring-blue-400 scale-110 shadow-md' : 'hover:scale-105'}`}>
+                  className={`w-11 h-11 rounded-xl border-2 flex flex-col items-center justify-center transition-[transform,border-color,background-color] cursor-grab active:cursor-grabbing ${bt?.color || 'bg-gray-50 border-gray-200'} ${isSel ? 'ring-2 ring-offset-1 ring-blue-400 scale-110 shadow-md' : 'hover:scale-105'}`}>
                   <span className="text-lg leading-none">{meta.icon}</span>
                   <span className="text-[9px] font-medium text-gray-500 leading-none mt-0.5">{i + 1}</span>
                 </button>
@@ -1159,12 +1173,6 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
               <span className="text-base flex-shrink-0">{meta.icon}</span>
               <span className="text-sm font-semibold text-gray-700 flex-1">{meta.label}</span>
               <span className="text-[11px] text-gray-400 bg-white border border-gray-200 px-2 py-0.5 rounded-lg">#{openIdx + 1}</span>
-              <div className="flex gap-1">
-                <button onClick={() => moveBlock(openIdx, -1)} disabled={openIdx === 0}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 disabled:opacity-20 transition-colors text-xs">◀</button>
-                <button onClick={() => moveBlock(openIdx, 1)} disabled={openIdx === blocks.length - 1}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 disabled:opacity-20 transition-colors text-xs">▶</button>
-              </div>
               <button onClick={() => switchBlock(null)}
                 className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors text-sm">✕</button>
             </div>
