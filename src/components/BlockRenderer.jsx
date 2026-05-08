@@ -219,10 +219,25 @@ function PdfFileIcon({ size = 44 }) {
   )
 }
 
+function buildPdfDownloadUrl(url) {
+  if (!url) return url
+  // Cloudinary raw URLs: insert fl_attachment so the browser receives a proper
+  // PDF download with Content-Disposition: attachment and the correct filename.
+  if (url.includes('cloudinary.com') && url.includes('/raw/upload/')) {
+    return url.replace('/raw/upload/', '/raw/upload/fl_attachment/')
+  }
+  // Fallback: append .pdf extension if missing so the browser knows the type
+  if (!url.split('?')[0].toLowerCase().endsWith('.pdf')) {
+    return url + (url.includes('?') ? '&' : '') + '.pdf'
+  }
+  return url
+}
+
 function PdfBlock({ data, preview }) {
   const [open, setOpen] = useState(false)
   if (!data.url) return null
-  const viewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
+  const viewUrl    = `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
+  const downloadUrl = buildPdfDownloadUrl(data.url)
   return (
     <div className="card mb-4 overflow-hidden">
       {data.title && (
@@ -265,7 +280,7 @@ function PdfBlock({ data, preview }) {
           </button>
         )}
 
-        <a href={data.url} target="_blank" rel="noreferrer"
+        <a href={downloadUrl} target="_blank" rel="noreferrer"
           className="inline-flex items-center gap-2 text-xs bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors font-medium">
           📥 ดาวน์โหลด PDF
         </a>
