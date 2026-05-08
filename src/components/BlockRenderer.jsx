@@ -221,14 +221,12 @@ function PdfFileIcon({ size = 44 }) {
 
 function buildPdfDownloadUrl(url) {
   if (!url) return url
-  // Cloudinary raw URLs: insert fl_attachment so the browser receives a proper
-  // PDF download with Content-Disposition: attachment and the correct filename.
   if (url.includes('cloudinary.com') && url.includes('/raw/upload/')) {
-    return url.replace('/raw/upload/', '/raw/upload/fl_attachment/')
-  }
-  // Fallback: append .pdf extension if missing so the browser knows the type
-  if (!url.split('?')[0].toLowerCase().endsWith('.pdf')) {
-    return url + (url.includes('?') ? '&' : '') + '.pdf'
+    // Use fl_attachment:filename so Cloudinary sets Content-Disposition with the
+    // correct .pdf filename — without it the browser saves with no extension.
+    const lastSegment = url.split('?')[0].split('/').pop()
+    const filename = lastSegment.toLowerCase().endsWith('.pdf') ? lastSegment : lastSegment + '.pdf'
+    return url.replace('/raw/upload/', `/raw/upload/fl_attachment:${filename}/`)
   }
   return url
 }
