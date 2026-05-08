@@ -258,7 +258,7 @@ function PdfBlock({ data, preview }) {
         {data.description && <p className="text-xs text-gray-500 mb-3 leading-relaxed">{data.description}</p>}
 
         {preview ? (
-          /* Admin preview — always show placeholder */
+          /* Admin preview */
           <div className="w-full rounded-lg border border-dashed border-red-200 bg-red-50 flex items-center justify-center gap-3 mb-3" style={{ height: 100 }}>
             <PdfFileIcon size={36} />
             <div>
@@ -266,27 +266,27 @@ function PdfBlock({ data, preview }) {
               <p className="text-xs text-red-400 mt-0.5">จะแสดง PDF viewer ในหน้าจริง</p>
             </div>
           </div>
-        ) : open ? (
-          /* Expanded — show iframe + close button */
-          <div className="mb-3">
-            <div className="w-full rounded-lg overflow-hidden border border-gray-200" style={{ height: '520px' }}>
-              <iframe src={viewUrl} className="w-full h-full" title={data.title || 'PDF'} />
-            </div>
-            <button onClick={() => setOpen(false)}
-              className="mt-2 flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors w-full justify-end">
-              ▲ ซ่อน PDF
-            </button>
-          </div>
         ) : (
-          /* Collapsed — show open button */
-          <button onClick={() => setOpen(true)}
-            className="mb-3 w-full flex items-center gap-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl px-4 py-3 transition-colors group">
-            <div className="group-hover:scale-105 transition-transform">
-              <PdfFileIcon size={36} />
-            </div>
-            <p className="text-sm font-semibold text-red-700 flex-1 text-left">{data.title || 'ไฟล์ PDF'}</p>
-            <p className="text-xs text-red-400 flex-shrink-0">กดเพื่อแสดง PDF ▼</p>
-          </button>
+          <>
+            {/* Toggle row — same position always */}
+            <button onClick={() => setOpen(v => !v)}
+              className="mb-3 w-full flex items-center gap-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl px-4 py-3 transition-colors group">
+              <div className="group-hover:scale-105 transition-transform">
+                <PdfFileIcon size={36} />
+              </div>
+              <p className="text-sm font-semibold text-red-700 flex-1 text-left">{data.title || 'ไฟล์ PDF'}</p>
+              <p className="text-xs text-red-400 flex-shrink-0">
+                {open ? '▲ ซ่อน PDF' : 'กดเพื่อแสดง PDF ▼'}
+              </p>
+            </button>
+
+            {/* Iframe — shown only when open */}
+            {open && (
+              <div className="mb-3 w-full rounded-lg overflow-hidden border border-gray-200" style={{ height: '520px' }}>
+                <iframe src={viewUrl} className="w-full h-full" title={data.title || 'PDF'} />
+              </div>
+            )}
+          </>
         )}
 
         <button onClick={() => downloadPdf(data.url, data.title)}
