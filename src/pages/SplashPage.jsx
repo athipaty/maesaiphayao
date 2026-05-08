@@ -41,8 +41,11 @@ export default function SplashPage({ onEnter }) {
         @keyframes twinkle { 0%,100%{opacity:0.2;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }
         @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
         @keyframes shimmer { 0%,100%{opacity:0.7} 50%{opacity:1} }
+        @keyframes pulse-gold { 0%,100%{box-shadow:0 4px 15px rgba(139,105,20,0.5)} 50%{box-shadow:0 4px 28px rgba(139,105,20,0.9), 0 0 0 4px rgba(218,165,32,0.3)} }
         .splash-in { animation: fadeUp 0.8s ease 0.3s both; }
         .shimmer { animation: shimmer 2s ease-in-out infinite; }
+        .btn-sign:hover { opacity: 0.88; transform: translateY(-1px); }
+        .btn-enter:hover { opacity: 0.85; }
       `}</style>
 
       {/* Sparkles */}
@@ -140,24 +143,59 @@ export default function SplashPage({ onEnter }) {
             องค์การบริหารส่วนตำบลแม่ใส
           </p>
 
-          <button onClick={handleEnter} style={{
-            background: 'linear-gradient(135deg, #8B6914, #DAA520, #8B6914)',
-            border: '2px solid #5a3e00',
-            color: '#3a1f00',
-            padding: '12px 40px',
-            borderRadius: '4px',
-            fontSize: 'clamp(13px, 3.5vw, 15px)',
-            fontWeight: 700,
-            cursor: 'pointer',
-            fontFamily: "'Sarabun', sans-serif",
-            boxShadow: '0 4px 15px rgba(139,105,20,0.5)',
-            letterSpacing: '1px',
-          }}
-            onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
-            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-          >
-            เข้าสู่เว็บไซต์
-          </button>
+          {/* Buttons */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+
+            {/* ปุ่มลงนามถวายพระพร */}
+            <a
+              href="https://wellwishes.royaloffice.th/"
+              target="_blank"
+              rel="noreferrer"
+              className="btn-sign"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                background: 'linear-gradient(135deg, #3a1f00, #6b3a00, #3a1f00)',
+                border: '2px solid #DAA520',
+                color: '#ffd700',
+                padding: '13px 36px',
+                borderRadius: '4px',
+                fontSize: 'clamp(13px, 3.5vw, 15px)',
+                fontWeight: 700,
+                textDecoration: 'none',
+                fontFamily: "'Sarabun', sans-serif",
+                animation: 'pulse-gold 2.5s ease-in-out infinite',
+                letterSpacing: '1px',
+                transition: 'opacity 0.2s, transform 0.2s',
+                width: '100%', maxWidth: '280px', justifyContent: 'center',
+              }}
+            >
+              ✍️ ลงนามถวายพระพร
+            </a>
+
+            {/* ปุ่มเข้าเว็บไซต์ */}
+            <button
+              onClick={handleEnter}
+              className="btn-enter"
+              style={{
+                background: 'linear-gradient(135deg, #8B6914, #DAA520, #8B6914)',
+                border: '2px solid #5a3e00',
+                color: '#3a1f00',
+                padding: '12px 40px',
+                borderRadius: '4px',
+                fontSize: 'clamp(13px, 3.5vw, 15px)',
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: "'Sarabun', sans-serif",
+                boxShadow: '0 4px 15px rgba(139,105,20,0.5)',
+                letterSpacing: '1px',
+                transition: 'opacity 0.2s',
+                width: '100%', maxWidth: '280px',
+              }}
+            >
+              เข้าสู่เว็บไซต์
+            </button>
+
+          </div>
         </div>
       </div>
     </div>
