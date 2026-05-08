@@ -28,45 +28,63 @@ const CARD_ICONS = [
 
 function EmojiPicker({ value, onChange, accentColor = 'purple' }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef(null)
 
-  useEffect(() => {
-    if (!open) return
-    function onDown(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
-    document.addEventListener('mousedown', onDown)
-    return () => document.removeEventListener('mousedown', onDown)
-  }, [open])
-
-  const ring = accentColor === 'purple'
-    ? 'border-purple-400 bg-purple-50'
-    : accentColor === 'green'
-    ? 'border-green-400 bg-green-50'
-    : accentColor === 'orange'
-    ? 'border-orange-400 bg-orange-50'
-    : 'border-blue-400 bg-blue-50'
-
-  const sel = accentColor === 'purple' ? 'bg-purple-100'
-    : accentColor === 'green' ? 'bg-green-100'
-    : accentColor === 'orange' ? 'bg-orange-100'
-    : 'bg-blue-100'
+  const selCls = accentColor === 'purple' ? 'bg-purple-100 ring-2 ring-purple-400'
+    : accentColor === 'green'  ? 'bg-green-100 ring-2 ring-green-400'
+    : accentColor === 'orange' ? 'bg-orange-100 ring-2 ring-orange-400'
+    : 'bg-blue-100 ring-2 ring-blue-400'
 
   return (
-    <div className="relative flex-shrink-0" ref={ref}>
-      <button type="button" onClick={() => setOpen(v => !v)}
+    <div className="relative flex-shrink-0">
+      {/* Trigger button */}
+      <button type="button" onClick={() => setOpen(true)}
         title="เลือก icon"
-        className={`w-10 h-10 flex items-center justify-center text-xl rounded-xl border-2 transition-all ${open ? ring : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
-        {value || '📄'}
+        className={`w-10 h-10 flex items-center justify-center text-xl rounded-xl border-2 transition-all ${open ? 'border-purple-400 bg-purple-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
+        {value || <span className="text-[11px] text-gray-300 font-bold">✕</span>}
       </button>
+
+      {/* Modal overlay */}
       {open && (
-        <div className="absolute top-full left-0 mt-1.5 z-50 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2.5" style={{ width: 300 }}>
-          <div className="grid grid-cols-10 gap-0.5 max-h-[220px] overflow-y-auto">
-            {CARD_ICONS.map(ic => (
-              <button key={ic} type="button"
-                onClick={() => { onChange(ic); setOpen(false) }}
-                className={`w-7 h-7 flex items-center justify-center text-base rounded-lg transition-colors hover:bg-gray-100 active:scale-90 ${value === ic ? sel : ''}`}>
-                {ic}
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.45)' }}
+          onMouseDown={e => { if (e.target === e.currentTarget) setOpen(false) }}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-2xl">
+                  {value || <span className="text-sm text-gray-300">✕</span>}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-800">เลือก Icon</p>
+                  <p className="text-xs text-gray-400">{value ? `เลือกอยู่: ${value}` : 'ยังไม่ได้เลือก'}</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors text-lg">
+                ×
               </button>
-            ))}
+            </div>
+
+            {/* Icon grid */}
+            <div className="p-4">
+              <div className="grid grid-cols-8 gap-1.5 max-h-72 overflow-y-auto pr-1">
+                {/* Blank option */}
+                <button type="button"
+                  onClick={() => { onChange(''); setOpen(false) }}
+                  title="ไม่มี icon"
+                  className={`w-full aspect-square flex items-center justify-center rounded-xl border-2 border-dashed transition-all hover:bg-red-50 hover:border-red-300 ${!value ? 'border-red-300 bg-red-50' : 'border-gray-200 text-gray-300'}`}>
+                  <span className="text-xs font-bold">✕</span>
+                </button>
+                {CARD_ICONS.map(ic => (
+                  <button key={ic} type="button"
+                    onClick={() => { onChange(ic); setOpen(false) }}
+                    className={`w-full aspect-square flex items-center justify-center text-2xl rounded-xl transition-all hover:bg-gray-100 hover:scale-110 active:scale-95 ${value === ic ? selCls : ''}`}>
+                    {ic}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}
