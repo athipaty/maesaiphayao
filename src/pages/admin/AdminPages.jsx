@@ -1320,6 +1320,8 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
   const [showForm, setShowForm] = useState(false)
   const [editPage, setEditPage] = useState(null)
   const [saving, setSaving]     = useState(false)
+  const dragRef                 = useRef({ id: null, group: null })
+  const [dragOverId, setDragOverId] = useState(null)
 
   const topLevel        = pages.filter(p => !p.parentSlug).sort((a, b) => a.order - b.order)
   const navbarPages     = topLevel.filter(p => p.showInNavbar)
@@ -1332,22 +1334,20 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
     await updatePage(page._id, { isActive: !page.isActive }); onReload()
   }
 
-  async function move(page, dir) {
-    const siblings = page.parentSlug
-      ? pages.filter(p => p.parentSlug === page.parentSlug).sort((a, b) => a.order - b.order)
-      : page.showInNavbar ? navbarPages : sidebarPages
-    const idx     = siblings.findIndex(p => p._id === page._id)
-    const swapIdx = idx + dir
-    if (swapIdx < 0 || swapIdx >= siblings.length) return
+  async function reorderDrop(draggedId, targetPage, group) {
+    if (draggedId === targetPage._id) return
+    const siblings = group === 'navbar'  ? navbarPages
+      : group === 'sidebar' ? sidebarPages
+      : pages.filter(p => p.parentSlug === group.replace('child:', '')).sort((a, b) => a.order - b.order)
+    const fromIdx = siblings.findIndex(p => p._id === draggedId)
+    const toIdx   = siblings.findIndex(p => p._id === targetPage._id)
+    if (fromIdx === -1 || toIdx === -1) return
     setSaving(true)
     try {
-      // Assign fresh sequential orders then swap the two positions to avoid
-      // duplicate-order values (e.g. newly created pages all start at 999)
-      const ordered = siblings.map((p, i) => ({ id: p._id, order: i * 10 }))
-      const tmp = ordered[idx].order
-      ordered[idx].order = ordered[swapIdx].order
-      ordered[swapIdx].order = tmp
-      await Promise.all(ordered.map(({ id, order }) => updatePage(id, { order })))
+      const reordered = [...siblings]
+      const [moved] = reordered.splice(fromIdx, 1)
+      reordered.splice(toIdx, 0, moved)
+      await Promise.all(reordered.map((p, i) => updatePage(p._id, { order: i * 10 })))
       onReload()
     } finally { setSaving(false) }
   }
@@ -1357,17 +1357,24 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
     await deletePage(page._id); onReload()
   }
 
-  function renderRow(page, siblings, idx) {
+  function renderRow(page, siblings, idx, group) {
     const children   = getChildren(page.slug)
     const isChild    = !!page.parentSlug
-    const isFirst    = idx === 0
-    const isLast     = idx === siblings.length - 1
     const publicPath = page.isBuiltin ? page.path : `/page/${page.slug}`
+    const isOver     = dragOverId === page._id
 
     return (
       <div key={page._id}>
-        <div className={`flex items-center gap-3 px-4 py-3 border-b border-gray-50 hover:bg-gray-50/60 transition-colors ${isChild ? 'pl-10 bg-gray-50/40' : ''}`}>
-          {isChild && <span className="text-gray-300 mr-1">└</span>}
+        <div
+          draggable={!saving}
+          onDragStart={() => { dragRef.current = { id: page._id, group } }}
+          onDragOver={e => { e.preventDefault(); if (dragRef.current.group === group) setDragOverId(page._id) }}
+          onDragLeave={() => setDragOverId(null)}
+          onDrop={e => { e.preventDefault(); setDragOverId(null); if (dragRef.current.group === group) reorderDrop(dragRef.current.id, page, group) }}
+          onDragEnd={() => { dragRef.current = { id: null, group: null }; setDragOverId(null) }}
+          className={`flex items-center gap-3 px-4 py-3 border-b transition-colors select-none ${isChild ? 'pl-10 bg-gray-50/40' : ''} ${isOver ? 'bg-blue-50 border-l-2 border-l-blue-400 border-b-gray-50' : 'border-b-gray-50 hover:bg-gray-50/60'}`}>
+          <span className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing flex-shrink-0 text-base leading-none" title="ลากเพื่อเรียงลำดับ">⠿</span>
+          {isChild && <span className="text-gray-300">└</span>}
           <span className="text-lg w-7 text-center flex-shrink-0">{page.icon}</span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-gray-800 truncate">{page.title}</p>
@@ -1380,12 +1387,6 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
             className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 transition-colors ${page.isActive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
             {page.isActive ? '● แสดง' : '○ ซ่อน'}
           </button>
-          <div className="flex gap-1 flex-shrink-0">
-            <button onClick={() => move(page, -1)} disabled={isFirst || saving}
-              className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 disabled:opacity-20 transition-colors text-xs">▲</button>
-            <button onClick={() => move(page, 1)} disabled={isLast || saving}
-              className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 disabled:opacity-20 transition-colors text-xs">▼</button>
-          </div>
           <button onClick={() => { setEditPage(page); setShowForm(true) }}
             className="text-xs font-medium text-secondary hover:text-primary bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg transition-colors flex-shrink-0">
             แก้ไข
@@ -1403,7 +1404,7 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
             </>
           )}
         </div>
-        {children.map((c, ci) => renderRow(c, children, ci))}
+        {children.map((c, ci) => renderRow(c, children, ci, `child:${page.slug}`))}
       </div>
     )
   }
@@ -1435,7 +1436,7 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
               {navbarPages.length === 0 ? (
                 <div className="p-6 text-center text-gray-300 text-sm">ไม่มีเมนูใน Navbar</div>
               ) : (
-                navbarPages.map((p, i) => renderRow(p, navbarPages, i))
+                navbarPages.map((p, i) => renderRow(p, navbarPages, i, 'navbar'))
               )}
             </div>
           </div>
@@ -1450,7 +1451,7 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
               {sidebarPages.length === 0 ? (
                 <div className="p-6 text-center text-gray-300 text-sm">ไม่มีเมนูใน Sidebar</div>
               ) : (
-                sidebarPages.map((p, i) => renderRow(p, sidebarPages, i))
+                sidebarPages.map((p, i) => renderRow(p, sidebarPages, i, 'sidebar'))
               )}
             </div>
           </div>
