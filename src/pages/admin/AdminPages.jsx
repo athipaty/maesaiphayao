@@ -46,7 +46,7 @@ function emptyBlock(type) {
   if (type === 'text')  return { type, data: { title: '', content: '' } }
   if (type === 'links') return { type, data: { title: '', items: [{ icon: '🔗', label: '', url: '', external: true }] } }
   if (type === 'cards') return { type, data: { title: '', cols: 2, items: [{ icon: '📄', title: '', desc: '', link: '' }] } }
-  if (type === 'image') return { type, data: { url: '', caption: '' } }
+  if (type === 'image') return { type, data: { layout: 'single', align: 'center', size: 'lg', images: [] } }
   if (type === 'table') return { type, data: { title: '', headers: ['หัวข้อ', 'รายละเอียด'], rows: [['', '']] } }
   if (type === 'pdf')   return { type, data: { url: '', label: '', title: '', description: '' } }
   return { type, data: {} }
@@ -155,16 +155,134 @@ function CardsBlockEdit({ data, onChange }) {
   )
 }
 
+const LAYOUTS = [
+  { key: 'single', label: 'เดี่ยว',  boxes: [{ w: 32, h: 20 }] },
+  { key: 'grid-2', label: '2 คอล',   boxes: [{ w: 14, h: 20 }, { w: 14, h: 20 }] },
+  { key: 'grid-3', label: '3 คอล',   boxes: [{ w: 9,  h: 20 }, { w: 9,  h: 20 }, { w: 9,  h: 20 }] },
+  { key: 'grid-4', label: '4 คอล',   boxes: [{ w: 6,  h: 20 }, { w: 6,  h: 20 }, { w: 6,  h: 20 }, { w: 6,  h: 20 }] },
+]
+
 function ImageBlockEdit({ data, onChange }) {
+  const [bulkUploading, setBulkUploading] = useState(false)
+  const images  = data.images || []
+  const layout  = data.layout || 'single'
+
+  function updateImage(i, field, val) {
+    const imgs = [...images]; imgs[i] = { ...imgs[i], [field]: val }
+    onChange({ ...data, images: imgs })
+  }
+  function addEmpty()      { onChange({ ...data, images: [...images, { url: '', caption: '' }] }) }
+  function removeImage(i)  { onChange({ ...data, images: images.filter((_, idx) => idx !== i) }) }
+  function moveImage(i, d) {
+    const imgs = [...images], t = i + d
+    if (t < 0 || t >= imgs.length) return
+    ;[imgs[i], imgs[t]] = [imgs[t], imgs[i]]
+    onChange({ ...data, images: imgs })
+  }
+  async function bulkAdd(e) {
+    const files = Array.from(e.target.files); if (!files.length) return
+    setBulkUploading(true)
+    try {
+      const { uploadImage } = await import('../../services/api')
+      const results = await Promise.all(files.map(f => uploadImage(f)))
+      const newImgs = results.map(r => ({ url: r.data.url, caption: '' }))
+      onChange({ ...data, images: [...images, ...newImgs] })
+    } catch { alert('อัปโหลดรูปไม่สำเร็จ') }
+    finally { setBulkUploading(false); e.target.value = '' }
+  }
+
   return (
-    <div className="space-y-4">
-      <Field label="รูปภาพ">
-        <div className="border-2 border-dashed border-gray-200 hover:border-amber-300 rounded-xl p-4 transition-colors bg-gray-50">
-          <ImageUpload value={data.url} onChange={url => onChange({ ...data, url })} />
+    <div className="space-y-5">
+
+      {/* Layout picker */}
+      <Field label="รูปแบบการแสดงผล">
+        <div className="grid grid-cols-4 gap-2">
+          {LAYOUTS.map(l => (
+            <button key={l.key} type="button" onClick={() => onChange({ ...data, layout: l.key })}
+              className={`py-3 px-2 rounded-xl border-2 flex flex-col items-center gap-1.5 transition-all ${
+                layout === l.key ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:border-gray-300 bg-white'
+              }`}>
+              <div className="flex gap-0.5 items-end">
+                {l.boxes.map((b, i) => (
+                  <div key={i} className={`rounded-sm ${layout === l.key ? 'bg-amber-400' : 'bg-gray-300'}`}
+                    style={{ width: b.w * 0.6, height: b.h * 0.6 }} />
+                ))}
+              </div>
+              <span className={`text-[11px] font-semibold ${layout === l.key ? 'text-amber-600' : 'text-gray-500'}`}>{l.label}</span>
+            </button>
+          ))}
         </div>
       </Field>
-      <Field label="คำบรรยายใต้รูป" hint="ไม่บังคับ">
-        <input className={inp} placeholder="เช่น ภาพการประชุมสภา ปี 2567" value={data.caption || ''} onChange={e => onChange({ ...data, caption: e.target.value })} />
+
+      {/* Single-mode options */}
+      {layout === 'single' && (
+        <div className="flex gap-3">
+          <Field label="จัดวาง">
+            <div className="flex rounded-lg overflow-hidden border border-gray-200">
+              {[['left','◀ ซ้าย'],['center','กลาง'],['right','ขวา ▶']].map(([v, lbl]) => (
+                <button key={v} type="button" onClick={() => onChange({ ...data, align: v })}
+                  className={`flex-1 py-1.5 text-xs font-medium transition-colors ${(data.align||'center')===v ? 'bg-amber-400 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
+                  {lbl}
+                </button>
+              ))}
+            </div>
+          </Field>
+          <Field label="ขนาด">
+            <select className={`${inp} w-36`} value={data.size || 'lg'} onChange={e => onChange({ ...data, size: e.target.value })}>
+              <option value="sm">เล็ก (300px)</option>
+              <option value="md">กลาง (500px)</option>
+              <option value="lg">ใหญ่ (700px)</option>
+              <option value="full">เต็มความกว้าง</option>
+            </select>
+          </Field>
+        </div>
+      )}
+
+      {/* Image list */}
+      <Field label={`รูปภาพ${images.length > 0 ? ` (${images.length} รูป)` : ''}`}
+             hint={layout !== 'single' ? 'ลากปุ่ม ▲▼ เพื่อเรียงลำดับ' : ''}>
+        <div className="space-y-2">
+          {images.map((img, i) => (
+            <div key={i} className="bg-gray-50 border border-gray-100 rounded-xl p-3 flex gap-3 items-start">
+              <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
+                {img.url
+                  ? <img src={img.url} alt="" className="w-full h-full object-cover" />
+                  : <div className="w-full h-full flex items-center justify-center text-2xl text-gray-300">🖼️</div>}
+              </div>
+              <div className="flex-1 min-w-0 space-y-2">
+                <ImageUpload value={img.url} onChange={url => updateImage(i, 'url', url)} />
+                <input className={`${smallInp} w-full`} placeholder="คำบรรยายใต้รูป (ไม่บังคับ)"
+                  value={img.caption || ''} onChange={e => updateImage(i, 'caption', e.target.value)} />
+              </div>
+              <div className="flex flex-col gap-1 flex-shrink-0">
+                <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 disabled:opacity-20 text-xs">▲</button>
+                <button type="button" onClick={() => moveImage(i, 1)} disabled={i === images.length - 1}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 disabled:opacity-20 text-xs">▼</button>
+                <button type="button" onClick={() => removeImage(i)}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all text-sm">🗑️</button>
+              </div>
+            </div>
+          ))}
+          {images.length === 0 && (
+            <div className="border-2 border-dashed border-amber-200 bg-amber-50/30 rounded-xl p-8 text-center">
+              <p className="text-3xl mb-2">🖼️</p>
+              <p className="text-xs text-gray-400">ยังไม่มีรูป กดปุ่มด้านล่างเพื่อเพิ่ม</p>
+            </div>
+          )}
+        </div>
+
+        {/* Add buttons */}
+        <div className="flex gap-2 mt-3">
+          <button type="button" onClick={addEmpty}
+            className="flex items-center gap-1.5 text-xs font-medium text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-lg transition-colors">
+            + เพิ่ม 1 รูป
+          </button>
+          <label className={`flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${bulkUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+            {bulkUploading ? '⏳ กำลังอัปโหลด...' : '📤 อัปโหลดหลายรูปพร้อมกัน'}
+            <input type="file" accept="image/*" multiple className="hidden" onChange={bulkAdd} disabled={bulkUploading} />
+          </label>
+        </div>
       </Field>
     </div>
   )

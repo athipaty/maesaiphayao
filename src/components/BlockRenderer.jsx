@@ -82,11 +82,44 @@ function CardsBlock({ data }) {
 }
 
 function ImageBlock({ data }) {
-  if (!data.url) return null
+  // backward compat: old format has data.url (single image)
+  const images = data.images?.length > 0
+    ? data.images.filter(i => i.url)
+    : data.url ? [{ url: data.url, caption: data.caption || '' }] : []
+
+  if (!images.length) return null
+
+  const layout = data.layout || 'single'
+
+  if (layout === 'single') {
+    const img = images[0]
+    const sizeMap = { sm: '300px', md: '500px', lg: '700px', full: '100%' }
+    const maxW = sizeMap[data.size || 'lg'] || '700px'
+    const align = data.align || 'center'
+    const marginClass = align === 'left' ? 'mr-auto' : align === 'right' ? 'ml-auto' : 'mx-auto'
+    const textAlign = align === 'left' ? 'text-left' : align === 'right' ? 'text-right' : 'text-center'
+    return (
+      <div className="mb-4">
+        <img src={img.url} alt={img.caption || ''} className={`block rounded-lg shadow-sm ${marginClass}`}
+          style={{ maxWidth: maxW, width: '100%' }} />
+        {img.caption && <p className={`text-xs text-gray-400 mt-2 ${textAlign}`}>{img.caption}</p>}
+      </div>
+    )
+  }
+
+  const colMap = { 'grid-2': 'grid-cols-2', 'grid-3': 'grid-cols-2 sm:grid-cols-3', 'grid-4': 'grid-cols-2 sm:grid-cols-4' }
+  const gridClass = colMap[layout] || 'grid-cols-2'
+
   return (
-    <div className="mb-4 text-center">
-      <img src={data.url} alt={data.caption || ''} className="max-w-full rounded-lg shadow-sm mx-auto" />
-      {data.caption && <p className="text-xs text-gray-400 mt-2">{data.caption}</p>}
+    <div className="mb-4">
+      <div className={`grid ${gridClass} gap-2`}>
+        {images.map((img, i) => (
+          <div key={i}>
+            <img src={img.url} alt={img.caption || ''} className="w-full rounded-lg shadow-sm object-cover h-40" />
+            {img.caption && <p className="text-xs text-gray-400 mt-1 text-center">{img.caption}</p>}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
