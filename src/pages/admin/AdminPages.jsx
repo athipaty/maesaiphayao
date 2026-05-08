@@ -116,7 +116,7 @@ const smallInp = 'border border-gray-200 rounded-md px-2 py-1.5 text-sm focus:ou
 function emptyBlock(type) {
   if (type === 'text')  return { type, data: { title: '', content: '' } }
   if (type === 'links') return { type, data: { title: '', items: [{ icon: '🔗', label: '', url: '', external: true }] } }
-  if (type === 'cards') return { type, data: { title: '', cols: 2, size: 'md', items: [{ icon: '📄', title: '', desc: '', link: '', color: 'white' }] } }
+  if (type === 'cards') return { type, data: { title: '', cols: 2, size: 'md', iconPos: 'left', items: [{ icon: '📄', title: '', desc: '', link: '', color: 'white' }] } }
   if (type === 'image') return { type, data: { layout: 'single', align: 'center', size: 'lg', height: 'auto', images: [] } }
   if (type === 'table') return { type, data: { title: '', headers: ['หัวข้อ', 'รายละเอียด'], rows: [['', '']] } }
   if (type === 'pdf')      return { type, data: { url: '', label: '', title: '', description: '' } }
@@ -221,6 +221,7 @@ function CardsBlockEdit({ data, onChange }) {
               <option value={1}>1 คอลัมน์</option>
               <option value={2}>2 คอลัมน์</option>
               <option value={3}>3 คอลัมน์</option>
+              <option value={4}>4 คอลัมน์</option>
             </select>
           </Field>
         </div>
@@ -228,9 +229,9 @@ function CardsBlockEdit({ data, onChange }) {
           <Field label="ขนาดการ์ด">
             <div className="flex rounded-lg overflow-hidden border border-gray-200">
               {[
-                { v: 'sm', l: 'เล็ก',  sub: 'S' },
-                { v: 'md', l: 'กลาง',  sub: 'M' },
-                { v: 'lg', l: 'ใหญ่',  sub: 'L' },
+                { v: 'sm', l: 'เล็ก', sub: 'S' },
+                { v: 'md', l: 'กลาง', sub: 'M' },
+                { v: 'lg', l: 'ใหญ่', sub: 'L' },
               ].map(({ v, l, sub }) => (
                 <button key={v} type="button" onClick={() => onChange({ ...data, size: v })}
                   className={`flex-1 py-1.5 px-3 text-xs font-semibold transition-colors flex flex-col items-center leading-tight ${(data.size||'md')===v ? 'bg-purple-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
@@ -243,9 +244,47 @@ function CardsBlockEdit({ data, onChange }) {
         </div>
       </div>
 
+      {/* Icon position picker */}
+      <Field label="ตำแหน่ง Icon">
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { v: 'left',   label: 'ซ้าย',  preview: (
+              <div className="flex items-center gap-1 justify-center">
+                <div className="w-3 h-3 rounded bg-current opacity-70 flex-shrink-0" />
+                <div className="space-y-0.5"><div className="w-6 h-1 rounded bg-current opacity-50"/><div className="w-4 h-1 rounded bg-current opacity-30"/></div>
+              </div>
+            )},
+            { v: 'right',  label: 'ขวา',   preview: (
+              <div className="flex items-center gap-1 justify-center flex-row-reverse">
+                <div className="w-3 h-3 rounded bg-current opacity-70 flex-shrink-0" />
+                <div className="space-y-0.5"><div className="w-6 h-1 rounded bg-current opacity-50"/><div className="w-4 h-1 rounded bg-current opacity-30"/></div>
+              </div>
+            )},
+            { v: 'top',    label: 'บน',    preview: (
+              <div className="flex flex-col items-center gap-0.5">
+                <div className="w-3 h-3 rounded bg-current opacity-70" />
+                <div className="space-y-0.5 w-full flex flex-col items-center"><div className="w-6 h-1 rounded bg-current opacity-50"/><div className="w-4 h-1 rounded bg-current opacity-30"/></div>
+              </div>
+            )},
+            { v: 'bottom', label: 'ล่าง',  preview: (
+              <div className="flex flex-col-reverse items-center gap-0.5">
+                <div className="w-3 h-3 rounded bg-current opacity-70" />
+                <div className="space-y-0.5 w-full flex flex-col items-center"><div className="w-6 h-1 rounded bg-current opacity-50"/><div className="w-4 h-1 rounded bg-current opacity-30"/></div>
+              </div>
+            )},
+          ].map(({ v, label, preview }) => (
+            <button key={v} type="button" onClick={() => onChange({ ...data, iconPos: v })}
+              className={`py-2.5 px-2 rounded-xl border-2 flex flex-col items-center gap-1.5 transition-all ${(data.iconPos||'left')===v ? 'border-purple-400 bg-purple-50 text-purple-500' : 'border-gray-200 bg-white text-gray-400 hover:border-gray-300'}`}>
+              {preview}
+              <span className={`text-[10px] font-semibold ${(data.iconPos||'left')===v ? 'text-purple-600' : 'text-gray-500'}`}>{label}</span>
+            </button>
+          ))}
+        </div>
+      </Field>
+
       {/* Card list */}
       <Field label={`การ์ด (${(data.items||[]).length} รายการ)`}>
-        <div className={`grid gap-2 ${{ 1:'grid-cols-1', 2:'grid-cols-2', 3:'grid-cols-3' }[data.cols||2]||'grid-cols-2'}`}>
+        <div className={`grid gap-2 ${{ 1:'grid-cols-1', 2:'grid-cols-2', 3:'grid-cols-3', 4:'grid-cols-4' }[data.cols||2]||'grid-cols-2'}`}>
           {(data.items || []).map((item, i) => (
             <div key={i} className={`border rounded-xl p-3 space-y-2.5 transition-colors ${CARD_COLOR_OPTIONS.find(c=>c.key===(item.color||'white'))?.bg||'bg-white'} ${CARD_COLOR_OPTIONS.find(c=>c.key===(item.color||'white'))?.border||'border-gray-200'}`}>
               {/* Row 1: icon + title + delete */}

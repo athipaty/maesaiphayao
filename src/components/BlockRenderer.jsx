@@ -49,6 +49,13 @@ function LinksBlock({ data }) {
   )
 }
 
+const CARD_ICON_POS = {
+  left:   { wrap: 'flex-row items-start',         text: '' },
+  right:  { wrap: 'flex-row-reverse items-start', text: '' },
+  top:    { wrap: 'flex-col items-center',         text: 'text-center' },
+  bottom: { wrap: 'flex-col-reverse items-center', text: 'text-center' },
+}
+
 const CARD_BG = {
   white:  'bg-white border-gray-100',
   blue:   'bg-blue-50 border-blue-200',
@@ -70,8 +77,9 @@ const CARD_SIZE = {
 function CardsBlock({ data }) {
   const items = data.items || []
   const cols = data.cols || 2
-  const sz = CARD_SIZE[data.size || 'md'] || CARD_SIZE.md
-  const gridClass = cols === 1 ? 'grid-cols-1' : cols === 3 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'
+  const sz  = CARD_SIZE[data.size || 'md'] || CARD_SIZE.md
+  const pos = CARD_ICON_POS[data.iconPos || 'left'] || CARD_ICON_POS.left
+  const gridClass = { 1: 'grid-cols-1', 2: 'grid-cols-1 sm:grid-cols-2', 3: 'grid-cols-1 sm:grid-cols-3', 4: 'grid-cols-2 sm:grid-cols-4' }[cols] || 'grid-cols-1 sm:grid-cols-2'
   return (
     <div className="mb-4">
       {data.title && <h3 className="text-sm font-semibold text-gray-700 mb-2 px-1">{data.title}</h3>}
@@ -79,9 +87,9 @@ function CardsBlock({ data }) {
         {items.map((item, i) => {
           const bg = CARD_BG[item.color || 'white'] || CARD_BG.white
           const inner = (
-            <div className={`flex items-start ${sz.gap}`}>
+            <div className={`flex ${pos.wrap} ${sz.gap}`}>
               {item.icon && <span className={`${sz.icon} flex-shrink-0`}>{item.icon}</span>}
-              <div>
+              <div className={pos.text}>
                 <p className={`${sz.title} font-semibold text-primary`}>{item.title}{item.link ? ' →' : ''}</p>
                 {item.desc && <p className={`${sz.desc} text-gray-500 mt-0.5 leading-relaxed`}>{item.desc}</p>}
               </div>
