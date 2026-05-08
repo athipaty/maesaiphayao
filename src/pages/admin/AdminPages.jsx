@@ -1302,7 +1302,7 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
   async function move(page, dir) {
     const siblings = page.parentSlug
       ? pages.filter(p => p.parentSlug === page.parentSlug).sort((a, b) => a.order - b.order)
-      : topLevel
+      : page.showInNavbar ? navbarPages : sidebarPages
     const idx     = siblings.findIndex(p => p._id === page._id)
     const swapIdx = idx + dir
     if (swapIdx < 0 || swapIdx >= siblings.length) return
