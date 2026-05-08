@@ -2,14 +2,6 @@ import { Link, NavLink } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { getSettings, getPages } from '../services/api'
 
-const TOP_NAV = [
-  { label: 'เกี่ยวกับ อบต.แม่ใส', path: '/about',      slug: 'builtin-about',     icon: '🏛️' },
-  { label: 'บุคลากร/กิจการสภา',   path: '/staff',      slug: 'builtin-staff',     icon: '👥' },
-  { label: 'e-Service',            path: '/eservice',   slug: null,                icon: '🌐' },
-  { label: 'ร้องเรียน/ร้องทุกข์',              path: '/complaint',  slug: 'builtin-complaint',  icon: '📮' },
-  { label: 'ร้องเรียนการทุจริตและประพฤติมิชอบ', path: '/corruption', slug: 'builtin-corruption', icon: '🚨' },
-  { label: 'ติดต่อเรา',                         path: '/contact',    slug: 'builtin-contact',    icon: '📞' },
-]
 
 const DEFAULT_DEPTS = [
   { value: 'executive',   label: 'ผู้บริหาร' },
@@ -35,6 +27,10 @@ export default function Navbar({ onMenuClick }) {
     }).catch(() => {})
     getPages().then(r => setPages((r?.data || []).filter(p => p.isActive))).catch(() => {})
   }, [])
+
+  const navItems = pages
+    .filter(p => p.showInNavbar && !p.parentSlug && p.isActive)
+    .sort((a, b) => a.order - b.order)
 
   function getChildren(slug) {
     return pages.filter(p => p.parentSlug === slug).sort((a, b) => a.order - b.order)
@@ -88,35 +84,36 @@ export default function Navbar({ onMenuClick }) {
       {/* Secondary nav row — desktop only */}
       <nav className="hidden lg:block bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-[1200px] mx-auto px-3 flex items-center">
-          {TOP_NAV.map(m => {
+          {navItems.map(m => {
+            const linkPath     = m.isBuiltin ? m.path : `/page/${m.slug}`
             const isStaff      = m.slug === 'builtin-staff'
-            const pageChildren = m.slug ? getChildren(m.slug) : []
+            const pageChildren = getChildren(m.slug)
             const dropItems    = isStaff
               ? depts.map(d => ({ key: d.value, title: d.label, to: `/staff#dept-${d.value}` }))
               : pageChildren.map(c => ({ key: c.slug, title: c.title, to: c.isBuiltin ? c.path : `/page/${c.slug}` }))
             const hasDropdown  = dropItems.length > 0
             const isOpen       = openSlug === m.slug
             return (
-              <div key={m.slug ?? m.path} className="relative flex-shrink-0"
-                onMouseEnter={() => openMenu(m.slug ?? m.path)}
+              <div key={m.slug} className="relative flex-shrink-0"
+                onMouseEnter={() => openMenu(m.slug)}
                 onMouseLeave={closeMenu}>
 
                 {hasDropdown ? (
                   <button
-                    onClick={() => (isOpen ? setOpenSlug(null) : openMenu(m.slug ?? m.path))}
+                    onClick={() => (isOpen ? setOpenSlug(null) : openMenu(m.slug))}
                     className={`flex items-center gap-1 px-4 py-3 text-[13px] font-medium transition-all whitespace-nowrap border-b-2 ${
                       isOpen
                         ? 'text-primary border-primary'
                         : 'text-gray-600 border-transparent hover:text-primary hover:border-primary/50'
                     }`}>
-                    {m.label}
+                    {m.title}
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                       style={{ transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }}>
                       <polyline points="2 3 5 7 8 3"/>
                     </svg>
                   </button>
                 ) : (
-                  <NavLink to={m.path}
+                  <NavLink to={linkPath}
                     className={({ isActive }) =>
                       `flex items-center px-4 py-3 text-[13px] font-medium transition-all whitespace-nowrap border-b-2 ${
                         isActive
@@ -124,7 +121,7 @@ export default function Navbar({ onMenuClick }) {
                           : 'text-gray-600 border-transparent hover:text-primary hover:border-primary/50'
                       }`
                     }>
-                    {m.label}
+                    {m.title}
                   </NavLink>
                 )}
 

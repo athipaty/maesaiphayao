@@ -1197,7 +1197,8 @@ function PageFormModal({ pages, editPage, onClose, onSaved }) {
   const [form, setForm] = useState(editPage ? {
     title: editPage.title, icon: editPage.icon,
     parentSlug: editPage.parentSlug || '', isActive: editPage.isActive,
-  } : { title: '', icon: '📄', parentSlug: '', isActive: true })
+    showInNavbar: editPage.showInNavbar || false,
+  } : { title: '', icon: '📄', parentSlug: '', isActive: true, showInNavbar: false })
   const [saving, setSaving] = useState(false)
   const [err, setErr]       = useState('')
 
@@ -1248,13 +1249,25 @@ function PageFormModal({ pages, editPage, onClose, onSaved }) {
               {topLevelPages.map(p => <option key={p.slug} value={p.slug}>{p.icon} {p.title}</option>)}
             </select>
           </div>
-          <label className="flex items-center gap-3 cursor-pointer bg-blue-50 border border-blue-100 rounded-xl px-4 py-3">
-            <input type="checkbox" checked={form.isActive} onChange={e => set('isActive', e.target.checked)} className="w-4 h-4 accent-blue-500" />
-            <div>
-              <p className="text-sm font-medium text-blue-800">แสดงในเมนู</p>
-              <p className="text-xs text-blue-500">ถ้าไม่เลือก จะซ่อนจาก sidebar</p>
-            </div>
-          </label>
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-gray-600">ตำแหน่งแสดงผล</p>
+            <label className="flex items-center gap-3 cursor-pointer bg-blue-50 border border-blue-100 rounded-xl px-4 py-3">
+              <input type="checkbox" checked={form.isActive} onChange={e => set('isActive', e.target.checked)} className="w-4 h-4 accent-blue-500" />
+              <div>
+                <p className="text-sm font-medium text-blue-800">แสดงในเมนู</p>
+                <p className="text-xs text-blue-500">ถ้าไม่เลือก จะซ่อนทั้งหมด</p>
+              </div>
+            </label>
+            {!form.parentSlug && (
+              <label className="flex items-center gap-3 cursor-pointer bg-purple-50 border border-purple-100 rounded-xl px-4 py-3">
+                <input type="checkbox" checked={form.showInNavbar} onChange={e => set('showInNavbar', e.target.checked)} className="w-4 h-4 accent-purple-500" />
+                <div>
+                  <p className="text-sm font-medium text-purple-800">แสดงใน Navbar (แถบด้านบน)</p>
+                  <p className="text-xs text-purple-500">ถ้าเลือก จะย้ายจาก Sidebar ไปที่ Navbar</p>
+                </div>
+              </label>
+            )}
+          </div>
           {err && <p className="text-xs text-red-500 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">⚠️ {err}</p>}
         </div>
         <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl">

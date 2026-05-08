@@ -70,24 +70,6 @@ export default function CorruptionPage() {
         </div>
       </div>
 
-      {/* Policy cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="bg-white rounded-xl shadow-sm border border-red-100 p-4">
-          <p className="text-sm font-semibold text-red-700 mb-1.5">🎗️ No Gift Policy</p>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            อบต.แม่ใส ประกาศนโยบายไม่รับของขวัญและของกำนัลทุกชนิดจากการปฏิบัติหน้าที่
-            (No Gift Policy) ประจำปีงบประมาณ พ.ศ. 2568
-          </p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-orange-100 p-4">
-          <p className="text-sm font-semibold text-orange-700 mb-1.5">📋 แผนป้องกันการทุจริต</p>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            ดำเนินงานตามแผนปฏิบัติการป้องกันการทุจริต เพื่อยกระดับคุณธรรมและความโปร่งใส
-            ตามแนวทางการประเมิน ITA
-          </p>
-        </div>
-      </div>
-
       {/* Tabs */}
       <div className="flex flex-wrap gap-2">
         {[
