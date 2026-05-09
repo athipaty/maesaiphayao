@@ -1194,8 +1194,8 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
             <div className="flex-1 border-t border-dashed border-gray-200" />
           </div>
           <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
-            {/* Fake navbar */}
-            <div className="bg-primary h-10 flex items-center px-4 gap-2">
+            {/* Fake navbar — hidden on mobile */}
+            <div className="bg-primary h-10 hidden sm:flex items-center px-4 gap-2">
               <div className="w-7 h-7 rounded-full bg-white/20" />
               <div className="h-2.5 w-36 rounded-full bg-white/30" />
               <div className="flex-1" />
@@ -1203,8 +1203,8 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
             </div>
             {/* Body */}
             <div className="bg-[#f0f2f5] flex gap-3 p-3" style={{ minHeight: 200 }}>
-              {/* Skeleton sidebar */}
-              <div className="flex-shrink-0 space-y-2" style={{ width: 150 }}>
+              {/* Skeleton sidebar — hidden on mobile */}
+              <div className="flex-shrink-0 space-y-2 hidden sm:block" style={{ width: 150 }}>
                 <div className="bg-white rounded-md overflow-hidden">
                   <div className="h-7 bg-secondary/30" />
                   <div className="p-2 space-y-1.5">
