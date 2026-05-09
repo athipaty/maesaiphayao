@@ -42,7 +42,14 @@ export default function ProductsPage() {
                 </div>
               )}
               <div className="p-3">
-                <h3 className="text-sm font-semibold text-primary mb-1">{item.title}</h3>
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <h3 className="text-sm font-semibold text-primary">{item.title}</h3>
+                  {item.price != null && (
+                    <span className="flex-shrink-0 text-xs font-bold text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                      S${Number(item.price).toFixed(2)}
+                    </span>
+                  )}
+                </div>
                 {item.description && <p className="text-xs text-gray-500 leading-relaxed">{item.description}</p>}
                 <p className="text-xs text-gray-400 mt-2">👁 {item.views} ครั้ง</p>
               </div>

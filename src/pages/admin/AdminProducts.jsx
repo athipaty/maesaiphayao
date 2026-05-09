@@ -3,7 +3,7 @@ import AdminCrud from './AdminCrud'
 import ImageUpload from '../../components/ImageUpload'
 import { getProducts, createProduct, updateProduct, deleteProduct } from '../../services/api'
 
-const EMPTY = { title: '', description: '', images: [], isActive: true }
+const EMPTY = { title: '', description: '', images: [], price: '', isActive: true }
 
 export default function AdminProducts() {
   const [items, setItems]     = useState([])
@@ -40,6 +40,7 @@ export default function AdminProducts() {
     },
     { label: 'ชื่อสินค้า', render: item => <span className="text-sm font-medium text-gray-800">{item.title}</span> },
     { label: 'คำอธิบาย',  render: item => <span className="text-xs text-gray-400 line-clamp-1">{item.description || '-'}</span> },
+    { label: 'ราคา',       render: item => <span className="text-xs font-medium text-gray-700">{item.price != null ? `S$${Number(item.price).toFixed(2)}` : '-'}</span> },
     { label: 'วิว',        render: item => <span className="text-xs text-gray-400">👁 {item.views}</span> },
     {
       label: 'สถานะ',
@@ -73,6 +74,21 @@ export default function AdminProducts() {
                 onChange={e => onChange('title', e.target.value)}
                 placeholder="เช่น มีดบ้านร่องไฮ, ผ้าทอมือ"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">ราคาต่อหน่วย (S$)</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">S$</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                  value={data.price ?? ''}
+                  onChange={e => onChange('price', e.target.value === '' ? null : Number(e.target.value))}
+                  placeholder="0.00"
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">คำอธิบาย</label>
