@@ -1,19 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -24,11 +14,11 @@ const Navbar = () => {
   };
 
   return (
-    <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+    <nav className="navbar">
       <div className="navbar-container">
         <div className="navbar-brand">
           <Link to="/" onClick={closeMenu} className="logo">
-            <span className="logo-text">🍲 Maesai Phayao</span>
+            <span className="logo-text">แอบต. แม่สายไทย</span>
           </Link>
         </div>
 
@@ -45,27 +35,37 @@ const Navbar = () => {
         <ul className={`nav-menu ${isOpen ? 'active' : ''}`}>
           <li className="nav-item">
             <Link to="/" className="nav-link" onClick={closeMenu}>
-              Home
+              หน้าแรก
             </Link>
           </li>
           <li className="nav-item">
-            <a href="#news" className="nav-link" onClick={closeMenu}>
-              News
-            </a>
+            <Link to="/about" className="nav-link" onClick={closeMenu}>
+              เกี่ยวกับเรา
+            </Link>
           </li>
           <li className="nav-item">
-            <a href="#menu" className="nav-link" onClick={closeMenu}>
-              Menu
-            </a>
+            <Link to="/news" className="nav-link" onClick={closeMenu}>
+              ข่าวสาร
+            </Link>
           </li>
           <li className="nav-item">
-            <a href="#contact" className="nav-link" onClick={closeMenu}>
-              Contact
-            </a>
+            <Link to="/announcements" className="nav-link" onClick={closeMenu}>
+              ประกาศ
+            </Link>
           </li>
           <li className="nav-item">
-            <Link to="/gallery" className="nav-link" onClick={closeMenu}>
-              Gallery
+            <Link to="/eservice" className="nav-link" onClick={closeMenu}>
+              e-Service
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/complaint" className="nav-link" onClick={closeMenu}>
+              ร้องเรียน
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/contact" className="nav-link" onClick={closeMenu}>
+              ติดต่อเรา
             </Link>
           </li>
         </ul>
