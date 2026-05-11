@@ -9,53 +9,46 @@ const Footer = () => {
       <div className="footer-content">
         <div className="container">
           <div className="footer-grid">
-            {/* Brand Section */}
-            <div className="footer-section footer-brand">
-              <h3 className="footer-title">🍲 Maesai Phayao</h3>
-              <p className="footer-description">
-                Authentic Northern Thai cuisine with a modern twist. Bringing the flavors of Phayao to your table.
-              </p>
-              <div className="social-links">
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-link" title="Facebook">
-                  f
-                </a>
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-link" title="Instagram">
-                  📷
-                </a>
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="social-link" title="Twitter">
-                  𝕏
-                </a>
-              </div>
+            {/* Official Info */}
+            <div className="footer-section">
+              <h4 className="footer-subtitle">องค์การบริหารส่วนตำบล แม่สายไทย</h4>
+              <ul className="footer-links">
+                <li>📍 ตำบล แม่สายไทย อำเภอ แม่สายไทย จังหวัด พะเยา</li>
+                <li>📞 โทรศัพท์ : 054-XXXXXX</li>
+                <li>📧 อีเมล : info@maesaiphayao.go.th</li>
+              </ul>
             </div>
 
             {/* Quick Links */}
             <div className="footer-section">
-              <h4 className="footer-subtitle">Quick Links</h4>
+              <h4 className="footer-subtitle">ลิงก์ที่สำคัญ</h4>
               <ul className="footer-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="#news">News</a></li>
-                <li><a href="#menu">Menu</a></li>
-                <li><a href="/gallery">Gallery</a></li>
+                <li><a href="/">หน้าแรก</a></li>
+                <li><a href="/about">เกี่ยวกับเรา</a></li>
+                <li><a href="/news">ข่าวสาร</a></li>
+                <li><a href="/contact">ติดต่อเรา</a></li>
               </ul>
             </div>
 
-            {/* Hours */}
+            {/* Services */}
             <div className="footer-section">
-              <h4 className="footer-subtitle">Hours</h4>
+              <h4 className="footer-subtitle">บริการ</h4>
               <ul className="footer-links">
-                <li><span className="day">Mon - Thu:</span> 10:00 AM - 10:00 PM</li>
-                <li><span className="day">Fri - Sat:</span> 10:00 AM - 11:00 PM</li>
-                <li><span className="day">Sunday:</span> 10:00 AM - 9:00 PM</li>
+                <li><a href="/eservice">e-Service</a></li>
+                <li><a href="/complaint">ร้องเรียน</a></li>
+                <li><a href="/public-service">บริการสาธารณะ</a></li>
+                <li><a href="/procurement">จัดซื้อจัดจ้าง</a></li>
               </ul>
             </div>
 
-            {/* Contact */}
+            {/* Information */}
             <div className="footer-section">
-              <h4 className="footer-subtitle">Contact</h4>
+              <h4 className="footer-subtitle">ข้อมูลข่าวสาร</h4>
               <ul className="footer-links">
-                <li>📍 123 Phayao Road, Phayao</li>
-                <li>📞 +66 (0) 54-000-1234</li>
-                <li>📧 info@maesaiphayao.com</li>
+                <li><a href="/documents">คลังเอกสาร</a></li>
+                <li><a href="/laws">กฎหมาย</a></li>
+                <li><a href="/info-center">ศูนย์ข้อมูลข่าวสาร</a></li>
+                <li><a href="/action-plan">แผนงาน</a></li>
               </ul>
             </div>
           </div>
@@ -65,11 +58,11 @@ const Footer = () => {
 
           {/* Bottom */}
           <div className="footer-bottom">
-            <p>&copy; {currentYear} Maesai Phayao. All rights reserved.</p>
+            <p>&copy; {currentYear} องค์การบริหารส่วนตำบล แม่สายไทย สงวนลิขสิทธิ์</p>
             <div className="footer-links-bottom">
-              <a href="#privacy">Privacy Policy</a>
+              <a href="#privacy">นโยบายความเป็นส่วนตัว</a>
               <span className="separator">•</span>
-              <a href="#terms">Terms of Service</a>
+              <a href="#terms">เงื่อนไขการใช้งาน</a>
             </div>
           </div>
         </div>
