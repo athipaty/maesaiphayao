@@ -29,19 +29,9 @@ export default function ProductsPage() {
               {(() => {
                 const imgs = Array.isArray(item.images) && item.images.length > 0 ? item.images : item.image ? [item.image] : []
                 const first = imgs[0]
-                return (
-                  <div className="relative">
-                    {first
-                      ? <img src={first} alt={item.title} className="w-full h-64 object-cover" />
-                      : <div className="w-full h-64 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center text-4xl">🎨</div>
-                    }
-                    {item.price != null && (
-                      <span className="absolute top-2 right-2 text-sm font-bold text-white bg-green-600/90 backdrop-blur-sm px-3 py-1 rounded-full shadow">
-                        S${Number(item.price).toFixed(2)}
-                      </span>
-                    )}
-                  </div>
-                )
+                return first
+                  ? <img src={first} alt={item.title} className="w-full h-64 object-cover" />
+                  : <div className="w-full h-64 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center text-4xl">🎨</div>
               })()}
               {/* extra images grid */}
               {Array.isArray(item.images) && item.images.length > 1 && (
@@ -52,8 +42,13 @@ export default function ProductsPage() {
                 </div>
               )}
               <div className="p-3">
-                <div className="mb-1">
+                <div className="flex items-start justify-between gap-2 mb-1">
                   <h3 className="text-sm font-semibold text-primary">{item.title}</h3>
+                  {item.price != null && (
+                    <span className="flex-shrink-0 text-xs font-bold text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                      S${Number(item.price).toFixed(2)}
+                    </span>
+                  )}
                 </div>
                 {item.description && <p className="text-xs text-gray-500 leading-relaxed">{item.description}</p>}
                 <p className="text-xs text-gray-400 mt-2">👁 {item.views} ครั้ง</p>
