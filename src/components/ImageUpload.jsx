@@ -76,7 +76,7 @@ export default function ImageUpload({ value, onChange, multiple = false }) {
 
   // Single mode (default)
   return (
-    <div>
+    <div className="flex flex-col items-center">
       {value && (
         <img src={value} alt="preview"
           className="rounded mb-2 border border-gray-200"
