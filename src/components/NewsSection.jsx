@@ -35,24 +35,24 @@ export function NewsSection({ dept, items = [], loading }) {
       ) : items.length === 0 ? (
         <div className="p-6 text-center text-gray-400 text-sm">ยังไม่มีข่าวสาร</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-px bg-gray-100">
           {items.slice(0, 3).map(item => (
             <Link to={`/news/detail/${item._id}`} key={item._id}
-              className="p-3 hover:bg-blue-50 transition-colors block">
+              className="p-3 hover:bg-blue-50 transition-colors block bg-white">
               {(() => {
                 const img = Array.isArray(item.images) && item.images.length > 0
                   ? item.images[0]
                   : item.image
                 return img ? (
                   <img src={img} alt={item.title}
-                    className="w-full h-44 object-cover rounded mb-2" />
+                    className="w-full h-28 lg:h-44 object-cover rounded mb-2" />
                 ) : (
-                  <div className="w-full h-44 rounded mb-2 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-3xl">
+                  <div className="w-full h-28 lg:h-44 rounded mb-2 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-3xl">
                     {DEPT_ICONS[dept] || '📰'}
                   </div>
                 )
               })()}
-              <h4 className="text-xs font-semibold text-primary mb-2 truncate" title={item.title}>
+              <h4 className="text-xs font-semibold text-primary mb-2 line-clamp-2" title={item.title}>
                 {item.title}
               </h4>
               <div className="flex items-center justify-between">

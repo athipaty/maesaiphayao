@@ -81,6 +81,19 @@ export default function Navbar({ onMenuClick }) {
         </div>
       </div>
 
+      {/* Mobile-only contact strip */}
+      <div className="lg:hidden bg-primary/90 text-white text-xs border-t border-white/10">
+        <div className="flex items-center justify-center gap-5 px-4 py-1.5">
+          <a href="tel:054889909" className="flex items-center gap-1.5 hover:text-accent active:opacity-70 transition-colors font-medium">
+            📞 0-5488-9909
+          </a>
+          <span className="opacity-30">|</span>
+          <a href="mailto:saraban_06560115@dla.go.th" className="flex items-center gap-1.5 hover:text-accent active:opacity-70 transition-colors opacity-85">
+            📧 ส่งอีเมล
+          </a>
+        </div>
+      </div>
+
       {/* Secondary nav row — desktop only */}
       <nav className="hidden lg:block bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-[1200px] mx-auto px-3 flex items-center">

@@ -12,15 +12,21 @@ export default function Layout() {
     <div className="min-h-screen flex flex-col">
       <Navbar onMenuClick={() => setSidebarOpen(v => !v)} />
 
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-          <div className="absolute left-0 top-0 bottom-0 w-[260px] bg-white overflow-y-auto z-50 shadow-xl">
-            <Sidebar mobile onNavigate={() => setSidebarOpen(false)} />
-          </div>
+      {/* Mobile sidebar overlay — always mounted, toggled with CSS for smooth animation */}
+      <div
+        className={`fixed inset-0 z-40 lg:hidden transition-opacity duration-300 ${
+          sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
+        <div
+          className={`absolute left-0 top-0 bottom-0 w-[260px] bg-white overflow-y-auto z-50 shadow-xl transition-transform duration-300 ease-out ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          <Sidebar mobile onNavigate={() => setSidebarOpen(false)} />
         </div>
-      )}
+      </div>
 
       <div className="max-w-[1200px] mx-auto w-full px-3 py-4 flex gap-4 flex-1">
         <Sidebar />

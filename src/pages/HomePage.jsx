@@ -60,13 +60,13 @@ export default function HomePage() {
 
       {/* Announcements + Newsletter tabs */}
       <div className="card">
-        <div className="flex border-b border-gray-200">
+        <div className="flex border-b border-gray-200 overflow-x-auto">
           {[
             { key: 'announcement', label: 'ข่าวประชาสัมพันธ์' },
             { key: 'newsletter',   label: 'จดหมายข่าว' },
           ].map(t => (
             <button key={t.key} onClick={() => setPrTab(t.key)}
-              className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              className={`flex-shrink-0 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
                 prTab === t.key
                   ? 'border-secondary text-primary bg-blue-50'
                   : 'border-transparent text-gray-500 hover:text-primary'
@@ -75,101 +75,78 @@ export default function HomePage() {
             </button>
           ))}
         </div>
-        <div className="overflow-x-auto">
-          {prTab === 'announcement' && (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-blue-50">
-                  <th className="px-3 py-2 text-left text-primary font-semibold w-10">ที่</th>
-                  <th className="px-3 py-2 text-left text-primary font-semibold">รายการ</th>
-                </tr>
-              </thead>
-              <tbody>
-                {announce.length === 0 && (
-                  <tr><td colSpan={2} className="px-3 py-4 text-center text-gray-400">ยังไม่มีข้อมูล</td></tr>
-                )}
-                {announce.map((a, i) => (
-                  <tr key={a._id} className="border-b border-gray-50 hover:bg-blue-50/50">
-                    <td className="px-3 py-2 text-gray-400 text-center">{i + 1}</td>
-                    <td className="px-3 py-2">
-                      {a.fileUrl
-                        ? <a href={a.fileUrl} target="_blank" rel="noreferrer" className="text-primary hover:text-secondary">{a.title}</a>
-                        : <span className="text-gray-700">{a.title}</span>
-                      }
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-          {prTab === 'newsletter' && (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-blue-50">
-                  <th className="px-3 py-2 text-left text-primary font-semibold w-10">ที่</th>
-                  <th className="px-3 py-2 text-left text-primary font-semibold">หัวเรื่อง</th>
-                </tr>
-              </thead>
-              <tbody>
-                {newsletter.length === 0 && (
-                  <tr><td colSpan={2} className="px-3 py-4 text-center text-gray-400">ยังไม่มีข้อมูล</td></tr>
-                )}
-                {newsletter.map((n, i) => (
-                  <tr key={n._id} className="border-b border-gray-50 hover:bg-blue-50/50">
-                    <td className="px-3 py-2 text-gray-400 text-center">{i + 1}</td>
-                    <td className="px-3 py-2">
-                      {n.image
-                        ? <a href={n.image} target="_blank" rel="noreferrer" className="text-primary hover:text-secondary">{n.title}</a>
-                        : <span className="text-gray-700">{n.title}</span>
-                      }
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+        {prTab === 'announcement' && (
+          <ul className="divide-y divide-gray-50">
+            {announce.length === 0 && (
+              <li className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</li>
+            )}
+            {announce.map((a, i) => (
+              <li key={a._id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                <div className="min-w-0 flex-1">
+                  {a.fileUrl
+                    ? <a href={a.fileUrl} target="_blank" rel="noreferrer" className="text-sm text-primary hover:text-secondary leading-snug block">{a.title}</a>
+                    : <span className="text-sm text-gray-700 leading-snug">{a.title}</span>
+                  }
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        {prTab === 'newsletter' && (
+          <ul className="divide-y divide-gray-50">
+            {newsletter.length === 0 && (
+              <li className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</li>
+            )}
+            {newsletter.map((n, i) => (
+              <li key={n._id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                <div className="min-w-0 flex-1">
+                  {n.image
+                    ? <a href={n.image} target="_blank" rel="noreferrer" className="text-sm text-primary hover:text-secondary leading-snug block">{n.title}</a>
+                    : <span className="text-sm text-gray-700 leading-snug">{n.title}</span>
+                  }
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Procurement tabs */}
       <div className="card">
-        <div className="flex border-b border-gray-200">
+        <div className="flex border-b border-gray-200 overflow-x-auto">
           {[
-            { key: 'egp',  label: 'รายงานจัดซื้อจัดจ้าง (EGP)' },
-            { key: 'news', label: 'ข่าวการจัดซื้อจัดจ้าง' },
+            { key: 'egp',  label: 'รายงานจัดซื้อจัดจ้าง (EGP)', shortLabel: 'รายงาน EGP' },
+            { key: 'news', label: 'ข่าวการจัดซื้อจัดจ้าง',        shortLabel: 'ข่าวจัดซื้อฯ' },
           ].map(t => (
             <button key={t.key} onClick={() => setProcTab(t.key)}
-              className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              className={`flex-shrink-0 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
                 procTab === t.key
                   ? 'border-secondary text-primary bg-blue-50'
                   : 'border-transparent text-gray-500 hover:text-primary'
               }`}>
-              {t.label}
+              <span className="sm:hidden">{t.shortLabel}</span>
+              <span className="hidden sm:inline">{t.label}</span>
             </button>
           ))}
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <tbody>
-              {(procTab === 'egp' ? egp : procNews).length === 0 && (
-                <tr><td className="px-3 py-4 text-center text-gray-400">ยังไม่มีข้อมูล</td></tr>
-              )}
-              {(procTab === 'egp' ? egp : procNews).map((p, i) => (
-                <tr key={p._id} className="border-b border-gray-50 hover:bg-blue-50/50">
-                  <td className="px-3 py-2">
-                    <span className="inline-block bg-blue-50 text-primary border border-blue-100 rounded text-xs px-1.5 py-0.5 font-semibold mr-2">
-                      {i + 1}
-                    </span>
-                    {p.externalUrl
-                      ? <a href={p.externalUrl} target="_blank" rel="noreferrer" className="text-secondary hover:underline">{p.title}</a>
-                      : <span className="text-gray-700">{p.title}</span>
-                    }
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ul className="divide-y divide-gray-50">
+          {(procTab === 'egp' ? egp : procNews).length === 0 && (
+            <li className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</li>
+          )}
+          {(procTab === 'egp' ? egp : procNews).map((p, i) => (
+            <li key={p._id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
+              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+              <div className="min-w-0 flex-1">
+                {p.externalUrl
+                  ? <a href={p.externalUrl} target="_blank" rel="noreferrer" className="text-sm text-secondary hover:underline leading-snug block">{p.title}</a>
+                  : <span className="text-sm text-gray-700 leading-snug">{p.title}</span>
+                }
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   )

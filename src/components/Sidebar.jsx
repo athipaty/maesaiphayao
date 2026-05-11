@@ -58,6 +58,22 @@ export default function Sidebar({ onNavigate, mobile = false }) {
   return (
     <aside className={`w-[230px] flex-shrink-0 ${mobile ? 'block' : 'hidden lg:block'}`}>
 
+      {/* Mobile header with close button */}
+      {mobile && (
+        <div className="flex items-center justify-between bg-primary text-white px-4 py-3 sticky top-0 z-10">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold">เมนูนำทาง</span>
+          </div>
+          <button
+            onClick={onNavigate}
+            aria-label="ปิดเมนู"
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 active:bg-white/30 transition-colors text-lg leading-none"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Mayor card */}
       <div className="bg-white rounded-md shadow-sm mb-3 p-4 text-center">
         {settings.mayorImage ? (
