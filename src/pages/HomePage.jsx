@@ -1,203 +1,176 @@
-import React, { useEffect, useState } from 'react';
-import NewsSection from '../components/NewsSection';
-import './HomePage.css';
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { getNews, getAnnouncements, getProcurement } from '../services/api'
+import { NewsSection } from '../components/NewsSection'
 
-const HomePage = () => {
-  const [dishes, setDishes] = useState([]);
-  const [loading, setLoading] = useState(true);
+const DEPARTMENTS = ['council', 'office', 'disaster', 'health', 'engineering', 'finance']
+
+export default function HomePage() {
+  const [newsByDept, setNewsByDept]     = useState({})
+  const [announce, setAnnounce]         = useState([])
+  const [newsletter, setNewsletter]     = useState([])
+  const [egp, setEgp]                   = useState([])
+  const [procNews, setProcNews]         = useState([])
+  const [loading, setLoading]           = useState(true)
+  const [prTab, setPrTab]               = useState('announcement')
+  const [procTab, setProcTab]           = useState('egp')
 
   useEffect(() => {
-    const fetchDishes = async () => {
+    async function load() {
       try {
-        const response = await fetch('http://localhost:3001/api/dishes');
-        const data = await response.json();
-        setDishes(data.slice(0, 6)); // Get first 6 dishes
-      } catch (error) {
-        console.error('Error fetching dishes:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+        // fetch news per dept (3 each)
+        const deptResults = await Promise.all(
+          DEPARTMENTS.map(dept => getNews({ dept, limit: 3 }))
+        )
+        const map = {}
+        DEPARTMENTS.forEach((dept, i) => { map[dept] = deptResults[i]?.data || [] })
+        setNewsByDept(map)
 
-    fetchDishes();
-  }, []);
+        // fetch announcements
+        const [ann, nl, e, pn] = await Promise.all([
+          getAnnouncements({ type: 'announcement' }),
+          getAnnouncements({ type: 'newsletter' }),
+          getProcurement({ type: 'egp' }),
+          getProcurement({ type: 'news' }),
+        ])
+        setAnnounce(ann?.data || [])
+        setNewsletter(nl?.data || [])
+        setEgp(e?.data || [])
+        setProcNews(pn?.data || [])
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
 
   return (
-    <div className="home-page">
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-content">
-          <div className="hero-text">
-            <h1 className="hero-title">🍲 Maesai Phayao</h1>
-            <p className="hero-subtitle">Authentic Northern Thai Cuisine</p>
-            <p className="hero-description">
-              Experience the rich flavors and tradition of Phayao's most beloved dishes
-            </p>
-            <div className="hero-buttons">
-              <a href="#menu" className="btn btn-primary">
-                Explore Menu
-              </a>
-              <a href="#contact" className="btn btn-outline">
-                Make Reservation
-              </a>
-            </div>
-          </div>
-          <div className="hero-image">
-            <div className="hero-image-placeholder">🍜</div>
-          </div>
+    <div>
+      {/* News sections per department */}
+      {DEPARTMENTS.map(dept => (
+        <NewsSection
+          key={dept}
+          dept={dept}
+          items={newsByDept[dept] || []}
+          loading={loading}
+        />
+      ))}
+
+      {/* Announcements + Newsletter tabs */}
+      <div className="card">
+        <div className="flex border-b border-gray-200">
+          {[
+            { key: 'announcement', label: 'ข่าวประชาสัมพันธ์' },
+            { key: 'newsletter',   label: 'จดหมายข่าว' },
+          ].map(t => (
+            <button key={t.key} onClick={() => setPrTab(t.key)}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                prTab === t.key
+                  ? 'border-secondary text-primary bg-blue-50'
+                  : 'border-transparent text-gray-500 hover:text-primary'
+              }`}>
+              {t.label}
+            </button>
+          ))}
         </div>
-      </section>
-
-      {/* Featured Dishes Section */}
-      <section className="section featured-section" id="menu">
-        <div className="container">
-          <h2 className="section-title">Featured Dishes</h2>
-          <p className="section-subtitle">Try our most popular Northern Thai specialties</p>
-
-          {loading ? (
-            <div className="spinner"></div>
-          ) : (
-            <div className="dishes-grid">
-              {dishes.length > 0 ? (
-                dishes.map((dish) => (
-                  <div key={dish.id} className="dish-card">
-                    {dish.image && (
-                      <div className="dish-image-wrapper">
-                        <img
-                          src={dish.image}
-                          alt={dish.name}
-                          className="dish-image"
-                        />
-                        <div className="dish-badge">{dish.price} ฿</div>
-                      </div>
-                    )}
-
-                    <div className="dish-content">
-                      <h3 className="dish-name">{dish.name}</h3>
-                      <p className="dish-description">{dish.description}</p>
-                      <div className="dish-footer">
-                        <span className="dish-category">{dish.category}</span>
-                        <button className="btn-small">Order Now</button>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="no-dishes">
-                  <p>No dishes available at the moment.</p>
-                </div>
-              )}
-            </div>
+        <div className="overflow-x-auto">
+          {prTab === 'announcement' && (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-blue-50">
+                  <th className="px-3 py-2 text-left text-primary font-semibold w-10">ที่</th>
+                  <th className="px-3 py-2 text-left text-primary font-semibold">รายการ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {announce.length === 0 && (
+                  <tr><td colSpan={2} className="px-3 py-4 text-center text-gray-400">ยังไม่มีข้อมูล</td></tr>
+                )}
+                {announce.map((a, i) => (
+                  <tr key={a._id} className="border-b border-gray-50 hover:bg-blue-50/50">
+                    <td className="px-3 py-2 text-gray-400 text-center">{i + 1}</td>
+                    <td className="px-3 py-2">
+                      {a.fileUrl
+                        ? <a href={a.fileUrl} target="_blank" rel="noreferrer" className="text-primary hover:text-secondary">{a.title}</a>
+                        : <span className="text-gray-700">{a.title}</span>
+                      }
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
-
-          <div className="view-all">
-            <a href="/menu" className="btn btn-secondary">
-              View Full Menu
-            </a>
-          </div>
+          {prTab === 'newsletter' && (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-blue-50">
+                  <th className="px-3 py-2 text-left text-primary font-semibold w-10">ที่</th>
+                  <th className="px-3 py-2 text-left text-primary font-semibold">หัวเรื่อง</th>
+                </tr>
+              </thead>
+              <tbody>
+                {newsletter.length === 0 && (
+                  <tr><td colSpan={2} className="px-3 py-4 text-center text-gray-400">ยังไม่มีข้อมูล</td></tr>
+                )}
+                {newsletter.map((n, i) => (
+                  <tr key={n._id} className="border-b border-gray-50 hover:bg-blue-50/50">
+                    <td className="px-3 py-2 text-gray-400 text-center">{i + 1}</td>
+                    <td className="px-3 py-2">
+                      {n.image
+                        ? <a href={n.image} target="_blank" rel="noreferrer" className="text-primary hover:text-secondary">{n.title}</a>
+                        : <span className="text-gray-700">{n.title}</span>
+                      }
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
-      </section>
+      </div>
 
-      {/* News Section */}
-      <NewsSection />
-
-      {/* About Section */}
-      <section className="section about-section" id="about">
-        <div className="container">
-          <div className="about-content">
-            <div className="about-text">
-              <h2 className="section-title">About Us</h2>
-              <p>
-                At Maesai Phayao, we bring you the authentic taste of Northern Thailand. 
-                With recipes passed down through generations, every dish is prepared with 
-                fresh ingredients and traditional cooking methods.
-              </p>
-              <p>
-                Our mission is to share the culinary heritage of Phayao with the world, 
-                one delicious bowl at a time.
-              </p>
-              <a href="#contact" className="btn btn-primary">
-                Get In Touch
-              </a>
-            </div>
-            <div className="about-image">
-              <div className="about-image-placeholder">👨‍🍳</div>
-            </div>
-          </div>
+      {/* Procurement tabs */}
+      <div className="card">
+        <div className="flex border-b border-gray-200">
+          {[
+            { key: 'egp',  label: 'รายงานจัดซื้อจัดจ้าง (EGP)' },
+            { key: 'news', label: 'ข่าวการจัดซื้อจัดจ้าง' },
+          ].map(t => (
+            <button key={t.key} onClick={() => setProcTab(t.key)}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                procTab === t.key
+                  ? 'border-secondary text-primary bg-blue-50'
+                  : 'border-transparent text-gray-500 hover:text-primary'
+              }`}>
+              {t.label}
+            </button>
+          ))}
         </div>
-      </section>
-
-      {/* Contact Section */}
-      <section className="section contact-section" id="contact">
-        <div className="container">
-          <h2 className="section-title">Contact Us</h2>
-          <p className="section-subtitle">Get in touch with us</p>
-
-          <div className="contact-content">
-            <div className="contact-info">
-              <div className="contact-item">
-                <span className="contact-icon">📍</span>
-                <div>
-                  <h4>Location</h4>
-                  <p>123 Phayao Road, Phayao 56000</p>
-                </div>
-              </div>
-
-              <div className="contact-item">
-                <span className="contact-icon">📞</span>
-                <div>
-                  <h4>Phone</h4>
-                  <p>+66 (0) 54-000-1234</p>
-                </div>
-              </div>
-
-              <div className="contact-item">
-                <span className="contact-icon">📧</span>
-                <div>
-                  <h4>Email</h4>
-                  <p>info@maesaiphayao.com</p>
-                </div>
-              </div>
-
-              <div className="contact-item">
-                <span className="contact-icon">⏰</span>
-                <div>
-                  <h4>Hours</h4>
-                  <p>Mon-Sun: 10:00 AM - 10:00 PM</p>
-                </div>
-              </div>
-            </div>
-
-            <form className="contact-form">
-              <div className="form-group">
-                <label htmlFor="name">Name</label>
-                <input type="text" id="name" placeholder="Your name" required />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <input type="email" id="email" placeholder="Your email" required />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="message">Message</label>
-                <textarea
-                  id="message"
-                  placeholder="Your message"
-                  rows="5"
-                  required
-                ></textarea>
-              </div>
-
-              <button type="submit" className="btn btn-primary">
-                Send Message
-              </button>
-            </form>
-          </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <tbody>
+              {(procTab === 'egp' ? egp : procNews).length === 0 && (
+                <tr><td className="px-3 py-4 text-center text-gray-400">ยังไม่มีข้อมูล</td></tr>
+              )}
+              {(procTab === 'egp' ? egp : procNews).map((p, i) => (
+                <tr key={p._id} className="border-b border-gray-50 hover:bg-blue-50/50">
+                  <td className="px-3 py-2">
+                    <span className="inline-block bg-blue-50 text-primary border border-blue-100 rounded text-xs px-1.5 py-0.5 font-semibold mr-2">
+                      {i + 1}
+                    </span>
+                    {p.externalUrl
+                      ? <a href={p.externalUrl} target="_blank" rel="noreferrer" className="text-secondary hover:underline">{p.title}</a>
+                      : <span className="text-gray-700">{p.title}</span>
+                    }
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </section>
+      </div>
     </div>
-  );
-};
-
-export default HomePage;
+  )
+}

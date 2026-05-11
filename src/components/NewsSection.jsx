@@ -1,91 +1,70 @@
-import React, { useEffect, useState } from 'react';
-import './NewsSection.css';
+import { Link } from 'react-router-dom'
 
-const NewsSection = () => {
-  const [news, setNews] = useState([]);
-  const [loading, setLoading] = useState(true);
+const DEPT_ICONS = {
+  council:     '🏛️',
+  office:      '📋',
+  childdev:    '🧒',
+  disaster:    '🚒',
+  health:      '🏥',
+  engineering: '🔧',
+  finance:     '💰',
+}
 
-  useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/api/news');
-        const data = await response.json();
-        setNews(data);
-      } catch (error) {
-        console.error('Error fetching news:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+const DEPT_LABELS = {
+  council:     'กิจการสภา',
+  office:      'สำนักปลัด',
+  childdev:    'ศูนย์พัฒนาเด็กเล็ก',
+  disaster:    'ป้องกันและบรรเทาสาธารณภัย',
+  health:      'กองสาธารณสุขและสิ่งแวดล้อม',
+  engineering: 'กองช่าง',
+  finance:     'กองคลัง',
+}
 
-    fetchNews();
-  }, []);
-
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-US', options);
-  };
-
-  if (loading) {
-    return (
-      <section className="section news-section">
-        <div className="container">
-          <div className="spinner"></div>
-        </div>
-      </section>
-    );
-  }
-
+export function NewsSection({ dept, items = [], loading }) {
   return (
-    <section className="section news-section" id="news">
-      <div className="container">
-        <h2 className="section-title">Latest News</h2>
-        <p className="section-subtitle">Stay updated with what's happening at Maesai Phayao</p>
-
-        <div className="news-grid">
-          {news.length > 0 ? (
-            news.map((item) => (
-              <article key={item.id} className="news-card">
-                {item.image && (
-                  <div className="news-image-wrapper">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="news-image"
-                    />
-                    <div className="news-overlay"></div>
-                  </div>
-                )}
-
-                <div className="news-content">
-                  <div className="news-meta">
-                    <span className="news-date">📅 {formatDate(item.createdAt)}</span>
-                    <span className="news-badge">New</span>
-                  </div>
-
-                  <h3 className="news-title">{item.title}</h3>
-
-                  <p className="news-description">
-                    {item.description.length > 150
-                      ? `${item.description.substring(0, 150)}...`
-                      : item.description}
-                  </p>
-
-                  <a href="#readmore" className="read-more">
-                    Read More →
-                  </a>
-                </div>
-              </article>
-            ))
-          ) : (
-            <div className="no-news">
-              <p>No news available at the moment.</p>
-            </div>
-          )}
-        </div>
+    <div className="card">
+      <div className="section-head flex items-center justify-between">
+        <h3 className="text-sm font-semibold">✨ ข่าวสาร กิจกรรม {DEPT_LABELS[dept]}</h3>
+        <Link to={`/news/${dept}`}
+          className="text-xs bg-white/20 hover:bg-white/35 transition-colors px-3 py-1 rounded-full ml-auto">
+          ดูทั้งหมด »
+        </Link>
       </div>
-    </section>
-  );
-};
+      {loading ? (
+        <div className="p-6 text-center text-gray-400 text-sm">กำลังโหลด...</div>
+      ) : items.length === 0 ? (
+        <div className="p-6 text-center text-gray-400 text-sm">ยังไม่มีข่าวสาร</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
+          {items.slice(0, 3).map(item => (
+            <Link to={`/news/detail/${item._id}`} key={item._id}
+              className="p-3 hover:bg-blue-50 transition-colors block">
+              {(() => {
+                const img = Array.isArray(item.images) && item.images.length > 0
+                  ? item.images[0]
+                  : item.image
+                return img ? (
+                  <img src={img} alt={item.title}
+                    className="w-full h-44 object-cover rounded mb-2" />
+                ) : (
+                  <div className="w-full h-44 rounded mb-2 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-3xl">
+                    {DEPT_ICONS[dept] || '📰'}
+                  </div>
+                )
+              })()}
+              <h4 className="text-xs font-semibold text-primary mb-2 truncate" title={item.title}>
+                {item.title}
+              </h4>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-gray-400">👁 {item.views} ครั้ง</p>
+                <span className="text-xs text-secondary font-medium">อ่านเพิ่ม »</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
-export default NewsSection;
+export { DEPT_LABELS, DEPT_ICONS }
