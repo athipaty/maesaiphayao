@@ -1343,11 +1343,13 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
   }
 
   async function moveToNavbar(page) {
-    await updatePage(page._id, { showInNavbar: true, parentSlug: '' }); onReload()
+    try { await updatePage(page._id, { showInNavbar: true, parentSlug: '' }); onReload() }
+    catch (e) { alert('เกิดข้อผิดพลาด: ' + (e?.response?.data?.error || e.message)) }
   }
 
   async function moveToSidebar(page) {
-    await updatePage(page._id, { showInNavbar: false, parentSlug: '' }); onReload()
+    try { await updatePage(page._id, { showInNavbar: false, parentSlug: '' }); onReload() }
+    catch (e) { alert('เกิดข้อผิดพลาด: ' + (e?.response?.data?.error || e.message)) }
   }
 
   async function reorderDrop(draggedId, targetPage, group) {
@@ -1400,12 +1402,18 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
             <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium flex-shrink-0">ระบบ</span>
           )}
           {!isChild && (
-            page.showInNavbar
-              ? <button onClick={() => moveToSidebar(page)} title="ย้ายไป Sidebar"
+            group === 'navbar'
+              ? <button
+                  onMouseDown={e => e.stopPropagation()}
+                  onClick={e => { e.stopPropagation(); moveToSidebar(page) }}
+                  title="ย้ายไป Sidebar"
                   className="text-[11px] font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-1 rounded-lg transition-colors flex-shrink-0 whitespace-nowrap">
                   → Sidebar
                 </button>
-              : <button onClick={() => moveToNavbar(page)} title="ย้ายไป Navbar"
+              : <button
+                  onMouseDown={e => e.stopPropagation()}
+                  onClick={e => { e.stopPropagation(); moveToNavbar(page) }}
+                  title="ย้ายไป Navbar"
                   className="text-[11px] font-medium text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200 px-2 py-1 rounded-lg transition-colors flex-shrink-0 whitespace-nowrap">
                   → Navbar
                 </button>
