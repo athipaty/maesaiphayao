@@ -34,7 +34,8 @@
       "Bash(dir C:\\\\Users\\\\loret\\\\tong *)",
       "Bash(dir C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen *)",
       "Bash(dir C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend *)",
-      "Bash(dir C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend\\\\routes *)"
+      "Bash(dir C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend\\\\routes *)",
+      "Bash(dir C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend\\\\models *)"
     ]
   }
 }

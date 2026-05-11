@@ -73,6 +73,12 @@ export const saveOIT     = (data)      => api.post('/oit', data)
 export const updateOIT   = (id, data)  => api.put(`/oit/${id}`, data)
 export const deleteOIT   = (id)        => api.delete(`/oit/${id}`)
 
+// ── E-Service Types ───────────────────────────────────────────────────────────
+export const getEServiceTypes   = ()         => api.get('/eservice-types')
+export const createEServiceType = (data)     => api.post('/eservice-types', data)
+export const updateEServiceType = (id, data) => api.put(`/eservice-types/${id}`, data)
+export const deleteEServiceType = (id)       => api.delete(`/eservice-types/${id}`)
+
 // ── E-Service ─────────────────────────────────────────────────────────────────
 export const getEServices     = (params)    => api.get('/eservice', { params })
 export const trackEService    = (no)        => api.get(`/eservice/track/${no}`)

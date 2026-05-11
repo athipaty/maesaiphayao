@@ -1,16 +1,6 @@
-import { useState } from 'react'
-import { submitEService, trackEService } from '../services/api'
+import { useState, useEffect } from 'react'
+import { submitEService, trackEService, getEServiceTypes } from '../services/api'
 import PhotoUploader from '../components/PhotoUploader'
-
-const TYPES = [
-  { value: 'general',      label: '📝 คำร้องทั่วไป' },
-  { value: 'road',         label: '🛣️ แจ้งซ่อมถนน/ทางเท้า' },
-  { value: 'street_light', label: '💡 แจ้งซ่อมไฟฟ้าสาธารณะ' },
-  { value: 'water',        label: '💧 แจ้งปัญหาน้ำประปา' },
-  { value: 'garbage',      label: '🗑️ ขอถังขยะ/เก็บขยะ' },
-  { value: 'noise',        label: '📢 ร้องเรียนเสียงรบกวน' },
-  { value: 'other',        label: '❓ อื่น ๆ' },
-]
 
 const STATUS_CONFIG = {
   received:    { label: 'รับเรื่องแล้ว',     color: 'bg-blue-100 text-blue-700',   dot: '🔵' },
@@ -19,17 +9,24 @@ const STATUS_CONFIG = {
   rejected:    { label: 'ไม่สามารถดำเนินการ', color: 'bg-red-100 text-red-600',    dot: '🔴' },
 }
 
-const EMPTY = { type: 'general', citizenName: '', phone: '', address: '', villageNo: '', detail: '', images: [] }
-
 export default function EServicePage() {
-  const [tab, setTab]           = useState('form') // 'form' | 'track' | 'stat'
-  const [form, setForm]         = useState(EMPTY)
+  const [types, setTypes]       = useState([])
+  const [tab, setTab]           = useState('form')
+  const [form, setForm]         = useState({ type: '', citizenName: '', phone: '', address: '', villageNo: '', detail: '', images: [] })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted]   = useState(null)
   const [trackNo, setTrackNo]   = useState('')
   const [tracking, setTracking] = useState(false)
   const [tracked, setTracked]   = useState(null)
   const [trackErr, setTrackErr] = useState('')
+
+  useEffect(() => {
+    getEServiceTypes().then(r => {
+      const active = (r?.data || []).filter(t => t.isActive)
+      setTypes(active)
+      if (active.length > 0) setForm(prev => ({ ...prev, type: active[0].value }))
+    }).catch(() => {})
+  }, [])
 
   function set(key, val) { setForm(prev => ({ ...prev, [key]: val })) }
 
@@ -40,7 +37,7 @@ export default function EServicePage() {
     try {
       const r = await submitEService(form)
       setSubmitted(r.data)
-      setForm(EMPTY)
+      setForm({ type: types[0]?.value || '', citizenName: '', phone: '', address: '', villageNo: '', detail: '', images: [] })
     } catch (err) {
       alert('เกิดข้อผิดพลาด: ' + (err?.response?.data?.error || err.message))
     } finally {
@@ -116,7 +113,7 @@ export default function EServicePage() {
                   className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 bg-white"
                   value={form.type} onChange={e => set('type', e.target.value)}
                 >
-                  {TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                  {types.map(t => <option key={t.value} value={t.value}>{t.icon} {t.label}</option>)}
                 </select>
               </div>
 
@@ -276,7 +273,8 @@ export default function EServicePage() {
 
           {tracked && (() => {
             const sc = STATUS_CONFIG[tracked.status] || STATUS_CONFIG.received
-            const typeLabel = TYPES.find(t => t.value === tracked.type)?.label || tracked.type
+            const trackedType = types.find(t => t.value === tracked.type)
+            const typeLabel = trackedType ? `${trackedType.icon} ${trackedType.label}` : tracked.type
             return (
               <div className="border border-gray-100 rounded-xl overflow-hidden">
                 <div className="bg-gray-50 px-4 py-3 flex items-center justify-between">
