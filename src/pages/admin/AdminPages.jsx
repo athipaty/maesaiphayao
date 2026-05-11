@@ -1342,6 +1342,14 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
     await updatePage(page._id, { isActive: !page.isActive }); onReload()
   }
 
+  async function moveToNavbar(page) {
+    await updatePage(page._id, { showInNavbar: true, parentSlug: '' }); onReload()
+  }
+
+  async function moveToSidebar(page) {
+    await updatePage(page._id, { showInNavbar: false, parentSlug: '' }); onReload()
+  }
+
   async function reorderDrop(draggedId, targetPage, group) {
     if (draggedId === targetPage._id) return
     const siblings = group === 'navbar'  ? navbarPages
@@ -1390,6 +1398,17 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
           </div>
           {page.isBuiltin && (
             <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium flex-shrink-0">ระบบ</span>
+          )}
+          {!isChild && (
+            page.showInNavbar
+              ? <button onClick={() => moveToSidebar(page)} title="ย้ายไป Sidebar"
+                  className="text-[11px] font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-1 rounded-lg transition-colors flex-shrink-0 whitespace-nowrap">
+                  → Sidebar
+                </button>
+              : <button onClick={() => moveToNavbar(page)} title="ย้ายไป Navbar"
+                  className="text-[11px] font-medium text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200 px-2 py-1 rounded-lg transition-colors flex-shrink-0 whitespace-nowrap">
+                  → Navbar
+                </button>
           )}
           <button onClick={() => toggleActive(page)}
             className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 transition-colors ${page.isActive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
