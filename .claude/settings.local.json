@@ -17,7 +17,24 @@
       "Bash(python *)",
       "Bash(npx vite *)",
       "Bash(Remove-Item *)",
-      "Bash(grep)"
+      "Bash(grep)",
+      "Bash(git -C /c/Users/loret/tong/center-kitchen/backend status --short)",
+      "Bash(git -C /c/Users/loret/tong/center-kitchen/backend log --oneline -5)",
+      "Bash(curl -s \"https://center-kitchen-backend.onrender.com/api/abt/settings\")",
+      "Bash(curl -s \"https://center-kitchen-backend.onrender.com/api/abt/pages\")",
+      "Bash(curl *)",
+      "Bash(git checkout *)",
+      "Bash(git pull *)",
+      "Bash(git stash *)",
+      "Bash(git ls-tree *)",
+      "Bash(git rm *)",
+      "Bash(rm src/components/Footer.css src/components/MessengerButton.css src/components/Navbar.css src/components/NewsSection.css src/pages/HomePage.css)",
+      "Skill(update-config)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend\" | Where-Object { $_.Name -ne 'node_modules' } | Select-Object Name)",
+      "Bash(dir C:\\\\Users\\\\loret\\\\tong *)",
+      "Bash(dir C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen *)",
+      "Bash(dir C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend *)",
+      "Bash(dir C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend\\\\routes *)"
     ]
   }
 }
