@@ -115,8 +115,15 @@ export default function AdminSettings() {
 
         {/* Mayor info */}
         <Section icon="👤" title="ข้อมูลนายกองค์การบริหารส่วนตำบล" subtitle="แสดงในกล่องด้านข้างของเว็บไซต์">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-            <div className="md:col-span-3 space-y-4">
+          <div className="flex flex-col items-center gap-5">
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">รูปภาพ</p>
+              <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 hover:border-primary/40 transition-colors bg-gray-50 w-48">
+                <ImageUpload value={form.mayorImage} onChange={url => set('mayorImage', url)} />
+              </div>
+              <p className="text-xs text-gray-400">แนะนำขนาด 100×150 px</p>
+            </div>
+            <div className="w-full space-y-4">
               <Field label="ชื่อ-นามสกุล">
                 <input className={inputCls} value={form.mayorName}
                   onChange={e => set('mayorName', e.target.value)}
@@ -136,42 +143,27 @@ export default function AdminSettings() {
                 </div>
               </Field>
             </div>
-            <div className="md:col-span-2">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">รูปภาพ</p>
-              <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 hover:border-primary/40 transition-colors bg-gray-50">
-                <ImageUpload value={form.mayorImage} onChange={url => set('mayorImage', url)} />
-              </div>
-              <p className="text-xs text-gray-400 mt-1.5 text-center">แนะนำขนาด 100×150 px</p>
-            </div>
           </div>
         </Section>
 
         {/* Logo */}
         <Section icon="🏛️" title="โลโก้เว็บไซต์" subtitle="แสดงในแถบ Header มุมบนซ้าย">
-          <div className="flex items-start gap-6">
-            <div className="flex-1">
-              <p className="text-xs text-gray-400 mb-3">แนะนำรูปแบบ PNG พื้นหลังโปร่งใส ขนาด 200×200 px</p>
-              <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 hover:border-primary/40 transition-colors bg-gray-50 max-w-xs">
-                <ImageUpload value={form.logoImage} onChange={url => set('logoImage', url)} />
-              </div>
-            </div>
-            <div className="flex-shrink-0">
+          <p className="text-xs text-gray-400 mb-3">แนะนำรูปแบบ PNG พื้นหลังโปร่งใส ขนาด 200×200 px</p>
+          <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 hover:border-primary/40 transition-colors bg-gray-50 w-full">
+            <ImageUpload value={form.logoImage} onChange={url => set('logoImage', url)} />
+          </div>
+          {form.logoImage && (
+            <div className="mt-4">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">ตัวอย่างใน Header</p>
-              <div className="bg-gradient-to-r from-primary to-secondary rounded-xl p-3 flex items-center gap-2.5 min-w-[160px]">
-                {form.logoImage ? (
-                  <img src={form.logoImage} alt="logo" className="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-white/40" />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold text-white flex-shrink-0 border-2 border-white/40">
-                    อบต.
-                  </div>
-                )}
+              <div className="bg-gradient-to-r from-primary to-secondary rounded-xl p-3 flex items-center gap-2.5">
+                <img src={form.logoImage} alt="logo" className="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-white/40" />
                 <div>
                   <p className="text-white text-xs font-bold leading-tight">อบต.แม่ใส</p>
                   <p className="text-white/60 text-[10px]">แม่ใส · พะเยา</p>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </Section>
 
         {/* Sidebar preview */}
