@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import ImageUpload from '../../components/ImageUpload'
 import { getSettings, updateSetting } from '../../services/api'
 
-function Section({ icon, title, subtitle, children }) {
+function Section({ icon, title, subtitle, delay = 0, children }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div
+      style={{ animation: `fadeSlideUp 0.45s ease both`, animationDelay: `${delay}ms` }}
+      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
       <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center text-lg flex-shrink-0">
           {icon}
@@ -29,13 +31,14 @@ function Field({ label, hint, children }) {
   )
 }
 
-const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all bg-gray-50 focus:bg-white'
+const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all bg-gray-50 focus:bg-white focus:scale-[1.01]'
 
 export default function AdminSettings() {
   const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving]   = useState(false)
   const [saved, setSaved]     = useState(false)
+  const [saveKey, setSaveKey] = useState(0)
 
   useEffect(() => {
     getSettings()
@@ -50,6 +53,7 @@ export default function AdminSettings() {
     try {
       await Promise.all(Object.entries(form).map(([key, value]) => updateSetting(key, value)))
       setSaved(true)
+      setSaveKey(k => k + 1)
       setTimeout(() => setSaved(false), 3000)
     } finally { setSaving(false) }
   }
@@ -57,7 +61,7 @@ export default function AdminSettings() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <div className="flex items-center gap-3 text-gray-400">
+        <div className="flex items-center gap-3 text-gray-400" style={{ animation: 'fadeSlideDown 0.3s ease both' }}>
           <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
@@ -72,16 +76,19 @@ export default function AdminSettings() {
     <div className="max-w-3xl mx-auto">
 
       {/* Page header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6"
+        style={{ animation: 'fadeSlideDown 0.35s ease both' }}>
         <div>
           <h1 className="text-xl font-bold text-gray-800">⚙️ ตั้งค่าเว็บไซต์</h1>
           <p className="text-xs text-gray-400 mt-1">ข้อมูลนายก โลโก้ และการตั้งค่าทั่วไป</p>
         </div>
-        <button onClick={handleSave} disabled={saving}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-all active:scale-95 disabled:opacity-60 ${
-            saved
-              ? 'bg-green-500 text-white'
-              : 'bg-primary text-white hover:opacity-90'
+        <button
+          key={saveKey}
+          onClick={handleSave}
+          disabled={saving}
+          style={saved ? { animation: 'successPop 0.35s ease' } : {}}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-all duration-300 active:scale-95 disabled:opacity-60 ${
+            saved ? 'bg-green-500 text-white' : 'bg-primary text-white hover:opacity-90 hover:shadow-md'
           }`}>
           {saving ? (
             <>
@@ -114,11 +121,11 @@ export default function AdminSettings() {
       <div className="space-y-5">
 
         {/* Mayor info */}
-        <Section icon="👤" title="ข้อมูลนายกองค์การบริหารส่วนตำบล" subtitle="แสดงในกล่องด้านข้างของเว็บไซต์">
+        <Section delay={80} icon="👤" title="ข้อมูลนายกองค์การบริหารส่วนตำบล" subtitle="แสดงในกล่องด้านข้างของเว็บไซต์">
           <div className="flex flex-col items-center gap-5">
             <div className="flex flex-col items-center gap-2">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">รูปภาพ</p>
-              <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 hover:border-primary/40 transition-colors bg-gray-50 w-48">
+              <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 hover:border-primary/40 transition-all duration-300 bg-gray-50 w-48 hover:bg-primary/5">
                 <ImageUpload value={form.mayorImage} onChange={url => set('mayorImage', url)} />
               </div>
               <p className="text-xs text-gray-400">แนะนำขนาด 100×150 px</p>
@@ -147,13 +154,13 @@ export default function AdminSettings() {
         </Section>
 
         {/* Logo */}
-        <Section icon="🏛️" title="โลโก้เว็บไซต์" subtitle="แสดงในแถบ Header มุมบนซ้าย">
+        <Section delay={160} icon="🏛️" title="โลโก้เว็บไซต์" subtitle="แสดงในแถบ Header มุมบนซ้าย">
           <p className="text-xs text-gray-400 mb-3">แนะนำรูปแบบ PNG พื้นหลังโปร่งใส ขนาด 200×200 px</p>
-          <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 hover:border-primary/40 transition-colors bg-gray-50 w-full">
+          <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 hover:border-primary/40 transition-all duration-300 bg-gray-50 w-full hover:bg-primary/5">
             <ImageUpload value={form.logoImage} onChange={url => set('logoImage', url)} />
           </div>
           {form.logoImage && (
-            <div className="mt-4">
+            <div className="mt-4" style={{ animation: 'scaleIn 0.3s ease both' }}>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">ตัวอย่างใน Header</p>
               <div className="bg-gradient-to-r from-primary to-secondary rounded-xl p-3 flex items-center gap-2.5">
                 <img src={form.logoImage} alt="logo" className="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-white/40" />
@@ -167,25 +174,25 @@ export default function AdminSettings() {
         </Section>
 
         {/* Sidebar preview */}
-        <Section icon="👁" title="ตัวอย่าง Sidebar Card" subtitle="แสดงผลจริงในเว็บไซต์">
+        <Section delay={240} icon="👁" title="ตัวอย่าง Sidebar Card" subtitle="แสดงผลจริงในเว็บไซต์">
           <div className="flex items-center justify-center py-2">
-            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 flex items-center gap-4 w-full max-w-xs">
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 flex items-center gap-4 w-full max-w-xs transition-all duration-500">
               {form.mayorImage ? (
                 <img src={form.mayorImage} alt="preview"
-                  className="flex-shrink-0 rounded-lg border-2 border-yellow-400 object-cover object-top"
+                  className="flex-shrink-0 rounded-lg border-2 border-yellow-400 object-cover object-top transition-all duration-500"
                   style={{ width: 72, height: 108 }} />
               ) : (
                 <div className="flex-shrink-0 rounded-lg border-2 border-yellow-400 bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl"
                   style={{ width: 72, height: 108 }}>👤</div>
               )}
               <div className="min-w-0">
-                <p className="text-sm font-bold text-primary leading-snug truncate">
+                <p className="text-sm font-bold text-primary leading-snug truncate transition-all duration-300">
                   {form.mayorName || <span className="text-gray-300">ชื่อ-นามสกุล</span>}
                 </p>
-                <p className="text-xs text-gray-500 mt-1 leading-snug line-clamp-2">
+                <p className="text-xs text-gray-500 mt-1 leading-snug line-clamp-2 transition-all duration-300">
                   {form.mayorPosition || <span className="text-gray-300">ตำแหน่ง</span>}
                 </p>
-                <p className="text-xs text-secondary mt-1.5 font-medium">
+                <p className="text-xs text-secondary mt-1.5 font-medium transition-all duration-300">
                   {form.mayorPhone || <span className="text-gray-300">เบอร์โทร</span>}
                 </p>
               </div>
