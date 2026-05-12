@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { getPages, createPage, updatePage, deletePage, uploadImage } from '../../services/api'
 import ImageUpload from '../../components/ImageUpload'
 import PdfUpload from '../../components/PdfUpload'
+import ExcelUpload from '../../components/ExcelUpload'
 import BlockRenderer from '../../components/BlockRenderer'
 
 const ICONS = ['📄','🏛️','📰','📊','💰','📋','👥','🌐','📮','🚨','📝','📚','⚖️','📞','🎭','🌿','🗺️','🛍️','🏠','ℹ️','📌','🔔','✉️','🎓','🏥','🌾','🔨','🤝','⚡','🔗']
@@ -111,6 +112,13 @@ const BLOCK_TYPES = [
   { type: 'alert',    icon: '🔔', label: 'กล่อง Alert',    desc: 'ไฮไลต์ข้อมูล/แจ้งเตือน/สำเร็จ',   color: 'bg-yellow-50 border-yellow-200 hover:border-yellow-400',   accent: 'bg-yellow-500'  },
   { type: 'timeline', icon: '🕐', label: 'Timeline',       desc: 'เหตุการณ์เรียงตามเวลา',              color: 'bg-violet-50 border-violet-200 hover:border-violet-400',   accent: 'bg-violet-500'  },
   { type: 'html',     icon: <span className="font-mono text-[11px] font-bold text-slate-500">&lt;/&gt;</span>, label: 'HTML', desc: 'โค้ด HTML กำหนดเอง', color: 'bg-slate-50 border-slate-200 hover:border-slate-400', accent: 'bg-slate-500' },
+  { type: 'excel',    icon: (
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 2h10l6 6v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#16a34a"/>
+        <path d="M14 2l6 6h-4a2 2 0 0 1-2-2V2z" fill="#86efac"/>
+        <text x="12" y="17" textAnchor="middle" fill="white" fontSize="5.5" fontWeight="bold" fontFamily="Arial,sans-serif" letterSpacing="0.3">XLS</text>
+      </svg>
+    ), label: 'Excel',     desc: 'อัปโหลดและแสดงไฟล์ Excel', color: 'bg-green-50 border-green-200 hover:border-green-400', accent: 'bg-green-500' },
 ]
 const BLOCK_META = Object.fromEntries(BLOCK_TYPES.map(b => [b.type, b]))
 
@@ -127,6 +135,7 @@ const ACCENT_BORDER = {
   alert:    'border-l-yellow-400',
   timeline: 'border-l-violet-400',
   html:     'border-l-slate-400',
+  excel:    'border-l-green-400',
 }
 
 // ── Shared field helpers ──────────────────────────────────────────────────────
@@ -159,6 +168,7 @@ function emptyBlock(type) {
   if (type === 'alert')    return { type, data: { variant: 'info', icon: '', title: '', content: '' } }
   if (type === 'timeline') return { type, data: { title: '', items: [{ icon: '📌', year: '', title: '', desc: '', color: 'primary' }] } }
   if (type === 'html')     return { type, data: { html: '' } }
+  if (type === 'excel')    return { type, data: { url: '', label: '', title: '', description: '' } }
   return { type, data: {} }
 }
 
@@ -984,6 +994,22 @@ function TimelineBlockEdit({ data, onChange }) {
   )
 }
 
+function ExcelBlockEdit({ data, onChange }) {
+  return (
+    <div className="space-y-4">
+      <Field label="หัวข้อ" hint="ไม่บังคับ">
+        <input className={inp} placeholder="เช่น ตารางงบประมาณ 2567" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
+      </Field>
+      <Field label="คำอธิบาย" hint="ไม่บังคับ">
+        <input className={inp} placeholder="คำอธิบายสั้น ๆ" value={data.description || ''} onChange={e => onChange({ ...data, description: e.target.value })} />
+      </Field>
+      <Field label="ไฟล์ Excel (.xlsx / .xls)">
+        <ExcelUpload value={data.url} label={data.label} onChange={(url, name) => onChange({ ...data, url, label: name })} />
+      </Field>
+    </div>
+  )
+}
+
 function HtmlBlockEdit({ data, onChange }) {
   return (
     <div className="space-y-4">
@@ -1017,6 +1043,7 @@ function BlockEdit({ block, onChange }) {
     case 'stats':    return <StatsBlockEdit    data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'alert':    return <AlertBlockEdit    data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'timeline': return <TimelineBlockEdit data={block.data} onChange={d => onChange({ ...block, data: d })} />
+    case 'excel':    return <ExcelBlockEdit    data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'html':     return <HtmlBlockEdit     data={block.data} onChange={d => onChange({ ...block, data: d })} />
     default:         return null
   }

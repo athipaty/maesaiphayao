@@ -116,3 +116,9 @@ export const uploadPdf = (file) => {
   form.append('pdf', file)
   return api.post('/upload-pdf', form, { headers: { 'Content-Type': 'multipart/form-data' } })
 }
+
+export const uploadExcel = (file) => {
+  const form = new FormData()
+  form.append('excel', file)
+  return api.post('/upload-excel', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+}

@@ -450,6 +450,68 @@ function TimelineBlock({ data }) {
   )
 }
 
+function ExcelFileIcon({ size = 44 }) {
+  const w = size, h = size * 1.3
+  return (
+    <svg width={w} height={h} viewBox="0 0 44 57" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+      <path d="M0 5C0 2.239 2.239 0 5 0H30L44 15V52C44 54.761 41.761 57 39 57H5C2.239 57 0 54.761 0 52V5Z" fill="#16a34a"/>
+      <path d="M30 0L44 15H32C30.895 15 30 14.105 30 13V0Z" fill="#86efac"/>
+      <rect x="0" y="34" width="44" height="16" fill="#15803d"/>
+      <rect x="0" y="34" width="44" height="16" fill="white" fillOpacity="0.08"/>
+      <text x="22" y="46" textAnchor="middle" fill="white" fontSize="9" fontWeight="800" fontFamily="Arial Black, Arial, sans-serif" letterSpacing="0.5">XLS</text>
+      <rect x="7" y="20" width="20" height="2" rx="1" fill="white" fillOpacity="0.4"/>
+      <rect x="7" y="26" width="30" height="2" rx="1" fill="white" fillOpacity="0.25"/>
+    </svg>
+  )
+}
+
+function ExcelBlock({ data, preview }) {
+  const [open, setOpen] = useState(false)
+  if (!data.url) return null
+  const viewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
+  return (
+    <div className="card mb-4 overflow-hidden">
+      <div className="p-4">
+        {data.description && <p className="text-xs text-gray-500 mb-3 leading-relaxed">{data.description}</p>}
+
+        {preview ? (
+          <div className="w-full rounded-lg border border-dashed border-green-200 bg-green-50 flex items-center justify-center gap-3 mb-3" style={{ height: 100 }}>
+            <ExcelFileIcon size={36} />
+            <div>
+              <p className="text-sm font-medium text-green-700">{data.title || 'ไฟล์ Excel'}</p>
+              <p className="text-xs text-green-400 mt-0.5">จะแสดง Excel viewer ในหน้าจริง</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <button onClick={() => setOpen(v => !v)}
+              className="mb-3 w-full flex items-center gap-3 bg-green-50 hover:bg-green-100 border border-green-200 rounded-xl px-4 py-3 transition-colors group">
+              <div className="group-hover:scale-105 transition-transform">
+                <ExcelFileIcon size={36} />
+              </div>
+              <p className="text-sm font-semibold text-green-700 flex-1 text-left">{data.title || 'ไฟล์ Excel'}</p>
+              <p className="text-xs text-green-400 flex-shrink-0">
+                {open ? '▲ ซ่อน' : 'กดเพื่อแสดง ▼'}
+              </p>
+            </button>
+
+            {open && (
+              <div className="mb-3 w-full rounded-lg overflow-hidden border border-gray-200" style={{ height: '520px' }}>
+                <iframe src={viewUrl} className="w-full h-full" title={data.title || 'Excel'} />
+              </div>
+            )}
+          </>
+        )}
+
+        <a href={data.url} target="_blank" rel="noreferrer"
+          className="inline-flex items-center gap-2 text-xs bg-green-50 border border-green-200 text-green-700 hover:bg-green-100 px-4 py-2 rounded-lg transition-colors font-medium">
+          📥 ดาวน์โหลด Excel
+        </a>
+      </div>
+    </div>
+  )
+}
+
 function HtmlBlock({ data, preview }) {
   if (!data.html) return null
   if (preview) {
@@ -478,6 +540,7 @@ export default function BlockRenderer({ block, preview = false }) {
     case 'stats':    return <StatsBlock    data={block.data} />
     case 'alert':    return <AlertBlock    data={block.data} />
     case 'timeline': return <TimelineBlock data={block.data} />
+    case 'excel':    return <ExcelBlock    data={block.data} preview={preview} />
     case 'html':     return <HtmlBlock     data={block.data} preview={preview} />
     default:         return null
   }
