@@ -450,6 +450,21 @@ function TimelineBlock({ data }) {
   )
 }
 
+function HtmlBlock({ data, preview }) {
+  if (!data.html) return null
+  if (preview) {
+    return (
+      <div className="mb-4 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-3">
+        <p className="text-xs font-semibold text-slate-400 mb-1">HTML Block (ตัวอย่าง)</p>
+        <pre className="text-xs text-slate-600 font-mono whitespace-pre-wrap break-all line-clamp-4">{data.html}</pre>
+      </div>
+    )
+  }
+  return (
+    <div className="mb-4" dangerouslySetInnerHTML={{ __html: data.html }} />
+  )
+}
+
 export default function BlockRenderer({ block, preview = false }) {
   switch (block.type) {
     case 'text':  return <TextBlock  data={block.data} />
@@ -463,6 +478,7 @@ export default function BlockRenderer({ block, preview = false }) {
     case 'stats':    return <StatsBlock    data={block.data} />
     case 'alert':    return <AlertBlock    data={block.data} />
     case 'timeline': return <TimelineBlock data={block.data} />
+    case 'html':     return <HtmlBlock     data={block.data} preview={preview} />
     default:         return null
   }
 }

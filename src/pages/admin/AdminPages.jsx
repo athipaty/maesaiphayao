@@ -110,6 +110,7 @@ const BLOCK_TYPES = [
   { type: 'stats',    icon: '📈', label: 'การ์ดสถิติ',     desc: 'ตัวเลขใหญ่พร้อมไอคอนและสี',        color: 'bg-sky-50 border-sky-200 hover:border-sky-400',            accent: 'bg-sky-500'     },
   { type: 'alert',    icon: '🔔', label: 'กล่อง Alert',    desc: 'ไฮไลต์ข้อมูล/แจ้งเตือน/สำเร็จ',   color: 'bg-yellow-50 border-yellow-200 hover:border-yellow-400',   accent: 'bg-yellow-500'  },
   { type: 'timeline', icon: '🕐', label: 'Timeline',       desc: 'เหตุการณ์เรียงตามเวลา',              color: 'bg-violet-50 border-violet-200 hover:border-violet-400',   accent: 'bg-violet-500'  },
+  { type: 'html',     icon: <span className="font-mono text-[11px] font-bold text-slate-500">&lt;/&gt;</span>, label: 'HTML', desc: 'โค้ด HTML กำหนดเอง', color: 'bg-slate-50 border-slate-200 hover:border-slate-400', accent: 'bg-slate-500' },
 ]
 const BLOCK_META = Object.fromEntries(BLOCK_TYPES.map(b => [b.type, b]))
 
@@ -125,6 +126,7 @@ const ACCENT_BORDER = {
   stats:    'border-l-sky-400',
   alert:    'border-l-yellow-400',
   timeline: 'border-l-violet-400',
+  html:     'border-l-slate-400',
 }
 
 // ── Shared field helpers ──────────────────────────────────────────────────────
@@ -156,6 +158,7 @@ function emptyBlock(type) {
   if (type === 'stats')    return { type, data: { title: '', cols: 4, items: [{ icon: '📊', label: '', value: '', unit: '', color: 'blue' }], total: { label: '', value: '', unit: '' } } }
   if (type === 'alert')    return { type, data: { variant: 'info', icon: '', title: '', content: '' } }
   if (type === 'timeline') return { type, data: { title: '', items: [{ icon: '📌', year: '', title: '', desc: '', color: 'primary' }] } }
+  if (type === 'html')     return { type, data: { html: '' } }
   return { type, data: {} }
 }
 
@@ -981,6 +984,26 @@ function TimelineBlockEdit({ data, onChange }) {
   )
 }
 
+function HtmlBlockEdit({ data, onChange }) {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700">
+        <span className="flex-shrink-0">⚠️</span>
+        <span>HTML ดิบ — โค้ดจะแสดงโดยตรงในหน้าเว็บ ตรวจสอบก่อนบันทึก</span>
+      </div>
+      <Field label="โค้ด HTML" hint="รองรับ HTML, CSS inline">
+        <textarea
+          className={`${inp} min-h-[220px] font-mono text-xs leading-relaxed`}
+          placeholder={'<div style="...">\n  ...\n</div>'}
+          value={data.html || ''}
+          onChange={e => onChange({ ...data, html: e.target.value })}
+          spellCheck={false}
+        />
+      </Field>
+    </div>
+  )
+}
+
 function BlockEdit({ block, onChange }) {
   switch (block.type) {
     case 'text':  return <TextBlockEdit  data={block.data} onChange={d => onChange({ ...block, data: d })} />
@@ -994,6 +1017,7 @@ function BlockEdit({ block, onChange }) {
     case 'stats':    return <StatsBlockEdit    data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'alert':    return <AlertBlockEdit    data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'timeline': return <TimelineBlockEdit data={block.data} onChange={d => onChange({ ...block, data: d })} />
+    case 'html':     return <HtmlBlockEdit     data={block.data} onChange={d => onChange({ ...block, data: d })} />
     default:         return null
   }
 }
