@@ -523,7 +523,7 @@ function HtmlBlock({ data, preview }) {
     )
   }
   return (
-    <div className="mb-4" dangerouslySetInnerHTML={{ __html: data.html }} />
+    <div className="mb-4 html-content" dangerouslySetInnerHTML={{ __html: data.html }} />
   )
 }
 
