@@ -35,18 +35,24 @@ export function NewsSection({ dept, items = [], loading }) {
       ) : items.length === 0 ? (
         <div className="px-3 py-2 text-gray-400 text-sm">ยังไม่มีข่าวสาร</div>
       ) : (
-        <ul className="divide-y divide-gray-50">
-          {items.slice(0, 2).map((item, i) => (
-            <li key={item._id}>
-              <Link to={`/news/detail/${item._id}`}
-                className="flex items-center gap-2 px-3 py-2 hover:bg-blue-50 transition-colors">
-                <span className="flex-shrink-0 w-4 h-4 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center">{i + 1}</span>
-                <span className="text-xs text-gray-700 truncate flex-1">{item.title}</span>
-                <span className="text-xs text-secondary flex-shrink-0">»</span>
+        <div className="grid grid-cols-2 gap-px bg-gray-100">
+          {items.slice(0, 2).map(item => {
+            const img = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
+            return (
+              <Link to={`/news/detail/${item._id}`} key={item._id}
+                className="p-2 hover:bg-blue-50 transition-colors block bg-white">
+                {img ? (
+                  <img src={img} alt={item.title} className="w-full h-24 object-cover rounded mb-1.5" />
+                ) : (
+                  <div className="w-full h-24 rounded mb-1.5 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-2xl">
+                    {DEPT_ICONS[dept] || '📰'}
+                  </div>
+                )}
+                <p className="text-xs font-medium text-primary truncate">{item.title}</p>
               </Link>
-            </li>
-          ))}
-        </ul>
+            )
+          })}
+        </div>
       )}
     </div>
   )
