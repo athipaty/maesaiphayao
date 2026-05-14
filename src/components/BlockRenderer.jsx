@@ -264,17 +264,23 @@ function PdfBlock({ data, preview }) {
           </div>
         ) : (
           <>
-            {/* Toggle row — same position always */}
-            <button onClick={() => setOpen(v => !v)}
-              className="mb-3 w-full flex items-center gap-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl px-4 py-3 transition-colors group">
-              <div className="group-hover:scale-105 transition-transform">
-                <PdfFileIcon size={36} />
-              </div>
-              <p className="text-sm font-semibold text-red-700 flex-1 text-left">{data.title || 'ไฟล์ PDF'}</p>
-              <p className="text-xs text-red-400 flex-shrink-0">
-                {open ? '▲ ซ่อน PDF' : 'กดเพื่อแสดง PDF ▼'}
-              </p>
-            </button>
+            {/* Toggle + download on same row */}
+            <div className="mb-3 flex items-stretch gap-2">
+              <button onClick={() => setOpen(v => !v)}
+                className="flex-1 flex items-center gap-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl px-4 py-3 transition-colors group">
+                <div className="group-hover:scale-105 transition-transform">
+                  <PdfFileIcon size={36} />
+                </div>
+                <p className="text-sm font-semibold text-red-700 flex-1 text-left">{data.title || 'ไฟล์ PDF'}</p>
+                <p className="text-xs text-red-400 flex-shrink-0">
+                  {open ? '▲ ซ่อน' : '▼ แสดง'}
+                </p>
+              </button>
+              <button onClick={() => downloadPdf(data.url, data.title)}
+                className="flex-shrink-0 flex items-center gap-1.5 text-xs bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 px-3 rounded-xl transition-colors font-medium">
+                📥 ดาวน์โหลด
+              </button>
+            </div>
 
             {/* Iframe — shown only when open */}
             {open && (
@@ -283,12 +289,6 @@ function PdfBlock({ data, preview }) {
               </div>
             )}
           </>
-        )}
-
-        <button onClick={() => downloadPdf(data.url, data.title)}
-          className="inline-flex items-center gap-2 text-xs bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors font-medium">
-          📥 ดาวน์โหลด PDF
-        </button>
       </div>
     </div>
   )
