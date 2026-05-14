@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getNews, getAnnouncements, getProcurement } from '../services/api'
+import { getNews, getAnnouncements, getProcurement, getTravel } from '../services/api'
 import { NewsSection } from '../components/NewsSection'
 
 const DEPARTMENTS = ['council', 'office', 'disaster', 'health', 'engineering', 'finance']
@@ -12,6 +12,7 @@ export default function HomePage() {
   const [egp, setEgp]                   = useState([])
   const [procNews, setProcNews]         = useState([])
   const [loading, setLoading]           = useState(true)
+  const [travel, setTravel]             = useState([])
   const [prTab, setPrTab]               = useState('announcement')
   const [procTab, setProcTab]           = useState('egp')
 
@@ -27,16 +28,18 @@ export default function HomePage() {
         setNewsByDept(map)
 
         // fetch announcements
-        const [ann, nl, e, pn] = await Promise.all([
+        const [ann, nl, e, pn, tv] = await Promise.all([
           getAnnouncements({ type: 'announcement' }),
           getAnnouncements({ type: 'newsletter' }),
           getProcurement({ type: 'egp' }),
           getProcurement({ type: 'news' }),
+          getTravel({ limit: 4 }),
         ])
         setAnnounce(ann?.data || [])
         setNewsletter(nl?.data || [])
         setEgp(e?.data || [])
         setProcNews(pn?.data || [])
+        setTravel((tv?.data || []).slice(0, 4))
       } catch (err) {
         console.error(err)
       } finally {
@@ -112,6 +115,41 @@ export default function HomePage() {
           </ul>
         )}
       </div>
+
+      {/* Travel places */}
+      {travel.length > 0 && (
+        <div className="card">
+          <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <span>🗺️</span>
+              <span className="text-sm font-semibold text-primary">แนะนำสถานที่ท่องเที่ยว</span>
+            </div>
+            <Link to="/travel" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
+          </div>
+          <div className="grid grid-cols-2 gap-3 p-3">
+            {travel.map(item => {
+              const mainImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
+              return (
+                <div key={item._id} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group bg-white">
+                  <div className="relative aspect-video overflow-hidden bg-teal-50">
+                    {mainImg
+                      ? <img src={mainImg} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🏞️</div>
+                    }
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 px-3 py-2">
+                      <p className="text-white text-xs font-semibold leading-snug drop-shadow line-clamp-2">{item.title}</p>
+                    </div>
+                  </div>
+                  {item.description && (
+                    <p className="px-3 py-2 text-[11px] text-gray-500 line-clamp-2 leading-relaxed">{item.description}</p>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Procurement tabs */}
       <div className="card">
