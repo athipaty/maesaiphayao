@@ -118,7 +118,7 @@ export default function HomePage() {
 
       {/* Travel places — infinite marquee */}
       {travel.length > 0 && (
-        <div className="card overflow-hidden">
+        <div className="card">
           <style>{`
             @keyframes marquee {
               0%   { transform: translateX(0); }
