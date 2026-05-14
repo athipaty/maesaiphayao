@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
 function TextBlock({ data }) {
@@ -515,6 +515,18 @@ function ExcelBlock({ data, preview }) {
 }
 
 function HtmlBlock({ data, preview }) {
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!ref.current) return
+    ref.current.querySelectorAll('script').forEach(old => {
+      const s = document.createElement('script')
+      Array.from(old.attributes).forEach(a => s.setAttribute(a.name, a.value))
+      s.textContent = old.textContent
+      old.parentNode.replaceChild(s, old)
+    })
+  }, [data.html])
+
   if (!data.html) return null
   if (preview) {
     return (
@@ -525,7 +537,7 @@ function HtmlBlock({ data, preview }) {
     )
   }
   return (
-    <div className="mb-4" dangerouslySetInnerHTML={{ __html: data.html }} />
+    <div ref={ref} className="mb-4" dangerouslySetInnerHTML={{ __html: data.html }} />
   )
 }
 

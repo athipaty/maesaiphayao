@@ -38,7 +38,10 @@
       "Bash(dir C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend\\\\models *)",
       "Bash(Get-ChildItem \"C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend\" -Exclude node_modules)",
       "Bash(Select-Object Name)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "WebFetch(domain:maesaiphayao.vercel.app)",
+      "WebFetch(domain:center-kitchen.onrender.com)",
+      "WebFetch(domain:center-kitchen-backend.onrender.com)"
     ]
   }
 }
