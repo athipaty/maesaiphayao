@@ -289,6 +289,7 @@ function PdfBlock({ data, preview }) {
               </div>
             )}
           </>
+        )}
       </div>
     </div>
   )
