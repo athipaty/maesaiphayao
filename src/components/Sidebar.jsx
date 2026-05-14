@@ -145,38 +145,6 @@ export default function Sidebar({ onNavigate, mobile = false }) {
         </ul>
       </div>
 
-      {/* Products & Travel */}
-      <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
-        <div className="bg-secondary text-white px-3.5 py-2.5 text-sm font-semibold flex items-center gap-2">
-          <span className="w-1 h-3.5 bg-accent rounded-sm inline-block"></span>
-          ท่องเที่ยวและสินค้า
-        </div>
-        <ul>
-          <li>
-            <NavLink to="/products" onClick={onNavigate}
-              className={({ isActive }) =>
-                `flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors ${
-                  isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
-                }`
-              }>
-              <span className="text-sm w-5 text-center">🛍️</span>
-              <span className="flex-1">สินค้า OTOP</span>
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/travel" onClick={onNavigate}
-              className={({ isActive }) =>
-                `flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors ${
-                  isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
-                }`
-              }>
-              <span className="text-sm w-5 text-center">🗺️</span>
-              <span className="flex-1">แหล่งท่องเที่ยว</span>
-            </NavLink>
-          </li>
-        </ul>
-      </div>
-
       {/* E-Service */}
       <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
         <div style={{
