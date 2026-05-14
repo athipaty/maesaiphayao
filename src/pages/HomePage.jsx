@@ -144,7 +144,7 @@ export default function HomePage() {
                 const mainImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
                 return (
                   <div key={i} className="w-52 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
-                    <div className="relative overflow-hidden bg-teal-50" style={{ height: '120px' }}>
+                    <div className="relative overflow-hidden bg-teal-50" style={{ height: '150px' }}>
                       {mainImg
                         ? <img src={mainImg} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🏞️</div>
@@ -155,7 +155,7 @@ export default function HomePage() {
                       </div>
                     </div>
                     {item.description && (
-                      <p className="px-3 py-2 text-[11px] text-gray-500 line-clamp-2 leading-relaxed">{item.description}</p>
+                      <p className="px-3 py-2 text-[11px] text-gray-500 line-clamp-3 leading-relaxed">{item.description}</p>
                     )}
                   </div>
                 )
