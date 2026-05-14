@@ -246,7 +246,8 @@ async function downloadPdf(url, title) {
 function PdfBlock({ data, preview }) {
   const [open, setOpen] = useState(false)
   if (!data.url) return null
-  const viewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
+  const isB2 = data.url.includes('backblazeb2.com')
+  const viewUrl = isB2 ? data.url : `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
   return (
     <div className="card mb-4 overflow-hidden">
       <div className="p-4">

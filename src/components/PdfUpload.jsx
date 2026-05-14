@@ -40,7 +40,8 @@ export default function PdfUpload({ value, label, onChange }) {
           <a href={value} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex-1 truncate">
             {label || value}
           </a>
-          <button onClick={() => onChange('', '')} className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0">✕</button>
+          <button type="button" onClick={() => setTab('url')} className="text-gray-400 hover:text-blue-500 text-xs flex-shrink-0">🔗</button>
+          <button type="button" onClick={() => onChange('', '')} className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0">✕</button>
         </div>
       )}
 
