@@ -9,7 +9,7 @@ const MENU = [
   { path: '/admin/procurement',       label: 'จัดซื้อจัดจ้าง',   icon: '📦' },
   { path: '/admin/procurement-plans', label: 'แผนการจัดหาพัสดุ', icon: '📋' },
   { path: '/admin/ita',           label: 'ITA / OIT',           icon: '🏆' },
-  { path: '/admin/documents',     label: 'คลังเอกสาร',          icon: '📂' },
+  { section: 'บริการสาธารณะ' },
   { path: '/admin/eservice',      label: 'คำร้อง e-Service',    icon: '🌐' },
   { path: '/admin/complaints',    label: 'เรื่องร้องเรียน',      icon: '📮' },
   { path: '/admin/staff',         label: 'บุคลากร',             icon: '👥' },
@@ -142,22 +142,29 @@ export default function AdminLayout() {
 
         {/* Menu */}
         <nav className="flex-1 py-2 overflow-hidden">
-          {MENU.map(m => (
-            <NavLink key={m.path} to={m.path} end={m.end}
-              title={collapsed ? m.label : ''}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-150 ${
-                  isActive
-                    ? 'bg-white/20 text-white font-semibold border-r-4 border-accent'
-                    : 'text-white/70 hover:bg-white/10 hover:text-white'
-                }`
-              }>
-              <span className="text-base flex-shrink-0 w-5 text-center">{m.icon}</span>
-              <span style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}>
-                {m.label}
-              </span>
-            </NavLink>
-          ))}
+          {MENU.map((m, i) =>
+            m.section ? (
+              <div key={i} style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 0.2s' }}
+                className="px-4 pt-3 pb-1 text-[10px] font-bold text-white/40 uppercase tracking-widest whitespace-nowrap">
+                {m.section}
+              </div>
+            ) : (
+              <NavLink key={m.path} to={m.path} end={m.end}
+                title={collapsed ? m.label : ''}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-150 ${
+                    isActive
+                      ? 'bg-white/20 text-white font-semibold border-r-4 border-accent'
+                      : 'text-white/70 hover:bg-white/10 hover:text-white'
+                  }`
+                }>
+                <span className="text-base flex-shrink-0 w-5 text-center">{m.icon}</span>
+                <span style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}>
+                  {m.label}
+                </span>
+              </NavLink>
+            )
+          )}
         </nav>
 
         {/* Bottom buttons */}

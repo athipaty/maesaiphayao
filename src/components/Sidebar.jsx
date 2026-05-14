@@ -31,6 +31,14 @@ const DEFAULT_SETTINGS = {
   mayorImage:    '',
 }
 
+const PUBLIC_SERVICE_ITEMS = [
+  { icon: '🌐', label: 'บริการสาธารณะ',       to: '/public-service' },
+  { icon: '🌐', label: 'ยื่นคำร้อง',           to: '/eservice' },
+  { icon: '📮', label: 'ร้องเรียน/ร้องทุกข์',  to: '/complaint' },
+  { icon: '🚨', label: 'แจ้งเบาะแสทุจริต',    to: '/corruption' },
+]
+const PUBLIC_SERVICE_PATHS = PUBLIC_SERVICE_ITEMS.map(i => i.to)
+
 export default function Sidebar({ onNavigate, mobile = false }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
   const [menuPages, setMenuPages] = useState([])
@@ -46,7 +54,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
   }, [])
 
   const topLevel = menuPages
-    .filter(p => !p.parentSlug && !p.showInNavbar)
+    .filter(p => !p.parentSlug && !p.showInNavbar && !(p.isBuiltin && PUBLIC_SERVICE_PATHS.includes(p.path)))
     .sort((a, b) => a.order - b.order)
   function getChildren(slug) {
     return menuPages.filter(p => p.parentSlug === slug).sort((a, b) => a.order - b.order)
@@ -142,6 +150,29 @@ export default function Sidebar({ onNavigate, mobile = false }) {
               </li>
             )
           })}
+        </ul>
+      </div>
+
+      {/* บริการสาธารณะ */}
+      <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
+        <div className="bg-secondary text-white px-3.5 py-2.5 text-sm font-semibold flex items-center gap-2">
+          <span className="w-1 h-3.5 bg-accent rounded-sm inline-block"></span>
+          บริการสาธารณะ
+        </div>
+        <ul>
+          {PUBLIC_SERVICE_ITEMS.map(item => (
+            <li key={item.to}>
+              <NavLink to={item.to} onClick={onNavigate}
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors ${
+                    isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
+                  }`
+                }>
+                <span className="text-sm w-5 text-center">{item.icon}</span>
+                <span className="flex-1">{item.label}</span>
+              </NavLink>
+            </li>
+          ))}
         </ul>
       </div>
 
