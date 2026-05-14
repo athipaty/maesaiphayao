@@ -34,7 +34,7 @@ const DEFAULT_SETTINGS = {
 export default function Sidebar({ onNavigate, mobile = false }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
   const [menuPages, setMenuPages] = useState([])
-  const [openSlugs, setOpenSlugs] = useState({})
+  const [openSlug, setOpenSlug] = useState(null)
 
   useEffect(() => {
     getSettings()
@@ -52,7 +52,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
     return menuPages.filter(p => p.parentSlug === slug).sort((a, b) => a.order - b.order)
   }
   function toggleSlug(slug) {
-    setOpenSlugs(prev => ({ ...prev, [slug]: !prev[slug] }))
+    setOpenSlug(prev => prev === slug ? null : slug)
   }
 
   return (
@@ -100,7 +100,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
             const linkPath = m.isBuiltin ? m.path : `/page/${m.slug}`
             const children = getChildren(m.slug)
             const hasChildren = children.length > 0
-            const isOpen = !!openSlugs[m.slug]
+            const isOpen = openSlug === m.slug
             return (
               <li key={m.slug}>
                 {hasChildren ? (
