@@ -138,7 +138,7 @@ export default function HomePage() {
             <Link to="/travel" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
           </div>
 
-          <div className="overflow-hidden py-3">
+          <div className="overflow-hidden pt-3 pb-4">
             <div className="travel-marquee flex gap-3 w-max">
               {[...travel, ...travel].map((item, i) => {
                 const mainImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
@@ -155,7 +155,7 @@ export default function HomePage() {
                       </div>
                     </div>
                     {item.description && (
-                      <p className="px-3 py-2 text-[11px] text-gray-500 line-clamp-3 leading-relaxed">{item.description}</p>
+                      <p className="px-3 pt-2 pb-3 text-[11px] text-gray-500 line-clamp-3 leading-relaxed">{item.description}</p>
                     )}
                   </div>
                 )
