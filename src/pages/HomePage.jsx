@@ -33,13 +33,13 @@ export default function HomePage() {
           getAnnouncements({ type: 'newsletter' }),
           getProcurement({ type: 'egp' }),
           getProcurement({ type: 'news' }),
-          getTravel({ limit: 4 }),
+          getTravel({ limit: 6 }),
         ])
         setAnnounce(ann?.data || [])
         setNewsletter(nl?.data || [])
         setEgp(e?.data || [])
         setProcNews(pn?.data || [])
-        setTravel((tv?.data || []).slice(0, 4))
+        setTravel((tv?.data || []).slice(0, 6))
       } catch (err) {
         console.error(err)
       } finally {
@@ -116,9 +116,20 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Travel places */}
+      {/* Travel places — infinite marquee */}
       {travel.length > 0 && (
-        <div className="card">
+        <div className="card overflow-hidden">
+          <style>{`
+            @keyframes marquee {
+              0%   { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            .travel-marquee {
+              animation: marquee ${travel.length * 4}s linear infinite;
+            }
+            .travel-marquee:hover { animation-play-state: paused; }
+          `}</style>
+
           <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
             <div className="flex items-center gap-2">
               <span>🗺️</span>
@@ -126,27 +137,30 @@ export default function HomePage() {
             </div>
             <Link to="/travel" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
           </div>
-          <div className="grid grid-cols-2 gap-3 p-3">
-            {travel.map(item => {
-              const mainImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
-              return (
-                <div key={item._id} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group bg-white">
-                  <div className="relative aspect-video overflow-hidden bg-teal-50">
-                    {mainImg
-                      ? <img src={mainImg} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                      : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🏞️</div>
-                    }
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 px-3 py-2">
-                      <p className="text-white text-xs font-semibold leading-snug drop-shadow line-clamp-2">{item.title}</p>
+
+          <div className="overflow-hidden py-3">
+            <div className="travel-marquee flex gap-3 w-max">
+              {[...travel, ...travel].map((item, i) => {
+                const mainImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
+                return (
+                  <div key={i} className="w-52 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
+                    <div className="relative overflow-hidden bg-teal-50" style={{ height: '120px' }}>
+                      {mainImg
+                        ? <img src={mainImg} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🏞️</div>
+                      }
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 px-3 py-2">
+                        <p className="text-white text-xs font-semibold leading-snug drop-shadow line-clamp-2">{item.title}</p>
+                      </div>
                     </div>
+                    {item.description && (
+                      <p className="px-3 py-2 text-[11px] text-gray-500 line-clamp-2 leading-relaxed">{item.description}</p>
+                    )}
                   </div>
-                  {item.description && (
-                    <p className="px-3 py-2 text-[11px] text-gray-500 line-clamp-2 leading-relaxed">{item.description}</p>
-                  )}
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
         </div>
       )}
