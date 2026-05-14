@@ -17,7 +17,7 @@ export default function PdfUpload({ value, label, onChange }) {
       const res = await uploadPdf(file)
       onChange(res.data.url, file.name)
     } catch {
-      setErr('อัปโหลดไม่สำเร็จ ไฟล์อาจใหญ่เกิน 10 MB')
+      setErr('อัปโหลดไม่สำเร็จ ไฟล์อาจใหญ่เกิน 100 MB')
     } finally {
       setUploading(false)
     }
@@ -64,7 +64,7 @@ export default function PdfUpload({ value, label, onChange }) {
             </span>
             <input type="file" accept="application/pdf" className="hidden" onChange={handleFile} disabled={uploading} />
           </label>
-          <p className="text-[11px] text-gray-400 mt-1.5">ขนาดไฟล์สูงสุด 10 MB — ถ้าใหญ่กว่านี้ใช้แท็บ "วางลิงค์"</p>
+          <p className="text-[11px] text-gray-400 mt-1.5">ขนาดไฟล์สูงสุด 100 MB (Backblaze B2)</p>
         </div>
       )}
 

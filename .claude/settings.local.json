@@ -37,7 +37,8 @@
       "Bash(dir C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend\\\\routes *)",
       "Bash(dir C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend\\\\models *)",
       "Bash(Get-ChildItem \"C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend\" -Exclude node_modules)",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "Bash(npm install *)"
     ]
   }
 }
