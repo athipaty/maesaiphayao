@@ -8,7 +8,6 @@ const MENU = [
   { path: '/admin/announcements', label: 'ประชาสัมพันธ์',       icon: '📢' },
   { path: '/admin/procurement',       label: 'จัดซื้อจัดจ้าง',   icon: '📦' },
   { path: '/admin/procurement-plans', label: 'แผนการจัดหาพัสดุ', icon: '📋' },
-  { path: '/admin/ita',           label: 'ITA / OIT',           icon: '🏆' },
   { section: 'บริการสาธารณะ' },
   { path: '/admin/eservice',      label: 'คำร้อง e-Service',    icon: '🌐' },
   { path: '/admin/complaints',    label: 'เรื่องร้องเรียน',      icon: '📮' },
