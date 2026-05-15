@@ -153,13 +153,19 @@ export default function Sidebar({ onNavigate, mobile = false }) {
         </ul>
       </div>
 
-      {/* บริการสาธารณะ */}
+      {/* บริการสาธารณะ + E-Service (combined) */}
       <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
-        <div className="bg-secondary text-white px-3.5 py-2.5 text-sm font-semibold flex items-center gap-2">
-          <span className="w-1 h-3.5 bg-accent rounded-sm inline-block"></span>
-          บริการสาธารณะ
+        <div style={{
+          background: 'linear-gradient(135deg, #1a5276 0%, #2980b9 60%, #1abc9c 100%)',
+          padding: '14px 16px 10px',
+        }}>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xl">🌐</span>
+            <span className="text-white font-bold text-sm">บริการสาธารณะ</span>
+          </div>
+          <p className="text-white/70 text-xs">บริการออนไลน์สำหรับประชาชน</p>
         </div>
-        <ul>
+        <ul className="border-b border-gray-100">
           {PUBLIC_SERVICE_ITEMS.map(item => (
             <li key={item.to}>
               <NavLink to={item.to} onClick={onNavigate}
@@ -174,20 +180,6 @@ export default function Sidebar({ onNavigate, mobile = false }) {
             </li>
           ))}
         </ul>
-      </div>
-
-      {/* E-Service */}
-      <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
-        <div style={{
-          background: 'linear-gradient(135deg, #1a5276 0%, #2980b9 60%, #1abc9c 100%)',
-          padding: '14px 16px 10px',
-        }}>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xl">🌐</span>
-            <span className="text-white font-bold text-sm">บริการ e-service</span>
-          </div>
-          <p className="text-white/70 text-xs">บริการออนไลน์สำหรับประชาชน</p>
-        </div>
         <div className="p-2 space-y-1">
           {ESERVICES.map(e => (
             <a key={e.label} href={e.href} target="_blank" rel="noreferrer"
