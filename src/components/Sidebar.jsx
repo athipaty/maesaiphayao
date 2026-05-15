@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import { getSettings, getPages } from '../services/api'
 
 const ESERVICES = [
-  { icon: '🌐', label: 'ศูนย์บริการออนไลน์',                   href: 'https://www.dla.go.th/oss.htm' },
   { icon: '💬', label: 'แชท Messenger',                         href: 'https://m.me/MaesaiSAOPhayao' },
   { icon: '📘', label: 'Facebook Page',                          href: 'https://www.facebook.com/MaesaiSAOPhayao' },
   { icon: '📍', label: 'Traffy Fondue',                          href: 'https://liff.line.me/1645278921-kWRPP32q/?accountId=traffyfondue' },
