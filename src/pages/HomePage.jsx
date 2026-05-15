@@ -21,7 +21,7 @@ export default function HomePage() {
       try {
         // fetch news per dept (3 each)
         const deptResults = await Promise.all(
-          DEPARTMENTS.map(dept => getNews({ dept, limit: 2 }))
+          DEPARTMENTS.map(dept => getNews({ dept, limit: 3 }))
         )
         const map = {}
         DEPARTMENTS.forEach((dept, i) => { map[dept] = deptResults[i]?.data || [] })

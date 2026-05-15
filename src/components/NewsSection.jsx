@@ -35,8 +35,8 @@ export function NewsSection({ dept, items = [], loading }) {
       ) : items.length === 0 ? (
         <div className="px-3 py-2 text-gray-400 text-sm">ยังไม่มีข่าวสาร</div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 p-3">
-          {items.slice(0, 2).map(item => {
+        <div className="grid grid-cols-3 gap-3 p-3">
+          {items.slice(0, 3).map(item => {
             const img = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
             const icon = DEPT_ICONS[item.department] || DEPT_ICONS[dept] || '📰'
             const label = DEPT_LABELS[item.department] || DEPT_LABELS[dept] || ''
