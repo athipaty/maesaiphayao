@@ -207,23 +207,20 @@ export default function HomePage() {
         )
       })()}
 
-      {/* ── Facebook + Procurement side by side ─────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-hidden">
+      {/* ── Facebook full width ──────────────────────────────────────── */}
+      <div className="card p-0 overflow-hidden" style={{ height: '500px' }}>
+        <iframe
+          src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false"
+          style={{ border: 'none', width: '100%', height: '100%', display: 'block' }}
+          frameBorder="0"
+          allowFullScreen
+          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+          sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox"
+          title="Facebook Page อบต.แม่ใส"
+        />
+      </div>
 
-        {/* Facebook (left 50%) */}
-        <div className="card p-0" style={{ position: 'relative', minWidth: 0, overflow: 'hidden', minHeight: '500px' }}>
-          <iframe
-            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=340&height=500&small_header=false&adapt_container_width=false&hide_cover=false&show_facepile=false"
-            style={{ position: 'absolute', inset: 0, border: 'none', width: '100%', height: '100%' }}
-            frameBorder="0"
-            allowFullScreen
-            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-            sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox"
-            title="Facebook Page อบต.แม่ใส"
-          />
-        </div>
-
-        {/* Procurement (right 50%) */}
+      {/* ── Procurement ──────────────────────────────────────────────── */}
         <div className="card p-0 overflow-hidden flex flex-col">
           <div className="flex border-b border-gray-200 overflow-x-auto flex-shrink-0">
             {[
@@ -288,9 +285,6 @@ export default function HomePage() {
             )}
           </div>
         </div>
-
-      </div>
-
 
       {/* ── Travel marquee ────────────────────────────────────────────── */}
       {travel.length > 0 && (
