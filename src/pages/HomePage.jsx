@@ -211,10 +211,9 @@ export default function HomePage() {
             frameBorder="0"
             allowFullScreen
             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox"
             title="Facebook Page อบต.แม่ใส"
           />
-          {/* Click shield — blocks navigation into Facebook */}
-          <div style={{ position: 'absolute', inset: 0, zIndex: 10 }} />
         </div>
 
         {/* Procurement (right 50%) */}
