@@ -186,7 +186,7 @@ export default function HomePage() {
       <div className="flex flex-col md:flex-row gap-3">
 
         {/* Facebook (left 50%) */}
-        <div className="card overflow-hidden p-0 md:w-1/2">
+        <div className="card overflow-hidden p-0 md:w-1/2" style={{ position: 'relative' }}>
           <iframe
             src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=800&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false"
             width="100%"
@@ -197,6 +197,8 @@ export default function HomePage() {
             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
             title="Facebook Page อบต.แม่ใส"
           />
+          {/* Click shield — blocks navigation into Facebook */}
+          <div style={{ position: 'absolute', inset: 0, zIndex: 10 }} />
         </div>
 
         {/* Procurement (right 50%) */}
