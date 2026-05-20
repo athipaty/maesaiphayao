@@ -1,33 +1,34 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getNews, getAnnouncements, getProcurement, getTravel } from '../services/api'
-import { NewsSection } from '../components/NewsSection'
+import { DEPT_LABELS, DEPT_ICONS } from '../components/NewsSection'
 
 const DEPARTMENTS = ['council', 'office', 'disaster', 'health', 'engineering', 'finance']
 
 export default function HomePage() {
-  const [newsByDept, setNewsByDept]     = useState({})
-  const [announce, setAnnounce]         = useState([])
-  const [newsletter, setNewsletter]     = useState([])
-  const [egp, setEgp]                   = useState([])
-  const [procNews, setProcNews]         = useState([])
-  const [loading, setLoading]           = useState(true)
-  const [travel, setTravel]             = useState([])
-  const [prTab, setPrTab]               = useState('announcement')
-  const [procTab, setProcTab]           = useState('egp')
+  const [allNews, setAllNews]       = useState([])
+  const [announce, setAnnounce]     = useState([])
+  const [newsletter, setNewsletter] = useState([])
+  const [egp, setEgp]               = useState([])
+  const [procNews, setProcNews]     = useState([])
+  const [loading, setLoading]       = useState(true)
+  const [travel, setTravel]         = useState([])
+  const [prTab, setPrTab]           = useState('announcement')
+  const [procTab, setProcTab]       = useState('egp')
 
   useEffect(() => {
     async function load() {
       try {
-        // fetch news per dept (3 each)
         const deptResults = await Promise.all(
           DEPARTMENTS.map(dept => getNews({ dept, limit: 3 }))
         )
-        const map = {}
-        DEPARTMENTS.forEach((dept, i) => { map[dept] = deptResults[i]?.data || [] })
-        setNewsByDept(map)
+        const flat = []
+        DEPARTMENTS.forEach((dept, i) => {
+          ;(deptResults[i]?.data || []).forEach(item => flat.push({ ...item, _dept: dept }))
+        })
+        flat.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
+        setAllNews(flat)
 
-        // fetch announcements
         const [ann, nl, e, pn, tv] = await Promise.all([
           getAnnouncements({ type: 'announcement' }),
           getAnnouncements({ type: 'newsletter' }),
@@ -51,17 +52,74 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* News sections per department */}
-      {DEPARTMENTS.map(dept => (
-        <NewsSection
-          key={dept}
-          dept={dept}
-          items={newsByDept[dept] || []}
-          loading={loading}
-        />
-      ))}
 
-      {/* Announcements + Newsletter tabs */}
+      {/* ── Combined news marquee ─────────────────────────────────────── */}
+      <div className="card">
+        <style>{`
+          @keyframes news-marquee {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          .news-marquee {
+            animation: news-marquee ${Math.max(allNews.length * 5, 30)}s linear infinite;
+          }
+          .news-marquee:hover { animation-play-state: paused; }
+        `}</style>
+
+        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
+          <div className="flex items-center gap-2">
+            <span>📰</span>
+            <span className="text-sm font-semibold text-primary">ข่าวสาร กิจกรรม ทั้งหมด</span>
+          </div>
+          <Link to="/news" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
+        </div>
+
+        {loading ? (
+          <div className="px-4 py-6 text-center text-gray-400 text-sm">กำลังโหลด...</div>
+        ) : allNews.length === 0 ? (
+          <div className="px-4 py-6 text-center text-gray-400 text-sm">ยังไม่มีข่าวสาร</div>
+        ) : (
+          <div className="overflow-hidden pt-3 pb-4">
+            <div className="news-marquee flex gap-3 w-max">
+              {[...allNews, ...allNews].map((item, i) => {
+                const img  = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
+                const dept = item.department || item._dept
+                const icon = DEPT_ICONS[dept] || '📰'
+                const label = DEPT_LABELS[dept] || ''
+                return (
+                  <Link
+                    key={i}
+                    to={`/news/detail/${item._id}`}
+                    className="w-52 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-0.5 transition-all"
+                  >
+                    <div className="relative overflow-hidden bg-blue-50" style={{ height: '148px' }}>
+                      {img
+                        ? <img src={img} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        : <div className="w-full h-full flex items-center justify-center text-4xl opacity-40">{icon}</div>
+                      }
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+                      <span className="absolute top-2 left-2 inline-flex items-center gap-1 text-[10px] bg-white/90 text-primary font-semibold px-2 py-0.5 rounded-full shadow">
+                        {icon} {label}
+                      </span>
+                      <p className="absolute bottom-0 left-0 right-0 px-3 py-2 text-white text-xs font-semibold leading-snug drop-shadow line-clamp-2">
+                        {item.title}
+                      </p>
+                    </div>
+                    <div className="px-3 py-2 flex items-center justify-between">
+                      <span className="text-[10px] text-gray-400">
+                        📅 {new Date(item.publishedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                      </span>
+                      <span className="text-[10px] text-gray-400">👁 {item.views}</span>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Announcements + Newsletter tabs ──────────────────────────── */}
       <div className="card">
         <div className="flex border-b border-gray-200 overflow-x-auto">
           {[
@@ -116,7 +174,7 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Procurement tabs */}
+      {/* ── Procurement tabs ─────────────────────────────────────────── */}
       <div className="card">
         <div className="flex border-b border-gray-200 overflow-x-auto">
           {[
@@ -152,7 +210,7 @@ export default function HomePage() {
         </ul>
       </div>
 
-      {/* Travel places — infinite marquee */}
+      {/* ── Travel marquee ────────────────────────────────────────────── */}
       {travel.length > 0 && (
         <div className="card">
           <style>{`
