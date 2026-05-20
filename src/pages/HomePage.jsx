@@ -215,26 +215,27 @@ export default function HomePage() {
             <div className="h-px flex-1" style={{ background:'linear-gradient(to left,transparent,#fca5a5)' }}/>
           </div>
 
-          {/* ── Official contacts grid ── */}
-          <div className="grid grid-cols-2 gap-2">
+          {/* ── Official contacts — compact list ── */}
+          <div className="rounded-xl overflow-hidden border border-red-100">
             {[
-              { label:'นายก อบต.แม่ใส',  phone:'0897577366', display:'089-757-7366', icon:'👨‍💼', sticker:'⭐', bg:'linear-gradient(135deg,#dbeafe,#eff6ff)', border:'#93c5fd', text:'#1d4ed8' },
-              { label:'ปลัด อบต.แม่ใส',  phone:'0987496770', display:'098-749-6770', icon:'📋', sticker:'✅', bg:'linear-gradient(135deg,#dcfce7,#f0fdf4)', border:'#86efac', text:'#15803d' },
-              { label:'นักป้องกันฯ',      phone:'0812635432', display:'081-263-5432', icon:'🚒', sticker:'🔥', bg:'linear-gradient(135deg,#ffedd5,#fff7ed)', border:'#fdba74', text:'#c2410c' },
-              { label:'ป้องกัน อบต.',     phone:'054889809',  display:'054-889-809',  icon:'🛡️', sticker:'💪', bg:'linear-gradient(135deg,#ffedd5,#fff7ed)', border:'#fdba74', text:'#c2410c' },
-              { label:'รพ.สต.แม่ใส',     phone:'054889885',  display:'054-889-885',  icon:'🏥', sticker:'💚', bg:'linear-gradient(135deg,#dcfce7,#f0fdf4)', border:'#86efac', text:'#15803d' },
-            ].map(({ label, phone, display, icon, sticker, bg, border, text }) => (
+              { label:'นายก อบต.แม่ใส',  phone:'0897577366', display:'089-757-7366', icon:'👨‍💼', badge:'⭐', bg:'#eff6ff', text:'#1d4ed8' },
+              { label:'ปลัด อบต.แม่ใส',  phone:'0987496770', display:'098-749-6770', icon:'📋',   badge:'✅', bg:'#f0fdf4', text:'#15803d' },
+              { label:'นักป้องกันฯ',      phone:'0812635432', display:'081-263-5432', icon:'🚒',  badge:'🔥', bg:'#fff7ed', text:'#c2410c' },
+              { label:'ป้องกัน อบต.',     phone:'054889809',  display:'054-889-809',  icon:'🛡️', badge:'💪', bg:'#fff7ed', text:'#c2410c' },
+              { label:'รพ.สต.แม่ใส',     phone:'054889885',  display:'054-889-885',  icon:'🏥',  badge:'💚', bg:'#f0fdf4', text:'#15803d' },
+            ].map(({ label, phone, display, icon, badge, bg, text }, i, arr) => (
               <a key={phone} href={`tel:${phone}`}
-                className="relative rounded-xl px-3 py-2.5 hover:scale-[1.03] transition-transform"
-                style={{ background:bg, border:`1.5px solid ${border}`, textDecoration:'none', display:'block' }}>
-                <span style={{ position:'absolute', top:'-9px', right:'8px', fontSize:'15px', filter:'drop-shadow(0 1px 2px rgba(0,0,0,0.15))' }}>{sticker}</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl flex-shrink-0">{icon}</span>
-                  <div className="min-w-0">
-                    <p className="text-[9px] font-semibold leading-tight text-gray-400 truncate">{label}</p>
-                    <p className="text-sm font-bold leading-tight" style={{ color:text }}>{display}</p>
-                  </div>
+                className="flex items-center gap-2.5 px-3 py-2 hover:brightness-95 transition-all"
+                style={{ background:bg, borderBottom: i < arr.length-1 ? '1px solid rgba(0,0,0,0.05)' : 'none', textDecoration:'none', display:'flex' }}>
+                <div className="relative flex-shrink-0">
+                  <span className="text-xl">{icon}</span>
+                  <span style={{ position:'absolute', top:'-6px', right:'-6px', fontSize:'11px' }}>{badge}</span>
                 </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] text-gray-400 leading-tight truncate">{label}</p>
+                  <p className="text-sm font-bold leading-tight" style={{ color:text }}>{display}</p>
+                </div>
+                <span className="text-base flex-shrink-0">📞</span>
               </a>
             ))}
           </div>
@@ -242,22 +243,24 @@ export default function HomePage() {
           {/* ── Utility hotlines ── */}
           <div className="flex items-center gap-2">
             <div className="h-px flex-1" style={{ background:'linear-gradient(to right,transparent,#d1d5db)' }}/>
-            <span className="text-[10px] font-bold text-gray-400 px-2 flex items-center gap-1">⚙️ สายด่วนสาธารณูปโภค</span>
+            <span className="text-[10px] font-bold text-gray-400 px-2">⚙️ สายด่วนสาธารณูปโภค</span>
             <div className="h-px flex-1" style={{ background:'linear-gradient(to left,transparent,#d1d5db)' }}/>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
             {[
-              { label:'ไฟฟ้า',  number:'1129', icon:'⚡', deco:'💡', bg:'linear-gradient(135deg,#fef3c7,#fefce8)', border:'#fde047', text:'#713f12' },
-              { label:'ประปา',  number:'1662', icon:'💧', deco:'🚰', bg:'linear-gradient(135deg,#dbeafe,#eff6ff)', border:'#93c5fd', text:'#1e3a8a' },
-              { label:'ตำรวจ', number:'191',  icon:'👮', deco:'🚔', bg:'linear-gradient(135deg,#ede9fe,#f5f3ff)', border:'#c4b5fd', text:'#4c1d95' },
-            ].map(({ label, number, icon, deco, bg, border, text }) => (
+              { label:'ไฟฟ้า',  number:'1129', icon:'⚡', badge:'💡', bg:'linear-gradient(135deg,#fef3c7,#fefce8)', border:'#fde047', text:'#713f12' },
+              { label:'ประปา',  number:'1662', icon:'💧', badge:'🚰', bg:'linear-gradient(135deg,#dbeafe,#eff6ff)', border:'#93c5fd', text:'#1e3a8a' },
+              { label:'ตำรวจ', number:'191',  icon:'👮', badge:'🚔', bg:'linear-gradient(135deg,#ede9fe,#f5f3ff)', border:'#c4b5fd', text:'#4c1d95' },
+            ].map(({ label, number, icon, badge, bg, border, text }) => (
               <a key={number} href={`tel:${number}`}
-                className="relative flex flex-col items-center gap-0.5 rounded-xl py-3 hover:scale-[1.04] transition-transform text-center overflow-hidden"
+                className="relative flex flex-col items-center gap-0.5 rounded-xl py-2.5 hover:scale-[1.04] transition-transform text-center"
                 style={{ background:bg, border:`1.5px solid ${border}`, textDecoration:'none' }}>
-                <span style={{ position:'absolute', top:'4px', right:'6px', fontSize:'11px', opacity:0.35 }}>{deco}</span>
-                <span className="text-2xl">{icon}</span>
-                <p className="text-[10px] font-bold mt-0.5" style={{ color:text }}>{label}</p>
+                <div className="relative">
+                  <span className="text-2xl">{icon}</span>
+                  <span style={{ position:'absolute', top:'-8px', right:'-8px', fontSize:'12px' }}>{badge}</span>
+                </div>
+                <p className="text-[10px] font-bold mt-1" style={{ color:text }}>{label}</p>
                 <p className="text-2xl font-black tracking-wider" style={{ color:text }}>{number}</p>
               </a>
             ))}
