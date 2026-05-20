@@ -42,7 +42,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
   const [menuPages, setMenuPages] = useState([])
   const [openSlug, setOpenSlug] = useState(null)
-  const [visits, setVisits] = useState({ today: 0, total: 0 })
+  const [visits, setVisits] = useState({ today: 0, week: 0, month: 0, year: 0, total: 0 })
 
   useEffect(() => {
     getSettings()
@@ -230,15 +230,19 @@ export default function Sidebar({ onNavigate, mobile = false }) {
           <span className="w-1 h-3.5 bg-accent rounded-sm inline-block"></span>
           จำนวนผู้เข้าชมเว็บ
         </div>
-        <div className="p-3 space-y-2">
-          <div className="flex items-center justify-between bg-blue-50 rounded px-3 py-2">
-            <span className="text-xs text-gray-600 flex items-center gap-1.5">👁 วันนี้</span>
-            <span className="text-sm font-bold text-primary">{visits.today.toLocaleString()}</span>
-          </div>
-          <div className="flex items-center justify-between bg-blue-50 rounded px-3 py-2">
-            <span className="text-xs text-gray-600 flex items-center gap-1.5">📊 ทั้งหมด</span>
-            <span className="text-sm font-bold text-secondary">{visits.total.toLocaleString()}</span>
-          </div>
+        <div className="p-3 space-y-1.5">
+          {[
+            { label: 'วันนี้',      value: visits.today, icon: '👁'  },
+            { label: 'สัปดาห์นี้', value: visits.week,  icon: '📅' },
+            { label: 'เดือนนี้',   value: visits.month, icon: '📆' },
+            { label: 'ปีนี้',      value: visits.year,  icon: '🗓️' },
+            { label: 'ทั้งหมด',    value: visits.total, icon: '📊' },
+          ].map(({ label, value, icon }) => (
+            <div key={label} className="flex items-center justify-between bg-blue-50 rounded px-3 py-1.5">
+              <span className="text-xs text-gray-600 flex items-center gap-1.5">{icon} {label}</span>
+              <span className="text-sm font-bold text-primary tabular-nums">{value.toLocaleString()}</span>
+            </div>
+          ))}
         </div>
       </div>
 
