@@ -124,9 +124,9 @@ export default function HomePage() {
         {/* Full-page embed — small_header=false shows cover photo + profile */}
         <div className="w-full">
           <iframe
-            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=800&height=700&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true"
+            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=&width=800&height=130&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false"
             width="100%"
-            height="700"
+            height="130"
             style={{ border: 'none', overflow: 'hidden', display: 'block', width: '100%' }}
             scrolling="no"
             frameBorder="0"
