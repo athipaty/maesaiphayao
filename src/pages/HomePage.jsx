@@ -119,6 +119,43 @@ export default function HomePage() {
         )}
       </div>
 
+      {/* ── Facebook Page ────────────────────────────────────────────── */}
+      <div className="card overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100"
+          style={{ background: 'linear-gradient(135deg, #1877f2 0%, #0a5dc2 100%)' }}>
+          <div className="flex items-center gap-2.5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+              <path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.97h-1.514c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+            </svg>
+            <span className="text-white font-semibold text-sm">Facebook : อบต.แม่ใส</span>
+          </div>
+          <a
+            href="https://www.facebook.com/MaesaiSAOPhayao"
+            target="_blank"
+            rel="noreferrer"
+            className="text-white/80 hover:text-white text-xs flex items-center gap-1 transition-colors"
+          >
+            ดูเพิ่มเติม →
+          </a>
+        </div>
+
+        {/* Embed */}
+        <div className="w-full flex justify-center bg-gray-50 py-2">
+          <iframe
+            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=true"
+            width="500"
+            height="500"
+            style={{ border: 'none', overflow: 'hidden', maxWidth: '100%' }}
+            scrolling="no"
+            frameBorder="0"
+            allowFullScreen
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            title="Facebook Page อบต.แม่ใส"
+          />
+        </div>
+      </div>
+
       {/* ── Announcements + Newsletter tabs ──────────────────────────── */}
       <div className="card">
         <div className="flex border-b border-gray-200 overflow-x-auto">
