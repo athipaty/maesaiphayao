@@ -1,6 +1,6 @@
 import { Link, NavLink } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { getSettings, getPages } from '../services/api'
+import { getSettings, getPages, getVisits, recordVisit } from '../services/api'
 
 const ESERVICES = [
   { icon: '💬', label: 'แชท Messenger',                         href: 'https://m.me/MaesaiSAOPhayao' },
@@ -42,6 +42,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
   const [menuPages, setMenuPages] = useState([])
   const [openSlug, setOpenSlug] = useState(null)
+  const [visits, setVisits] = useState({ today: 0, total: 0 })
 
   useEffect(() => {
     getSettings()
@@ -50,6 +51,13 @@ export default function Sidebar({ onNavigate, mobile = false }) {
     getPages()
       .then(r => setMenuPages((r?.data || []).filter(p => p.isActive)))
       .catch(() => {})
+
+    if (!sessionStorage.getItem('abt_visited')) {
+      sessionStorage.setItem('abt_visited', '1')
+      recordVisit().then(r => setVisits(r.data)).catch(() => {})
+    } else {
+      getVisits().then(r => setVisits(r.data)).catch(() => {})
+    }
   }, [])
 
   const topLevel = menuPages
@@ -213,6 +221,24 @@ export default function Sidebar({ onNavigate, mobile = false }) {
               {l.label}
             </a>
           ))}
+        </div>
+      </div>
+
+      {/* Visitor counter */}
+      <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
+        <div className="bg-secondary text-white px-3.5 py-2.5 text-sm font-semibold flex items-center gap-2">
+          <span className="w-1 h-3.5 bg-accent rounded-sm inline-block"></span>
+          จำนวนผู้เข้าชมเว็บ
+        </div>
+        <div className="p-3 space-y-2">
+          <div className="flex items-center justify-between bg-blue-50 rounded px-3 py-2">
+            <span className="text-xs text-gray-600 flex items-center gap-1.5">👁 วันนี้</span>
+            <span className="text-sm font-bold text-primary">{visits.today.toLocaleString()}</span>
+          </div>
+          <div className="flex items-center justify-between bg-blue-50 rounded px-3 py-2">
+            <span className="text-xs text-gray-600 flex items-center gap-1.5">📊 ทั้งหมด</span>
+            <span className="text-sm font-bold text-secondary">{visits.total.toLocaleString()}</span>
+          </div>
         </div>
       </div>
 

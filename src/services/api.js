@@ -104,6 +104,10 @@ export const createPage    = (data)      => api.post('/pages', data)
 export const updatePage    = (id, data)  => api.put(`/pages/${id}`, data)
 export const deletePage    = (id)        => api.delete(`/pages/${id}`)
 
+// ── Visitor counter ───────────────────────────────────────────────────────────
+export const getVisits    = ()  => api.get('/visits')
+export const recordVisit  = ()  => api.post('/visits')
+
 // ── Image upload ──────────────────────────────────────────────────────────────
 export const uploadImage = (file) => {
   const form = new FormData()
