@@ -1,17 +1,51 @@
 const LINKS = [
-  { label: 'กรมส่งเสริม\nการปกครอง', short: 'DLA', icon: '🏛️', href: 'http://www.dla.go.th/',            bg: 'linear-gradient(135deg,#1e3a8a,#2563eb)' },
-  { label: 'ระบบ E-GP',               short: 'EGP', icon: '📦', href: 'http://www.gprocurement.go.th/',   bg: 'linear-gradient(135deg,#065f46,#059669)' },
-  { label: 'ทะเบียนราษฎร',            short: 'DOPA',icon: '📋', href: 'https://stat.bora.dopa.go.th/',    bg: 'linear-gradient(135deg,#7c3aed,#a855f7)' },
-  { label: 'ระบบสวัสดิการ',            short: 'WEL', icon: '🤝', href: 'https://welfare.dla.go.th/',       bg: 'linear-gradient(135deg,#b45309,#f59e0b)' },
-  { label: 'เลือกตั้ง\nท้องถิ่น',     short: 'ELE', icon: '🗳️', href: 'https://ele.dla.go.th/',           bg: 'linear-gradient(135deg,#be123c,#f43f5e)' },
-  { label: 'เมล์\nกรมส่งเสริมฯ',      short: 'MAIL',icon: '📧', href: 'https://mail.dla.go.th/login',     bg: 'linear-gradient(135deg,#0e7490,#06b6d4)' },
-  { label: 'อุตุฯ\nเชียงใหม่',         short: 'TMD', icon: '🌤️', href: 'https://cmmet.tmd.go.th/',        bg: 'linear-gradient(135deg,#0369a1,#38bdf8)' },
-  { label: 'LPA\nDashboard',           short: 'LPA', icon: '📊', href: '#',                                bg: 'linear-gradient(135deg,#4f46e5,#818cf8)' },
+  { label: 'กรมส่งเสริม\nการปกครอง', short: 'DLA',  icon: '🏛️', href: 'http://www.dla.go.th/',           bg: 'linear-gradient(135deg,#1e3a8a,#2563eb)' },
+  { label: 'ระบบ E-GP',               short: 'EGP',  icon: '📦', href: 'http://www.gprocurement.go.th/',  bg: 'linear-gradient(135deg,#065f46,#059669)' },
+  { label: 'ทะเบียนราษฎร',            short: 'DOPA', icon: '📋', href: 'https://stat.bora.dopa.go.th/',   bg: 'linear-gradient(135deg,#7c3aed,#a855f7)' },
+  { label: 'ระบบสวัสดิการ',            short: 'WEL',  icon: '🤝', href: 'https://welfare.dla.go.th/',      bg: 'linear-gradient(135deg,#b45309,#f59e0b)' },
+  { label: 'เลือกตั้ง\nท้องถิ่น',     short: 'ELE',  icon: '🗳️', href: 'https://ele.dla.go.th/',          bg: 'linear-gradient(135deg,#be123c,#f43f5e)' },
+  { label: 'เมล์\nกรมส่งเสริมฯ',      short: 'MAIL', icon: '📧', href: 'https://mail.dla.go.th/login',    bg: 'linear-gradient(135deg,#0e7490,#06b6d4)' },
+  { label: 'อุตุฯ\nเชียงใหม่',         short: 'TMD',  icon: '🌤️', href: 'https://cmmet.tmd.go.th/',       bg: 'linear-gradient(135deg,#0369a1,#38bdf8)' },
+  { label: 'LPA\nDashboard',           short: 'LPA',  icon: '📊', href: '#',                               bg: 'linear-gradient(135deg,#4f46e5,#818cf8)' },
 ]
 
 export default function Footer() {
   return (
     <footer className="bg-primary text-white mt-6">
+      <style>{`
+        @keyframes banner-shimmer {
+          0%   { transform: translateX(-120%) skewX(-20deg); }
+          100% { transform: translateX(350%)  skewX(-20deg); }
+        }
+        @keyframes banner-glow {
+          0%,100% { box-shadow: 0 2px 8px rgba(0,0,0,0.3); filter: brightness(1); }
+          50%     { box-shadow: 0 4px 18px rgba(255,255,255,0.25), 0 2px 10px rgba(0,0,0,0.3); filter: brightness(1.18); }
+        }
+        .footer-banner { animation: banner-glow 2.4s ease-in-out infinite; position: relative; overflow: hidden; }
+        .footer-banner:nth-child(1) { animation-delay: 0s; }
+        .footer-banner:nth-child(2) { animation-delay: 0.3s; }
+        .footer-banner:nth-child(3) { animation-delay: 0.6s; }
+        .footer-banner:nth-child(4) { animation-delay: 0.9s; }
+        .footer-banner:nth-child(5) { animation-delay: 1.2s; }
+        .footer-banner:nth-child(6) { animation-delay: 1.5s; }
+        .footer-banner:nth-child(7) { animation-delay: 1.8s; }
+        .footer-banner:nth-child(8) { animation-delay: 2.1s; }
+        .footer-shimmer {
+          position: absolute; top: 0; left: 0; width: 40%; height: 100%;
+          background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.35) 50%, transparent 80%);
+          animation: banner-shimmer 3s ease-in-out infinite;
+          pointer-events: none;
+        }
+        .footer-banner:nth-child(1) .footer-shimmer { animation-delay: 0s; }
+        .footer-banner:nth-child(2) .footer-shimmer { animation-delay: 0.3s; }
+        .footer-banner:nth-child(3) .footer-shimmer { animation-delay: 0.6s; }
+        .footer-banner:nth-child(4) .footer-shimmer { animation-delay: 0.9s; }
+        .footer-banner:nth-child(5) .footer-shimmer { animation-delay: 1.2s; }
+        .footer-banner:nth-child(6) .footer-shimmer { animation-delay: 1.5s; }
+        .footer-banner:nth-child(7) .footer-shimmer { animation-delay: 1.8s; }
+        .footer-banner:nth-child(8) .footer-shimmer { animation-delay: 2.1s; }
+      `}</style>
+
       {/* Related links banner row */}
       <div style={{ background: 'linear-gradient(180deg,#0f2547 0%,#1a3a6b 100%)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div className="max-w-[1200px] mx-auto px-4 py-5">
@@ -26,12 +60,13 @@ export default function Footer() {
                 href={l.href}
                 target={l.href !== '#' ? '_blank' : undefined}
                 rel="noreferrer"
-                className="group flex flex-col items-center gap-1.5 rounded-xl py-3 px-1 hover:scale-105 hover:brightness-110 transition-all"
-                style={{ background: l.bg, textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.25)' }}
+                className="footer-banner group flex flex-col items-center gap-1.5 rounded-xl py-3 px-1 hover:scale-105 transition-transform"
+                style={{ background: l.bg, textDecoration: 'none' }}
               >
-                <span className="text-2xl leading-none group-hover:scale-110 transition-transform">{l.icon}</span>
-                <span className="text-[9px] font-bold text-white/60 tracking-widest">{l.short}</span>
-                <span className="text-[10px] font-semibold text-white text-center leading-tight whitespace-pre-line">{l.label}</span>
+                <span className="footer-shimmer" />
+                <span className="text-2xl leading-none group-hover:scale-110 transition-transform relative z-10">{l.icon}</span>
+                <span className="text-[9px] font-bold text-white/60 tracking-widest relative z-10">{l.short}</span>
+                <span className="text-[10px] font-semibold text-white text-center leading-tight whitespace-pre-line relative z-10">{l.label}</span>
               </a>
             ))}
           </div>
