@@ -7,6 +7,7 @@ const LINKS = [
   { label: 'เมล์กรมส่งเสริมฯ',       sub: 'MAIL', href: 'https://mail.dla.go.th/login',    bg: 'linear-gradient(135deg,#0e7490,#06b6d4)' },
   { label: 'อุตุฯ เชียงใหม่',        sub: 'TMD',  href: 'https://cmmet.tmd.go.th/',       bg: 'linear-gradient(135deg,#0369a1,#38bdf8)' },
   { label: 'LPA Dashboard',          sub: 'LPA',  href: '#',                               bg: 'linear-gradient(135deg,#4f46e5,#818cf8)' },
+  { label: 'แจ้งเบาะแสทุจริต',       sub: 'PACC', href: 'https://anonymous.pacc.go.th/',   bg: 'linear-gradient(135deg,#7f1d1d,#dc2626)' },
 ]
 
 export default function Footer() {
@@ -30,6 +31,7 @@ export default function Footer() {
         .footer-banner:nth-child(6) { animation-delay: 1.5s; }
         .footer-banner:nth-child(7) { animation-delay: 1.8s; }
         .footer-banner:nth-child(8) { animation-delay: 2.1s; }
+        .footer-banner:nth-child(9) { animation-delay: 2.4s; }
         .footer-shimmer {
           position: absolute; top: 0; left: 0; width: 40%; height: 100%;
           background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.3) 50%, transparent 80%);
@@ -44,6 +46,7 @@ export default function Footer() {
         .footer-banner:nth-child(6) .footer-shimmer { animation-delay: 1.5s; }
         .footer-banner:nth-child(7) .footer-shimmer { animation-delay: 1.8s; }
         .footer-banner:nth-child(8) .footer-shimmer { animation-delay: 2.1s; }
+        .footer-banner:nth-child(9) .footer-shimmer { animation-delay: 2.4s; }
       `}</style>
 
       {/* Related links banner row */}
@@ -53,7 +56,7 @@ export default function Footer() {
             <span className="w-1 h-4 rounded-sm inline-block" style={{ background: '#f59e0b' }} />
             <span className="text-sm font-semibold text-white/90 tracking-wide">ลิงค์ที่เกี่ยวข้อง</span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-2">
             {LINKS.map(l => (
               <a
                 key={l.label}
