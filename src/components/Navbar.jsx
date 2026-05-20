@@ -99,11 +99,11 @@ export default function Navbar({ onMenuClick }) {
         </div>
       </div>
 
-      {/* Mobile nav strip — scrollable pill links (all top-level pages) */}
-      {mobileItems.length > 0 && (
+      {/* Mobile nav strip — scrollable pill links (navbar items only) */}
+      {navItems.length > 0 && (
         <nav className="lg:hidden bg-white border-b border-gray-200 overflow-x-auto">
           <div className="flex items-center gap-1 px-3 py-2 w-max">
-            {mobileItems.map(m => {
+            {navItems.map(m => {
               const linkPath = m.isBuiltin ? m.path : `/page/${m.slug}`
               return (
                 <NavLink key={m.slug} to={linkPath}
