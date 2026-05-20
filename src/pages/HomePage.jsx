@@ -187,19 +187,16 @@ export default function HomePage() {
 
         {/* Facebook (left 50%) */}
         <div className="card overflow-hidden p-0 md:w-1/2">
-          <div style={{ overflow: 'hidden', height: '552px' }}>
-            <iframe
-              src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=800&height=520&small_header=true&adapt_container_width=true&hide_cover=true&show_facepile=false"
-              width="100%"
-              height="520"
-              style={{ border: 'none', overflow: 'hidden', display: 'block', width: '100%', marginTop: '-52px' }}
-              scrolling="no"
-              frameBorder="0"
-              allowFullScreen
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-              title="Facebook Page อบต.แม่ใส"
-            />
-          </div>
+          <iframe
+            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=800&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false"
+            width="100%"
+            height="500"
+            style={{ border: 'none', display: 'block', width: '100%' }}
+            frameBorder="0"
+            allowFullScreen
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            title="Facebook Page อบต.แม่ใส"
+          />
         </div>
 
         {/* Procurement (right 50%) */}
@@ -220,7 +217,7 @@ export default function HomePage() {
               </button>
             ))}
           </div>
-          <div className="overflow-y-auto flex-1" style={{ maxHeight: '500px' }}>
+          <div className="overflow-y-auto flex-1" style={{ maxHeight: '460px' }}>
             {procTab === 'egp' ? (
               egpLoading ? (
                 <div className="px-3 py-4 text-center text-gray-400 text-sm animate-pulse">กำลังดึงข้อมูลจากระบบ e-GP...</div>
