@@ -178,7 +178,7 @@ export default function HomePage() {
       <div className="card overflow-hidden p-0">
         <div className="w-full">
           <iframe
-            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=800&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false"
+            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=800&height=500&small_header=true&adapt_container_width=true&hide_cover=true&show_facepile=false"
             width="100%"
             height="500"
             style={{ border: 'none', overflow: 'hidden', display: 'block', width: '100%' }}
