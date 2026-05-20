@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getNews, getAnnouncements, getProcurement, getTravel, getFacebookPage } from '../services/api'
+import { getNews, getAnnouncements, getProcurement, getTravel, getFacebookPage, getEgpRss } from '../services/api'
 import { DEPT_LABELS, DEPT_ICONS } from '../components/NewsSection'
 
 const DEPARTMENTS = ['council', 'office', 'disaster', 'health', 'engineering', 'finance']
@@ -10,6 +10,8 @@ export default function HomePage() {
   const [announce, setAnnounce]     = useState([])
   const [newsletter, setNewsletter] = useState([])
   const [egp, setEgp]               = useState([])
+  const [egpLoading, setEgpLoading] = useState(true)
+  const [egpError, setEgpError]     = useState('')
   const [procNews, setProcNews]     = useState([])
   const [loading, setLoading]       = useState(true)
   const [travel, setTravel]         = useState([])
@@ -30,18 +32,22 @@ export default function HomePage() {
         flat.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
         setAllNews(flat)
 
-        const [ann, nl, e, pn, tv] = await Promise.all([
+        const [ann, nl, pn, tv] = await Promise.all([
           getAnnouncements({ type: 'announcement' }),
           getAnnouncements({ type: 'newsletter' }),
-          getProcurement({ type: 'egp' }),
           getProcurement({ type: 'news' }),
           getTravel({ limit: 6 }),
         ])
         getFacebookPage().then(r => setFbPage(r?.data)).catch(() => {})
         setAnnounce(ann?.data || [])
         setNewsletter(nl?.data || [])
-        setEgp(e?.data || [])
         setProcNews(pn?.data || [])
+
+        // Fetch EGP RSS separately (can fail outside service hours)
+        getEgpRss()
+          .then(r => setEgp(r?.data || []))
+          .catch(() => setEgpError('ระบบ e-GP ไม่พร้อมให้บริการในขณะนี้'))
+          .finally(() => setEgpLoading(false))
         setTravel((tv?.data || []).slice(0, 6))
       } catch (err) {
         console.error(err)
@@ -286,22 +292,50 @@ export default function HomePage() {
             </button>
           ))}
         </div>
-        <ul className="divide-y divide-gray-50">
-          {(procTab === 'egp' ? egp : procNews).length === 0 && (
-            <li className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</li>
-          )}
-          {(procTab === 'egp' ? egp : procNews).map((p, i) => (
-            <li key={p._id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
-              <div className="min-w-0 flex-1">
-                {p.externalUrl
-                  ? <a href={p.externalUrl} target="_blank" rel="noreferrer" className="text-sm text-secondary hover:underline leading-snug block">{p.title}</a>
-                  : <span className="text-sm text-gray-700 leading-snug">{p.title}</span>
-                }
-              </div>
-            </li>
-          ))}
-        </ul>
+        {procTab === 'egp' ? (
+          egpLoading ? (
+            <div className="px-3 py-4 text-center text-gray-400 text-sm animate-pulse">กำลังดึงข้อมูลจากระบบ e-GP...</div>
+          ) : egpError ? (
+            <div className="px-3 py-4 text-center">
+              <p className="text-gray-400 text-sm">{egpError}</p>
+              <p className="text-gray-300 text-xs mt-1">เปิดให้บริการ 17:01 – 08:59 น.</p>
+            </div>
+          ) : egp.length === 0 ? (
+            <div className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</div>
+          ) : (
+            <ul className="divide-y divide-gray-50">
+              {egp.slice(0, 10).map((p, i) => (
+                <li key={i} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                  <div className="min-w-0 flex-1">
+                    {p.link
+                      ? <a href={p.link} target="_blank" rel="noreferrer" className="text-sm text-secondary hover:underline leading-snug block">{p.title}</a>
+                      : <span className="text-sm text-gray-700 leading-snug">{p.title}</span>
+                    }
+                    {p.date && <span className="text-[10px] text-gray-400">{new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}</span>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )
+        ) : (
+          <ul className="divide-y divide-gray-50">
+            {procNews.length === 0 && (
+              <li className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</li>
+            )}
+            {procNews.map((p, i) => (
+              <li key={p._id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                <div className="min-w-0 flex-1">
+                  {p.externalUrl
+                    ? <a href={p.externalUrl} target="_blank" rel="noreferrer" className="text-sm text-secondary hover:underline leading-snug block">{p.title}</a>
+                    : <span className="text-sm text-gray-700 leading-snug">{p.title}</span>
+                  }
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* ── Travel marquee ────────────────────────────────────────────── */}
