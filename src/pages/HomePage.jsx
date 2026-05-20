@@ -202,12 +202,10 @@ export default function HomePage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-hidden">
 
         {/* Facebook (left 50%) */}
-        <div className="card p-0" style={{ position: 'relative', minWidth: 0, overflow: 'hidden' }}>
+        <div className="card p-0" style={{ position: 'relative', minWidth: 0, overflow: 'hidden', minHeight: '500px' }}>
           <iframe
             src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=340&height=500&small_header=false&adapt_container_width=false&hide_cover=false&show_facepile=false"
-            width="100%"
-            height="500"
-            style={{ border: 'none', display: 'block', width: '100%', maxWidth: '100%' }}
+            style={{ position: 'absolute', inset: 0, border: 'none', width: '100%', height: '100%' }}
             frameBorder="0"
             allowFullScreen
             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
