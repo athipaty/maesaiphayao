@@ -40,14 +40,14 @@ export default function ContactPage() {
                 <span className="text-lg">📞</span>
                 <div>
                   <p className="font-medium">โทรศัพท์</p>
-                  <p className="text-gray-500">0-5488-9909</p>
+                  <a href="tel:054889909" className="text-blue-600 hover:underline active:opacity-70 font-medium">0-5488-9909</a>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-lg">📧</span>
                 <div>
                   <p className="font-medium">อีเมล</p>
-                  <p className="text-gray-500">saraban_06560115@dla.go.th</p>
+                  <a href="mailto:saraban_06560115@dla.go.th" className="text-blue-600 hover:underline active:opacity-70 break-all">saraban_06560115@dla.go.th</a>
                 </div>
               </div>
               <div className="flex items-start gap-2">
