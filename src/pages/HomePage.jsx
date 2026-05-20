@@ -180,7 +180,9 @@ export default function HomePage() {
       <div className="card overflow-hidden p-0">
         {/* Custom header */}
         <div className="flex items-center gap-3 px-4 py-3" style={{ background: 'linear-gradient(135deg,#1877f2 0%,#0d65d9 100%)' }}>
-          <div className="flex-shrink-0 w-9 h-9 rounded-full bg-white flex items-center justify-center font-black text-xl" style={{ color: '#1877f2' }}>f</div>
+          <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
+            className="flex-shrink-0 w-9 h-9 rounded-full bg-white flex items-center justify-center font-black text-xl hover:opacity-80 transition-opacity"
+            style={{ color: '#1877f2', textDecoration: 'none' }}>f</a>
           <div className="flex-1 min-w-0">
             <p className="text-white font-semibold text-sm leading-tight">องค์การบริหารส่วนตำบลแม่ใส</p>
             <p className="text-blue-200 text-[11px] leading-tight">
