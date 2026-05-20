@@ -1,7 +1,45 @@
+const LINKS = [
+  { label: 'กรมส่งเสริม\nการปกครอง', short: 'DLA', icon: '🏛️', href: 'http://www.dla.go.th/',            bg: 'linear-gradient(135deg,#1e3a8a,#2563eb)' },
+  { label: 'ระบบ E-GP',               short: 'EGP', icon: '📦', href: 'http://www.gprocurement.go.th/',   bg: 'linear-gradient(135deg,#065f46,#059669)' },
+  { label: 'ทะเบียนราษฎร',            short: 'DOPA',icon: '📋', href: 'https://stat.bora.dopa.go.th/',    bg: 'linear-gradient(135deg,#7c3aed,#a855f7)' },
+  { label: 'ระบบสวัสดิการ',            short: 'WEL', icon: '🤝', href: 'https://welfare.dla.go.th/',       bg: 'linear-gradient(135deg,#b45309,#f59e0b)' },
+  { label: 'เลือกตั้ง\nท้องถิ่น',     short: 'ELE', icon: '🗳️', href: 'https://ele.dla.go.th/',           bg: 'linear-gradient(135deg,#be123c,#f43f5e)' },
+  { label: 'เมล์\nกรมส่งเสริมฯ',      short: 'MAIL',icon: '📧', href: 'https://mail.dla.go.th/login',     bg: 'linear-gradient(135deg,#0e7490,#06b6d4)' },
+  { label: 'อุตุฯ\nเชียงใหม่',         short: 'TMD', icon: '🌤️', href: 'https://cmmet.tmd.go.th/',        bg: 'linear-gradient(135deg,#0369a1,#38bdf8)' },
+  { label: 'LPA\nDashboard',           short: 'LPA', icon: '📊', href: '#',                                bg: 'linear-gradient(135deg,#4f46e5,#818cf8)' },
+]
+
 export default function Footer() {
   return (
     <footer className="bg-primary text-white mt-6">
-      <div className="max-w-[1200px] mx-auto px-4 py-6 text-center">
+      {/* Related links banner row */}
+      <div style={{ background: 'linear-gradient(180deg,#0f2547 0%,#1a3a6b 100%)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="max-w-[1200px] mx-auto px-4 py-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-1 h-4 rounded-sm inline-block" style={{ background: '#f59e0b' }} />
+            <span className="text-sm font-semibold text-white/90 tracking-wide">ลิงค์ที่เกี่ยวข้อง</span>
+          </div>
+          <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+            {LINKS.map(l => (
+              <a
+                key={l.label}
+                href={l.href}
+                target={l.href !== '#' ? '_blank' : undefined}
+                rel="noreferrer"
+                className="group flex flex-col items-center gap-1.5 rounded-xl py-3 px-1 hover:scale-105 hover:brightness-110 transition-all"
+                style={{ background: l.bg, textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.25)' }}
+              >
+                <span className="text-2xl leading-none group-hover:scale-110 transition-transform">{l.icon}</span>
+                <span className="text-[9px] font-bold text-white/60 tracking-widest">{l.short}</span>
+                <span className="text-[10px] font-semibold text-white text-center leading-tight whitespace-pre-line">{l.label}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Footer info */}
+      <div className="max-w-[1200px] mx-auto px-4 py-5 text-center">
         <h3 className="text-base font-semibold mb-2">องค์การบริหารส่วนตำบลแม่ใส</h3>
         <p className="text-sm opacity-80 leading-relaxed">
           198 ม.12 ตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา 56000<br />

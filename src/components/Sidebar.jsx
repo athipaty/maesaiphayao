@@ -12,16 +12,6 @@ const ESERVICES = [
   { icon: '📊', label: 'แบบสำรวจความพึงพอใจ',                   href: 'https://docs.google.com/forms/d/e/1FAIpQLSeoxWq5gYJ4XWgmThe4PoKBdyNB5yVKNDPrvSdu87Jl_YmlTg/viewform' },
 ]
 
-const LINKS = [
-  { label: 'กรมส่งเสริมการปกครอง', href: 'http://www.dla.go.th/' },
-  { label: 'ระบบ E-GP',             href: 'http://www.gprocurement.go.th/' },
-  { label: 'ทะเบียนราษฎร',          href: 'https://stat.bora.dopa.go.th/' },
-  { label: 'ระบบสวัสดิการ',          href: 'https://welfare.dla.go.th/' },
-  { label: 'เลือกตั้งท้องถิ่น',      href: 'https://ele.dla.go.th/' },
-  { label: 'เมล์ กรมส่งเสริมฯ',     href: 'https://mail.dla.go.th/login' },
-  { label: 'อุตุฯ เชียงใหม่',        href: 'https://cmmet.tmd.go.th/' },
-  { label: 'LPA Dashboard',          href: '#' },
-]
 
 const DEFAULT_SETTINGS = {
   mayorName:     'นายสันติ สารเร็ว',
@@ -206,22 +196,6 @@ export default function Sidebar({ onNavigate, mobile = false }) {
           <span className="text-xs font-normal opacity-90">การประเมินคุณธรรมและความโปร่งใส</span>
         </Link>
         <p className="text-xs text-gray-400 mt-1.5">OIT 26 ข้อ เปิดเผยข้อมูลสาธารณะ</p>
-      </div>
-
-      {/* Related links */}
-      <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
-        <div className="bg-secondary text-white px-3.5 py-2.5 text-sm font-semibold flex items-center gap-2">
-          <span className="w-1 h-3.5 bg-accent rounded-sm inline-block"></span>
-          ลิงค์ที่เกี่ยวข้อง
-        </div>
-        <div className="grid grid-cols-2 gap-1.5 p-2.5">
-          {LINKS.map(l => (
-            <a key={l.label} href={l.href} target="_blank" rel="noreferrer"
-              className="bg-blue-50 border border-blue-100 rounded p-2 text-center text-xs text-primary font-medium hover:bg-secondary hover:text-white hover:border-secondary transition-colors flex items-center justify-center min-h-[44px]">
-              {l.label}
-            </a>
-          ))}
-        </div>
       </div>
 
       {/* Visitor counter */}
