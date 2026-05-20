@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { loginAdmin, verifyAdmin } from '../../services/api'
 
 const MENU = [
@@ -37,6 +37,7 @@ export default function AdminLayout() {
   const [err, setErr]             = useState('')
   const [collapsed, setCollapsed] = useState(false)
   const navigate                  = useNavigate()
+  const location                  = useLocation()
 
   useEffect(() => {
     const token = sessionStorage.getItem('abt_token')
@@ -53,6 +54,7 @@ export default function AdminLayout() {
       const r = await loginAdmin(pw)
       sessionStorage.setItem('abt_token', r.data.token)
       setAuthed(true)
+      navigate(location.pathname, { replace: true })
     } catch {
       setErr('รหัสผ่านไม่ถูกต้อง')
     }

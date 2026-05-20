@@ -136,7 +136,7 @@ export default function App() {
           <Route path="complaints"       element={<Suspense fallback={null}><AdminComplaint /></Suspense>} />
           <Route path="documents"        element={<Suspense fallback={null}><AdminDocument /></Suspense>} />
           <Route path="settings"         element={<Suspense fallback={null}><AdminSettings /></Suspense>} />
-          <Route path="pages"            element={<Suspense fallback={null}><AdminPages /></Suspense>} />
+          <Route path="pages"            element={<Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm animate-pulse">กำลังโหลด...</div>}><AdminPages /></Suspense>} />
         </Route>
       </Routes>
     </>
