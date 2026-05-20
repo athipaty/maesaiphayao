@@ -69,7 +69,7 @@ export default function HomePage() {
             100% { transform: translateX(-50%); }
           }
           .news-marquee {
-            animation: news-marquee ${Math.max(allNews.length * 5, 30)}s linear infinite;
+            animation: news-marquee ${Math.max(allNews.length * 8, 50)}s linear infinite;
           }
           .news-marquee:hover { animation-play-state: paused; }
         `}</style>
@@ -98,9 +98,9 @@ export default function HomePage() {
                   <Link
                     key={i}
                     to={`/news/detail/${item._id}`}
-                    className="w-64 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-0.5 transition-all"
+                    className="w-72 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-0.5 transition-all"
                   >
-                    <div className="relative overflow-hidden bg-blue-50" style={{ height: '190px' }}>
+                    <div className="relative overflow-hidden bg-blue-50" style={{ height: '210px' }}>
                       {img
                         ? <img src={img} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         : <div className="w-full h-full flex items-center justify-center text-4xl opacity-40">{icon}</div>
@@ -136,7 +136,7 @@ export default function HomePage() {
               100% { transform: translateX(-50%); }
             }
             .ann-marquee {
-              animation: ann-marquee ${Math.max(announce.length * 6, 30)}s linear infinite;
+              animation: ann-marquee ${Math.max(announce.length * 8, 50)}s linear infinite;
             }
             .ann-marquee:hover { animation-play-state: paused; }
           `}</style>
@@ -157,7 +157,7 @@ export default function HomePage() {
                   href={item.fileUrl || '#'}
                   target={item.fileUrl ? '_blank' : undefined}
                   rel="noreferrer"
-                  className="w-64 flex-shrink-0 rounded-xl overflow-hidden border border-blue-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-0.5 transition-all"
+                  className="w-72 flex-shrink-0 rounded-xl overflow-hidden border border-blue-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-0.5 transition-all"
                   style={{ textDecoration: 'none' }}
                 >
                   <div className="relative flex items-center justify-center" style={{ height: '130px', background: 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)' }}>
@@ -297,8 +297,8 @@ export default function HomePage() {
               {[...travel, ...travel].map((item, i) => {
                 const mainImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
                 return (
-                  <div key={i} className="w-64 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
-                    <div className="relative overflow-hidden bg-teal-50" style={{ height: '190px' }}>
+                  <div key={i} className="w-72 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
+                    <div className="relative overflow-hidden bg-teal-50" style={{ height: '210px' }}>
                       {mainImg
                         ? <img src={mainImg} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🏞️</div>
