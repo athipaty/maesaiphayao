@@ -32,6 +32,11 @@ export default function Navbar({ onMenuClick }) {
     .filter(p => p.showInNavbar && !p.parentSlug && p.isActive)
     .sort((a, b) => a.order - b.order)
 
+  // Mobile strip shows ALL top-level active pages (sidebar + navbar combined)
+  const mobileItems = pages
+    .filter(p => !p.parentSlug && p.isActive)
+    .sort((a, b) => a.order - b.order)
+
   function getChildren(slug) {
     return pages.filter(p => p.parentSlug === slug).sort((a, b) => a.order - b.order)
   }
@@ -94,11 +99,11 @@ export default function Navbar({ onMenuClick }) {
         </div>
       </div>
 
-      {/* Mobile nav strip — scrollable pill links */}
-      {navItems.length > 0 && (
+      {/* Mobile nav strip — scrollable pill links (all top-level pages) */}
+      {mobileItems.length > 0 && (
         <nav className="lg:hidden bg-white border-b border-gray-200 overflow-x-auto">
           <div className="flex items-center gap-1 px-3 py-2 w-max">
-            {navItems.map(m => {
+            {mobileItems.map(m => {
               const linkPath = m.isBuiltin ? m.path : `/page/${m.slug}`
               return (
                 <NavLink key={m.slug} to={linkPath}
@@ -109,7 +114,7 @@ export default function Navbar({ onMenuClick }) {
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`
                   }>
-                  {m.title}
+                  {m.icon ? `${m.icon} ` : ''}{m.title}
                 </NavLink>
               )
             })}
