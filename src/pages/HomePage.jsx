@@ -90,9 +90,9 @@ export default function HomePage() {
                   <Link
                     key={i}
                     to={`/news/detail/${item._id}`}
-                    className="w-52 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-0.5 transition-all"
+                    className="w-64 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-0.5 transition-all"
                   >
-                    <div className="relative overflow-hidden bg-blue-50" style={{ height: '148px' }}>
+                    <div className="relative overflow-hidden bg-blue-50" style={{ height: '190px' }}>
                       {img
                         ? <img src={img} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         : <div className="w-full h-full flex items-center justify-center text-4xl opacity-40">{icon}</div>
