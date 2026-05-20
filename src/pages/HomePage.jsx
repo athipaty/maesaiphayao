@@ -137,6 +137,89 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* ── Emergency Contacts ───────────────────────────────────────── */}
+      <div className="card overflow-hidden p-0">
+        <style>{`
+          @keyframes pulse-ring {
+            0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4); }
+            50%      { box-shadow: 0 0 0 8px rgba(220,38,38,0); }
+          }
+          .emergency-pulse { animation: pulse-ring 2s ease-in-out infinite; }
+        `}</style>
+
+        {/* Header */}
+        <div style={{ background: 'linear-gradient(135deg, #7f1d1d 0%, #dc2626 60%, #ef4444 100%)' }}
+          className="px-4 py-3.5 flex items-center gap-3">
+          <span className="text-3xl emergency-pulse rounded-full">🚨</span>
+          <div>
+            <h3 className="text-white font-bold text-base tracking-wide">เบอร์ฉุกเฉิน</h3>
+            <p className="text-red-200 text-xs">แจ้งเหตุด่วน — กดโทรได้ทันที</p>
+          </div>
+        </div>
+
+        <div className="p-3 space-y-2.5 bg-red-50/30">
+
+          {/* 1669 — top priority */}
+          <a href="tel:1669"
+            className="flex items-center gap-3 rounded-xl p-3 border-2 border-red-300 hover:border-red-500 transition-all group"
+            style={{ background: 'linear-gradient(135deg, #fff5f5 0%, #fee2e2 100%)' }}>
+            <div className="w-14 h-14 rounded-full flex items-center justify-center text-3xl flex-shrink-0 emergency-pulse"
+              style={{ background: 'linear-gradient(135deg,#ef4444,#b91c1c)' }}>
+              🚑
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-red-500 font-semibold">เจ็บป่วยฉุกเฉิน / Emergency Medical</p>
+              <p className="text-3xl font-black text-red-600 leading-tight tracking-wider">1669</p>
+            </div>
+            <div className="flex-shrink-0 w-9 h-9 bg-red-500 group-hover:bg-red-600 rounded-full flex items-center justify-center text-white text-lg transition-colors">
+              📞
+            </div>
+          </a>
+
+          {/* Local official contacts */}
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { label: 'นายก อบต.แม่ใส',           phone: '0897577366', display: '089-757-7366', icon: '👨‍💼', bg: '#eff6ff', border: '#bfdbfe', text: '#1d4ed8' },
+              { label: 'ปลัด อบต.แม่ใส',           phone: '0987496770', display: '098-749-6770', icon: '📋', bg: '#f0fdf4', border: '#bbf7d0', text: '#15803d' },
+              { label: 'นักป้องกันฯ',              phone: '0812635432', display: '081-263-5432', icon: '🚒', bg: '#fff7ed', border: '#fed7aa', text: '#c2410c' },
+              { label: 'ป้องกัน อบต.แม่ใส',        phone: '054889809',  display: '054-889-809',  icon: '🛡️', bg: '#fff7ed', border: '#fed7aa', text: '#c2410c' },
+              { label: 'รพ.สต.แม่ใส',              phone: '054889885',  display: '054-889-885',  icon: '🏥', bg: '#f0fdf4', border: '#bbf7d0', text: '#15803d' },
+            ].map(({ label, phone, display, icon, bg, border, text }) => (
+              <a key={phone} href={`tel:${phone}`}
+                className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 hover:opacity-85 transition-opacity group"
+                style={{ background: bg, border: `1.5px solid ${border}` }}>
+                <span className="text-2xl flex-shrink-0">{icon}</span>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold leading-tight text-gray-500 truncate">{label}</p>
+                  <p className="text-sm font-bold leading-tight" style={{ color: text }}>{display}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          {/* Utility hotlines */}
+          <div>
+            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest mb-1.5 px-1">สายด่วนสาธารณูปโภค</p>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: 'ไฟฟ้า',  number: '1129', icon: '⚡', bg: '#fefce8', border: '#fde047', text: '#854d0e' },
+                { label: 'ประปา',  number: '1662', icon: '💧', bg: '#eff6ff', border: '#93c5fd', text: '#1e40af' },
+                { label: 'ตำรวจ', number: '191',  icon: '👮', bg: '#f5f3ff', border: '#c4b5fd', text: '#5b21b6' },
+              ].map(({ label, number, icon, bg, border, text }) => (
+                <a key={number} href={`tel:${number}`}
+                  className="flex flex-col items-center gap-0.5 rounded-xl py-3 hover:opacity-80 transition-opacity text-center"
+                  style={{ background: bg, border: `1.5px solid ${border}` }}>
+                  <span className="text-2xl">{icon}</span>
+                  <p className="text-[10px] font-semibold" style={{ color: text }}>{label}</p>
+                  <p className="text-xl font-black tracking-wider" style={{ color: text }}>{number}</p>
+                </a>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       {/* ── Announcements + Newsletter tabs ──────────────────────────── */}
       <div className="card">
         <div className="flex border-b border-gray-200 overflow-x-auto">
