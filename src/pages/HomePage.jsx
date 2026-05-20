@@ -183,15 +183,15 @@ export default function HomePage() {
       )}
 
       {/* ── Facebook + Procurement side by side ─────────────────────── */}
-      <div className="flex flex-col md:flex-row gap-3">
+      <div className="flex flex-col md:flex-row gap-3 min-w-0">
 
         {/* Facebook (left 50%) */}
-        <div className="card overflow-hidden p-0 md:w-1/2" style={{ position: 'relative' }}>
+        <div className="card overflow-hidden p-0 md:w-1/2 min-w-0" style={{ position: 'relative' }}>
           <iframe
             src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=800&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false"
             width="100%"
             height="500"
-            style={{ border: 'none', display: 'block', width: '100%' }}
+            style={{ border: 'none', display: 'block', width: '100%', maxWidth: '100%' }}
             frameBorder="0"
             allowFullScreen
             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
@@ -202,7 +202,7 @@ export default function HomePage() {
         </div>
 
         {/* Procurement (right 50%) */}
-        <div className="card p-0 overflow-hidden md:w-1/2 flex flex-col">
+        <div className="card p-0 overflow-hidden md:w-1/2 min-w-0 flex flex-col">
           <div className="flex border-b border-gray-200 overflow-x-auto flex-shrink-0">
             {[
               { key: 'egp',  label: 'รายงานจัดซื้อจัดจ้าง (EGP)', shortLabel: 'รายงาน EGP' },
