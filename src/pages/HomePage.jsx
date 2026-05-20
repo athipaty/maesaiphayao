@@ -182,41 +182,110 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* ── Facebook Page ────────────────────────────────────────────── */}
-      <div className="card overflow-hidden p-0">
-        {/* Custom header */}
-        <div className="flex items-center gap-3 px-4 py-3" style={{ background: 'linear-gradient(135deg,#1877f2 0%,#0d65d9 100%)' }}>
-          <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
-            className="flex-shrink-0 w-9 h-9 rounded-full bg-white flex items-center justify-center font-black text-xl hover:opacity-80 transition-opacity"
-            style={{ color: '#1877f2', textDecoration: 'none' }}>f</a>
-          <div className="flex-1 min-w-0">
-            <p className="text-white font-semibold text-sm leading-tight">องค์การบริหารส่วนตำบลแม่ใส</p>
-            <p className="text-blue-200 text-[11px] leading-tight">
-              {fbPage?.followers_count
-                ? `${fbPage.followers_count.toLocaleString()} ผู้ติดตาม · จ.พะเยา`
-                : 'อบต.แม่ใส · จ.พะเยา'}
-            </p>
+      {/* ── Facebook + Procurement side by side ─────────────────────── */}
+      <div className="flex flex-col md:flex-row gap-3">
+
+        {/* Facebook (left 50%) */}
+        <div className="card overflow-hidden p-0 md:w-1/2">
+          <div className="flex items-center gap-3 px-4 py-3" style={{ background: 'linear-gradient(135deg,#1877f2 0%,#0d65d9 100%)' }}>
+            <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
+              className="flex-shrink-0 w-9 h-9 rounded-full bg-white flex items-center justify-center font-black text-xl hover:opacity-80 transition-opacity"
+              style={{ color: '#1877f2', textDecoration: 'none' }}>f</a>
+            <div className="flex-1 min-w-0">
+              <p className="text-white font-semibold text-sm leading-tight">องค์การบริหารส่วนตำบลแม่ใส</p>
+              <p className="text-blue-200 text-[11px] leading-tight">
+                {fbPage?.followers_count
+                  ? `${fbPage.followers_count.toLocaleString()} ผู้ติดตาม · จ.พะเยา`
+                  : 'อบต.แม่ใส · จ.พะเยา'}
+              </p>
+            </div>
+            <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
+              className="flex-shrink-0 text-xs font-semibold bg-white/20 text-white px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors"
+              style={{ textDecoration: 'none' }}>
+              👍 ติดตาม
+            </a>
           </div>
-          <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
-            className="flex-shrink-0 text-xs font-semibold bg-white/20 text-white px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors"
-            style={{ textDecoration: 'none' }}>
-            👍 ติดตาม
-          </a>
+          <div style={{ overflow: 'hidden', height: '460px' }}>
+            <iframe
+              src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=800&height=520&small_header=true&adapt_container_width=true&hide_cover=true&show_facepile=false"
+              width="100%"
+              height="520"
+              style={{ border: 'none', overflow: 'hidden', display: 'block', width: '100%', marginTop: '-60px' }}
+              scrolling="no"
+              frameBorder="0"
+              allowFullScreen
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+              title="Facebook Page อบต.แม่ใส"
+            />
+          </div>
         </div>
-        {/* Iframe — negative margin hides FB plugin's own header */}
-        <div style={{ overflow: 'hidden', height: '460px' }}>
-          <iframe
-            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=800&height=520&small_header=true&adapt_container_width=true&hide_cover=true&show_facepile=false"
-            width="100%"
-            height="520"
-            style={{ border: 'none', overflow: 'hidden', display: 'block', width: '100%', marginTop: '-60px' }}
-            scrolling="no"
-            frameBorder="0"
-            allowFullScreen
-            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-            title="Facebook Page อบต.แม่ใส"
-          />
+
+        {/* Procurement (right 50%) */}
+        <div className="card p-0 overflow-hidden md:w-1/2 flex flex-col">
+          <div className="flex border-b border-gray-200 overflow-x-auto flex-shrink-0">
+            {[
+              { key: 'egp',  label: 'รายงานจัดซื้อจัดจ้าง (EGP)', shortLabel: 'รายงาน EGP' },
+              { key: 'news', label: 'ข่าวการจัดซื้อจัดจ้าง',        shortLabel: 'ข่าวจัดซื้อฯ' },
+            ].map(t => (
+              <button key={t.key} onClick={() => setProcTab(t.key)}
+                className={`flex-shrink-0 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                  procTab === t.key
+                    ? 'border-secondary text-primary bg-blue-50'
+                    : 'border-transparent text-gray-500 hover:text-primary'
+                }`}>
+                <span className="sm:hidden">{t.shortLabel}</span>
+                <span className="hidden sm:inline">{t.label}</span>
+              </button>
+            ))}
+          </div>
+          <div className="overflow-y-auto flex-1" style={{ maxHeight: '460px' }}>
+            {procTab === 'egp' ? (
+              egpLoading ? (
+                <div className="px-3 py-4 text-center text-gray-400 text-sm animate-pulse">กำลังดึงข้อมูลจากระบบ e-GP...</div>
+              ) : egpError ? (
+                <div className="px-3 py-4 text-center">
+                  <p className="text-gray-400 text-sm">{egpError}</p>
+                  <p className="text-gray-300 text-xs mt-1">เปิดให้บริการ 17:01 – 08:59 น.</p>
+                </div>
+              ) : egp.length === 0 ? (
+                <div className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</div>
+              ) : (
+                <ul className="divide-y divide-gray-50">
+                  {egp.slice(0, 10).map((p, i) => (
+                    <li key={i} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                      <div className="min-w-0 flex-1">
+                        {p.link
+                          ? <a href={p.link} target="_blank" rel="noreferrer" className="text-sm text-secondary hover:underline leading-snug block">{p.title}</a>
+                          : <span className="text-sm text-gray-700 leading-snug">{p.title}</span>
+                        }
+                        {p.date && <span className="text-[10px] text-gray-400 block">{new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}</span>}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )
+            ) : (
+              <ul className="divide-y divide-gray-50">
+                {procNews.length === 0 && (
+                  <li className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</li>
+                )}
+                {procNews.map((p, i) => (
+                  <li key={p._id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                    <div className="min-w-0 flex-1">
+                      {p.externalUrl
+                        ? <a href={p.externalUrl} target="_blank" rel="noreferrer" className="text-sm text-secondary hover:underline leading-snug block">{p.title}</a>
+                        : <span className="text-sm text-gray-700 leading-snug">{p.title}</span>
+                      }
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
+
       </div>
 
       {/* ── Announcements + Newsletter tabs ──────────────────────────── */}
@@ -266,70 +335,6 @@ export default function HomePage() {
                   {n.image
                     ? <a href={n.image} target="_blank" rel="noreferrer" className="text-sm text-primary hover:text-secondary leading-snug block">{n.title}</a>
                     : <span className="text-sm text-gray-700 leading-snug">{n.title}</span>
-                  }
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {/* ── Procurement tabs ─────────────────────────────────────────── */}
-      <div className="card">
-        <div className="flex border-b border-gray-200 overflow-x-auto">
-          {[
-            { key: 'egp',  label: 'รายงานจัดซื้อจัดจ้าง (EGP)', shortLabel: 'รายงาน EGP' },
-            { key: 'news', label: 'ข่าวการจัดซื้อจัดจ้าง',        shortLabel: 'ข่าวจัดซื้อฯ' },
-          ].map(t => (
-            <button key={t.key} onClick={() => setProcTab(t.key)}
-              className={`flex-shrink-0 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                procTab === t.key
-                  ? 'border-secondary text-primary bg-blue-50'
-                  : 'border-transparent text-gray-500 hover:text-primary'
-              }`}>
-              <span className="sm:hidden">{t.shortLabel}</span>
-              <span className="hidden sm:inline">{t.label}</span>
-            </button>
-          ))}
-        </div>
-        {procTab === 'egp' ? (
-          egpLoading ? (
-            <div className="px-3 py-4 text-center text-gray-400 text-sm animate-pulse">กำลังดึงข้อมูลจากระบบ e-GP...</div>
-          ) : egpError ? (
-            <div className="px-3 py-4 text-center">
-              <p className="text-gray-400 text-sm">{egpError}</p>
-              <p className="text-gray-300 text-xs mt-1">เปิดให้บริการ 17:01 – 08:59 น.</p>
-            </div>
-          ) : egp.length === 0 ? (
-            <div className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</div>
-          ) : (
-            <ul className="divide-y divide-gray-50">
-              {egp.slice(0, 10).map((p, i) => (
-                <li key={i} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
-                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
-                  <div className="min-w-0 flex-1">
-                    {p.link
-                      ? <a href={p.link} target="_blank" rel="noreferrer" className="text-sm text-secondary hover:underline leading-snug block">{p.title}</a>
-                      : <span className="text-sm text-gray-700 leading-snug">{p.title}</span>
-                    }
-                    {p.date && <span className="text-[10px] text-gray-400">{new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}</span>}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )
-        ) : (
-          <ul className="divide-y divide-gray-50">
-            {procNews.length === 0 && (
-              <li className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</li>
-            )}
-            {procNews.map((p, i) => (
-              <li key={p._id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
-                <div className="min-w-0 flex-1">
-                  {p.externalUrl
-                    ? <a href={p.externalUrl} target="_blank" rel="noreferrer" className="text-sm text-secondary hover:underline leading-snug block">{p.title}</a>
-                    : <span className="text-sm text-gray-700 leading-snug">{p.title}</span>
                   }
                 </div>
               </li>
