@@ -108,6 +108,13 @@ export const deletePage    = (id)        => api.delete(`/pages/${id}`)
 export const getVisits    = ()  => api.get('/visits')
 export const recordVisit  = ()  => api.post('/visits')
 
+// ── Banners ───────────────────────────────────────────────────────────────────
+export const getBanners      = ()           => api.get('/banners')
+export const getAllBanners   = ()           => api.get('/banners/all')
+export const createBanner    = (data)      => api.post('/banners', data)
+export const updateBanner    = (id, data)  => api.put(`/banners/${id}`, data)
+export const deleteBanner    = (id)        => api.delete(`/banners/${id}`)
+
 // ── Facebook page info ────────────────────────────────────────────────────────
 export const getFacebookPage = () => api.get('/facebook-page')
 
