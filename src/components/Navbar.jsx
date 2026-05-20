@@ -17,8 +17,9 @@ export default function Navbar({ onMenuClick }) {
   const [logoImage, setLogoImage] = useState('')
   const [pages, setPages]         = useState([])
   const [depts, setDepts]         = useState(DEFAULT_DEPTS)
-  const [openSlug, setOpenSlug]   = useState(null)
-  const closeTimer                = useRef(null)
+  const [openSlug, setOpenSlug]         = useState(null)
+  const [mobileOpenSlug, setMobileOpenSlug] = useState(null)
+  const closeTimer                      = useRef(null)
 
   useEffect(() => {
     getSettings().then(r => {
@@ -87,26 +88,73 @@ export default function Navbar({ onMenuClick }) {
       </div>
 
 
-      {/* Mobile nav strip — scrollable pill links (navbar items only) */}
+      {/* Mobile nav strip — scrollable pills with dropdown support */}
       {navItems.length > 0 && (
-        <nav className="lg:hidden bg-white border-b border-gray-200 overflow-x-auto">
-          <div className="flex items-center gap-1 px-3 py-2 w-max">
-            {navItems.map(m => {
-              const linkPath = m.isBuiltin ? m.path : `/page/${m.slug}`
-              return (
-                <NavLink key={m.slug} to={linkPath}
-                  className={({ isActive }) =>
-                    `flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
-                      isActive
-                        ? 'bg-primary text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`
-                  }>
-                  {m.icon ? `${m.icon} ` : ''}{m.title}
-                </NavLink>
-              )
-            })}
+        <nav className="lg:hidden bg-white border-b border-gray-200">
+          <div className="overflow-x-auto">
+            <div className="flex items-center gap-1 px-3 py-2 w-max">
+              {navItems.map(m => {
+                const isStaff      = m.slug === 'builtin-staff'
+                const pageChildren = getChildren(m.slug)
+                const dropItems    = isStaff
+                  ? depts.map(d => ({ key: d.value, title: d.label, to: `/staff#dept-${d.value}` }))
+                  : pageChildren.map(c => ({ key: c.slug, title: c.title, to: c.isBuiltin ? c.path : `/page/${c.slug}` }))
+                const hasChildren  = dropItems.length > 0
+                const isOpen       = mobileOpenSlug === m.slug
+
+                if (hasChildren) {
+                  return (
+                    <button key={m.slug}
+                      onClick={() => setMobileOpenSlug(isOpen ? null : m.slug)}
+                      className={`flex items-center gap-1 flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
+                        isOpen ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                      {m.icon ? `${m.icon} ` : ''}{m.title}
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                        style={{ transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }}>
+                        <polyline points="2 3 5 7 8 3"/>
+                      </svg>
+                    </button>
+                  )
+                }
+
+                const linkPath = m.isBuiltin ? m.path : `/page/${m.slug}`
+                return (
+                  <NavLink key={m.slug} to={linkPath}
+                    onClick={() => setMobileOpenSlug(null)}
+                    className={({ isActive }) =>
+                      `flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
+                        isActive ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'
+                      }`
+                    }>
+                    {m.icon ? `${m.icon} ` : ''}{m.title}
+                  </NavLink>
+                )
+              })}
+            </div>
           </div>
+
+          {/* Dropdown panel — full width below the strip */}
+          {mobileOpenSlug && (() => {
+            const openItem = navItems.find(m => m.slug === mobileOpenSlug)
+            if (!openItem) return null
+            const isStaff   = openItem.slug === 'builtin-staff'
+            const dropItems = isStaff
+              ? depts.map(d => ({ key: d.value, title: d.label, to: `/staff#dept-${d.value}` }))
+              : getChildren(openItem.slug).map(c => ({ key: c.slug, title: c.title, to: c.isBuiltin ? c.path : `/page/${c.slug}` }))
+            return (
+              <div className="border-t border-gray-100 bg-gray-50 px-3 py-2 grid grid-cols-2 gap-1">
+                {dropItems.map(item => (
+                  <Link key={item.key} to={item.to}
+                    onClick={() => setMobileOpenSlug(null)}
+                    className="flex items-center justify-between px-3 py-2.5 text-xs font-medium text-gray-700 bg-white hover:bg-blue-50 hover:text-primary rounded-lg transition-colors border border-gray-100">
+                    <span>{item.title}</span>
+                    <span className="text-gray-300 ml-2">›</span>
+                  </Link>
+                ))}
+              </div>
+            )
+          })()}
         </nav>
       )}
 
