@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { getAllBanners, createBanner, updateBanner, deleteBanner } from '../../services/api'
+import { useState, useEffect, useRef } from 'react'
+import { getAllBanners, createBanner, updateBanner, deleteBanner, uploadImage } from '../../services/api'
 
 const GRADIENT_PRESETS = [
   { label: 'น้ำเงิน',    value: 'linear-gradient(135deg,#1e3a8a,#2563eb)' },
@@ -16,15 +16,22 @@ const GRADIENT_PRESETS = [
   { label: 'ชมพู',       value: 'linear-gradient(135deg,#831843,#ec4899)' },
 ]
 
-const EMPTY = { label: '', sub: '', href: 'https://', bg: GRADIENT_PRESETS[0].value, order: 0, active: true }
+const EMPTY = { label: '', sub: '', href: 'https://', bg: GRADIENT_PRESETS[0].value, imageUrl: '', order: 0, active: true }
+
+function bannerStyle(item) {
+  if (item.imageUrl) return { backgroundImage: `url(${item.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+  return { background: item.bg }
+}
 
 export default function AdminBanners() {
-  const [items, setItems]   = useState([])
+  const [items, setItems]     = useState([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(null)
-  const [form, setForm]     = useState(EMPTY)
-  const [saving, setSaving] = useState(false)
-  const [deleting, setDeleting] = useState(null)
+  const [form, setForm]       = useState(EMPTY)
+  const [saving, setSaving]   = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [deleting, setDeleting]   = useState(null)
+  const fileRef = useRef()
 
   useEffect(() => { load() }, [])
 
@@ -44,11 +51,26 @@ export default function AdminBanners() {
   }
 
   function openEdit(item) {
-    setForm({ label: item.label, sub: item.sub || '', href: item.href || '#', bg: item.bg || GRADIENT_PRESETS[0].value, order: item.order || 0, active: item.active !== false })
+    setForm({
+      label: item.label, sub: item.sub || '', href: item.href || '#',
+      bg: item.bg || GRADIENT_PRESETS[0].value, imageUrl: item.imageUrl || '',
+      order: item.order || 0, active: item.active !== false,
+    })
     setEditing(item._id)
   }
 
   function closeModal() { setEditing(null) }
+
+  async function handleImageUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const r = await uploadImage(file)
+      setForm(f => ({ ...f, imageUrl: r.data.url || r.data.secure_url || '' }))
+    } catch { }
+    setUploading(false)
+  }
 
   async function save() {
     if (!form.label.trim()) return
@@ -88,7 +110,7 @@ export default function AdminBanners() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-gray-800">จัดการแบนเนอร์ Footer</h1>
-          <p className="text-sm text-gray-500 mt-0.5">แบนเนอร์ลิงค์ที่แสดงในส่วน Footer ของเว็บไซต์</p>
+          <p className="text-sm text-gray-500 mt-0.5">แนะนำขนาดรูปภาพ <strong>600 × 200 px</strong> (JPG/PNG/WebP)</p>
         </div>
         <button onClick={openNew}
           className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity shadow">
@@ -106,10 +128,11 @@ export default function AdminBanners() {
             <div className="flex flex-wrap gap-2">
               {items.filter(i => i.active).map(i => (
                 <div key={i._id}
-                  className="flex flex-col items-center justify-center gap-1 rounded-xl py-3 px-3 min-w-[80px]"
-                  style={{ background: i.bg }}>
-                  <span className="text-[9px] font-bold text-white/50 tracking-widest">{i.sub}</span>
-                  <span className="text-[11px] font-bold text-white text-center leading-snug">{i.label}</span>
+                  className="flex flex-col items-center justify-center gap-1 rounded-xl py-3 px-3 min-w-[80px] relative overflow-hidden"
+                  style={bannerStyle(i)}>
+                  {i.imageUrl && <div className="absolute inset-0 bg-black/30" />}
+                  <span className="text-[9px] font-bold text-white/70 tracking-widest relative z-10">{i.sub}</span>
+                  <span className="text-[11px] font-bold text-white text-center leading-snug relative z-10">{i.label}</span>
                 </div>
               ))}
               {items.filter(i => i.active).length === 0 && (
@@ -136,14 +159,16 @@ export default function AdminBanners() {
                     <td className="px-4 py-3 text-gray-400 text-xs">{item.order}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="flex flex-col items-center justify-center rounded-lg py-2 px-3 min-w-[70px] flex-shrink-0"
-                          style={{ background: item.bg }}>
-                          <span className="text-[9px] font-bold text-white/50 tracking-widest">{item.sub}</span>
-                          <span className="text-[11px] font-bold text-white text-center leading-snug">{item.label}</span>
+                        <div className="flex flex-col items-center justify-center rounded-lg py-2 px-3 min-w-[70px] flex-shrink-0 relative overflow-hidden"
+                          style={bannerStyle(item)}>
+                          {item.imageUrl && <div className="absolute inset-0 bg-black/30" />}
+                          <span className="text-[9px] font-bold text-white/70 tracking-widest relative z-10">{item.sub}</span>
+                          <span className="text-[11px] font-bold text-white text-center leading-snug relative z-10">{item.label}</span>
                         </div>
                         <div>
                           <p className="font-semibold text-gray-800">{item.label}</p>
                           {item.sub && <p className="text-xs text-gray-400">{item.sub}</p>}
+                          {item.imageUrl && <p className="text-[10px] text-blue-400 mt-0.5">📷 มีรูปภาพ</p>}
                         </div>
                       </div>
                     </td>
@@ -184,22 +209,62 @@ export default function AdminBanners() {
 
       {/* Modal */}
       {editing !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md my-4 overflow-hidden">
             <div className="px-6 py-5 border-b border-gray-100">
               <h2 className="text-base font-bold text-gray-800">
                 {editing === 'new' ? 'เพิ่มแบนเนอร์ใหม่' : 'แก้ไขแบนเนอร์'}
               </h2>
             </div>
 
-            <div className="px-6 py-5 space-y-4">
+            <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
               {/* Preview */}
               <div className="flex justify-center">
-                <div className="flex flex-col items-center justify-center rounded-xl py-4 px-6 min-w-[120px]"
-                  style={{ background: form.bg }}>
-                  <span className="text-[10px] font-bold text-white/50 tracking-widest">{form.sub || 'SUB'}</span>
-                  <span className="text-sm font-bold text-white text-center leading-snug">{form.label || 'ชื่อแบนเนอร์'}</span>
+                <div className="flex flex-col items-center justify-center rounded-xl py-5 px-8 min-w-[160px] relative overflow-hidden"
+                  style={bannerStyle(form)}>
+                  {form.imageUrl && <div className="absolute inset-0 bg-black/30" />}
+                  <span className="text-[10px] font-bold text-white/70 tracking-widest relative z-10">{form.sub || 'SUB'}</span>
+                  <span className="text-sm font-bold text-white text-center leading-snug relative z-10">{form.label || 'ชื่อแบนเนอร์'}</span>
                 </div>
+              </div>
+
+              {/* Image upload */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-2">
+                  รูปภาพแบนเนอร์ <span className="text-gray-400 font-normal">(แนะนำ 600×200 px)</span>
+                </label>
+                {form.imageUrl ? (
+                  <div className="relative rounded-xl overflow-hidden border border-gray-200">
+                    <img src={form.imageUrl} alt="banner" className="w-full h-28 object-cover" />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 hover:opacity-100 transition-opacity">
+                      <button type="button" onClick={() => fileRef.current?.click()}
+                        className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-gray-100">
+                        เปลี่ยนรูป
+                      </button>
+                      <button type="button" onClick={() => setForm(f => ({ ...f, imageUrl: '' }))}
+                        className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600">
+                        ลบรูป
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
+                    className="w-full border-2 border-dashed border-gray-200 rounded-xl py-6 flex flex-col items-center gap-2 hover:border-blue-300 hover:bg-blue-50 transition-colors disabled:opacity-50">
+                    {uploading ? (
+                      <span className="text-sm text-blue-500 animate-pulse">กำลังอัพโหลด...</span>
+                    ) : (
+                      <>
+                        <span className="text-2xl">🖼️</span>
+                        <span className="text-xs text-gray-500">คลิกเพื่ออัพโหลดรูปภาพ</span>
+                        <span className="text-[10px] text-gray-400">JPG, PNG, WebP — สูงสุด 10 MB</span>
+                      </>
+                    )}
+                  </button>
+                )}
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                {form.imageUrl && (
+                  <p className="text-[10px] text-gray-400 mt-1">เมื่อมีรูปภาพ สีพื้นหลัง Gradient จะถูกซ่อน</p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -239,11 +304,14 @@ export default function AdminBanners() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">สีพื้นหลัง</label>
+              {/* Gradient — shown always as fallback when no image */}
+              <div className={form.imageUrl ? 'opacity-40 pointer-events-none' : ''}>
+                <label className="block text-xs font-medium text-gray-600 mb-2">
+                  สีพื้นหลัง Gradient {form.imageUrl && <span className="text-gray-400">(ถูกซ่อนเมื่อมีรูป)</span>}
+                </label>
                 <div className="grid grid-cols-4 gap-2">
                   {GRADIENT_PRESETS.map(p => (
-                    <button key={p.value} onClick={() => setForm(f => ({ ...f, bg: p.value }))}
+                    <button key={p.value} type="button" onClick={() => setForm(f => ({ ...f, bg: p.value }))}
                       title={p.label}
                       className={`h-9 rounded-lg transition-all ${form.bg === p.value ? 'ring-2 ring-offset-2 ring-blue-500 scale-105' : 'hover:scale-105'}`}
                       style={{ background: p.value }} />
@@ -263,7 +331,7 @@ export default function AdminBanners() {
                 className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                 ยกเลิก
               </button>
-              <button onClick={save} disabled={saving || !form.label.trim()}
+              <button onClick={save} disabled={saving || uploading || !form.label.trim()}
                 className="px-5 py-2 text-sm font-semibold bg-primary text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-40">
                 {saving ? 'กำลังบันทึก...' : 'บันทึก'}
               </button>
