@@ -108,6 +108,9 @@ export const deletePage    = (id)        => api.delete(`/pages/${id}`)
 export const getVisits    = ()  => api.get('/visits')
 export const recordVisit  = ()  => api.post('/visits')
 
+// ── Facebook page info ────────────────────────────────────────────────────────
+export const getFacebookPage = () => api.get('/facebook-page')
+
 // ── Image upload ──────────────────────────────────────────────────────────────
 export const uploadImage = (file) => {
   const form = new FormData()

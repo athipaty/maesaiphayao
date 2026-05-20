@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getNews, getAnnouncements, getProcurement, getTravel } from '../services/api'
+import { getNews, getAnnouncements, getProcurement, getTravel, getFacebookPage } from '../services/api'
 import { DEPT_LABELS, DEPT_ICONS } from '../components/NewsSection'
 
 const DEPARTMENTS = ['council', 'office', 'disaster', 'health', 'engineering', 'finance']
@@ -15,6 +15,7 @@ export default function HomePage() {
   const [travel, setTravel]         = useState([])
   const [prTab, setPrTab]           = useState('announcement')
   const [procTab, setProcTab]       = useState('egp')
+  const [fbPage, setFbPage]         = useState(null)
 
   useEffect(() => {
     async function load() {
@@ -36,6 +37,7 @@ export default function HomePage() {
           getProcurement({ type: 'news' }),
           getTravel({ limit: 6 }),
         ])
+        getFacebookPage().then(r => setFbPage(r?.data)).catch(() => {})
         setAnnounce(ann?.data || [])
         setNewsletter(nl?.data || [])
         setEgp(e?.data || [])
@@ -181,7 +183,11 @@ export default function HomePage() {
           <div className="flex-shrink-0 w-9 h-9 rounded-full bg-white flex items-center justify-center font-black text-xl" style={{ color: '#1877f2' }}>f</div>
           <div className="flex-1 min-w-0">
             <p className="text-white font-semibold text-sm leading-tight">องค์การบริหารส่วนตำบลแม่ใส</p>
-            <p className="text-blue-200 text-[11px] leading-tight">อบต.แม่ใส · จ.พะเยา</p>
+            <p className="text-blue-200 text-[11px] leading-tight">
+              {fbPage?.followers_count
+                ? `${fbPage.followers_count.toLocaleString()} ผู้ติดตาม · จ.พะเยา`
+                : 'อบต.แม่ใส · จ.พะเยา'}
+            </p>
           </div>
           <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
             className="flex-shrink-0 text-xs font-semibold bg-white/20 text-white px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors"
