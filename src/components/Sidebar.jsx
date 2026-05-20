@@ -174,16 +174,17 @@ export default function Sidebar({ onNavigate, mobile = false }) {
             </li>
           ))}
         </ul>
-        <div className="p-2 space-y-1">
+        <ul>
           {ESERVICES.map(e => (
-            <a key={e.label} href={e.href} target="_blank" rel="noreferrer"
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors group">
-              <span className="text-lg w-7 text-center flex-shrink-0 group-hover:scale-110 transition-transform">{e.icon}</span>
-              <span className="text-xs font-medium">{e.label}</span>
-              <span className="ml-auto text-gray-300 group-hover:text-secondary text-xs">›</span>
-            </a>
+            <li key={e.label}>
+              <a href={e.href} target="_blank" rel="noreferrer"
+                className="flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors text-gray-700 hover:bg-pink-50 hover:text-primary">
+                <span className="text-sm w-5 text-center">{e.icon}</span>
+                <span className="flex-1">{e.label}</span>
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
 
       {/* ITA banner */}
