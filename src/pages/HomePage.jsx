@@ -187,30 +187,12 @@ export default function HomePage() {
 
         {/* Facebook (left 50%) */}
         <div className="card overflow-hidden p-0 md:w-1/2">
-          <div className="flex items-center gap-3 px-4 py-3" style={{ background: 'linear-gradient(135deg,#1877f2 0%,#0d65d9 100%)' }}>
-            <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
-              className="flex-shrink-0 w-9 h-9 rounded-full bg-white flex items-center justify-center font-black text-xl hover:opacity-80 transition-opacity"
-              style={{ color: '#1877f2', textDecoration: 'none' }}>f</a>
-            <div className="flex-1 min-w-0">
-              <p className="text-white font-semibold text-sm leading-tight">องค์การบริหารส่วนตำบลแม่ใส</p>
-              <p className="text-blue-200 text-[11px] leading-tight">
-                {fbPage?.followers_count
-                  ? `${fbPage.followers_count.toLocaleString()} ผู้ติดตาม · จ.พะเยา`
-                  : 'อบต.แม่ใส · จ.พะเยา'}
-              </p>
-            </div>
-            <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
-              className="flex-shrink-0 text-xs font-semibold bg-white/20 text-white px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors"
-              style={{ textDecoration: 'none' }}>
-              👍 ติดตาม
-            </a>
-          </div>
-          <div style={{ overflow: 'hidden', height: '460px' }}>
+          <div style={{ overflow: 'hidden', height: '500px' }}>
             <iframe
               src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=800&height=520&small_header=true&adapt_container_width=true&hide_cover=true&show_facepile=false"
               width="100%"
               height="520"
-              style={{ border: 'none', overflow: 'hidden', display: 'block', width: '100%', marginTop: '-60px' }}
+              style={{ border: 'none', overflow: 'hidden', display: 'block', width: '100%' }}
               scrolling="no"
               frameBorder="0"
               allowFullScreen
@@ -238,7 +220,7 @@ export default function HomePage() {
               </button>
             ))}
           </div>
-          <div className="overflow-y-auto flex-1" style={{ maxHeight: '460px' }}>
+          <div className="overflow-y-auto flex-1" style={{ maxHeight: '500px' }}>
             {procTab === 'egp' ? (
               egpLoading ? (
                 <div className="px-3 py-4 text-center text-gray-400 text-sm animate-pulse">กำลังดึงข้อมูลจากระบบ e-GP...</div>
@@ -288,60 +270,6 @@ export default function HomePage() {
 
       </div>
 
-      {/* ── Announcements + Newsletter tabs ──────────────────────────── */}
-      <div className="card">
-        <div className="flex border-b border-gray-200 overflow-x-auto">
-          {[
-            { key: 'announcement', label: 'ข่าวประชาสัมพันธ์' },
-            { key: 'newsletter',   label: 'จดหมายข่าว' },
-          ].map(t => (
-            <button key={t.key} onClick={() => setPrTab(t.key)}
-              className={`flex-shrink-0 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                prTab === t.key
-                  ? 'border-secondary text-primary bg-blue-50'
-                  : 'border-transparent text-gray-500 hover:text-primary'
-              }`}>
-              {t.label}
-            </button>
-          ))}
-        </div>
-        {prTab === 'announcement' && (
-          <ul className="divide-y divide-gray-50">
-            {announce.length === 0 && (
-              <li className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</li>
-            )}
-            {announce.map((a, i) => (
-              <li key={a._id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
-                <div className="min-w-0 flex-1">
-                  {a.fileUrl
-                    ? <a href={a.fileUrl} target="_blank" rel="noreferrer" className="text-sm text-primary hover:text-secondary leading-snug block">{a.title}</a>
-                    : <span className="text-sm text-gray-700 leading-snug">{a.title}</span>
-                  }
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-        {prTab === 'newsletter' && (
-          <ul className="divide-y divide-gray-50">
-            {newsletter.length === 0 && (
-              <li className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</li>
-            )}
-            {newsletter.map((n, i) => (
-              <li key={n._id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
-                <div className="min-w-0 flex-1">
-                  {n.image
-                    ? <a href={n.image} target="_blank" rel="noreferrer" className="text-sm text-primary hover:text-secondary leading-snug block">{n.title}</a>
-                    : <span className="text-sm text-gray-700 leading-snug">{n.title}</span>
-                  }
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
 
       {/* ── Travel marquee ────────────────────────────────────────────── */}
       {travel.length > 0 && (
