@@ -81,7 +81,7 @@ export default function Footer() {
           โทรศัพท์: 0-5488-9909 | E-mail: saraban_06560115@dla.go.th
         </p>
         <div className="mt-4 pt-3 border-t border-white/20 text-xs opacity-60">
-          Copyright © 2024 องค์การบริหารส่วนตำบลแม่ใส . All Rights Reserved
+          Copyright © {new Date().getFullYear()} องค์การบริหารส่วนตำบลแม่ใส . All Rights Reserved
         </div>
       </div>
     </footer>
