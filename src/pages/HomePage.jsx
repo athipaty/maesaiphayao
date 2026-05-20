@@ -122,12 +122,12 @@ export default function HomePage() {
       {/* ── Facebook Page ────────────────────────────────────────────── */}
       <div className="card overflow-hidden p-0">
         {/* Full-page embed — small_header=false shows cover photo + profile */}
-        <div className="w-full flex justify-center">
+        <div className="w-full">
           <iframe
-            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=700&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true"
-            width="500"
+            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=800&height=700&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true"
+            width="100%"
             height="700"
-            style={{ border: 'none', overflow: 'hidden', maxWidth: '100%', display: 'block' }}
+            style={{ border: 'none', overflow: 'hidden', display: 'block', width: '100%' }}
             scrolling="no"
             frameBorder="0"
             allowFullScreen
