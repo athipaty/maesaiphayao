@@ -40,7 +40,7 @@ export default function Navbar({ onMenuClick }) {
   function closeMenu()     { closeTimer.current = setTimeout(() => setOpenSlug(null), 120) }
 
   return (
-    <header>
+    <header className="sticky top-0 z-50 shadow-md">
       {/* Main header row */}
       <div className="bg-gradient-to-r from-primary via-secondary to-accent text-white">
         <div className="max-w-[1200px] mx-auto px-3 py-2.5 flex items-center justify-between gap-4">
@@ -93,6 +93,29 @@ export default function Navbar({ onMenuClick }) {
           </a>
         </div>
       </div>
+
+      {/* Mobile nav strip — scrollable pill links */}
+      {navItems.length > 0 && (
+        <nav className="lg:hidden bg-white border-b border-gray-200 overflow-x-auto">
+          <div className="flex items-center gap-1 px-3 py-2 w-max">
+            {navItems.map(m => {
+              const linkPath = m.isBuiltin ? m.path : `/page/${m.slug}`
+              return (
+                <NavLink key={m.slug} to={linkPath}
+                  className={({ isActive }) =>
+                    `flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
+                      isActive
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`
+                  }>
+                  {m.title}
+                </NavLink>
+              )
+            })}
+          </div>
+        </nav>
+      )}
 
       {/* Secondary nav row — desktop only */}
       <nav className="hidden lg:block bg-white border-b border-gray-200 shadow-sm">
