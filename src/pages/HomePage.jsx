@@ -199,12 +199,12 @@ export default function HomePage() {
       })()}
 
       {/* ── Facebook + Procurement side by side ─────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-hidden">
 
         {/* Facebook (left 50%) */}
-        <div className="card overflow-hidden p-0" style={{ position: 'relative', minWidth: 0 }}>
+        <div className="card p-0" style={{ position: 'relative', minWidth: 0, overflow: 'hidden' }}>
           <iframe
-            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false"
+            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=340&height=500&small_header=false&adapt_container_width=false&hide_cover=false&show_facepile=false"
             width="100%"
             height="500"
             style={{ border: 'none', display: 'block', width: '100%', maxWidth: '100%' }}
