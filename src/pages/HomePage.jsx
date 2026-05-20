@@ -176,12 +176,26 @@ export default function HomePage() {
 
       {/* ── Facebook Page ────────────────────────────────────────────── */}
       <div className="card overflow-hidden p-0">
-        <div className="w-full">
+        {/* Custom header */}
+        <div className="flex items-center gap-3 px-4 py-3" style={{ background: 'linear-gradient(135deg,#1877f2 0%,#0d65d9 100%)' }}>
+          <div className="flex-shrink-0 w-9 h-9 rounded-full bg-white flex items-center justify-center font-black text-xl" style={{ color: '#1877f2' }}>f</div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white font-semibold text-sm leading-tight">องค์การบริหารส่วนตำบลแม่ใส</p>
+            <p className="text-blue-200 text-[11px] leading-tight">อบต.แม่ใส · จ.พะเยา</p>
+          </div>
+          <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
+            className="flex-shrink-0 text-xs font-semibold bg-white/20 text-white px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors"
+            style={{ textDecoration: 'none' }}>
+            👍 ติดตาม
+          </a>
+        </div>
+        {/* Iframe — negative margin hides FB plugin's own header */}
+        <div style={{ overflow: 'hidden', height: '460px' }}>
           <iframe
-            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=800&height=500&small_header=true&adapt_container_width=true&hide_cover=true&show_facepile=false"
+            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=800&height=520&small_header=true&adapt_container_width=true&hide_cover=true&show_facepile=false"
             width="100%"
-            height="500"
-            style={{ border: 'none', overflow: 'hidden', display: 'block', width: '100%' }}
+            height="520"
+            style={{ border: 'none', overflow: 'hidden', display: 'block', width: '100%', marginTop: '-60px' }}
             scrolling="no"
             frameBorder="0"
             allowFullScreen
