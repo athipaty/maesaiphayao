@@ -125,6 +125,36 @@ export default function StaffPage() {
 
   return (
     <div>
+      {/* Department filter bar */}
+      {!loading && staff.length > 0 && (
+        <div className="card mb-4 p-3">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setActiveDept('all')}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                activeDept === 'all'
+                  ? 'bg-primary text-white shadow'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              ทั้งหมด
+            </button>
+            {deptKeys.map(dept => (
+              <button
+                key={dept}
+                onClick={() => setActiveDept(dept)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  activeDept === dept
+                    ? 'bg-primary text-white shadow'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {deptMap[dept] || dept}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
