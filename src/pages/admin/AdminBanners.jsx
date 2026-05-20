@@ -230,9 +230,21 @@ export default function AdminBanners() {
 
               {/* Image upload */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">
-                  รูปภาพแบนเนอร์ <span className="text-gray-400 font-normal">(แนะนำ 600×200 px)</span>
-                </label>
+                <label className="block text-xs font-medium text-gray-600 mb-2">รูปภาพแบนเนอร์</label>
+                <div className="mb-2 rounded-lg overflow-hidden border border-gray-100 text-xs">
+                  <div className="grid grid-cols-2 bg-gray-50 px-3 py-1.5 font-semibold text-gray-500 border-b border-gray-100">
+                    <span></span><span>ขนาด</span>
+                  </div>
+                  <div className="grid grid-cols-2 px-3 py-1.5 border-b border-gray-50">
+                    <span className="text-gray-500">ขั้นต่ำ</span><span className="text-gray-700 font-medium">240 × 140 px</span>
+                  </div>
+                  <div className="grid grid-cols-2 px-3 py-1.5 border-b border-gray-50 bg-blue-50">
+                    <span className="text-blue-600 font-semibold">แนะนำ</span><span className="text-blue-700 font-semibold">400 × 200 px</span>
+                  </div>
+                  <div className="grid grid-cols-2 px-3 py-1.5">
+                    <span className="text-gray-500">ฟอร์แมต</span><span className="text-gray-700 font-medium">JPG หรือ PNG</span>
+                  </div>
+                </div>
                 {form.imageUrl ? (
                   <div className="relative rounded-xl overflow-hidden border border-gray-200">
                     <img src={form.imageUrl} alt="banner" className="w-full h-28 object-cover" />
