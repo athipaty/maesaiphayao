@@ -187,12 +187,12 @@ export default function HomePage() {
 
         {/* Facebook (left 50%) */}
         <div className="card overflow-hidden p-0 md:w-1/2">
-          <div style={{ overflow: 'hidden', height: '500px' }}>
+          <div style={{ overflow: 'hidden', height: '552px' }}>
             <iframe
               src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=800&height=520&small_header=true&adapt_container_width=true&hide_cover=true&show_facepile=false"
               width="100%"
               height="520"
-              style={{ border: 'none', overflow: 'hidden', display: 'block', width: '100%' }}
+              style={{ border: 'none', overflow: 'hidden', display: 'block', width: '100%', marginTop: '-52px' }}
               scrolling="no"
               frameBorder="0"
               allowFullScreen
