@@ -6,8 +6,6 @@ const ESERVICES = [
   { icon: '💬', label: 'แชท Messenger',                         href: 'https://m.me/MaesaiSAOPhayao' },
   { icon: '📘', label: 'Facebook Page',                          href: 'https://www.facebook.com/MaesaiSAOPhayao' },
   { icon: '📍', label: 'Traffy Fondue',                          href: 'https://liff.line.me/1645278921-kWRPP32q/?accountId=traffyfondue' },
-  { icon: '💧', label: 'แจ้งขอน้ำอุปโภค/บริโภค',               href: 'https://docs.google.com/forms/d/e/1FAIpQLSc9j_NSPrflDIV17OqlsPpy4P7efwYzEmVYZz1W4idy0Eg5ig/viewform' },
-  { icon: '🏢', label: 'ขอใช้ห้องประชุม',                       href: 'https://docs.google.com/forms/d/e/1FAIpQLSdvfTFLcgGGpn0wL6lkL1GOOAGLafXEWRAe0ff1JR3abUYY8A/viewform' },
   { icon: '💭', label: 'ช่องทางรับฟังความคิดเห็น',             href: 'https://docs.google.com/forms/d/e/1FAIpQLSc9j_NSPrflDIV17OqlsPpy4P7efwYzEmVYZz1W4idy0Eg5ig/viewform' },
   { icon: '📊', label: 'แบบสำรวจความพึงพอใจ',                   href: 'https://docs.google.com/forms/d/e/1FAIpQLSeoxWq5gYJ4XWgmThe4PoKBdyNB5yVKNDPrvSdu87Jl_YmlTg/viewform' },
 ]
@@ -157,7 +155,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
         }}>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xl">🌐</span>
-            <span className="text-white font-bold text-sm">บริการสาธารณะ</span>
+            <span className="text-white font-bold text-sm">E-Service</span>
           </div>
           <p className="text-white/70 text-xs">บริการออนไลน์สำหรับประชาชน</p>
         </div>
