@@ -279,7 +279,7 @@ export default function HomePage() {
               100% { transform: translateX(-50%); }
             }
             .travel-marquee {
-              animation: marquee ${travel.length * 4}s linear infinite;
+              animation: marquee ${Math.max(travel.length * 8, 50)}s linear infinite;
             }
             .travel-marquee:hover { animation-play-state: paused; }
           `}</style>
