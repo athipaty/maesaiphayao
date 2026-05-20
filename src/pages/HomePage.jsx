@@ -165,21 +165,28 @@ export default function HomePage() {
                     className="w-72 flex-shrink-0 rounded-xl overflow-hidden border border-blue-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-0.5 transition-all"
                     style={{ textDecoration: 'none' }}
                   >
-                    <div className="relative flex items-center justify-center" style={{
+                    <div className="relative flex items-center justify-center overflow-hidden" style={{
                       height: '130px',
                       background: item._kind === 'newsletter'
                         ? 'linear-gradient(135deg,#065f46 0%,#059669 60%,#34d399 100%)'
                         : 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)'
                     }}>
-                      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 80%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-                      <span className="text-5xl opacity-80 group-hover:scale-110 transition-transform duration-300">
-                        {item._kind === 'newsletter' ? '📰' : '📄'}
-                      </span>
-                      <span className="absolute top-2 left-2 text-[10px] font-bold bg-white/20 text-white px-2 py-0.5 rounded-full">
+                      {item.image ? (
+                        <img src={item.image} alt={item.title}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <>
+                          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 80%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+                          <span className="text-5xl opacity-80 group-hover:scale-110 transition-transform duration-300">
+                            {item._kind === 'newsletter' ? '📰' : '📄'}
+                          </span>
+                        </>
+                      )}
+                      <span className="absolute top-2 left-2 text-[10px] font-bold bg-black/40 text-white px-2 py-0.5 rounded-full z-10">
                         {item._kind === 'newsletter' ? 'จดหมายข่าว' : 'ประชาสัมพันธ์'}
                       </span>
                       {item.fileUrl && (
-                        <span className="absolute top-2 right-2 text-[10px] font-bold bg-white/20 text-white px-2 py-0.5 rounded-full">PDF</span>
+                        <span className="absolute top-2 right-2 text-[10px] font-bold bg-black/40 text-white px-2 py-0.5 rounded-full z-10">PDF</span>
                       )}
                     </div>
                     <div className="px-3 py-2.5">
