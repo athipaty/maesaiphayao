@@ -119,6 +119,61 @@ export default function HomePage() {
         )}
       </div>
 
+      {/* ── Announcement marquee ─────────────────────────────────────── */}
+      {announce.length > 0 && (
+        <div className="card">
+          <style>{`
+            @keyframes ann-marquee {
+              0%   { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            .ann-marquee {
+              animation: ann-marquee ${Math.max(announce.length * 6, 30)}s linear infinite;
+            }
+            .ann-marquee:hover { animation-play-state: paused; }
+          `}</style>
+
+          <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <span>📢</span>
+              <span className="text-sm font-semibold text-primary">ข่าวประชาสัมพันธ์</span>
+            </div>
+            <Link to="/announcements" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
+          </div>
+
+          <div className="overflow-hidden pt-3 pb-4">
+            <div className="ann-marquee flex gap-3 w-max">
+              {[...announce, ...announce].map((item, i) => (
+                <a
+                  key={i}
+                  href={item.fileUrl || '#'}
+                  target={item.fileUrl ? '_blank' : undefined}
+                  rel="noreferrer"
+                  className="w-64 flex-shrink-0 rounded-xl overflow-hidden border border-blue-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-0.5 transition-all"
+                  style={{ textDecoration: 'none' }}
+                >
+                  <div className="relative flex items-center justify-center" style={{ height: '130px', background: 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)' }}>
+                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 80%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+                    <span className="text-5xl opacity-80 group-hover:scale-110 transition-transform duration-300">📄</span>
+                    {item.fileUrl && (
+                      <span className="absolute top-2 right-2 text-[10px] font-bold bg-white/20 text-white px-2 py-0.5 rounded-full">PDF</span>
+                    )}
+                  </div>
+                  <div className="px-3 py-2.5">
+                    <p className="text-xs font-semibold text-gray-700 leading-snug line-clamp-3 group-hover:text-primary transition-colors">{item.title}</p>
+                    {item.createdAt && (
+                      <p className="text-[10px] text-gray-400 mt-1.5">
+                        📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                      </p>
+                    )}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Facebook Page ────────────────────────────────────────────── */}
       <div className="card overflow-hidden p-0">
         <div className="w-full">
