@@ -68,7 +68,7 @@ export default function HomePage() {
           .news-marquee:hover { animation-play-state: paused; }
         `}</style>
 
-        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-100">
           <div className="flex items-center gap-2">
             <span>📰</span>
             <span className="text-sm font-semibold text-primary">ข่าวสาร กิจกรรม ทั้งหมด</span>
@@ -81,7 +81,7 @@ export default function HomePage() {
         ) : allNews.length === 0 ? (
           <div className="px-4 py-6 text-center text-gray-400 text-sm">ยังไม่มีข่าวสาร</div>
         ) : (
-          <div className="overflow-hidden pt-3 pb-4">
+          <div className="overflow-hidden pt-2 pb-2">
             <div className="news-marquee flex gap-3 w-max">
               {[...allNews, ...allNews].map((item, i) => {
                 const img  = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
@@ -135,7 +135,7 @@ export default function HomePage() {
             .ann-marquee:hover { animation-play-state: paused; }
           `}</style>
 
-          <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
+          <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-100">
             <div className="flex items-center gap-2">
               <span>📢</span>
               <span className="text-sm font-semibold text-primary">ข่าวประชาสัมพันธ์</span>
@@ -143,7 +143,7 @@ export default function HomePage() {
             <Link to="/announcements" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
           </div>
 
-          <div className="overflow-hidden pt-3 pb-4">
+          <div className="overflow-hidden pt-2 pb-2">
             <div className="ann-marquee flex gap-3 w-max">
               {[...announce, ...announce].map((item, i) => (
                 <a
