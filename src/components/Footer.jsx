@@ -60,16 +60,17 @@ export default function Footer() {
                 href={l.href}
                 target={l.href !== '#' ? '_blank' : undefined}
                 rel="noreferrer"
-                className="footer-banner group flex flex-col items-center justify-center gap-1 rounded-xl py-4 px-2 hover:scale-105 transition-transform relative overflow-hidden"
+                className="footer-banner group flex flex-col items-center justify-start gap-0.5 rounded-xl pt-3 pb-4 px-2 hover:scale-105 transition-transform relative overflow-hidden"
                 style={{
                   ...(l.imageUrl
                     ? { backgroundImage: `url(${l.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
                     : { background: l.bg }),
                   textDecoration: 'none',
                   boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                  minHeight: '80px',
                 }}
               >
-                {l.imageUrl && <span className="absolute inset-0 bg-black/35 z-0" />}
+                {l.imageUrl && <span className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/20 to-transparent z-0" />}
                 <span className="footer-shimmer" />
                 <span className="text-[10px] font-bold text-white/60 tracking-widest relative z-10">{l.sub}</span>
                 <span className="text-xs font-bold text-white text-center leading-snug relative z-10">{l.label}</span>

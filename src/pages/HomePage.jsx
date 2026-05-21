@@ -154,26 +154,27 @@ export default function HomePage() {
               <Link to="/announcements" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
             </div>
 
-            <div className="overflow-hidden pt-2 pb-2">
-              <div className="ann-marquee flex gap-3 w-max">
+            <div className="overflow-hidden pt-2 pb-3">
+              <div className="ann-marquee flex gap-3 w-max px-3">
                 {[...annItems, ...annItems].map((item, i) => (
                   <a
                     key={i}
                     href={item.fileUrl || '#'}
                     target={item.fileUrl ? '_blank' : undefined}
                     rel="noreferrer"
-                    className="w-72 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-0.5 transition-all"
+                    className="w-52 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all"
                     style={{ textDecoration: 'none' }}
                   >
+                    {/* Image — tall portrait, shows full document from top */}
                     <div className="relative overflow-hidden" style={{
-                      height: '210px',
+                      height: '300px',
                       background: item._kind === 'newsletter'
                         ? 'linear-gradient(135deg,#065f46 0%,#059669 60%,#34d399 100%)'
                         : 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)'
                     }}>
                       {item.image ? (
                         <img src={item.image} alt={item.title}
-                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                          className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-300" />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <span className="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-300">
@@ -181,24 +182,26 @@ export default function HomePage() {
                           </span>
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                      {/* Thin top gradient for badge readability only */}
+                      <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-black/40 to-transparent" />
                       <span className="absolute top-2 left-2 text-[10px] font-bold bg-white/90 text-primary px-2 py-0.5 rounded-full z-10">
                         {item._kind === 'newsletter' ? '📰 จดหมายข่าว' : '📢 ประชาสัมพันธ์'}
                       </span>
                       {item.fileUrl && (
                         <span className="absolute top-2 right-2 text-[10px] font-bold bg-black/40 text-white px-2 py-0.5 rounded-full z-10">PDF</span>
                       )}
-                      <p className="absolute bottom-0 left-0 right-0 px-3 py-2 text-white text-xs font-semibold leading-snug drop-shadow line-clamp-2 z-10">
+                    </div>
+                    {/* Title + date below image — no overlay blocking the image */}
+                    <div className="px-3 py-2.5">
+                      <p className="text-xs font-semibold text-gray-800 line-clamp-2 leading-snug mb-1 group-hover:text-primary transition-colors">
                         {item.title}
                       </p>
-                    </div>
-                    {item.createdAt && (
-                      <div className="px-3 py-2">
+                      {item.createdAt && (
                         <p className="text-[10px] text-gray-400">
                           📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
                         </p>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </a>
                 ))}
               </div>
