@@ -243,29 +243,6 @@ export default function HomePage() {
 
       {/* ── Facebook ─────────────────────────────────────────────────── */}
       <div className="card p-0 overflow-hidden">
-        {/* Custom header — shows follower count from API, links to page */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100" style={{ background: '#e7f0fd' }}>
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-base font-bold flex-shrink-0"
-              style={{ background: '#1877F2' }}>f</div>
-            <div>
-              <p className="text-sm font-semibold text-gray-800 leading-tight">อบต.แม่ใส พะเยา</p>
-              {fbPage && (fbPage.followers_count || fbPage.fan_count) ? (
-                <p className="text-[11px] text-gray-500">
-                  {(fbPage.followers_count || fbPage.fan_count).toLocaleString()} ผู้ติดตาม
-                </p>
-              ) : (
-                <p className="text-[11px] text-gray-500">Facebook Page</p>
-              )}
-            </div>
-          </div>
-          <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
-            className="text-xs font-semibold text-white px-3.5 py-1.5 rounded-full flex-shrink-0 transition-opacity hover:opacity-90"
-            style={{ background: '#1877F2' }}>
-            ติดตาม
-          </a>
-        </div>
-
         {/* iframe — scaled to fill container width on any screen size */}
         <div ref={fbContainerRef} className="overflow-hidden"
           style={{ height: `${Math.round(500 * fbScale)}px` }}>
