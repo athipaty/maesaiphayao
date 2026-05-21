@@ -165,16 +165,18 @@ export default function HomePage() {
                     className="w-52 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all"
                     style={{ textDecoration: 'none' }}
                   >
-                    {/* Image — tall portrait, shows full document from top */}
+                    {/* Image — tall portrait, object-contain shows full image without cropping */}
                     <div className="relative overflow-hidden" style={{
                       height: '300px',
-                      background: item._kind === 'newsletter'
-                        ? 'linear-gradient(135deg,#065f46 0%,#059669 60%,#34d399 100%)'
-                        : 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)'
+                      background: item.image
+                        ? '#f1f5f9'
+                        : item._kind === 'newsletter'
+                          ? 'linear-gradient(135deg,#065f46 0%,#059669 60%,#34d399 100%)'
+                          : 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)'
                     }}>
                       {item.image ? (
                         <img src={item.image} alt={item.title}
-                          className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-300" />
+                          className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <span className="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-300">
