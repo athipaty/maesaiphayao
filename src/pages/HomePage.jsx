@@ -243,25 +243,47 @@ export default function HomePage() {
 
       {/* ── Facebook ─────────────────────────────────────────────────── */}
       <div className="card p-0 overflow-hidden">
-        {/* iframe — scaled to fill container width on any screen size */}
-        <div ref={fbContainerRef} className="overflow-hidden"
-          style={{ height: `${Math.round(500 * fbScale)}px` }}>
-          <iframe
-            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false"
-            style={{
-              border: 'none',
-              width: '500px',
-              height: '500px',
-              display: 'block',
-              transform: `scale(${fbScale})`,
-              transformOrigin: 'top left',
-            }}
-            frameBorder="0"
-            allowFullScreen
-            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-            sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox"
-            title="Facebook Page อบต.แม่ใส"
-          />
+        <div className="flex flex-col lg:flex-row">
+          {/* Left: Facebook iframe — full width on mobile, half on desktop */}
+          <div ref={fbContainerRef} className="overflow-hidden lg:w-1/2"
+            style={{ height: `${Math.round(500 * fbScale)}px` }}>
+            <iframe
+              src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false"
+              style={{
+                border: 'none',
+                width: '500px',
+                height: '500px',
+                display: 'block',
+                transform: `scale(${fbScale})`,
+                transformOrigin: 'top left',
+              }}
+              frameBorder="0"
+              allowFullScreen
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox"
+              title="Facebook Page อบต.แม่ใส"
+            />
+          </div>
+
+          {/* Right: Coming soon — desktop only */}
+          <div className="hidden lg:flex flex-1 flex-col items-center justify-center gap-4 bg-gradient-to-br from-gray-50 to-slate-100"
+            style={{ height: `${Math.round(500 * fbScale)}px` }}>
+            <style>{`
+              @keyframes dot-bounce {
+                0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+                40%           { transform: translateY(-10px); opacity: 1; }
+              }
+              .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #94a3b8; animation: dot-bounce 1.4s ease-in-out infinite; }
+              .dot:nth-child(2) { animation-delay: 0.2s; }
+              .dot:nth-child(3) { animation-delay: 0.4s; }
+            `}</style>
+            <p className="text-2xl font-bold text-slate-300 tracking-widest select-none">coming soon</p>
+            <div className="flex items-center gap-2">
+              <span className="dot" />
+              <span className="dot" />
+              <span className="dot" />
+            </div>
+          </div>
         </div>
       </div>
 
