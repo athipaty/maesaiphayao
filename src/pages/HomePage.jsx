@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { getNews, getAnnouncements, getProcurement, getTravel, getFacebookPage, getEgpRss } from '../services/api'
 import { DEPT_LABELS, DEPT_ICONS } from '../components/NewsSection'
@@ -19,6 +19,19 @@ export default function HomePage() {
   const [procTab, setProcTab]       = useState('egp')
   const [fbPage, setFbPage]         = useState(null)
   const [lightboxItem, setLightboxItem] = useState(null)
+  const fbContainerRef = useRef(null)
+  const [fbScale, setFbScale] = useState(1)
+
+  useEffect(() => {
+    function updateScale() {
+      if (!fbContainerRef.current) return
+      const w = fbContainerRef.current.offsetWidth
+      setFbScale(Math.min(1, w / 500))
+    }
+    updateScale()
+    window.addEventListener('resize', updateScale)
+    return () => window.removeEventListener('resize', updateScale)
+  }, [])
 
   useEffect(() => {
     if (!lightboxItem) return
@@ -253,11 +266,19 @@ export default function HomePage() {
           </a>
         </div>
 
-        {/* iframe — no width= param so adapt_container_width works on all screen sizes */}
-        <div className="overflow-x-hidden" style={{ height: '500px' }}>
+        {/* iframe — scaled to fill container width on any screen size */}
+        <div ref={fbContainerRef} className="overflow-hidden"
+          style={{ height: `${Math.round(500 * fbScale)}px` }}>
           <iframe
-            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&small_header=true&adapt_container_width=true&hide_cover=true&show_facepile=false"
-            style={{ border: 'none', width: '100%', height: '100%', display: 'block' }}
+            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false"
+            style={{
+              border: 'none',
+              width: '500px',
+              height: '500px',
+              display: 'block',
+              transform: `scale(${fbScale})`,
+              transformOrigin: 'top left',
+            }}
             frameBorder="0"
             allowFullScreen
             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
