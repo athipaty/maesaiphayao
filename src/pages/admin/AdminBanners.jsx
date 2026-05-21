@@ -222,9 +222,12 @@ export default function AdminBanners() {
               <div className="flex justify-center">
                 <div className="flex flex-col items-center justify-start gap-0.5 rounded-xl pt-3 pb-5 px-8 min-w-[160px] min-h-[80px] relative overflow-hidden"
                   style={bannerStyle(form)}>
-                  {form.imageUrl && <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/20 to-transparent" />}
-                  <span className="text-[10px] font-bold text-white/70 tracking-widest relative z-10">{form.sub || 'SUB'}</span>
-                  <span className="text-sm font-bold text-white text-center leading-snug relative z-10">{form.label || 'ชื่อแบนเนอร์'}</span>
+                  {!form.imageUrl && (
+                    <>
+                      <span className="text-[10px] font-bold text-white/70 tracking-widest relative z-10">{form.sub || 'SUB'}</span>
+                      <span className="text-sm font-bold text-white text-center leading-snug relative z-10">{form.label || 'ชื่อแบนเนอร์'}</span>
+                    </>
+                  )}
                 </div>
               </div>
 

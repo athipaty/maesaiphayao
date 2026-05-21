@@ -70,10 +70,13 @@ export default function Footer() {
                   minHeight: '80px',
                 }}
               >
-                {l.imageUrl && <span className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/20 to-transparent z-0" />}
                 <span className="footer-shimmer" />
-                <span className="text-[10px] font-bold text-white/60 tracking-widest relative z-10">{l.sub}</span>
-                <span className="text-xs font-bold text-white text-center leading-snug relative z-10">{l.label}</span>
+                {!l.imageUrl && (
+                  <>
+                    <span className="text-[10px] font-bold text-white/60 tracking-widest relative z-10">{l.sub}</span>
+                    <span className="text-xs font-bold text-white text-center leading-snug relative z-10">{l.label}</span>
+                  </>
+                )}
               </a>
             ))}
           </div>
