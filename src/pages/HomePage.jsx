@@ -18,6 +18,14 @@ export default function HomePage() {
   const [prTab, setPrTab]           = useState('announcement')
   const [procTab, setProcTab]       = useState('egp')
   const [fbPage, setFbPage]         = useState(null)
+  const [lightboxItem, setLightboxItem] = useState(null)
+
+  useEffect(() => {
+    if (!lightboxItem) return
+    const onKey = e => { if (e.key === 'Escape') setLightboxItem(null) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [lightboxItem])
 
   useEffect(() => {
     async function load() {
@@ -157,13 +165,10 @@ export default function HomePage() {
             <div className="overflow-hidden pt-2 pb-3">
               <div className="ann-marquee flex gap-3 w-max px-3">
                 {[...annItems, ...annItems].map((item, i) => (
-                  <a
+                  <div
                     key={i}
-                    href={item.fileUrl || '#'}
-                    target={item.fileUrl ? '_blank' : undefined}
-                    rel="noreferrer"
-                    className="w-52 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all"
-                    style={{ textDecoration: 'none' }}
+                    onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
+                    className="w-52 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
                   >
                     {/* Image — tall portrait, object-contain shows full image without cropping */}
                     <div className="relative overflow-hidden" style={{
@@ -189,22 +194,33 @@ export default function HomePage() {
                       <span className="absolute top-2 left-2 text-[10px] font-bold bg-white/90 text-primary px-2 py-0.5 rounded-full z-10">
                         {item._kind === 'newsletter' ? '📰 จดหมายข่าว' : '📢 ประชาสัมพันธ์'}
                       </span>
-                      {item.fileUrl && (
-                        <span className="absolute top-2 right-2 text-[10px] font-bold bg-black/40 text-white px-2 py-0.5 rounded-full z-10">PDF</span>
+                      {item.image && (
+                        <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                          <span className="bg-black/50 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">🔍 ดูรูปภาพ</span>
+                        </span>
                       )}
                     </div>
-                    {/* Title + date below image — no overlay blocking the image */}
+                    {/* Title + date + PDF link below image */}
                     <div className="px-3 py-2.5">
-                      <p className="text-xs font-semibold text-gray-800 line-clamp-2 leading-snug mb-1 group-hover:text-primary transition-colors">
+                      <p className="text-xs font-semibold text-gray-800 line-clamp-2 leading-snug mb-1.5 group-hover:text-primary transition-colors">
                         {item.title}
                       </p>
-                      {item.createdAt && (
-                        <p className="text-[10px] text-gray-400">
-                          📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                        </p>
-                      )}
+                      <div className="flex items-center justify-between gap-2">
+                        {item.createdAt && (
+                          <p className="text-[10px] text-gray-400">
+                            📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                          </p>
+                        )}
+                        {item.fileUrl && (
+                          <a href={item.fileUrl} target="_blank" rel="noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            className="text-[10px] font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors flex-shrink-0">
+                            📄 PDF
+                          </a>
+                        )}
+                      </div>
                     </div>
-                  </a>
+                  </div>
                 ))}
               </div>
             </div>
@@ -334,6 +350,53 @@ export default function HomePage() {
               })}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── Lightbox ─────────────────────────────────────────────────── */}
+      {lightboxItem && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => setLightboxItem(null)}
+        >
+          {/* Blurred backdrop */}
+          <div className="absolute inset-0 bg-black/75 backdrop-blur-md" />
+
+          {/* Image container */}
+          <div
+            className="relative max-w-3xl w-full max-h-[90vh] flex flex-col items-center"
+            onClick={e => e.stopPropagation()}
+          >
+            <img
+              src={lightboxItem.image}
+              alt={lightboxItem.title}
+              className="max-h-[80vh] max-w-full w-auto rounded-2xl shadow-2xl object-contain"
+            />
+            <p className="mt-3 text-white text-sm font-semibold text-center drop-shadow line-clamp-2 px-4">
+              {lightboxItem.title}
+            </p>
+            <div className="flex items-center gap-3 mt-3">
+              {lightboxItem.fileUrl && (
+                <a href={lightboxItem.fileUrl} target="_blank" rel="noreferrer"
+                  className="text-xs font-semibold bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full backdrop-blur-sm transition-colors">
+                  📄 เปิด PDF
+                </a>
+              )}
+              <button
+                onClick={() => setLightboxItem(null)}
+                className="text-xs font-semibold bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full backdrop-blur-sm transition-colors">
+                ✕ ปิด
+              </button>
+            </div>
+          </div>
+
+          {/* Close X top-right */}
+          <button
+            onClick={() => setLightboxItem(null)}
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center text-lg backdrop-blur-sm transition-colors z-10"
+          >
+            ✕
+          </button>
         </div>
       )}
     </div>
