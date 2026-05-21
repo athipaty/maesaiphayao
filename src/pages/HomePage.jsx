@@ -19,6 +19,7 @@ export default function HomePage() {
   const [procTab, setProcTab]       = useState('egp')
   const [fbPage, setFbPage]         = useState(null)
   const [lightboxItem, setLightboxItem] = useState(null)
+  const [annSlide, setAnnSlide]         = useState(0)
   const fbContainerRef = useRef(null)
   const [fbScale, setFbScale] = useState(1)
 
@@ -78,6 +79,17 @@ export default function HomePage() {
     }
     load()
   }, [])
+
+  const annItems = [
+    ...announce.map(i => ({ ...i, _kind: 'announcement' })),
+    ...newsletter.map(i => ({ ...i, _kind: 'newsletter' })),
+  ]
+
+  useEffect(() => {
+    if (annItems.length === 0) return
+    const timer = setInterval(() => setAnnSlide(s => (s + 1) % annItems.length), 4000)
+    return () => clearInterval(timer)
+  }, [annItems.length])
 
   return (
     <div>
@@ -148,14 +160,10 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* ── Announcement marquee ─────────────────────────────────────── */}
-      {(announce.length > 0 || newsletter.length > 0) && (() => {
-        const annItems = [
-          ...announce.map(i => ({ ...i, _kind: 'announcement' })),
-          ...newsletter.map(i => ({ ...i, _kind: 'newsletter' })),
-        ]
+      {/* ── Announcement marquee — mobile only (desktop shows in Facebook right panel) ── */}
+      {annItems.length > 0 && (() => {
         return (
-          <div className="card">
+          <div className="card lg:hidden">
             <style>{`
               @keyframes ann-marquee {
                 0%   { transform: translateX(0); }
@@ -265,24 +273,81 @@ export default function HomePage() {
             />
           </div>
 
-          {/* Right: Coming soon — desktop only */}
-          <div className="hidden lg:flex flex-1 flex-col items-center justify-center gap-4 bg-gradient-to-br from-gray-50 to-slate-100"
+          {/* Right: Announcement slideshow — desktop only */}
+          <div className="hidden lg:block flex-1 relative overflow-hidden"
             style={{ height: `${Math.round(500 * fbScale)}px` }}>
             <style>{`
               @keyframes dot-bounce {
                 0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
                 40%           { transform: translateY(-10px); opacity: 1; }
               }
-              .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #94a3b8; animation: dot-bounce 1.4s ease-in-out infinite; }
-              .dot:nth-child(2) { animation-delay: 0.2s; }
-              .dot:nth-child(3) { animation-delay: 0.4s; }
+              .ann-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #94a3b8; animation: dot-bounce 1.4s ease-in-out infinite; }
+              .ann-dot:nth-child(2) { animation-delay: 0.2s; }
+              .ann-dot:nth-child(3) { animation-delay: 0.4s; }
             `}</style>
-            <p className="text-2xl font-bold text-slate-300 tracking-widest select-none">coming soon</p>
-            <div className="flex items-center gap-2">
-              <span className="dot" />
-              <span className="dot" />
-              <span className="dot" />
-            </div>
+
+            {annItems.length > 0 ? (
+              <>
+                {annItems.map((item, i) => (
+                  <div key={i}
+                    className={`absolute inset-0 transition-opacity duration-700 ${i === annSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+                    onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
+                    style={{ cursor: item.image || item.fileUrl ? 'pointer' : 'default' }}
+                  >
+                    {item.image ? (
+                      <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center"
+                        style={{ background: item._kind === 'newsletter' ? 'linear-gradient(135deg,#065f46,#059669)' : 'linear-gradient(135deg,#1e3a8a,#1d4ed8)' }}>
+                        <span className="text-7xl opacity-20">{item._kind === 'newsletter' ? '📰' : '📢'}</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                    <span className="absolute top-3 left-3 text-[10px] font-bold bg-white/90 text-primary px-2 py-0.5 rounded-full z-20">
+                      {item._kind === 'newsletter' ? '📰 จดหมายข่าว' : '📢 ประชาสัมพันธ์'}
+                    </span>
+                    {item.fileUrl && (
+                      <a href={item.fileUrl} target="_blank" rel="noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="absolute top-3 right-3 text-[10px] font-bold bg-red-600/80 text-white px-2 py-0.5 rounded-full z-20 hover:bg-red-600 transition-colors">
+                        📄 PDF
+                      </a>
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 px-4 pb-8 pt-4 z-20">
+                      <p className="text-white text-sm font-semibold leading-snug line-clamp-2 drop-shadow">{item.title}</p>
+                      {item.createdAt && (
+                        <p className="text-white/65 text-xs mt-1">
+                          📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Slide indicator dots */}
+                <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-30">
+                  {annItems.map((_, i) => (
+                    <button key={i}
+                      onClick={() => setAnnSlide(i)}
+                      className={`rounded-full transition-all duration-300 ${i === annSlide ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/75'}`}
+                    />
+                  ))}
+                </div>
+
+                {/* Header label */}
+                <div className="absolute top-0 left-0 right-0 px-4 pt-3 pb-6 bg-gradient-to-b from-black/50 to-transparent z-20 flex items-center justify-between">
+                  <span className="text-xs font-semibold text-white/90">📢 ข่าวประชาสัมพันธ์ &amp; จดหมายข่าว</span>
+                  <Link to="/announcements" className="text-[10px] text-white/70 hover:text-white transition-colors">ดูทั้งหมด →</Link>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full gap-4 bg-gradient-to-br from-gray-50 to-slate-100">
+                <p className="text-2xl font-bold text-slate-300 tracking-widest select-none">coming soon</p>
+                <div className="flex items-center gap-2">
+                  <span className="ann-dot" /><span className="ann-dot" /><span className="ann-dot" />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
