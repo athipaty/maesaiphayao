@@ -295,7 +295,7 @@ export default function HomePage() {
                     style={{ cursor: item.image || item.fileUrl ? 'pointer' : 'default' }}
                   >
                     {item.image ? (
-                      <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                      <img src={item.image} alt={item.title} className="w-full h-full object-contain" style={{ background: '#111' }} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center"
                         style={{ background: item._kind === 'newsletter' ? 'linear-gradient(135deg,#065f46,#059669)' : 'linear-gradient(135deg,#1e3a8a,#1d4ed8)' }}>
