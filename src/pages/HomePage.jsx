@@ -26,7 +26,7 @@ export default function HomePage() {
     function updateScale() {
       if (!fbContainerRef.current) return
       const w = fbContainerRef.current.offsetWidth
-      setFbScale(Math.min(1, w / 500))
+      setFbScale(w / 500)
     }
     updateScale()
     window.addEventListener('resize', updateScale)
