@@ -14,7 +14,7 @@ const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm foc
 export default function ComplaintPage() {
   const [tab, setTab]             = useState('form')
   const [anonymous, setAnonymous] = useState(false)
-  const [form, setForm]           = useState({ citizenName: '', phone: '', detail: '', attachments: [] })
+  const [form, setForm]           = useState({ citizenName: '', phone: '', location: '', detail: '', attachments: [] })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted]   = useState(null)
   const [trackNo, setTrackNo]     = useState('')
@@ -34,10 +34,11 @@ export default function ComplaintPage() {
         type: 'general', isAnonymous: anonymous, detail: form.detail,
         citizenName: anonymous ? '' : form.citizenName,
         phone: anonymous ? '' : form.phone,
+        location: form.location,
         attachments: form.attachments,
       })
       setSubmitted(r.data)
-      setForm({ citizenName: '', phone: '', detail: '', attachments: [] })
+      setForm({ citizenName: '', phone: '', location: '', detail: '', attachments: [] })
       setAnonymous(false)
     } catch (err) {
       alert('เกิดข้อผิดพลาด: ' + (err?.response?.data?.error || err.message))
@@ -138,6 +139,12 @@ export default function ComplaintPage() {
               )}
 
               <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">สถานที่ / จุดเกิดเหตุ</label>
+                <input className={inputCls} value={form.location}
+                  onChange={e => set('location', e.target.value)} placeholder="ระบุสถานที่หรือพิกัด (ถ้ามี)" />
+              </div>
+
+              <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   รายละเอียด <span className="text-red-400">*</span>
                 </label>
@@ -190,6 +197,9 @@ export default function ComplaintPage() {
                     ? <div className="flex gap-3"><span className="text-gray-400 w-28 flex-shrink-0">ผู้ร้องเรียน</span><span className="text-gray-400 italic">ไม่ระบุตัวตน</span></div>
                     : tracked.citizenName && <div className="flex gap-3"><span className="text-gray-400 w-28 flex-shrink-0">ผู้ร้องเรียน</span><span>{tracked.citizenName}</span></div>
                   }
+                  {tracked.location && (
+                    <div className="flex gap-3"><span className="text-gray-400 w-28 flex-shrink-0">สถานที่</span><span className="flex-1">{tracked.location}</span></div>
+                  )}
                   <div className="flex gap-3"><span className="text-gray-400 w-28 flex-shrink-0">รายละเอียด</span><span className="flex-1 leading-relaxed">{tracked.detail}</span></div>
                   {tracked.officerNote && (
                     <div className="flex gap-3"><span className="text-gray-400 w-28 flex-shrink-0">ผลดำเนินการ</span><span className="flex-1 text-secondary">{tracked.officerNote}</span></div>
