@@ -260,7 +260,15 @@ export default function AdminEService() {
                     <div><span className="text-gray-400 text-xs">หมู่ที่</span><p className="font-medium mt-0.5">{selected.villageNo || '-'}</p></div>
                   </div>
                   {selected.location && (
-                    <div><span className="text-gray-400 text-xs">สถานที่ / จุดเกิดเหตุ</span><p className="mt-1">{selected.location}</p></div>
+                    <div>
+                      <span className="text-gray-400 text-xs">สถานที่ / จุดเกิดเหตุ</span>
+                      <p className="mt-1">{selected.location.address || selected.location}</p>
+                      {selected.location.lat && (
+                        <a href={`https://www.google.com/maps?q=${selected.location.lat},${selected.location.lng}`}
+                          target="_blank" rel="noreferrer"
+                          className="text-xs text-blue-500 hover:underline">เปิดใน Google Maps →</a>
+                      )}
+                    </div>
                   )}
                   <div><span className="text-gray-400 text-xs">รายละเอียด</span><p className="mt-1 leading-relaxed">{selected.detail}</p></div>
                   <div>

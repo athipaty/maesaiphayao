@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { submitEService, trackEService, getEServiceTypes } from '../services/api'
 import PhotoUploader from '../components/PhotoUploader'
+import LocationPicker from '../components/LocationPicker'
 
 const STATUS_CONFIG = {
   received:    { label: 'รับเรื่องแล้ว',     color: 'bg-blue-100 text-blue-700',   dot: '🔵' },
@@ -12,7 +13,7 @@ const STATUS_CONFIG = {
 export default function EServicePage() {
   const [types, setTypes]       = useState([])
   const [tab, setTab]           = useState('form')
-  const [form, setForm]         = useState({ type: '', citizenName: '', phone: '', address: '', villageNo: '', location: '', detail: '', images: [] })
+  const [form, setForm]         = useState({ type: '', citizenName: '', phone: '', address: '', villageNo: '', location: null, detail: '', images: [] })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted]   = useState(null)
   const [trackNo, setTrackNo]   = useState('')
@@ -37,7 +38,7 @@ export default function EServicePage() {
     try {
       const r = await submitEService(form)
       setSubmitted(r.data)
-      setForm({ type: types[0]?.value || '', citizenName: '', phone: '', address: '', villageNo: '', location: '', detail: '', images: [] })
+      setForm({ type: types[0]?.value || '', citizenName: '', phone: '', address: '', villageNo: '', location: null, detail: '', images: [] })
     } catch (err) {
       alert('เกิดข้อผิดพลาด: ' + (err?.response?.data?.error || err.message))
     } finally {
@@ -157,11 +158,7 @@ export default function EServicePage() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">สถานที่ / จุดเกิดเหตุ</label>
-                <input
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-                  value={form.location} onChange={e => set('location', e.target.value)}
-                  placeholder="ระบุสถานที่หรือพิกัด (ถ้ามี)"
-                />
+                <LocationPicker value={form.location} onChange={v => set('location', v)} />
               </div>
 
               <div>
@@ -295,6 +292,19 @@ export default function EServicePage() {
                 <div className="p-4 space-y-2 text-sm">
                   <div className="flex gap-2"><span className="text-gray-400 w-28">ประเภท</span><span>{typeLabel}</span></div>
                   <div className="flex gap-2"><span className="text-gray-400 w-28">ผู้แจ้ง</span><span>{tracked.citizenName || '-'}</span></div>
+                  {tracked.location && (
+                    <div className="flex gap-2">
+                      <span className="text-gray-400 w-28">สถานที่</span>
+                      <div className="flex-1">
+                        <p>{tracked.location.address || tracked.location}</p>
+                        {tracked.location.lat && (
+                          <a href={`https://www.google.com/maps?q=${tracked.location.lat},${tracked.location.lng}`}
+                            target="_blank" rel="noreferrer"
+                            className="text-xs text-blue-500 hover:underline">เปิดใน Google Maps →</a>
+                        )}
+                      </div>
+                    </div>
+                  )}
                   <div className="flex gap-2"><span className="text-gray-400 w-28">รายละเอียด</span><span className="flex-1">{tracked.detail}</span></div>
                   {tracked.officerNote && (
                     <div className="flex gap-2"><span className="text-gray-400 w-28">หมายเหตุ</span><span className="flex-1 text-secondary">{tracked.officerNote}</span></div>

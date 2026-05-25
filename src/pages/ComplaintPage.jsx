@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { submitComplaint, trackComplaint } from '../services/api'
 import PhotoUploader from '../components/PhotoUploader'
+import LocationPicker from '../components/LocationPicker'
 
 const STATUS_CONFIG = {
   received:     { label: 'รับเรื่องแล้ว',      color: 'bg-blue-100 text-blue-700',    dot: '🔵' },
@@ -14,7 +15,7 @@ const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm foc
 export default function ComplaintPage() {
   const [tab, setTab]             = useState('form')
   const [anonymous, setAnonymous] = useState(false)
-  const [form, setForm]           = useState({ citizenName: '', phone: '', location: '', detail: '', attachments: [] })
+  const [form, setForm]           = useState({ citizenName: '', phone: '', location: null, detail: '', attachments: [] })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted]   = useState(null)
   const [trackNo, setTrackNo]     = useState('')
@@ -38,7 +39,7 @@ export default function ComplaintPage() {
         attachments: form.attachments,
       })
       setSubmitted(r.data)
-      setForm({ citizenName: '', phone: '', location: '', detail: '', attachments: [] })
+      setForm({ citizenName: '', phone: '', location: null, detail: '', attachments: [] })
       setAnonymous(false)
     } catch (err) {
       alert('เกิดข้อผิดพลาด: ' + (err?.response?.data?.error || err.message))
@@ -140,8 +141,7 @@ export default function ComplaintPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">สถานที่ / จุดเกิดเหตุ</label>
-                <input className={inputCls} value={form.location}
-                  onChange={e => set('location', e.target.value)} placeholder="ระบุสถานที่หรือพิกัด (ถ้ามี)" />
+                <LocationPicker value={form.location} onChange={v => set('location', v)} />
               </div>
 
               <div>
@@ -198,7 +198,17 @@ export default function ComplaintPage() {
                     : tracked.citizenName && <div className="flex gap-3"><span className="text-gray-400 w-28 flex-shrink-0">ผู้ร้องเรียน</span><span>{tracked.citizenName}</span></div>
                   }
                   {tracked.location && (
-                    <div className="flex gap-3"><span className="text-gray-400 w-28 flex-shrink-0">สถานที่</span><span className="flex-1">{tracked.location}</span></div>
+                    <div className="flex gap-3">
+                      <span className="text-gray-400 w-28 flex-shrink-0">สถานที่</span>
+                      <div className="flex-1">
+                        <p>{tracked.location.address || tracked.location}</p>
+                        {tracked.location.lat && (
+                          <a href={`https://www.google.com/maps?q=${tracked.location.lat},${tracked.location.lng}`}
+                            target="_blank" rel="noreferrer"
+                            className="text-xs text-blue-500 hover:underline">เปิดใน Google Maps →</a>
+                        )}
+                      </div>
+                    </div>
                   )}
                   <div className="flex gap-3"><span className="text-gray-400 w-28 flex-shrink-0">รายละเอียด</span><span className="flex-1 leading-relaxed">{tracked.detail}</span></div>
                   {tracked.officerNote && (
