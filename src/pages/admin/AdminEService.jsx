@@ -259,6 +259,9 @@ export default function AdminEService() {
                     <div><span className="text-gray-400 text-xs">เบอร์โทร</span><p className="font-medium mt-0.5">{selected.phone}</p></div>
                     <div><span className="text-gray-400 text-xs">หมู่ที่</span><p className="font-medium mt-0.5">{selected.villageNo || '-'}</p></div>
                   </div>
+                  {selected.location && (
+                    <div><span className="text-gray-400 text-xs">สถานที่ / จุดเกิดเหตุ</span><p className="mt-1">{selected.location}</p></div>
+                  )}
                   <div><span className="text-gray-400 text-xs">รายละเอียด</span><p className="mt-1 leading-relaxed">{selected.detail}</p></div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">อัปเดตสถานะ</label>

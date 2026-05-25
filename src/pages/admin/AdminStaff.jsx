@@ -163,7 +163,7 @@ export default function AdminStaff() {
     })
 
   const emptyForm = {
-    name: '', position: '',
+    name: '', position: '', responsibilities: '',
     department: depts[0]?.value || '',
     image: '', phone: '', order: 0, level: 1, isVacant: false, isActive: true,
   }
@@ -289,6 +289,16 @@ export default function AdminStaff() {
                   value={data.position}
                   onChange={e => onChange('position', e.target.value)}
                   placeholder="นักวิชาการ / ผู้อำนวยการ..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">หน้าที่ความรับผิดชอบ</label>
+                <textarea
+                  rows={3}
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
+                  value={data.responsibilities || ''}
+                  onChange={e => onChange('responsibilities', e.target.value)}
+                  placeholder="ระบุหน้าที่และความรับผิดชอบ..."
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
