@@ -1,7 +1,27 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Component } from 'react'
+import { createPortal } from 'react-dom'
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+
+// Error boundary to catch react-leaflet Context errors in React 18.3 StrictMode
+class MapErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { hasError: false } }
+  static getDerivedStateFromError() { return { hasError: true } }
+  componentDidCatch(err) { console.warn('[LocationPicker] map render error:', err.message) }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex-1 flex items-center justify-center bg-gray-50 text-sm text-gray-400 flex-col gap-2">
+          <span className="text-2xl">🗺️</span>
+          <p>ไม่สามารถโหลดแผนที่ได้</p>
+          <button className="text-xs text-blue-500 underline" onClick={() => this.setState({ hasError: false })}>ลองอีกครั้ง</button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 // Fix default marker icons broken by bundlers
 delete L.Icon.Default.prototype._getIconUrl
@@ -66,7 +86,7 @@ export default function LocationPicker({ value, onChange }) {
   }
 
   async function handleSearch(e) {
-    e.preventDefault()
+    e?.preventDefault?.()
     if (!search.trim()) return
     setSearching(true)
     try {
@@ -99,9 +119,10 @@ export default function LocationPicker({ value, onChange }) {
   return (
     <div className="space-y-1">
       {/* Trigger / summary */}
-      <div
+      <button
+        type="button"
         onClick={() => setOpen(true)}
-        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white cursor-pointer hover:border-blue-400 transition-colors flex items-center gap-2 min-h-[46px]"
+        className="w-full text-left border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white hover:border-blue-400 transition-colors flex items-center gap-2 min-h-[46px]"
       >
         <span className="text-base flex-shrink-0">📍</span>
         {displayText
@@ -109,11 +130,11 @@ export default function LocationPicker({ value, onChange }) {
           : <span className="flex-1 text-gray-300">แตะเพื่อเลือกสถานที่บนแผนที่ (ถ้ามี)</span>
         }
         {displayText
-          ? <button type="button" onClick={e => { e.stopPropagation(); handleClear() }}
-              className="text-gray-300 hover:text-gray-500 text-lg leading-none flex-shrink-0">×</button>
+          ? <span role="button" onClick={e => { e.stopPropagation(); handleClear() }}
+              className="text-gray-300 hover:text-gray-500 text-lg leading-none flex-shrink-0 cursor-pointer">×</span>
           : <span className="text-xs text-blue-400 flex-shrink-0">เลือก</span>
         }
-      </div>
+      </button>
 
       {/* Google Maps link when location is set */}
       {value?.lat && (
@@ -128,8 +149,8 @@ export default function LocationPicker({ value, onChange }) {
         </a>
       )}
 
-      {/* Map modal */}
-      {open && (
+      {/* Map modal — rendered in a portal so it never nests inside another <form> */}
+      {open && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4">
           <div className="bg-white w-full sm:rounded-2xl shadow-2xl flex flex-col"
             style={{ height: '90vh', maxWidth: 640 }}>
@@ -141,19 +162,20 @@ export default function LocationPicker({ value, onChange }) {
                 className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
             </div>
 
-            {/* Search bar */}
-            <form onSubmit={handleSearch} className="flex gap-2 px-3 py-2 border-b flex-shrink-0">
+            {/* Search bar — use div+onKeyDown to avoid nested <form> issue */}
+            <div className="flex gap-2 px-3 py-2 border-b flex-shrink-0">
               <input
                 className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                 placeholder="ค้นหาสถานที่ เช่น อบต.แม่ใส พะเยา"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSearch(e)}
               />
-              <button type="submit" disabled={searching}
+              <button type="button" onClick={handleSearch} disabled={searching}
                 className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 flex-shrink-0">
                 {searching ? '...' : 'ค้นหา'}
               </button>
-            </form>
+            </div>
 
             {/* GPS button */}
             <div className="flex items-center gap-2 px-3 py-2 border-b bg-blue-50/50 flex-shrink-0">
@@ -169,24 +191,26 @@ export default function LocationPicker({ value, onChange }) {
 
             {/* Map */}
             <div className="flex-1 relative">
-              <MapContainer
-                center={pos || DEFAULT_CENTER}
-                zoom={pos ? 16 : 13}
-                style={{ height: '100%', width: '100%' }}
-                zoomControl={true}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a>'
-                />
-                <ClickHandler onPick={handlePick} />
-                {pos && (
-                  <>
-                    <Marker position={pos} />
-                    <FlyTo pos={pos} />
-                  </>
-                )}
-              </MapContainer>
+              <MapErrorBoundary>
+                <MapContainer
+                  center={pos || DEFAULT_CENTER}
+                  zoom={pos ? 16 : 13}
+                  style={{ height: '100%', width: '100%' }}
+                  zoomControl={true}
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a>'
+                  />
+                  <ClickHandler onPick={handlePick} />
+                  {pos && (
+                    <>
+                      <Marker position={pos} />
+                      <FlyTo pos={pos} />
+                    </>
+                  )}
+                </MapContainer>
+              </MapErrorBoundary>
             </div>
 
             {/* Footer */}
@@ -202,7 +226,7 @@ export default function LocationPicker({ value, onChange }) {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
     </div>
   )
 }

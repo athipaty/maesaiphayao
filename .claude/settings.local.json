@@ -50,7 +50,14 @@
       "Bash(git -C 'C:\\\\Users\\\\loret\\\\tong\\\\abt' commit -m ' *)",
       "Bash(git *)",
       "Bash(Get-ChildItem *)",
-      "Bash(xargs grep -l \"facebook\")"
+      "Bash(xargs grep -l \"facebook\")",
+      "Bash(findstr /i \"dev\\\\|start\\\\|scripts\")",
+      "Bash(npx --yes playwright@latest chromium install)",
+      "Bash(node *)",
+      "Bash(npx playwright *)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(npm show *)",
+      "PowerShell(npm show *)"
     ]
   }
 }
