@@ -250,7 +250,7 @@ function PdfBlock({ data, preview }) {
   const viewUrl = isB2 ? data.url : `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
   return (
     <div className="card mb-1.5 overflow-hidden">
-      <div className="p-4">
+      <div className="p-2">
         {data.description && <p className="text-xs text-gray-500 mb-3 leading-relaxed">{data.description}</p>}
 
         {preview ? (
