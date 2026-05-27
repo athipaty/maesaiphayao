@@ -40,6 +40,11 @@ function StaffCard({ s }) {
       )}
       <h4 className="text-xs font-semibold text-primary leading-snug">{s.name}</h4>
       <p className="text-xs text-gray-500 mt-0.5 leading-snug">{s.position}</p>
+      {s.responsibilities && (
+        <p className="text-[10px] text-gray-400 mt-1 leading-snug italic px-1" title={s.responsibilities}>
+          📋 {s.responsibilities}
+        </p>
+      )}
       {s.phone && <p className="text-xs text-secondary mt-0.5">{s.phone}</p>}
     </div>
   )
