@@ -28,11 +28,27 @@ export default function LocationPicker({ value, onChange }) {
   const [pos, setPos]         = useState(value?.lat ? [value.lat, value.lng] : null)
   const [search, setSearch]   = useState('')
   const [searching, setSearching] = useState(false)
+  const [locating, setLocating]   = useState(false)
   const [open, setOpen]       = useState(false)
 
   function handlePick(latlng) {
     setPos([latlng.lat, latlng.lng])
     reverseGeocode(latlng.lat, latlng.lng)
+  }
+
+  function handleGPS() {
+    if (!navigator.geolocation) { alert('เบราว์เซอร์นี้ไม่รองรับ GPS'); return }
+    setLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const { latitude: lat, longitude: lng } = coords
+        setPos([lat, lng])
+        reverseGeocode(lat, lng)
+        setLocating(false)
+      },
+      () => { alert('ไม่สามารถระบุตำแหน่งได้ กรุณาอนุญาตการเข้าถึง GPS'); setLocating(false) },
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
   }
 
   async function reverseGeocode(lat, lng) {
@@ -81,7 +97,7 @@ export default function LocationPicker({ value, onChange }) {
   const displayText = value?.address || ''
 
   return (
-    <div>
+    <div className="space-y-1">
       {/* Trigger / summary */}
       <div
         onClick={() => setOpen(true)}
@@ -98,6 +114,19 @@ export default function LocationPicker({ value, onChange }) {
           : <span className="text-xs text-blue-400 flex-shrink-0">เลือก</span>
         }
       </div>
+
+      {/* Google Maps link when location is set */}
+      {value?.lat && (
+        <a
+          href={`https://www.google.com/maps?q=${value.lat},${value.lng}`}
+          target="_blank"
+          rel="noreferrer"
+          onClick={e => e.stopPropagation()}
+          className="inline-flex items-center gap-1.5 text-xs text-blue-500 hover:text-blue-700 hover:underline px-1"
+        >
+          🗺️ ดูใน Google Maps →
+        </a>
+      )}
 
       {/* Map modal */}
       {open && (
@@ -126,9 +155,17 @@ export default function LocationPicker({ value, onChange }) {
               </button>
             </form>
 
-            <p className="text-xs text-gray-400 text-center py-1.5 flex-shrink-0">
-              แตะบนแผนที่เพื่อปักหมุด หรือค้นหาด้านบน
-            </p>
+            {/* GPS button */}
+            <div className="flex items-center gap-2 px-3 py-2 border-b bg-blue-50/50 flex-shrink-0">
+              <button type="button" onClick={handleGPS} disabled={locating}
+                className="flex items-center gap-2 text-xs font-semibold text-blue-600 bg-white border border-blue-200 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors disabled:opacity-60 flex-shrink-0">
+                {locating
+                  ? <><span className="animate-spin">⏳</span> กำลังระบุตำแหน่ง...</>
+                  : <><span>📡</span> ใช้ตำแหน่งปัจจุบัน (GPS)</>
+                }
+              </button>
+              <p className="text-xs text-gray-400">หรือแตะบนแผนที่เพื่อปักหมุด</p>
+            </div>
 
             {/* Map */}
             <div className="flex-1 relative">
@@ -169,3 +206,4 @@ export default function LocationPicker({ value, onChange }) {
     </div>
   )
 }
+

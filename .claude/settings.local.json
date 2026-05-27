@@ -41,7 +41,16 @@
       "Bash(npm install *)",
       "WebFetch(domain:maesaiphayao.vercel.app)",
       "WebFetch(domain:center-kitchen.onrender.com)",
-      "WebFetch(domain:center-kitchen-backend.onrender.com)"
+      "WebFetch(domain:center-kitchen-backend.onrender.com)",
+      "Bash(git -C \"C:\\\\Users\\\\loret\\\\tong\\\\abt\" status)",
+      "Bash(git -C \"C:\\\\Users\\\\loret\\\\tong\\\\abt\" diff)",
+      "Bash(git -C \"C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend\" status)",
+      "Bash(git -C \"C:\\\\Users\\\\loret\\\\tong\\\\center-kitchen\\\\backend\" diff)",
+      "Bash(git -C \"C:\\\\Users\\\\loret\\\\tong\\\\abt\" add src/components/NewsSection.jsx)",
+      "Bash(git -C 'C:\\\\Users\\\\loret\\\\tong\\\\abt' commit -m ' *)",
+      "Bash(git *)",
+      "Bash(Get-ChildItem *)",
+      "Bash(xargs grep -l \"facebook\")"
     ]
   }
 }
