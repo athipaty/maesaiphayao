@@ -34,7 +34,7 @@ function Field({ label, hint, children }) {
 const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all bg-gray-50 focus:bg-white focus:scale-[1.01]'
 
 export default function AdminSettings() {
-  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '' })
+  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '', egpDeptSubId: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving]   = useState(false)
   const [saved, setSaved]     = useState(false)
@@ -171,6 +171,32 @@ export default function AdminSettings() {
               </div>
             </div>
           )}
+        </Section>
+
+        {/* e-GP */}
+        <Section delay={220} icon="📋" title="ระบบ e-GP (จัดซื้อจัดจ้าง)" subtitle="รหัสหน่วยงานสำหรับดึงข้อมูลจาก e-GP RSS">
+          <Field
+            label="รหัสหน่วยงานย่อย (deptsubId)"
+            hint="หา ID ได้จาก: เข้าสู่ระบบ e-GP → ข้อมูลหน่วยงาน → รหัสหน่วยงานย่อย (ตัวเลข 5–8 หลัก)"
+          >
+            <div className="flex gap-2">
+              <input
+                className={inputCls}
+                value={form.egpDeptSubId || ''}
+                onChange={e => set('egpDeptSubId', e.target.value.trim())}
+                placeholder="เช่น 6560105"
+              />
+              {form.egpDeptSubId && (
+                <a
+                  href={`https://process.gprocurement.go.th/EPROCRssFeedWeb/egpannouncerss.xml?deptsubId=${form.egpDeptSubId}`}
+                  target="_blank" rel="noreferrer"
+                  className="flex-shrink-0 flex items-center gap-1 text-xs bg-blue-50 border border-blue-200 text-blue-700 px-3 rounded-xl hover:bg-blue-100 transition-colors"
+                >
+                  ทดสอบ →
+                </a>
+              )}
+            </div>
+          </Field>
         </Section>
 
         {/* Sidebar preview */}
