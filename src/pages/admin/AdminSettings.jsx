@@ -34,7 +34,7 @@ function Field({ label, hint, children }) {
 const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all bg-gray-50 focus:bg-white focus:scale-[1.01]'
 
 export default function AdminSettings() {
-  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '', egpDeptSubId: '' })
+  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '', egpDeptSubId: '', egpDeptId: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving]   = useState(false)
   const [saved, setSaved]     = useState(false)
@@ -174,29 +174,31 @@ export default function AdminSettings() {
         </Section>
 
         {/* e-GP */}
-        <Section delay={220} icon="📋" title="ระบบ e-GP (จัดซื้อจัดจ้าง)" subtitle="รหัสหน่วยงานสำหรับดึงข้อมูลจาก e-GP RSS">
-          <Field
-            label="รหัสหน่วยงานย่อย (deptsubId)"
-            hint="หา ID ได้จาก: เข้าสู่ระบบ e-GP → ข้อมูลหน่วยงาน → รหัสหน่วยงานย่อย (ตัวเลข 5–8 หลัก)"
-          >
-            <div className="flex gap-2">
-              <input
-                className={inputCls}
-                value={form.egpDeptSubId || ''}
-                onChange={e => set('egpDeptSubId', e.target.value.trim())}
-                placeholder="เช่น 6560105"
-              />
-              {form.egpDeptSubId && (
-                <a
-                  href={`https://process.gprocurement.go.th/EPROCRssFeedWeb/egpannouncerss.xml?deptsubId=${form.egpDeptSubId}`}
-                  target="_blank" rel="noreferrer"
-                  className="flex-shrink-0 flex items-center gap-1 text-xs bg-blue-50 border border-blue-200 text-blue-700 px-3 rounded-xl hover:bg-blue-100 transition-colors"
-                >
-                  ทดสอบ →
-                </a>
-              )}
+        <Section delay={220} icon="📋" title="ระบบ e-GP (จัดซื้อจัดจ้าง)" subtitle="รหัสหน่วยงานสำหรับดึงข้อมูลจาก e-GP RSS — ต้องกรอกอย่างใดอย่างหนึ่ง">
+          <div className="space-y-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-800 space-y-1">
+              <p className="font-semibold">วิธีหารหัส:</p>
+              <p>1. ไปที่ <a href="https://www.gprocurement.go.th" target="_blank" rel="noreferrer" className="underline">www.gprocurement.go.th</a></p>
+              <p>2. คลิก "ลงทะเบียนได้ที่นี่" → "การลงทะเบียนหน่วยงานภาครัฐ"</p>
+              <p>3. ค้นหาชื่อหน่วยงาน → ดู <strong>รหัสหน่วยงาน (4 หลัก)</strong></p>
+              <p>4. ค้นหาชื่อหน่วยจัดซื้อย่อย → ดู <strong>รหัสหน่วยจัดซื้อย่อย (10 หลัก)</strong></p>
             </div>
-          </Field>
+            <Field label="รหัสหน่วยจัดซื้อย่อย — deptsubId (10 หลัก) แนะนำ" hint="เช่น 0300400070 — ใช้กรองเฉพาะหน่วยงานของท่าน (แม่นยำกว่า)">
+              <div className="flex gap-2">
+                <input className={inputCls} value={form.egpDeptSubId || ''} onChange={e => set('egpDeptSubId', e.target.value.trim())} placeholder="0300400070" />
+                {form.egpDeptSubId && (
+                  <a href={`https://process3.gprocurement.go.th/EPROCRssFeedWeb/egpannouncerss.xml?deptsubId=${form.egpDeptSubId}&anounceType=W0`}
+                    target="_blank" rel="noreferrer"
+                    className="flex-shrink-0 flex items-center gap-1 text-xs bg-blue-50 border border-blue-200 text-blue-700 px-3 rounded-xl hover:bg-blue-100 transition-colors">
+                    ทดสอบ →
+                  </a>
+                )}
+              </div>
+            </Field>
+            <Field label="รหัสหน่วยงานหลัก — deptId (4 หลัก) สำรอง" hint="เช่น 0304 — ใช้ถ้าไม่มี deptsubId">
+              <input className={inputCls} value={form.egpDeptId || ''} onChange={e => set('egpDeptId', e.target.value.trim())} placeholder="0304" />
+            </Field>
+          </div>
         </Section>
 
         {/* Sidebar preview */}

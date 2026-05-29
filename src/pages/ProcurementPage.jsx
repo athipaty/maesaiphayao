@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react'
 import PageHeader from '../components/PageHeader'
 import { getProcurement, getEgpRss } from '../services/api'
 
+// anounceType codes from CGD e-GP RSS manual
+// Empty '' = default returns D0 (เชิญชวน) only — not truly "all"
 const EGP_TYPES = [
-  { key: '',   label: 'ทั้งหมด' },
-  { key: 'P0', label: 'แผนการจัดซื้อ' },
   { key: 'D0', label: 'ประกาศเชิญชวน' },
+  { key: 'P0', label: 'แผนการจัดซื้อ' },
   { key: 'W0', label: 'ประกาศผู้ชนะ' },
+  { key: 'W2', label: 'แก้ไขประกาศผู้ชนะ' },
   { key: '15', label: 'ราคากลาง' },
+  { key: 'B0', label: 'ร่างประกวดราคา' },
 ]
 
 function LocalTab() {
@@ -72,7 +75,7 @@ function LocalTab() {
 }
 
 function EgpTab() {
-  const [anounceType, setAnounceType] = useState('')
+  const [anounceType, setAnounceType] = useState('D0')
   const [items, setItems]             = useState([])
   const [loading, setLoading]         = useState(true)
   const [error, setError]             = useState('')
