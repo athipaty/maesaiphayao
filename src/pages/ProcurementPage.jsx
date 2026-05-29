@@ -76,21 +76,25 @@ function EgpTab() {
   const [items, setItems]             = useState([])
   const [loading, setLoading]         = useState(true)
   const [error, setError]             = useState('')
-  const [maintenance, setMaintenance] = useState(null) // { notice, hours } | null
+  const [maintenance, setMaintenance] = useState(null)
   const [staleAt, setStaleAt]         = useState(null)
+  const [fetchedAt, setFetchedAt]     = useState(null)
+  const [tick, setTick]               = useState(0)  // bump to force re-fetch
 
   useEffect(() => {
     setLoading(true)
     setError('')
     setMaintenance(null)
     setStaleAt(null)
+    setFetchedAt(null)
     const params = anounceType ? { anounceType } : {}
     getEgpRss(params)
       .then(r => {
         const d = r?.data || {}
         setItems(d.items || [])
-        if (d.stale) setStaleAt(d.staleAt || null)
-        if (d.notice) setMaintenance({ notice: d.notice, hours: d.hours })
+        if (d.stale)     setStaleAt(d.staleAt || null)
+        if (d.fetchedAt) setFetchedAt(d.fetchedAt)
+        if (d.notice)    setMaintenance({ notice: d.notice, hours: d.hours })
       })
       .catch(err => {
         const d = err?.response?.data || {}
@@ -98,12 +102,12 @@ function EgpTab() {
         else setError(d.error || 'ไม่สามารถเชื่อมต่อระบบ e-GP ได้')
       })
       .finally(() => setLoading(false))
-  }, [anounceType])
+  }, [anounceType, tick])
 
   return (
     <div>
-      {/* Sub-filter */}
-      <div className="flex flex-wrap gap-1.5 px-4 py-3 border-b border-gray-100 bg-gray-50">
+      {/* Sub-filter + refresh */}
+      <div className="flex flex-wrap items-center gap-1.5 px-4 py-3 border-b border-gray-100 bg-gray-50">
         {EGP_TYPES.map(t => (
           <button key={t.key} onClick={() => setAnounceType(t.key)}
             className={`px-3 py-1 text-xs rounded-full font-medium transition-colors ${
@@ -114,7 +118,25 @@ function EgpTab() {
             {t.label}
           </button>
         ))}
+        <button
+          onClick={() => setTick(n => n + 1)}
+          disabled={loading}
+          className="ml-auto flex items-center gap-1 text-xs text-gray-500 border border-gray-200 bg-white px-2.5 py-1 rounded-full hover:border-secondary hover:text-secondary transition-colors disabled:opacity-50 flex-shrink-0"
+          title="ดึงข้อมูลใหม่"
+        >
+          <span className={loading ? 'animate-spin' : ''}>🔄</span> รีเฟรช
+        </button>
       </div>
+
+      {/* Last updated line */}
+      {(fetchedAt || staleAt) && (
+        <div className="px-4 py-1.5 bg-gray-50 border-b border-gray-100 text-[11px] text-gray-400 flex items-center gap-1.5">
+          {staleAt
+            ? <><span className="text-amber-500">⚠️ ข้อมูลแคช</span> · อัปเดตล่าสุด {new Date(staleAt).toLocaleString('th-TH')}</>
+            : <><span className="text-green-600">✓ ข้อมูลล่าสุด</span> · ดึงข้อมูลเมื่อ {new Date(fetchedAt).toLocaleString('th-TH')}</>
+          }
+        </div>
+      )}
 
       {/* Maintenance notice banner */}
       {maintenance && (
