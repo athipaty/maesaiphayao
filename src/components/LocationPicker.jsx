@@ -72,6 +72,10 @@ export default function LocationPicker({ value, onChange }) {
   const [locating, setLocating]   = useState(false)
   const [open, setOpen]       = useState(false)
   const [layer, setLayer]     = useState('map')   // 'map' | 'satellite'
+  // Delay mounting the Leaflet map by one tick so React.StrictMode's
+  // double-invoke doesn't leave a stale Leaflet instance in the container.
+  const [mapReady, setMapReady] = useState(false)
+  useEffect(() => { if (open) { const t = setTimeout(() => setMapReady(true), 10); return () => clearTimeout(t) } else { setMapReady(false) } }, [open])
 
   async function reverseGeocode(lat, lng) {
     try {
@@ -176,7 +180,7 @@ export default function LocationPicker({ value, onChange }) {
       {open && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4">
           <div className="bg-white w-full sm:rounded-2xl sm:overflow-hidden shadow-2xl flex flex-col"
-            style={{ height: '92dvh', maxWidth: 680 }}>
+            style={{ height: '90vh', maxWidth: 680 }}>
 
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b flex-shrink-0 bg-white">
@@ -230,17 +234,22 @@ export default function LocationPicker({ value, onChange }) {
               </div>
             </div>
 
-            {/* Map area */}
-            <div className="flex-1 relative overflow-hidden">
-              <MapErrorBoundary>
+            {/* Map area — use absolute fill so Leaflet always gets real pixel dimensions */}
+            <div className="flex-1 relative">
+              {!mapReady && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+                  <div className="text-gray-400 text-sm animate-pulse">กำลังโหลดแผนที่...</div>
+                </div>
+              )}
+              {mapReady && <MapErrorBoundary>
                 <MapContainer
                   center={pos || DEFAULT_CENTER}
                   zoom={pos ? 17 : 13}
-                  style={{ height: '100%', width: '100%' }}
+                  style={{ position: 'absolute', inset: 0 }}
                   zoomControl={true}
-                  key={layer}   // re-mount cleanly when layer switches
                 >
-                  <TileLayer url={tile.url} attribution={tile.attr} maxZoom={19} />
+                  {/* Swap url/attribution reactively — never re-mount MapContainer */}
+                  <TileLayer key={layer} url={tile.url} attribution={tile.attr} maxZoom={19} />
                   <ClickHandler onPick={handlePick} />
                   {pos && (
                     <>
@@ -249,7 +258,7 @@ export default function LocationPicker({ value, onChange }) {
                     </>
                   )}
                 </MapContainer>
-              </MapErrorBoundary>
+              </MapErrorBoundary>}
 
               {/* Tap-to-pin hint overlay — shown only when no position yet */}
               {!pos && (
