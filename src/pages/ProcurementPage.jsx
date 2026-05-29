@@ -76,14 +76,27 @@ function EgpTab() {
   const [items, setItems]             = useState([])
   const [loading, setLoading]         = useState(true)
   const [error, setError]             = useState('')
+  const [maintenance, setMaintenance] = useState(null) // { notice, hours } | null
+  const [staleAt, setStaleAt]         = useState(null)
 
   useEffect(() => {
     setLoading(true)
     setError('')
+    setMaintenance(null)
+    setStaleAt(null)
     const params = anounceType ? { anounceType } : {}
     getEgpRss(params)
-      .then(r => setItems(r?.data || []))
-      .catch(err => setError(err?.response?.data?.error || 'ไม่สามารถเชื่อมต่อระบบ e-GP ได้'))
+      .then(r => {
+        const d = r?.data || {}
+        setItems(d.items || [])
+        if (d.stale) setStaleAt(d.staleAt || null)
+        if (d.notice) setMaintenance({ notice: d.notice, hours: d.hours })
+      })
+      .catch(err => {
+        const d = err?.response?.data || {}
+        if (d.maintenance) setMaintenance({ notice: d.notice, hours: d.hours })
+        else setError(d.error || 'ไม่สามารถเชื่อมต่อระบบ e-GP ได้')
+      })
       .finally(() => setLoading(false))
   }, [anounceType])
 
@@ -103,16 +116,40 @@ function EgpTab() {
         ))}
       </div>
 
+      {/* Maintenance notice banner */}
+      {maintenance && (
+        <div className="flex items-start gap-3 mx-4 mt-4 mb-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+          <span className="text-xl flex-shrink-0">🔧</span>
+          <div>
+            <p className="text-sm font-semibold text-amber-800">ระบบ e-GP ปิดปรับปรุงชั่วคราว</p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              {maintenance.notice && maintenance.notice !== 'ระบบ e-GP ไม่พร้อมให้บริการในขณะนี้'
+                ? maintenance.notice
+                : 'ระบบ e-GP ไม่พร้อมให้บริการในขณะนี้'}
+            </p>
+            <p className="text-xs text-amber-600 mt-0.5">
+              เปิดให้บริการ {maintenance.hours || '17:01–08:59 น.'} (เว้นวันหยุดราชการ)
+            </p>
+            {staleAt && (
+              <p className="text-[11px] text-amber-500 mt-1">
+                ℹ️ แสดงข้อมูลล่าสุดที่บันทึกไว้ เมื่อ {new Date(staleAt).toLocaleString('th-TH')}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="p-10 text-center text-gray-400 text-sm animate-pulse">กำลังดึงข้อมูลจากระบบ e-GP...</div>
       ) : error ? (
         <div className="p-10 text-center">
-          <div className="text-red-400 text-sm">{error}</div>
-          <p className="text-xs text-gray-400 mt-2">ระบบ e-GP เปิดให้บริการ 12:01–12:59 น. และ 17:01–08:59 น.</p>
+          <div className="text-4xl mb-3">⚠️</div>
+          <p className="text-red-500 text-sm font-medium">ไม่สามารถเชื่อมต่อระบบ e-GP ได้</p>
+          <p className="text-xs text-gray-400 mt-2">ระบบ e-GP เปิดให้บริการ 17:01–08:59 น. (เว้นวันหยุดราชการ)</p>
         </div>
-      ) : items.length === 0 ? (
+      ) : items.length === 0 && !maintenance ? (
         <div className="p-10 text-center text-gray-400 text-sm">ไม่พบข้อมูลในขณะนี้</div>
-      ) : (
+      ) : items.length === 0 ? null : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
