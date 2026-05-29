@@ -67,8 +67,15 @@ export default function HomePage() {
 
         // Fetch EGP RSS separately (can fail outside service hours)
         getEgpRss()
-          .then(r => setEgp(r?.data || []))
-          .catch(() => setEgpError('ระบบ e-GP ไม่พร้อมให้บริการในขณะนี้'))
+          .then(r => {
+            const d = r?.data || {}
+            setEgp(Array.isArray(d) ? d : (d.items || []))
+            if (d.notice) setEgpError(d.notice)
+          })
+          .catch(err => {
+            const d = err?.response?.data || {}
+            setEgpError(d.notice || d.error || 'ระบบ e-GP ไม่พร้อมให้บริการในขณะนี้')
+          })
           .finally(() => setEgpLoading(false))
         setTravel((tv?.data || []).slice(0, 6))
       } catch (err) {
