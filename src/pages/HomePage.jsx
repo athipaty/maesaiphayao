@@ -65,8 +65,8 @@ export default function HomePage() {
         setNewsletter(nl?.data || [])
         setProcNews(pn?.data || [])
 
-        // Fetch EGP RSS separately (can fail outside service hours)
-        getEgpRss()
+        // Fetch EGP W0 (ประกาศผู้ชนะ) — has winner/amount summary data
+        getEgpRss({ anounceType: 'W0' })
           .then(r => {
             const d = r?.data || {}
             setEgp(Array.isArray(d) ? d : (d.items || []))
@@ -360,14 +360,16 @@ export default function HomePage() {
       </div>
 
       {/* ── Procurement ──────────────────────────────────────────────── */}
-        <div className="card p-0 overflow-hidden flex flex-col">
-          <div className="flex border-b border-gray-200 overflow-x-auto flex-shrink-0">
+      <div className="card p-0 overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 pt-3 pb-0 border-b border-gray-100 flex-shrink-0">
+          <div className="flex">
             {[
-              { key: 'egp',  label: 'รายงานจัดซื้อจัดจ้าง (EGP)', shortLabel: 'รายงาน EGP' },
-              { key: 'news', label: 'ข่าวการจัดซื้อจัดจ้าง',        shortLabel: 'ข่าวจัดซื้อฯ' },
+              { key: 'egp',  label: 'ระบบ e-GP (เรียลไทม์)', shortLabel: 'e-GP' },
+              { key: 'news', label: 'ข่าวจัดซื้อจัดจ้าง', shortLabel: 'ข่าว' },
             ].map(t => (
               <button key={t.key} onClick={() => setProcTab(t.key)}
-                className={`flex-shrink-0 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                className={`px-4 py-2.5 text-xs font-medium border-b-2 -mb-px transition-colors whitespace-nowrap ${
                   procTab === t.key
                     ? 'border-secondary text-primary bg-blue-50'
                     : 'border-transparent text-gray-500 hover:text-primary'
@@ -377,53 +379,75 @@ export default function HomePage() {
               </button>
             ))}
           </div>
-          <div className="overflow-y-auto flex-1" style={{ maxHeight: '460px' }}>
-            {procTab === 'egp' ? (
-              egpLoading ? (
-                <div className="px-3 py-4 text-center text-gray-400 text-sm animate-pulse">กำลังดึงข้อมูลจากระบบ e-GP...</div>
-              ) : egpError ? (
-                <div className="px-3 py-4 text-center">
-                  <p className="text-gray-400 text-sm">{egpError}</p>
-                  <p className="text-gray-300 text-xs mt-1">เปิดให้บริการ 17:01 – 08:59 น.</p>
-                </div>
-              ) : egp.length === 0 ? (
-                <div className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</div>
-              ) : (
-                <ul className="divide-y divide-gray-50">
-                  {egp.slice(0, 10).map((p, i) => (
-                    <li key={i} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
-                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
-                      <div className="min-w-0 flex-1">
-                        {p.link
-                          ? <a href={p.link} target="_blank" rel="noreferrer" className="text-sm text-secondary hover:underline leading-snug block">{p.title}</a>
-                          : <span className="text-sm text-gray-700 leading-snug">{p.title}</span>
-                        }
-                        {p.date && <span className="text-[10px] text-gray-400 block">{new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}</span>}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )
-            ) : (
-              <ul className="divide-y divide-gray-50">
-                {procNews.length === 0 && (
-                  <li className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</li>
-                )}
-                {procNews.map((p, i) => (
-                  <li key={p._id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
-                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
-                    <div className="min-w-0 flex-1">
-                      {p.externalUrl
-                        ? <a href={p.externalUrl} target="_blank" rel="noreferrer" className="text-sm text-secondary hover:underline leading-snug block">{p.title}</a>
-                        : <span className="text-sm text-gray-700 leading-snug">{p.title}</span>
-                      }
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <Link to="/procurement" className="text-xs text-secondary hover:underline pb-2">ดูทั้งหมด →</Link>
         </div>
+
+        <div className="overflow-y-auto flex-1" style={{ maxHeight: '460px' }}>
+          {procTab === 'egp' ? (
+            egpLoading ? (
+              <div className="px-3 py-4 text-center text-gray-400 text-sm animate-pulse">กำลังดึงข้อมูลจากระบบ e-GP...</div>
+            ) : egpError ? (
+              <div className="px-3 py-4 text-center">
+                <span className="text-2xl">🔧</span>
+                <p className="text-gray-400 text-sm mt-2">{egpError}</p>
+                <p className="text-gray-300 text-xs mt-1">เปิดให้บริการ 17:01–08:59 น.</p>
+              </div>
+            ) : egp.length === 0 ? (
+              <div className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</div>
+            ) : (
+              <div className="divide-y divide-gray-50">
+                {egp.slice(0, 8).map((p, i) => (
+                  <div key={i} className="px-3 py-3 hover:bg-blue-50/40 transition-colors">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                      {p.method && <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">{p.method}</span>}
+                      {p.date && <span className="ml-auto text-[10px] text-gray-400">{new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}</span>}
+                    </div>
+                    {p.link
+                      ? <a href={p.link} target="_blank" rel="noreferrer" className="text-xs text-primary hover:text-secondary leading-snug block mb-1.5">{p.title}</a>
+                      : <span className="text-xs text-gray-700 leading-snug block mb-1.5">{p.title}</span>
+                    }
+                    {(p.winner || p.amount != null) && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {p.winner && (
+                          <span className="text-[10px] bg-green-100 text-green-800 font-medium px-2 py-1 rounded-full flex items-center gap-1">
+                            🏆 {p.winner}
+                          </span>
+                        )}
+                        {p.amount != null && (
+                          <span className="text-[10px] bg-blue-100 text-blue-800 font-medium px-2 py-1 rounded-full flex items-center gap-1">
+                            💰 {Number(p.amount).toLocaleString('th-TH')} บาท
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )
+          ) : (
+            <ul className="divide-y divide-gray-50">
+              {procNews.length === 0 && (
+                <li className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</li>
+              )}
+              {procNews.map((p, i) => (
+                <li key={p._id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                  <div className="min-w-0 flex-1">
+                    {p.externalUrl
+                      ? <a href={p.externalUrl} target="_blank" rel="noreferrer" className="text-sm text-secondary hover:underline leading-snug block">{p.title}</a>
+                      : <span className="text-sm text-gray-700 leading-snug">{p.title}</span>
+                    }
+                    {p.winner && (
+                      <span className="text-[10px] bg-green-100 text-green-800 font-medium px-2 py-0.5 rounded-full mt-1 inline-block">🏆 {p.winner}</span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
 
       {/* ── Travel marquee ────────────────────────────────────────────── */}
       {travel.length > 0 && (
