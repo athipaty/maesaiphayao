@@ -11,7 +11,7 @@ import { useState } from 'react'
  *  - renderForm: ({ data, onChange, onSubmit, onCancel, saving }) => JSX
  *  - emptyForm: object (default blank form state)
  */
-export default function AdminCrud({ title, items = [], loading, columns, onDelete, renderForm, emptyForm }) {
+export default function AdminCrud({ title, items = [], loading, columns, onDelete, renderForm, emptyForm, onReload }) {
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState(emptyForm)
   const [editing, setEditing]   = useState(null) // id being edited
@@ -81,9 +81,15 @@ export default function AdminCrud({ title, items = [], loading, columns, onDelet
             <div className="p-6 space-y-4">
               {renderForm.fields({ data: formData, onChange: handleChange })}
             </div>
-            <div className="border-t border-gray-100 bg-gray-50 px-6 py-4">
+            <div className="border-t border-gray-100 bg-gray-50 px-6 py-4 space-y-3">
+              {/* Extra actions slot (e.g. AI summarize button) */}
+              {renderForm.extraActions?.({
+                data: formData,
+                editingId: editing,
+                onFieldsUpdate: updated => setFormData(prev => ({ ...prev, ...updated })),
+              })}
               {saveErr && (
-                <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-3">
+                <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
                   ⚠️ {saveErr}
                 </p>
               )}

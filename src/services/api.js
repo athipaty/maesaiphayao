@@ -30,10 +30,11 @@ export const updateAnnouncement = (id, data)  => api.put(`/announcements/${id}`,
 export const deleteAnnouncement = (id)        => api.delete(`/announcements/${id}`)
 
 // ── Procurement ───────────────────────────────────────────────────────────────
-export const getProcurement    = (params)    => api.get('/procurement', { params })
-export const createProcurement = (data)      => api.post('/procurement', data)
-export const updateProcurement = (id, data)  => api.put(`/procurement/${id}`, data)
-export const deleteProcurement = (id)        => api.delete(`/procurement/${id}`)
+export const getProcurement         = (params)    => api.get('/procurement', { params })
+export const createProcurement      = (data)      => api.post('/procurement', data)
+export const updateProcurement      = (id, data)  => api.put(`/procurement/${id}`, data)
+export const deleteProcurement      = (id)        => api.delete(`/procurement/${id}`)
+export const summarizeProcurement   = (id)        => api.post(`/procurement/${id}/summarize`)
 export const getEgpRss         = (params)    => api.get('/egp-rss', { params })
 
 // ── Staff ─────────────────────────────────────────────────────────────────────

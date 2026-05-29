@@ -29,47 +29,60 @@ function LocalTab() {
   if (error)   return <div className="p-10 text-center text-red-400 text-sm">{error}</div>
   if (items.length === 0) return <div className="p-10 text-center text-gray-400 text-sm">ไม่พบข้อมูลในขณะนี้</div>
 
+  const hasSummary = items.some(i => i.winner || i.amount != null)
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-blue-50">
-            <th className="px-3 py-2.5 text-left text-primary font-semibold w-10">ที่</th>
-            <th className="px-3 py-2.5 text-left text-primary font-semibold">รายการ</th>
-            <th className="px-3 py-2.5 text-left text-primary font-semibold w-28">ประเภท</th>
-            <th className="px-3 py-2.5 text-left text-primary font-semibold w-36 whitespace-nowrap">วันที่ประกาศ</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item, i) => (
-            <tr key={item._id} className="border-b border-gray-50 hover:bg-blue-50/50">
-              <td className="px-3 py-2.5 text-gray-400 text-center">{i + 1}</td>
-              <td className="px-3 py-2.5">
-                {item.externalUrl || item.fileUrl ? (
-                  <a href={item.externalUrl || item.fileUrl} target="_blank" rel="noreferrer"
-                    className="text-primary hover:text-secondary leading-relaxed">
-                    {item.title}
-                  </a>
-                ) : (
-                  <span className="text-gray-700">{item.title}</span>
+    <div className="divide-y divide-gray-50">
+      {items.map((item, idx) => {
+        const href = item.externalUrl || item.fileUrl || null
+        const hasResult = item.winner || item.amount != null || item.budget != null
+
+        return (
+          <div key={item._id} className={`px-4 py-4 hover:bg-blue-50/40 transition-colors ${hasResult ? 'bg-green-50/20' : ''}`}>
+            {/* Row number + type + date */}
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0">{idx + 1}</span>
+              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${item.type === 'egp' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>
+                {item.type === 'egp' ? 'e-GP' : 'ข่าว'}
+              </span>
+              {item.method && <span className="text-[11px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{item.method}</span>}
+              <span className="ml-auto text-[11px] text-gray-400">
+                {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }) : ''}
+              </span>
+            </div>
+
+            {/* Title */}
+            {href
+              ? <a href={href} target="_blank" rel="noreferrer" className="text-sm text-primary hover:text-secondary leading-relaxed font-medium block mb-2">{item.title}</a>
+              : <p className="text-sm text-gray-800 font-medium leading-relaxed mb-2">{item.title}</p>
+            }
+
+            {/* Summary chips — shown only when AI/manual data is available */}
+            {hasResult && (
+              <div className="flex flex-wrap gap-2 mt-1">
+                {item.winner && (
+                  <div className="flex items-center gap-1.5 bg-green-100 text-green-800 text-xs font-medium px-3 py-1.5 rounded-full">
+                    <span>🏆</span>
+                    <span>{item.winner}</span>
+                  </div>
                 )}
-              </td>
-              <td className="px-3 py-2.5">
-                <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                  item.type === 'egp' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
-                }`}>
-                  {item.type === 'egp' ? 'e-GP' : 'ข่าว'}
-                </span>
-              </td>
-              <td className="px-3 py-2.5 text-gray-400 text-xs whitespace-nowrap">
-                {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString('th-TH', {
-                  year: 'numeric', month: 'short', day: 'numeric'
-                }) : '-'}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                {item.amount != null && (
+                  <div className="flex items-center gap-1.5 bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1.5 rounded-full">
+                    <span>💰</span>
+                    <span>{Number(item.amount).toLocaleString('th-TH')} บาท</span>
+                  </div>
+                )}
+                {item.budget != null && (
+                  <div className="flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full">
+                    <span>📋</span>
+                    <span>วงเงิน {Number(item.budget).toLocaleString('th-TH')} บาท</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
