@@ -16,12 +16,17 @@ const PIN_ICON = L.divIcon({
 
 const TILES = {
   map: {
-    url:  'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-    attr: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    url:        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    attr:       '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom:    19,
+    subdomains: 'abcd',
   },
   satellite: {
-    url:  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attr: '&copy; Esri, Maxar, Earthstar Geographics',
+    // Google Maps satellite — full zoom coverage worldwide including Thailand
+    url:        'https://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+    attr:       '&copy; Google',
+    maxZoom:    21,
+    subdomains: ['0', '1', '2', '3'],
   },
 }
 
@@ -41,8 +46,9 @@ function RawMap({ pos, layer, onPick }) {
       .setView(pos || DEFAULT_CENTER, pos ? 17 : 13)
     mapRef.current = map
 
-    tileRef.current = L.tileLayer(TILES[layer].url, {
-      attribution: TILES[layer].attr, maxZoom: 19,
+    const t0 = TILES[layer]
+    tileRef.current = L.tileLayer(t0.url, {
+      attribution: t0.attr, maxZoom: t0.maxZoom, subdomains: t0.subdomains,
     }).addTo(map)
 
     if (pos) {
@@ -79,8 +85,10 @@ function RawMap({ pos, layer, onPick }) {
     const map = mapRef.current
     if (!map) return
     if (tileRef.current) { map.removeLayer(tileRef.current) }
-    tileRef.current = L.tileLayer(TILES[layer].url, {
-      attribution: TILES[layer].attr, maxZoom: 19,
+    const t = TILES[layer]
+    map.setMaxZoom(t.maxZoom)
+    tileRef.current = L.tileLayer(t.url, {
+      attribution: t.attr, maxZoom: t.maxZoom, subdomains: t.subdomains,
     }).addTo(map)
   }, [layer])
 
