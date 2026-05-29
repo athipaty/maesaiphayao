@@ -397,26 +397,30 @@ export default function HomePage() {
             ) : (
               <div className="divide-y divide-gray-50">
                 {egp.slice(0, 8).map((p, i) => (
-                  <div key={i} className="px-3 py-3 hover:bg-blue-50/40 transition-colors">
-                    <div className="flex items-center gap-1.5 mb-1">
+                  <div key={i} className="px-3 py-2.5 hover:bg-blue-50/40 transition-colors">
+                    {/* Line 1: number + title (1 line) + date */}
+                    <div className="flex items-center gap-1.5">
                       <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
-                      {p.method && <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">{p.method}</span>}
-                      {p.date && <span className="ml-auto text-[10px] text-gray-400">{new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}</span>}
+                      {p.link
+                        ? <a href={p.link} target="_blank" rel="noreferrer"
+                            className="flex-1 min-w-0 text-xs text-primary hover:text-secondary font-medium truncate">{p.title}</a>
+                        : <span className="flex-1 min-w-0 text-xs text-gray-700 font-medium truncate">{p.title}</span>
+                      }
+                      {p.date && (
+                        <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
+                          {new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                        </span>
+                      )}
                     </div>
-                    {p.link
-                      ? <a href={p.link} target="_blank" rel="noreferrer" className="text-xs text-primary hover:text-secondary leading-snug block mb-1.5">{p.title}</a>
-                      : <span className="text-xs text-gray-700 leading-snug block mb-1.5">{p.title}</span>
-                    }
+                    {/* Line 2: winner (left, truncated) + amount (right edge) */}
                     {(p.winner || p.amount != null) && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {p.winner && (
-                          <span className="text-[10px] bg-green-100 text-green-800 font-medium px-2 py-1 rounded-full flex items-center gap-1">
-                            🏆 {p.winner}
-                          </span>
-                        )}
+                      <div className="flex items-center gap-2 mt-1 pl-5">
+                        <span className="flex-1 min-w-0 text-[10px] text-green-700 truncate">
+                          {p.winner ? `🏆 ${p.winner}` : ''}
+                        </span>
                         {p.amount != null && (
-                          <span className="text-[10px] bg-blue-100 text-blue-800 font-medium px-2 py-1 rounded-full flex items-center gap-1">
-                            💰 {Number(p.amount).toLocaleString('th-TH')} บาท
+                          <span className="text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
+                            {Number(p.amount).toLocaleString('th-TH')} บาท
                           </span>
                         )}
                       </div>

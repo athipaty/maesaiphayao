@@ -35,48 +35,31 @@ function LocalTab() {
     <div className="divide-y divide-gray-50">
       {items.map((item, idx) => {
         const href = item.externalUrl || item.fileUrl || null
-        const hasResult = item.winner || item.amount != null || item.budget != null
-
+        const hasResult = item.winner || item.amount != null
         return (
-          <div key={item._id} className={`px-4 py-4 hover:bg-blue-50/40 transition-colors ${hasResult ? 'bg-green-50/20' : ''}`}>
-            {/* Row number + type + date */}
-            <div className="flex items-center gap-2 mb-1.5">
+          <div key={item._id} className="px-4 py-3 hover:bg-blue-50/40 transition-colors">
+            {/* Line 1: number + title (1 line truncated) + date */}
+            <div className="flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0">{idx + 1}</span>
-              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${item.type === 'egp' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>
-                {item.type === 'egp' ? 'e-GP' : 'ข่าว'}
-              </span>
-              {item.method && <span className="text-[11px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{item.method}</span>}
-              <span className="ml-auto text-[11px] text-gray-400">
+              {href
+                ? <a href={href} target="_blank" rel="noreferrer"
+                    className="flex-1 min-w-0 text-sm text-primary hover:text-secondary font-medium truncate">{item.title}</a>
+                : <span className="flex-1 min-w-0 text-sm text-gray-800 font-medium truncate">{item.title}</span>
+              }
+              <span className="text-[11px] text-gray-400 whitespace-nowrap flex-shrink-0">
                 {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }) : ''}
               </span>
             </div>
-
-            {/* Title */}
-            {href
-              ? <a href={href} target="_blank" rel="noreferrer" className="text-sm text-primary hover:text-secondary leading-relaxed font-medium block mb-2">{item.title}</a>
-              : <p className="text-sm text-gray-800 font-medium leading-relaxed mb-2">{item.title}</p>
-            }
-
-            {/* Summary chips — shown only when AI/manual data is available */}
+            {/* Line 2: winner (left, truncated) + amount (right edge) */}
             {hasResult && (
-              <div className="flex flex-wrap gap-2 mt-1">
-                {item.winner && (
-                  <div className="flex items-center gap-1.5 bg-green-100 text-green-800 text-xs font-medium px-3 py-1.5 rounded-full">
-                    <span>🏆</span>
-                    <span>{item.winner}</span>
-                  </div>
-                )}
+              <div className="flex items-center gap-2 mt-1 pl-7">
+                <span className="flex-1 min-w-0 text-xs text-green-700 truncate">
+                  {item.winner ? `🏆 ${item.winner}` : ''}
+                </span>
                 {item.amount != null && (
-                  <div className="flex items-center gap-1.5 bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1.5 rounded-full">
-                    <span>💰</span>
-                    <span>{Number(item.amount).toLocaleString('th-TH')} บาท</span>
-                  </div>
-                )}
-                {item.budget != null && (
-                  <div className="flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full">
-                    <span>📋</span>
-                    <span>วงเงิน {Number(item.budget).toLocaleString('th-TH')} บาท</span>
-                  </div>
+                  <span className="text-xs font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
+                    {Number(item.amount).toLocaleString('th-TH')} บาท
+                  </span>
                 )}
               </div>
             )}
@@ -190,40 +173,39 @@ function EgpTab() {
       ) : items.length === 0 ? null : (
         <div className="divide-y divide-gray-50">
           {items.map((item, i) => (
-            <div key={i} className="px-4 py-4 hover:bg-blue-50/30 transition-colors">
-              {/* Row number + date */}
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
-                {item.method && <span className="text-[11px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{item.method}</span>}
-                <span className="ml-auto text-[11px] text-gray-400 whitespace-nowrap">
+            <div key={i} className="px-4 py-3 hover:bg-blue-50/30 transition-colors">
+
+              {/* Line 1: number + title (1 line) + date */}
+              <div className="flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                  {i + 1}
+                </span>
+                {item.link
+                  ? <a href={item.link} target="_blank" rel="noreferrer"
+                      className="flex-1 min-w-0 text-sm text-primary hover:text-secondary font-medium truncate">
+                      {item.title}
+                    </a>
+                  : <span className="flex-1 min-w-0 text-sm text-gray-800 font-medium truncate">{item.title}</span>
+                }
+                <span className="text-[11px] text-gray-400 whitespace-nowrap flex-shrink-0">
                   {item.date ? new Date(item.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }) : ''}
                 </span>
               </div>
 
-              {/* Title */}
-              {item.link
-                ? <a href={item.link} target="_blank" rel="noreferrer"
-                    className="text-sm text-primary hover:text-secondary leading-relaxed font-medium block mb-2">
-                    {item.title}
-                  </a>
-                : <p className="text-sm text-gray-800 font-medium leading-relaxed mb-2">{item.title}</p>
-              }
-
-              {/* Summary chips — auto-populated when enrichment has run */}
+              {/* Line 2: winner (left, truncated) + amount (right edge) */}
               {(item.winner || item.amount != null) && (
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {item.winner && (
-                    <span className="flex items-center gap-1.5 bg-green-100 text-green-800 text-xs font-medium px-3 py-1.5 rounded-full">
-                      🏆 {item.winner}
-                    </span>
-                  )}
+                <div className="flex items-center gap-2 mt-1.5 pl-7">
+                  <span className="flex-1 min-w-0 text-xs text-green-700 truncate">
+                    {item.winner ? `🏆 ${item.winner}` : ''}
+                  </span>
                   {item.amount != null && (
-                    <span className="flex items-center gap-1.5 bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1.5 rounded-full">
-                      💰 {Number(item.amount).toLocaleString('th-TH')} บาท
+                    <span className="text-xs font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
+                      {Number(item.amount).toLocaleString('th-TH')} บาท
                     </span>
                   )}
                 </div>
               )}
+
             </div>
           ))}
         </div>
