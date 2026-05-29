@@ -40,7 +40,7 @@ export default function AdminProducts() {
     },
     { label: 'ชื่อสินค้า', render: item => <span className="text-sm font-medium text-gray-800">{item.title}</span> },
     { label: 'คำอธิบาย',  render: item => <span className="text-xs text-gray-400 line-clamp-1">{item.description || '-'}</span> },
-    { label: 'ราคา',       render: item => <span className="text-xs font-medium text-gray-700">{item.price != null ? `S$${Number(item.price).toFixed(2)}` : '-'}</span> },
+    { label: 'ราคา',       render: item => <span className="text-xs font-medium text-gray-700">{item.price != null ? `฿${Number(item.price).toLocaleString()}` : '-'}</span> },
     { label: 'วิว',        render: item => <span className="text-xs text-gray-400">👁 {item.views}</span> },
     {
       label: 'สถานะ',
@@ -76,9 +76,9 @@ export default function AdminProducts() {
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">ราคาต่อหน่วย (S$)</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">ราคาต่อหน่วย (฿)</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">S$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">฿</span>
                 <input
                   type="number"
                   min="0"

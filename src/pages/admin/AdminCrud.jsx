@@ -16,17 +16,20 @@ export default function AdminCrud({ title, items = [], loading, columns, onDelet
   const [formData, setFormData] = useState(emptyForm)
   const [editing, setEditing]   = useState(null) // id being edited
   const [saving, setSaving]     = useState(false)
+  const [saveErr, setSaveErr]   = useState('')
   const [deleting, setDeleting] = useState(null)
 
   function openAdd() {
     setFormData(emptyForm)
     setEditing(null)
+    setSaveErr('')
     setShowForm(true)
   }
 
   function openEdit(item) {
     setFormData({ ...item })
     setEditing(item._id)
+    setSaveErr('')
     setShowForm(true)
   }
 
@@ -42,11 +45,14 @@ export default function AdminCrud({ title, items = [], loading, columns, onDelet
 
   async function handleSubmit() {
     setSaving(true)
+    setSaveErr('')
     try {
       await renderForm.onSubmit(formData, editing)
       setShowForm(false)
       setFormData(emptyForm)
       setEditing(null)
+    } catch (err) {
+      setSaveErr(err?.response?.data?.error || err?.message || 'บันทึกไม่สำเร็จ')
     } finally {
       setSaving(false)
     }
@@ -75,11 +81,18 @@ export default function AdminCrud({ title, items = [], loading, columns, onDelet
             <div className="p-6 space-y-4">
               {renderForm.fields({ data: formData, onChange: handleChange })}
             </div>
-            <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-100 bg-gray-50">
-              <button onClick={() => setShowForm(false)} className="btn-ghost text-xs">ยกเลิก</button>
-              <button onClick={handleSubmit} disabled={saving} className="btn-primary text-xs disabled:opacity-50">
-                {saving ? 'กำลังบันทึก...' : '💾 บันทึก'}
-              </button>
+            <div className="border-t border-gray-100 bg-gray-50 px-6 py-4">
+              {saveErr && (
+                <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-3">
+                  ⚠️ {saveErr}
+                </p>
+              )}
+              <div className="flex justify-end gap-2">
+                <button onClick={() => setShowForm(false)} className="btn-ghost text-xs">ยกเลิก</button>
+                <button onClick={handleSubmit} disabled={saving} className="btn-primary text-xs disabled:opacity-50">
+                  {saving ? 'กำลังบันทึก...' : '💾 บันทึก'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -16,6 +16,7 @@ export default function EServicePage() {
   const [form, setForm]         = useState({ type: '', citizenName: '', phone: '', address: '', villageNo: '', location: null, detail: '', images: [] })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted]   = useState(null)
+  const [formErr, setFormErr]   = useState('')
   const [trackNo, setTrackNo]   = useState('')
   const [tracking, setTracking] = useState(false)
   const [tracked, setTracked]   = useState(null)
@@ -33,7 +34,11 @@ export default function EServicePage() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!form.citizenName || !form.phone || !form.detail) return
+    if (!form.citizenName.trim() || !form.phone.trim() || !form.detail.trim()) {
+      setFormErr('กรุณากรอก ชื่อ-สกุล, เบอร์โทรศัพท์ และรายละเอียด ก่อนส่งคำร้อง')
+      return
+    }
+    setFormErr('')
     setSubmitting(true)
     try {
       const r = await submitEService(form)
@@ -172,6 +177,12 @@ export default function EServicePage() {
               </div>
 
               <PhotoUploader photos={form.images} onChange={urls => set('images', urls)} />
+
+              {formErr && (
+                <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-600">
+                  ⚠️ {formErr}
+                </div>
+              )}
 
               <button type="submit" disabled={submitting}
                 className="w-full bg-primary text-white py-3 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50">

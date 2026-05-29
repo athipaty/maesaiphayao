@@ -56,8 +56,12 @@ export default function AdminLayout() {
       sessionStorage.setItem('abt_token', r.data.token)
       setAuthed(true)
       navigate(location.pathname, { replace: true })
-    } catch {
-      setErr('รหัสผ่านไม่ถูกต้อง')
+    } catch (err) {
+      if (err?.response?.status === 401) {
+        setErr('รหัสผ่านไม่ถูกต้อง')
+      } else {
+        setErr('ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่')
+      }
     }
   }
 
