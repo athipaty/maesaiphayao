@@ -189,11 +189,11 @@ export default function AdminContactMessages() {
 
                       {/* Images */}
                       {item.images?.length > 0 && (
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="space-y-2">
                           {item.images.map((img, idx) => (
                             <img key={idx} src={img} alt={`img-${idx}`}
                               onClick={() => setLightbox(img)}
-                              className="w-full h-28 object-cover rounded-lg border border-gray-100 cursor-pointer hover:opacity-90 transition-opacity" />
+                              className="w-full rounded-lg border border-gray-100 cursor-pointer hover:opacity-90 transition-opacity" />
                           ))}
                         </div>
                       )}
