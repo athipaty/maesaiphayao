@@ -44,7 +44,8 @@ const AdminComplaint      = lazy(() => import("./pages/admin/AdminComplaint"));
 const AdminDocument       = lazy(() => import("./pages/admin/AdminDocument"));
 const AdminSettings       = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminPages          = lazy(() => import("./pages/admin/AdminPages"));
-const AdminBanners        = lazy(() => import("./pages/admin/AdminBanners"));
+const AdminBanners           = lazy(() => import("./pages/admin/AdminBanners"));
+const AdminContactMessages   = lazy(() => import("./pages/admin/AdminContactMessages"));
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(
@@ -139,6 +140,7 @@ export default function App() {
           <Route path="banners"          element={<Suspense fallback={null}><AdminBanners /></Suspense>} />
           <Route path="settings"         element={<Suspense fallback={null}><AdminSettings /></Suspense>} />
           <Route path="pages"            element={<Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm animate-pulse">กำลังโหลด...</div>}><AdminPages /></Suspense>} />
+          <Route path="contact"          element={<Suspense fallback={null}><AdminContactMessages /></Suspense>} />
         </Route>
       </Routes>
     </>

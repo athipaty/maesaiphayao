@@ -116,6 +116,12 @@ export const createBanner    = (data)      => api.post('/banners', data)
 export const updateBanner    = (id, data)  => api.put(`/banners/${id}`, data)
 export const deleteBanner    = (id)        => api.delete(`/banners/${id}`)
 
+// ── Contact Messages ──────────────────────────────────────────────────────
+export const getContactMessages    = ()           => api.get('/contact-messages')
+export const createContactMessage  = (data)       => api.post('/contact-messages', data)
+export const updateContactMessage  = (id, data)   => api.put(`/contact-messages/${id}`, data)
+export const deleteContactMessage  = (id)         => api.delete(`/contact-messages/${id}`)
+
 // ── Facebook page info ────────────────────────────────────────────────────────
 export const getFacebookPage = () => api.get('/facebook-page')
 
