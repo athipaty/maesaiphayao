@@ -161,38 +161,69 @@ export default function AdminSettings() {
 
       <div className="space-y-5">
 
-        {/* Mayor info */}
-        <Section delay={80} icon="👤" title="ข้อมูลนายกองค์การบริหารส่วนตำบล" subtitle="แสดงในกล่องด้านข้างของเว็บไซต์">
-          <div className="flex flex-col items-center gap-5">
-            <div className="flex flex-col items-center gap-2">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">รูปภาพ</p>
-              <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 hover:border-primary/40 transition-all duration-300 bg-gray-50 w-48 hover:bg-primary/5">
-                <ImageUpload value={form.mayorImage} onChange={url => set('mayorImage', url)} />
-              </div>
-              <p className="text-xs text-gray-400">แนะนำขนาด 100×150 px</p>
-            </div>
-            <div className="w-full space-y-4">
-              <Field label="ชื่อ-นามสกุล">
-                <input className={inputCls} value={form.mayorName}
-                  onChange={e => set('mayorName', e.target.value)}
-                  placeholder="เช่น นายสันติ สารเร็ว" />
-              </Field>
-              <Field label="ตำแหน่ง">
-                <input className={inputCls} value={form.mayorPosition}
-                  onChange={e => set('mayorPosition', e.target.value)}
-                  placeholder="เช่น นายกองค์การบริหารส่วนตำบลแม่ใส" />
-              </Field>
-              <Field label="เบอร์โทรศัพท์">
-                <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 text-sm">📞</span>
-                  <input className={`${inputCls} pl-9`} value={form.mayorPhone}
-                    onChange={e => set('mayorPhone', e.target.value)}
-                    placeholder="08x-xxx-xxxx" />
+        {/* Mayor info + Sidebar preview side by side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+          <Section delay={80} icon="👤" title="ข้อมูลนายกองค์การบริหารส่วนตำบล" subtitle="แสดงในกล่องด้านข้างของเว็บไซต์">
+            <div className="flex flex-col items-center gap-5">
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">รูปภาพ</p>
+                <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 hover:border-primary/40 transition-all duration-300 bg-gray-50 w-48 hover:bg-primary/5">
+                  <ImageUpload value={form.mayorImage} onChange={url => set('mayorImage', url)} />
                 </div>
-              </Field>
+                <p className="text-xs text-gray-400">แนะนำขนาด 100×150 px</p>
+              </div>
+              <div className="w-full space-y-4">
+                <Field label="ชื่อ-นามสกุล">
+                  <input className={inputCls} value={form.mayorName}
+                    onChange={e => set('mayorName', e.target.value)}
+                    placeholder="เช่น นายสันติ สารเร็ว" />
+                </Field>
+                <Field label="ตำแหน่ง">
+                  <input className={inputCls} value={form.mayorPosition}
+                    onChange={e => set('mayorPosition', e.target.value)}
+                    placeholder="เช่น นายกองค์การบริหารส่วนตำบลแม่ใส" />
+                </Field>
+                <Field label="เบอร์โทรศัพท์">
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 text-sm">📞</span>
+                    <input className={`${inputCls} pl-9`} value={form.mayorPhone}
+                      onChange={e => set('mayorPhone', e.target.value)}
+                      placeholder="08x-xxx-xxxx" />
+                  </div>
+                </Field>
+              </div>
             </div>
-          </div>
-        </Section>
+          </Section>
+
+          {/* Sidebar preview */}
+          <Section delay={120} icon="👁" title="ตัวอย่าง Sidebar Card" subtitle="แสดงผลจริงในเว็บไซต์">
+            <div className="flex items-center justify-center py-2">
+              <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 flex items-center gap-4 w-full max-w-xs transition-all duration-500">
+                {form.mayorImage ? (
+                  <img src={form.mayorImage} alt="preview"
+                    className="flex-shrink-0 rounded-lg border-2 border-yellow-400 object-cover object-top transition-all duration-500"
+                    style={{ width: 72, height: 108 }} />
+                ) : (
+                  <div className="flex-shrink-0 rounded-lg border-2 border-yellow-400 bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl"
+                    style={{ width: 72, height: 108 }}>👤</div>
+                )}
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-primary leading-snug truncate transition-all duration-300">
+                    {form.mayorName || <span className="text-gray-300">ชื่อ-นามสกุล</span>}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1 leading-snug line-clamp-2 transition-all duration-300">
+                    {form.mayorPosition || <span className="text-gray-300">ตำแหน่ง</span>}
+                  </p>
+                  <p className="text-xs text-secondary mt-1.5 font-medium transition-all duration-300">
+                    {form.mayorPhone || <span className="text-gray-300">เบอร์โทร</span>}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Section>
+
+        </div>
 
         {/* Logo */}
         <Section delay={160} icon="🏛️" title="โลโก้เว็บไซต์" subtitle="แสดงในแถบ Header มุมบนซ้าย">
@@ -237,33 +268,6 @@ export default function AdminSettings() {
             <Field label="รหัสหน่วยงานหลัก — deptId (4 หลัก) สำรอง" hint="เช่น 0304 — ใช้ถ้าไม่มี deptsubId">
               <input className={inputCls} value={form.egpDeptId || ''} onChange={e => set('egpDeptId', e.target.value.trim())} placeholder="0304" />
             </Field>
-          </div>
-        </Section>
-
-        {/* Sidebar preview */}
-        <Section delay={240} icon="👁" title="ตัวอย่าง Sidebar Card" subtitle="แสดงผลจริงในเว็บไซต์">
-          <div className="flex items-center justify-center py-2">
-            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 flex items-center gap-4 w-full max-w-xs transition-all duration-500">
-              {form.mayorImage ? (
-                <img src={form.mayorImage} alt="preview"
-                  className="flex-shrink-0 rounded-lg border-2 border-yellow-400 object-cover object-top transition-all duration-500"
-                  style={{ width: 72, height: 108 }} />
-              ) : (
-                <div className="flex-shrink-0 rounded-lg border-2 border-yellow-400 bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl"
-                  style={{ width: 72, height: 108 }}>👤</div>
-              )}
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-primary leading-snug truncate transition-all duration-300">
-                  {form.mayorName || <span className="text-gray-300">ชื่อ-นามสกุล</span>}
-                </p>
-                <p className="text-xs text-gray-500 mt-1 leading-snug line-clamp-2 transition-all duration-300">
-                  {form.mayorPosition || <span className="text-gray-300">ตำแหน่ง</span>}
-                </p>
-                <p className="text-xs text-secondary mt-1.5 font-medium transition-all duration-300">
-                  {form.mayorPhone || <span className="text-gray-300">เบอร์โทร</span>}
-                </p>
-              </div>
-            </div>
           </div>
         </Section>
 
