@@ -8,7 +8,7 @@ const STATUS_CONFIG = {
   done: { label: 'ดำเนินการแล้ว',  color: 'bg-green-100 text-green-700',  dot: 'bg-green-500' },
 }
 
-const EMPTY_FORM = { title: '', message: '', images: [] }
+const EMPTY_FORM = { title: '', message: '', pageUrl: '', images: [] }
 
 export default function AdminContactMessages() {
   const [items, setItems]       = useState([])
@@ -117,6 +117,17 @@ export default function AdminContactMessages() {
             />
           </div>
           <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              🔗 URL หน้าที่ต้องการแก้ไข <span className="text-gray-400 font-normal">(ถ้ามี)</span>
+            </label>
+            <input
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
+              placeholder="https://maesaiphayao.vercel.app/page/..."
+              value={form.pageUrl}
+              onChange={e => setForm(f => ({ ...f, pageUrl: e.target.value }))}
+            />
+          </div>
+          <div>
             <label className="block text-xs font-medium text-gray-600 mb-2">📷 รูปภาพประกอบ (ถ้ามี)</label>
             <div className="border border-gray-200 rounded-lg p-3">
               <ImageUpload
@@ -168,6 +179,7 @@ export default function AdminContactMessages() {
                       </p>
                       <p className="text-xs text-gray-400 mt-0.5">
                         {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                        {item.pageUrl && ' · 🔗 มี URL'}
                         {item.images?.length > 0 && ` · 📷 ${item.images.length} รูป`}
                       </p>
                     </div>
@@ -186,6 +198,16 @@ export default function AdminContactMessages() {
                     <div className="px-4 pb-4 border-t border-gray-100 pt-3 space-y-4">
                       {/* Message body */}
                       <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{item.message}</p>
+
+                      {item.pageUrl && (
+                        <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+                          <span className="text-blue-400 flex-shrink-0">🔗</span>
+                          <a href={item.pageUrl} target="_blank" rel="noreferrer"
+                            className="text-xs text-blue-600 hover:text-blue-800 underline break-all">
+                            {item.pageUrl}
+                          </a>
+                        </div>
+                      )}
 
                       {/* Images */}
                       {item.images?.length > 0 && (
