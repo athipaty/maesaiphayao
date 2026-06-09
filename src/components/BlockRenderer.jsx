@@ -249,47 +249,41 @@ function PdfBlock({ data, preview }) {
   const isB2 = data.url.includes('backblazeb2.com')
   const viewUrl = isB2 ? data.url : `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
   return (
-    <div className="card mb-1 overflow-hidden">
-      <div className="p-2">
-        {data.description && <p className="text-xs text-gray-500 mb-3 leading-relaxed">{data.description}</p>}
+    <div className="bg-white border-b border-gray-100">
+      {data.description && <p className="text-xs text-gray-500 px-3 pt-2 leading-relaxed">{data.description}</p>}
 
-        {preview ? (
-          /* Admin preview */
-          <div className="w-full rounded-lg border border-dashed border-red-200 bg-red-50 flex items-center justify-center gap-3 mb-3" style={{ height: 100 }}>
-            <PdfFileIcon size={28} />
-            <div>
-              <p className="text-sm font-medium text-red-700">{data.title || 'ไฟล์ PDF'}</p>
-              <p className="text-xs text-red-400 mt-0.5">จะแสดง PDF viewer ในหน้าจริง</p>
-            </div>
+      {preview ? (
+        <div className="mx-3 my-2 rounded-lg border border-dashed border-red-200 bg-red-50 flex items-center justify-center gap-3" style={{ height: 80 }}>
+          <PdfFileIcon size={24} />
+          <div>
+            <p className="text-sm font-medium text-red-700">{data.title || 'ไฟล์ PDF'}</p>
+            <p className="text-xs text-red-400 mt-0.5">จะแสดง PDF viewer ในหน้าจริง</p>
           </div>
-        ) : (
-          <>
-            {/* Text-style row: icon + title toggle + download */}
-            <div className="flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors">
-              <span className="text-lg flex-shrink-0">📄</span>
-              <button onClick={() => setOpen(v => !v)}
-                className="flex-1 text-left text-sm font-medium text-primary hover:text-secondary transition-colors">
-                {data.title || 'ไฟล์ PDF'}
-              </button>
-              <button onClick={() => setOpen(v => !v)}
-                className="text-xs text-gray-400 hover:text-gray-600 flex-shrink-0 px-2">
-                {open ? '▲ ซ่อน' : '▼ แสดง'}
-              </button>
-              <button onClick={() => downloadPdf(data.url, data.title)}
-                className="flex-shrink-0 text-xs text-blue-600 hover:text-primary font-medium px-2">
-                📥 ดาวน์โหลด
-              </button>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center gap-2 py-2 px-3 hover:bg-gray-50 transition-colors">
+            <span className="text-base flex-shrink-0">📄</span>
+            <button onClick={() => setOpen(v => !v)}
+              className="flex-1 text-left text-sm text-primary hover:text-secondary transition-colors">
+              {data.title || 'ไฟล์ PDF'}
+            </button>
+            <button onClick={() => setOpen(v => !v)}
+              className="text-xs text-gray-400 hover:text-gray-600 flex-shrink-0 px-2">
+              {open ? '▲ ซ่อน' : '▼ แสดง'}
+            </button>
+            <button onClick={() => downloadPdf(data.url, data.title)}
+              className="flex-shrink-0 text-xs text-secondary hover:text-primary font-medium px-2">
+              📥 ดาวน์โหลด
+            </button>
+          </div>
+          {open && (
+            <div className="mx-3 mb-2 rounded-lg overflow-hidden border border-gray-200" style={{ height: '520px' }}>
+              <iframe src={viewUrl} className="w-full h-full" title={data.title || 'PDF'} />
             </div>
-
-            {/* Iframe — shown only when open */}
-            {open && (
-              <div className="mt-2 mb-1 w-full rounded-lg overflow-hidden border border-gray-200" style={{ height: '520px' }}>
-                <iframe src={viewUrl} className="w-full h-full" title={data.title || 'PDF'} />
-              </div>
-            )}
-          </>
-        )}
-      </div>
+          )}
+        </>
+      )}
     </div>
   )
 }
