@@ -175,7 +175,7 @@ export default function AdminEService() {
     setLoading(true)
     try {
       const [req, typ] = await Promise.all([
-        getEServices(filter ? { status: filter } : {}),
+        getEServices({}),
         getEServiceTypes(),
       ])
       setItems(req?.data || [])
@@ -183,7 +183,7 @@ export default function AdminEService() {
     } finally { setLoading(false) }
   }
 
-  useEffect(() => { load() }, [filter])
+  useEffect(() => { load() }, [])
 
   function openItem(item) { setSelected(item); setNote(item.officerNote || ''); setStatus(item.status) }
 
@@ -198,7 +198,8 @@ export default function AdminEService() {
     } finally { setSaving(false) }
   }
 
-  const statusConfig = (s) => STATUSES.find(x => x.value === s)
+  const displayItems  = filter ? items.filter(i => i.status === filter) : items
+  const statusConfig  = (s) => STATUSES.find(x => x.value === s)
   const countByStatus = (s) => items.filter(i => i.status === s).length
 
   return (
@@ -235,6 +236,7 @@ export default function AdminEService() {
               className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${!filter ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-600'}`}>
               ทั้งหมด ({items.length})
             </button>
+
             {STATUSES.map(s => (
               <button key={s.value} onClick={() => setFilter(s.value)}
                 className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${filter === s.value ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-600'}`}>
@@ -298,7 +300,7 @@ export default function AdminEService() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             {loading ? (
               <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
-            ) : items.length === 0 ? (
+            ) : displayItems.length === 0 ? (
               <div className="p-10 text-center text-gray-400">ยังไม่มีคำร้อง</div>
             ) : (
               <div className="overflow-x-auto">
@@ -314,7 +316,7 @@ export default function AdminEService() {
                     </tr>
                   </thead>
                   <tbody>
-                    {items.map(item => {
+                    {displayItems.map(item => {
                       const sc = statusConfig(item.status)
                       return (
                         <tr key={item._id} className="border-b border-gray-50 hover:bg-gray-50/60">

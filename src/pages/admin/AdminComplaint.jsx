@@ -20,15 +20,14 @@ export default function AdminComplaint() {
   async function load() {
     setLoading(true)
     try {
-      const params = typeFilter ? { type: typeFilter } : {}
-      const r = await getComplaints(params)
+      const r = await getComplaints({})
       setItems(r?.data || [])
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => { load() }, [typeFilter])
+  useEffect(() => { load() }, [])
 
   function openItem(item) {
     setSelected(item)
@@ -49,6 +48,7 @@ export default function AdminComplaint() {
     }
   }
 
+  const displayItems = typeFilter ? items.filter(i => i.type === typeFilter) : items
   const statusConfig = (s) => STATUSES.find(x => x.value === s)
 
   return (
@@ -64,6 +64,7 @@ export default function AdminComplaint() {
           className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${!typeFilter ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-600'}`}>
           ทั้งหมด ({items.length})
         </button>
+
         <button onClick={() => setTypeFilter('general')}
           className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${typeFilter === 'general' ? 'bg-primary text-white border-primary' : 'border-gray-300 text-gray-600'}`}>
           📝 ร้องเรียนทั่วไป
@@ -126,7 +127,7 @@ export default function AdminComplaint() {
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         {loading ? (
           <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
-        ) : items.length === 0 ? (
+        ) : displayItems.length === 0 ? (
           <div className="p-10 text-center text-gray-400">ยังไม่มีเรื่องร้องเรียน</div>
         ) : (
           <div className="overflow-x-auto">
@@ -143,7 +144,7 @@ export default function AdminComplaint() {
                 </tr>
               </thead>
               <tbody>
-                {items.map(item => {
+                {displayItems.map(item => {
                   const sc = statusConfig(item.status)
                   return (
                     <tr key={item._id} className={`border-b border-gray-50 hover:bg-gray-50/60 ${item.type === 'corruption' ? 'bg-red-50/20' : ''}`}>

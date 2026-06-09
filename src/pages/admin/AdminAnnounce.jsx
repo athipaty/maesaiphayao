@@ -39,7 +39,7 @@ export default function AdminAnnounce() {
         </span>
       )
     },
-    { label: 'วันที่', render: item => <span className="text-xs text-gray-400">{new Date(item.publishedAt).toLocaleDateString('th-TH')}</span> },
+    { label: 'วันที่', render: item => <span className="text-xs text-gray-400">{new Date(item.publishedAt || item.createdAt).toLocaleDateString('th-TH')}</span> },
     {
       label: 'สถานะ',
       render: item => (

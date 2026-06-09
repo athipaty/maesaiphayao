@@ -5,8 +5,9 @@ import { DEPT_LABELS, DEPT_ICONS } from '../components/NewsSection'
 
 export default function NewsDetailPage() {
   const { id } = useParams()
-  const [item, setItem]       = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [item, setItem]           = useState(null)
+  const [loading, setLoading]     = useState(true)
+  const [lightboxImg, setLightbox] = useState(null)
 
   useEffect(() => {
     getNewsById(id)
@@ -81,6 +82,7 @@ export default function NewsDetailPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {restImages.map((img, idx) => (
                   <img key={idx} src={img} alt={`${item.title} ${idx + 2}`}
+                    onClick={() => setLightbox(img)}
                     className="w-full h-60 object-cover rounded-md shadow-sm hover:opacity-90 transition-opacity cursor-pointer" />
                 ))}
               </div>
@@ -88,6 +90,21 @@ export default function NewsDetailPage() {
           )}
         </div>
       </div>
+
+      {lightboxImg && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
+          onClick={() => setLightbox(null)}>
+          <img src={lightboxImg} alt="enlarged"
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+            onClick={e => e.stopPropagation()} />
+          <button
+            onClick={() => setLightbox(null)}
+            className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center bg-white/20 hover:bg-white/35 text-white rounded-full text-xl transition-colors">
+            ×
+          </button>
+        </div>
+      )}
 
       <Link to="/news" onClick={() => window.scrollTo(0, 0)}
         className="inline-flex items-center gap-1 text-sm text-secondary hover:text-primary mt-3">
