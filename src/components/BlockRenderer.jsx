@@ -2,9 +2,16 @@
 import { Link } from 'react-router-dom'
 
 const BACKEND_ORIGIN = (import.meta.env.VITE_API_URL || '').replace(/\/api\/abt.*$/, '') || 'https://center-kitchen-backend.onrender.com'
+const B2_ORIGIN = 'https://s3.us-west-004.backblazeb2.com'
+
 function resolveFileUrl(url) {
   if (!url) return url
-  if (url.startsWith('/')) return BACKEND_ORIGIN + url
+  if (url.startsWith('/')) {
+    // Relative paths starting with /maesai- are B2 bucket paths stored without the full host
+    // e.g. /maesai-pdfs/pdfs/... → https://s3.us-west-004.backblazeb2.com/maesai-pdfs/pdfs/...
+    if (url.startsWith('/maesai-')) return B2_ORIGIN + url
+    return BACKEND_ORIGIN + url
+  }
   return url
 }
 
