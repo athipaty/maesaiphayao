@@ -264,27 +264,26 @@ function PdfBlock({ data, preview }) {
           </div>
         ) : (
           <>
-            {/* Toggle + download on same row */}
-            <div className="mb-3 flex items-stretch gap-2">
+            {/* Text-style row: icon + title toggle + download */}
+            <div className="flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors">
+              <span className="text-lg flex-shrink-0">📄</span>
               <button onClick={() => setOpen(v => !v)}
-                className="flex-1 flex items-center gap-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl px-4 py-3 transition-colors group">
-                <div className="group-hover:scale-105 transition-transform">
-                  <PdfFileIcon size={28} />
-                </div>
-                <p className="text-sm font-semibold text-red-700 flex-1 text-left">{data.title || 'ไฟล์ PDF'}</p>
-                <p className="text-xs text-red-400 flex-shrink-0">
-                  {open ? '▲ ซ่อน' : '▼ แสดง'}
-                </p>
+                className="flex-1 text-left text-sm font-medium text-primary hover:text-secondary transition-colors">
+                {data.title || 'ไฟล์ PDF'}
+              </button>
+              <button onClick={() => setOpen(v => !v)}
+                className="text-xs text-gray-400 hover:text-gray-600 flex-shrink-0 px-2">
+                {open ? '▲ ซ่อน' : '▼ แสดง'}
               </button>
               <button onClick={() => downloadPdf(data.url, data.title)}
-                className="flex-shrink-0 flex items-center gap-1.5 text-xs bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 px-3 rounded-xl transition-colors font-medium">
+                className="flex-shrink-0 text-xs text-blue-600 hover:text-blue-700 font-medium px-2">
                 📥 ดาวน์โหลด
               </button>
             </div>
 
             {/* Iframe — shown only when open */}
             {open && (
-              <div className="mb-3 w-full rounded-lg overflow-hidden border border-gray-200" style={{ height: '520px' }}>
+              <div className="mt-2 mb-1 w-full rounded-lg overflow-hidden border border-gray-200" style={{ height: '520px' }}>
                 <iframe src={viewUrl} className="w-full h-full" title={data.title || 'PDF'} />
               </div>
             )}

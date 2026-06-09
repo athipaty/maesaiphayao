@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import AdminCrud from './AdminCrud'
 import ImageUpload from '../../components/ImageUpload'
+import PdfUpload from '../../components/PdfUpload'
 import { getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement } from '../../services/api'
 
-const EMPTY = { title: '', type: 'announcement', fileUrl: '', image: '', isActive: true }
+const EMPTY = { title: '', type: 'announcement', fileUrl: '', fileLabel: '', image: '', isActive: true }
 
 export default function AdminAnnounce() {
   const [items, setItems]     = useState([])
@@ -85,13 +86,14 @@ export default function AdminAnnounce() {
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">🔗 ลิงค์ไฟล์ / PDF URL</label>
-              <input
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
-                value={data.fileUrl}
-                onChange={e => onChange('fileUrl', e.target.value)}
-                placeholder="https://..."
-              />
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">📎 ไฟล์แนบ / PDF</label>
+              <div className="border border-gray-200 rounded-lg p-3 hover:border-blue-300 transition-colors">
+                <PdfUpload
+                  value={data.fileUrl}
+                  label={data.fileLabel}
+                  onChange={(url, label) => { onChange('fileUrl', url); onChange('fileLabel', label || '') }}
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">รูปภาพปก (จดหมายข่าว)</label>
