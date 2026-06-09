@@ -142,9 +142,6 @@ export default function StaffPage() {
 
   return (
     <div>
-      {/* Scroll anchor */}
-      <div ref={topRef} />
-
       {/* Department filter bar */}
       {!loading && staff.length > 0 && (
         <div className="card mb-4 p-3">
@@ -176,6 +173,7 @@ export default function StaffPage() {
         </div>
       )}
 
+      <div ref={topRef} />
       <div style={{ opacity: fading ? 0 : 1, transition: 'opacity 0.15s ease' }}>
         {loading ? (
           <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
