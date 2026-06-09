@@ -195,11 +195,11 @@ export default function EServicePage() {
 
       {tab === 'stat' && (
         <div className="space-y-4">
-          <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3">
+          <div className="bg-pink-50 border border-pink-100 rounded-xl p-4 flex gap-3">
             <span className="text-xl flex-shrink-0">📊</span>
             <div>
-              <p className="text-sm font-semibold text-blue-800 mb-1">สถิติการให้บริการออนไลน์ (O10)</p>
-              <p className="text-xs text-blue-700">ข้อมูลสถิติการรับคำร้องผ่านระบบ e-Service ประจำปีงบประมาณ 2568 แยกตามประเภทบริการและไตรมาส</p>
+              <p className="text-sm font-semibold text-primary mb-1">สถิติการให้บริการออนไลน์ (O10)</p>
+              <p className="text-xs text-secondary">ข้อมูลสถิติการรับคำร้องผ่านระบบ e-Service ประจำปีงบประมาณ 2568 แยกตามประเภทบริการและไตรมาส</p>
             </div>
           </div>
 
@@ -226,7 +226,7 @@ export default function EServicePage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
                     <thead>
-                      <tr className="bg-blue-50">
+                      <tr className="bg-pink-50">
                         <th className="px-3 py-2.5 text-left text-primary font-semibold min-w-[160px]">ประเภทบริการ</th>
                         {quarters.map(q => (
                           <th key={q.label} className="px-3 py-2.5 text-center text-primary font-semibold">
@@ -311,7 +311,7 @@ export default function EServicePage() {
                         {tracked.location.lat && (
                           <a href={`https://www.google.com/maps?q=${tracked.location.lat},${tracked.location.lng}`}
                             target="_blank" rel="noreferrer"
-                            className="text-xs text-blue-500 hover:underline">เปิดใน Google Maps →</a>
+                            className="text-xs text-secondary hover:underline">เปิดใน Google Maps →</a>
                         )}
                       </div>
                     </div>
