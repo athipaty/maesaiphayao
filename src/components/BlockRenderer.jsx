@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 function TextBlock({ data }) {
   const paragraphs = (data.content || '').split(/\n\n+/).filter(Boolean)
   return (
-    <div className="card mb-4 px-5 py-4 space-y-3">
+    <div className="card mb-2 px-5 py-4 space-y-3">
       {data.title && <h3 className="text-sm font-semibold text-primary mb-2">{data.title}</h3>}
       {paragraphs.map((p, i) => (
         <p key={i} className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{p}</p>
@@ -16,7 +16,7 @@ function TextBlock({ data }) {
 function LinksBlock({ data }) {
   const items = data.items || []
   return (
-    <div className="card mb-4 overflow-hidden">
+    <div className="card mb-2 overflow-hidden">
       {data.title && (
         <div className="section-head">
           <h3 className="text-sm font-semibold">{data.title}</h3>
@@ -82,7 +82,7 @@ function CardsBlock({ data }) {
   const pos = CARD_ICON_POS[data.iconPos || 'left'] || CARD_ICON_POS.left
   const gridClass = { 1: 'grid-cols-1', 2: 'grid-cols-1 sm:grid-cols-2', 3: 'grid-cols-1 sm:grid-cols-3', 4: 'grid-cols-2 sm:grid-cols-4' }[cols] || 'grid-cols-1 sm:grid-cols-2'
   return (
-    <div className="mb-4">
+    <div className="mb-2">
       {data.title && <h3 className="text-sm font-semibold text-gray-700 mb-2 px-1">{data.title}</h3>}
       <div className={`grid ${gridClass} gap-3`}>
         {items.map((item, i) => {
@@ -128,7 +128,7 @@ function ImageBlock({ data }) {
     const marginClass = align === 'left' ? 'mr-auto' : align === 'right' ? 'ml-auto' : 'mx-auto'
     const textAlign = align === 'left' ? 'text-left' : align === 'right' ? 'text-right' : 'text-center'
     return (
-      <div className="mb-4">
+      <div className="mb-2">
         <img src={img.url} alt={img.caption || ''} className={`block rounded-lg shadow-sm ${marginClass}`}
           style={{ maxWidth: maxW, width: '100%' }} />
         {img.caption && <p className={`text-xs text-gray-400 mt-2 ${textAlign}`}>{img.caption}</p>}
@@ -152,7 +152,7 @@ function ImageBlock({ data }) {
   const singleW   = isSingle ? ({ 'grid-2': 'w-1/2', 'grid-3': 'w-1/3', 'grid-4': 'w-1/4' }[layout] || 'w-1/2') : ''
 
   return (
-    <div className="mb-4">
+    <div className="mb-2">
       <div className={gridWrap}>
         {images.map((img, i) => (
           <div key={i} className={singleW}>
@@ -169,7 +169,7 @@ function TableBlock({ data }) {
   const headers = data.headers || []
   const rows    = data.rows    || []
   return (
-    <div className="card mb-4 overflow-x-auto">
+    <div className="card mb-2 overflow-x-auto">
       {data.title && (
         <div className="section-head">
           <h3 className="text-sm font-semibold">{data.title}</h3>
@@ -321,7 +321,7 @@ function BannerBlock({ data }) {
   const py    = BANNER_HEIGHT[h] || BANNER_HEIGHT.md
   const font  = BANNER_FONT[h]   || BANNER_FONT.md
   return (
-    <div className={`mb-4 rounded-xl overflow-hidden bg-gradient-to-r ${grad}`}>
+    <div className={`mb-2 rounded-xl overflow-hidden bg-gradient-to-r ${grad}`}>
       <div className={`px-8 ${py} text-white ${align}`}>
         {data.icon     && <div className={`${font.icon} mb-2`}>{data.icon}</div>}
         {data.title    && <h2 className={`${font.title} font-bold mb-1`}>{data.title}</h2>}
@@ -336,7 +336,7 @@ function InfoRowsBlock({ data }) {
   const items = data.items || []
   if (!items.length) return null
   return (
-    <div className="card mb-4 overflow-hidden">
+    <div className="card mb-2 overflow-hidden">
       {data.title && <div className="section-head"><h3 className="text-sm font-semibold">{data.title}</h3></div>}
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         {items.map((item, i) => (
@@ -370,7 +370,7 @@ function StatsBlock({ data }) {
   const colMap = { 2: 'grid-cols-2', 3: 'grid-cols-2 sm:grid-cols-3', 4: 'grid-cols-2 sm:grid-cols-4' }
   const gridClass = colMap[data.cols || 4] || 'grid-cols-2 sm:grid-cols-4'
   return (
-    <div className="mb-4">
+    <div className="mb-2">
       {data.title && <h3 className="text-sm font-semibold text-gray-700 mb-2 px-1">{data.title}</h3>}
       <div className={`grid ${gridClass} gap-3`}>
         {items.map((item, i) => (
@@ -405,7 +405,7 @@ function AlertBlock({ data }) {
   const s    = ALERT_STYLE[data.variant || 'info'] || ALERT_STYLE.info
   const icon = data.icon || s.defaultIcon
   return (
-    <div className={`mb-4 rounded-xl border p-4 ${s.bg}`}>
+    <div className={`mb-2 rounded-xl border p-4 ${s.bg}`}>
       <div className="flex items-start gap-3">
         <span className="text-xl flex-shrink-0 mt-0.5">{icon}</span>
         <div className="flex-1">
@@ -428,7 +428,7 @@ function TimelineBlock({ data }) {
   const items = data.items || []
   if (!items.length) return null
   return (
-    <div className="card mb-4 overflow-hidden">
+    <div className="card mb-2 overflow-hidden">
       {data.title && <div className="section-head"><h3 className="text-sm font-semibold">{data.title}</h3></div>}
       <div className="p-5 relative">
         <div className="absolute left-[2.875rem] top-5 bottom-5 w-0.5 bg-gray-200" />
@@ -471,7 +471,7 @@ function ExcelBlock({ data, preview }) {
   if (!data.url) return null
   const viewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
   return (
-    <div className="card mb-4 overflow-hidden">
+    <div className="card mb-2 overflow-hidden">
       <div className="p-4">
         {data.description && <p className="text-xs text-gray-500 mb-3 leading-relaxed">{data.description}</p>}
 
@@ -529,14 +529,14 @@ function HtmlBlock({ data, preview }) {
   if (!data.html) return null
   if (preview) {
     return (
-      <div className="mb-4 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-3">
+      <div className="mb-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-3">
         <p className="text-xs font-semibold text-slate-400 mb-1">HTML Block (ตัวอย่าง)</p>
         <pre className="text-xs text-slate-600 font-mono whitespace-pre-wrap break-all line-clamp-4">{data.html}</pre>
       </div>
     )
   }
   return (
-    <div ref={ref} className="mb-4" dangerouslySetInnerHTML={{ __html: data.html }} />
+    <div ref={ref} className="mb-2" dangerouslySetInnerHTML={{ __html: data.html }} />
   )
 }
 
