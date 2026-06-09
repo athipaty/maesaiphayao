@@ -155,9 +155,6 @@ export default function Navbar({ onMenuClick }) {
             const dropItems = getDropItems(openItem)
             return (
               <div className="border-t border-gray-200 bg-white shadow-inner px-3 py-3">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">
-                  {openItem.title}
-                </p>
                 <div className="grid grid-cols-2 gap-1.5">
                   {dropItems.map(item => (
                     <Link key={item.key} to={item.to}
@@ -221,9 +218,6 @@ export default function Navbar({ onMenuClick }) {
                     onMouseLeave={closeMenu}>
                     <div className="bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 min-w-[210px] overflow-hidden">
                       <div className="absolute -top-1.5 left-6 w-3 h-3 bg-white border-l border-t border-gray-100 rotate-45" />
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-4 pt-1 pb-2">
-                        {m.title}
-                      </p>
                       {dropItems.map(item => (
                         <Link key={item.key} to={item.to}
                           onClick={() => setOpenSlug(null)}
