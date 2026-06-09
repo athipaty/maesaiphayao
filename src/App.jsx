@@ -1,5 +1,11 @@
-import { useState, lazy, Suspense } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { useState, lazy, Suspense, useEffect } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }) }, [pathname])
+  return null
+}
 import Layout from "./components/Layout";
 import SplashPage from "./pages/SplashPage";
 
@@ -61,6 +67,7 @@ export default function App() {
     <>
       {showSplash && <SplashPage onEnter={handleEnter} />}
 
+      <ScrollToTop />
       <Routes>
         {/* Public site */}
         <Route element={<Layout />}>
