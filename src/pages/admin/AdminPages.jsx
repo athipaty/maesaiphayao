@@ -1453,7 +1453,7 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
           onDragLeave={() => setDragOverId(null)}
           onDrop={e => { e.preventDefault(); setDragOverId(null); if (dragRef.current.group === group) reorderDrop(dragRef.current.id, page, group) }}
           onDragEnd={() => { dragRef.current = { id: null, group: null }; setDragOverId(null) }}
-          className={`flex items-center gap-3 px-4 py-3 border-b transition-colors select-none ${isChild ? 'pl-10 bg-gray-50/40' : ''} ${isOver ? 'bg-blue-50 border-l-2 border-l-blue-400 border-b-gray-50' : 'border-b-gray-50 hover:bg-gray-50/60'}`}>
+          className={`flex items-center gap-2 px-3 py-1.5 border-b transition-colors select-none ${isChild ? 'pl-8 bg-gray-50/40' : ''} ${isOver ? 'bg-blue-50 border-l-2 border-l-blue-400 border-b-gray-50' : 'border-b-gray-50 hover:bg-gray-50/60'}`}>
           <span className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing flex-shrink-0 text-base leading-none" title="ลากเพื่อเรียงลำดับ">⠿</span>
           {isChild && <span className="text-gray-300">└</span>}
           {hasChildren ? (
