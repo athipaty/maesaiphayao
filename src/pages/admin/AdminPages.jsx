@@ -1379,6 +1379,7 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
   const [showForm, setShowForm] = useState(false)
   const [editPage, setEditPage] = useState(null)
   const [saving, setSaving]     = useState(false)
+  const [expandedSlugs, setExpandedSlugs] = useState(new Set())
   const dragRef                 = useRef({ id: null, group: null })
   const [dragOverId, setDragOverId] = useState(null)
 
@@ -1387,6 +1388,15 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
   const sidebarPages    = topLevel.filter(p => !p.showInNavbar)
   function getChildren(slug) {
     return pages.filter(p => p.parentSlug === slug).sort((a, b) => a.order - b.order)
+  }
+
+  function toggleExpand(slug) {
+    setExpandedSlugs(prev => {
+      const next = new Set(prev)
+      if (next.has(slug)) next.delete(slug)
+      else next.add(slug)
+      return next
+    })
   }
 
   async function toggleActive(page) {
@@ -1427,10 +1437,12 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
   }
 
   function renderRow(page, siblings, idx, group) {
-    const children   = getChildren(page.slug)
-    const isChild    = !!page.parentSlug
-    const publicPath = page.isBuiltin ? page.path : `/page/${page.slug}`
-    const isOver     = dragOverId === page._id
+    const children    = getChildren(page.slug)
+    const isChild     = !!page.parentSlug
+    const hasChildren = !isChild && children.length > 0
+    const isExpanded  = expandedSlugs.has(page.slug)
+    const publicPath  = page.isBuiltin ? page.path : `/page/${page.slug}`
+    const isOver      = dragOverId === page._id
 
     return (
       <div key={page._id}>
@@ -1444,9 +1456,27 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
           className={`flex items-center gap-3 px-4 py-3 border-b transition-colors select-none ${isChild ? 'pl-10 bg-gray-50/40' : ''} ${isOver ? 'bg-blue-50 border-l-2 border-l-blue-400 border-b-gray-50' : 'border-b-gray-50 hover:bg-gray-50/60'}`}>
           <span className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing flex-shrink-0 text-base leading-none" title="ลากเพื่อเรียงลำดับ">⠿</span>
           {isChild && <span className="text-gray-300">└</span>}
+          {hasChildren ? (
+            <button
+              onMouseDown={e => e.stopPropagation()}
+              onClick={e => { e.stopPropagation(); toggleExpand(page.slug) }}
+              className="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all flex-shrink-0 text-[11px] font-bold"
+              title={isExpanded ? 'ซ่อนเมนูย่อย' : 'แสดงเมนูย่อย'}>
+              {isExpanded ? '▼' : '▶'}
+            </button>
+          ) : !isChild && (
+            <span className="w-6 flex-shrink-0" />
+          )}
           <span className="text-lg w-7 text-center flex-shrink-0">{page.icon}</span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-gray-800 truncate">{page.title}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-semibold text-gray-800 truncate">{page.title}</p>
+              {hasChildren && !isExpanded && (
+                <span className="text-[10px] font-medium text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0">
+                  {children.length}
+                </span>
+              )}
+            </div>
             <p className="text-xs text-gray-400 font-mono truncate">{publicPath}</p>
           </div>
           {page.isBuiltin && (
@@ -1490,7 +1520,7 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
             </>
           )}
         </div>
-        {children.map((c, ci) => renderRow(c, children, ci, `child:${page.slug}`))}
+        {isExpanded && children.map((c, ci) => renderRow(c, children, ci, `child:${page.slug}`))}
       </div>
     )
   }
