@@ -151,14 +151,14 @@ export default function AdminLayout() {
           {MENU.map((m, i) =>
             m.section ? (
               <div key={i} style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 0.2s' }}
-                className="px-4 pt-3 pb-1 text-[10px] font-bold text-white/40 uppercase tracking-widest whitespace-nowrap">
+                className="px-4 pt-2 pb-0.5 text-[10px] font-bold text-white/40 uppercase tracking-widest whitespace-nowrap">
                 {m.section}
               </div>
             ) : (
               <NavLink key={m.path} to={m.path} end={m.end}
                 title={collapsed ? m.label : ''}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-150 ${
+                  `flex items-center gap-3 px-4 py-1.5 text-sm transition-colors duration-150 ${
                     isActive
                       ? 'bg-white/20 text-white font-semibold border-r-4 border-accent'
                       : 'text-white/70 hover:bg-white/10 hover:text-white'
@@ -177,7 +177,7 @@ export default function AdminLayout() {
         <div className="border-t border-white/20 overflow-hidden">
           <a href="/"
             title={collapsed ? 'กลับหน้าหลัก' : ''}
-            className="w-full flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/10 transition-colors text-sm">
+            className="w-full flex items-center gap-3 px-4 py-2 text-white/60 hover:text-white hover:bg-white/10 transition-colors text-sm">
             <span className="flex-shrink-0 w-5 text-center">🏠</span>
             <span style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}>
               กลับหน้าหลัก
@@ -185,7 +185,7 @@ export default function AdminLayout() {
           </a>
           <button onClick={logout}
             title={collapsed ? 'ออกจากระบบ' : ''}
-            className="w-full flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/10 transition-colors text-sm">
+            className="w-full flex items-center gap-3 px-4 py-2 text-white/60 hover:text-white hover:bg-white/10 transition-colors text-sm">
             <span className="flex-shrink-0 w-5 text-center">🚪</span>
             <span style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}>
               ออกจากระบบ
