@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { getStaff, getSettings } from '../services/api'
 
@@ -93,7 +93,19 @@ export default function StaffPage() {
   const [depts, setDepts]     = useState(DEFAULT_DEPTS)
   const [loading, setLoading] = useState(true)
   const [activeDept, setActiveDept] = useState('all')
+  const [fading, setFading] = useState(false)
   const location = useLocation()
+  const topRef = useRef(null)
+
+  function switchDept(dept) {
+    if (dept === activeDept) return
+    setFading(true)
+    setTimeout(() => {
+      setActiveDept(dept)
+      setFading(false)
+      topRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, 150)
+  }
 
   useEffect(() => {
     Promise.all([getStaff(), getSettings()])
@@ -130,12 +142,15 @@ export default function StaffPage() {
 
   return (
     <div>
+      {/* Scroll anchor */}
+      <div ref={topRef} />
+
       {/* Department filter bar */}
       {!loading && staff.length > 0 && (
         <div className="card mb-4 p-3">
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => setActiveDept('all')}
+              onClick={() => switchDept('all')}
               className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                 activeDept === 'all'
                   ? 'bg-primary text-white shadow'
@@ -147,7 +162,7 @@ export default function StaffPage() {
             {deptKeys.map(dept => (
               <button
                 key={dept}
-                onClick={() => setActiveDept(dept)}
+                onClick={() => switchDept(dept)}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                   activeDept === dept
                     ? 'bg-primary text-white shadow'
@@ -161,20 +176,22 @@ export default function StaffPage() {
         </div>
       )}
 
-      {loading ? (
-        <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
-      ) : staff.length === 0 ? (
-        <div className="card p-10 text-center text-gray-400">ยังไม่มีข้อมูลบุคลากร</div>
-      ) : (
-        visibleDepts.map(dept => (
-          <div key={dept} id={`dept-${dept}`} className="card mb-4">
-            <div className="section-head">
-              <h2 className="text-sm font-semibold">👥 {deptMap[dept]}</h2>
+      <div style={{ opacity: fading ? 0 : 1, transition: 'opacity 0.15s ease' }}>
+        {loading ? (
+          <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
+        ) : staff.length === 0 ? (
+          <div className="card p-10 text-center text-gray-400">ยังไม่มีข้อมูลบุคลากร</div>
+        ) : (
+          visibleDepts.map(dept => (
+            <div key={dept} id={`dept-${dept}`} className="card mb-4">
+              <div className="section-head">
+                <h2 className="text-sm font-semibold">👥 {deptMap[dept]}</h2>
+              </div>
+              <DeptSection dept={dept} members={grouped[dept]} />
             </div>
-            <DeptSection dept={dept} members={grouped[dept]} />
-          </div>
-        ))
-      )}
+          ))
+        )}
+      </div>
     </div>
   )
 }
