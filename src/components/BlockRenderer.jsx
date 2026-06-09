@@ -226,6 +226,16 @@ function PdfFileIcon({ size = 44 }) {
   )
 }
 
+// Returns the best embeddable URL for a given file URL.
+// Priority: Google Drive → native preview; B2 → direct; everything else → Google Docs viewer.
+function getEmbedUrl(url, type = 'pdf') {
+  if (!url) return ''
+  const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/)
+  if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`
+  if (type === 'pdf' && url.includes('backblazeb2.com')) return url
+  return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
+}
+
 async function downloadPdf(url, title) {
   // Derive a safe .pdf filename from the title or the URL's last path segment
   const base = title
@@ -252,10 +262,13 @@ async function downloadPdf(url, title) {
 
 function PdfBlock({ data, preview }) {
   const [open, setOpen] = useState(false)
+  const [loadErr, setLoadErr] = useState(false)
   if (!data.url) return null
-  const absUrl = resolveFileUrl(data.url)
-  const isB2 = absUrl.includes('backblazeb2.com')
-  const viewUrl = isB2 ? absUrl : `https://docs.google.com/viewer?url=${encodeURIComponent(absUrl)}&embedded=true`
+  const absUrl  = resolveFileUrl(data.url)
+  const viewUrl = getEmbedUrl(absUrl, 'pdf')
+
+  function handleOpen() { setOpen(v => !v); setLoadErr(false) }
+
   return (
     <div className="bg-white border-b border-gray-100">
       {data.description && <p className="text-xs text-gray-500 px-3 pt-2 leading-relaxed">{data.description}</p>}
@@ -272,11 +285,11 @@ function PdfBlock({ data, preview }) {
         <>
           <div className="flex items-center gap-2 py-2 px-3 hover:bg-gray-50 transition-colors">
             <span className="text-base flex-shrink-0">📄</span>
-            <button onClick={() => setOpen(v => !v)}
+            <button onClick={handleOpen}
               className="flex-1 text-left text-sm text-primary hover:text-secondary transition-colors">
               {data.title || 'ไฟล์ PDF'}
             </button>
-            <button onClick={() => setOpen(v => !v)}
+            <button onClick={handleOpen}
               className="text-xs text-gray-400 hover:text-gray-600 flex-shrink-0 px-2">
               {open ? '▲ ซ่อน' : '▼ แสดง'}
             </button>
@@ -286,8 +299,27 @@ function PdfBlock({ data, preview }) {
             </button>
           </div>
           {open && (
-            <div className="mx-3 mb-2 rounded-lg overflow-hidden border border-gray-200" style={{ height: '520px' }}>
-              <iframe src={viewUrl} className="w-full h-full" title={data.title || 'PDF'} />
+            <div className="mx-3 mb-2">
+              <div className="rounded-lg overflow-hidden border border-gray-200" style={{ height: '520px' }}>
+                <iframe
+                  key={viewUrl}
+                  src={viewUrl}
+                  className="w-full h-full"
+                  title={data.title || 'PDF'}
+                  onError={() => setLoadErr(true)}
+                />
+              </div>
+              {loadErr && (
+                <p className="text-xs text-amber-600 mt-1.5 text-center">
+                  ไม่สามารถแสดงตัวอย่างได้ —{' '}
+                  <a href={absUrl} target="_blank" rel="noreferrer" className="underline font-medium">เปิดในแท็บใหม่</a>
+                  {' '}หรือกดดาวน์โหลด
+                </p>
+              )}
+              <p className="text-[10px] text-gray-300 mt-1 text-center">
+                ถ้าหน้าว่างหรือโหลดไม่ได้ →{' '}
+                <a href={absUrl} target="_blank" rel="noreferrer" className="underline text-gray-400">เปิดโดยตรง</a>
+              </p>
             </div>
           )}
         </>
@@ -470,9 +502,13 @@ function ExcelFileIcon({ size = 44 }) {
 
 function ExcelBlock({ data, preview }) {
   const [open, setOpen] = useState(false)
+  const [loadErr, setLoadErr] = useState(false)
   if (!data.url) return null
-  const absUrl = resolveFileUrl(data.url)
-  const viewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(absUrl)}&embedded=true`
+  const absUrl  = resolveFileUrl(data.url)
+  const viewUrl = getEmbedUrl(absUrl, 'excel')
+
+  function handleOpen() { setOpen(v => !v); setLoadErr(false) }
+
   return (
     <div className="card mb-2 overflow-hidden">
       <div className="p-4">
@@ -488,7 +524,7 @@ function ExcelBlock({ data, preview }) {
           </div>
         ) : (
           <>
-            <button onClick={() => setOpen(v => !v)}
+            <button onClick={handleOpen}
               className="mb-3 w-full flex items-center gap-3 bg-green-50 hover:bg-green-100 border border-green-200 rounded-xl px-4 py-3 transition-colors group">
               <div className="group-hover:scale-105 transition-transform">
                 <ExcelFileIcon size={36} />
@@ -500,14 +536,32 @@ function ExcelBlock({ data, preview }) {
             </button>
 
             {open && (
-              <div className="mb-3 w-full rounded-lg overflow-hidden border border-gray-200" style={{ height: '520px' }}>
-                <iframe src={viewUrl} className="w-full h-full" title={data.title || 'Excel'} />
+              <div className="mb-3">
+                <div className="w-full rounded-lg overflow-hidden border border-gray-200" style={{ height: '520px' }}>
+                  <iframe
+                    key={viewUrl}
+                    src={viewUrl}
+                    className="w-full h-full"
+                    title={data.title || 'Excel'}
+                    onError={() => setLoadErr(true)}
+                  />
+                </div>
+                {loadErr && (
+                  <p className="text-xs text-amber-600 mt-1.5 text-center">
+                    ไม่สามารถแสดงตัวอย่างได้ —{' '}
+                    <a href={absUrl} target="_blank" rel="noreferrer" className="underline font-medium">เปิดในแท็บใหม่</a>
+                  </p>
+                )}
+                <p className="text-[10px] text-gray-300 mt-1 text-center">
+                  ถ้าหน้าว่างหรือโหลดไม่ได้ →{' '}
+                  <a href={absUrl} target="_blank" rel="noreferrer" className="underline text-gray-400">เปิดโดยตรง</a>
+                </p>
               </div>
             )}
           </>
         )}
 
-        <a href={data.url} target="_blank" rel="noreferrer"
+        <a href={absUrl} target="_blank" rel="noreferrer"
           className="inline-flex items-center gap-2 text-xs bg-green-50 border border-green-200 text-green-700 hover:bg-green-100 px-4 py-2 rounded-lg transition-colors font-medium">
           📥 ดาวน์โหลด Excel
         </a>
