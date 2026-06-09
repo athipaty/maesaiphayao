@@ -1,6 +1,47 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ImageUpload from '../../components/ImageUpload'
-import { getSettings, updateSetting } from '../../services/api'
+import { getSettings, updateSetting, uploadImage } from '../../services/api'
+
+function LogoUpload({ value, onChange }) {
+  const [uploading, setUploading] = useState(false)
+  const inputRef = useRef(null)
+
+  async function handleFile(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const r = await uploadImage(file)
+      onChange(r.data.url)
+    } catch { alert('อัปโหลดไม่สำเร็จ') }
+    finally { setUploading(false); e.target.value = '' }
+  }
+
+  return (
+    <div className="border-2 border-dashed border-gray-200 rounded-xl overflow-hidden hover:border-primary/40 transition-all duration-300 bg-gray-50 hover:bg-primary/5">
+      {value ? (
+        <img src={value} alt="logo preview" className="w-full h-auto block" />
+      ) : (
+        <div className="flex flex-col items-center justify-center py-10 text-gray-300">
+          <span className="text-4xl mb-2">🏛️</span>
+          <p className="text-xs">ยังไม่มีโลโก้</p>
+        </div>
+      )}
+      <div className="border-t border-gray-100 bg-white px-4 py-2.5 flex items-center gap-3">
+        <label className={`btn-ghost text-xs cursor-pointer inline-flex items-center gap-1.5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+          {uploading ? '⏳ กำลังอัปโหลด...' : value ? '🔄 เปลี่ยนรูป' : '📷 อัปโหลดโลโก้'}
+          <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} disabled={uploading} />
+        </label>
+        {value && (
+          <button type="button" onClick={() => onChange('')}
+            className="text-xs text-red-400 hover:text-red-600 transition-colors">
+            ลบรูป
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
 
 function Section({ icon, title, subtitle, delay = 0, children }) {
   return (
@@ -156,9 +197,7 @@ export default function AdminSettings() {
         {/* Logo */}
         <Section delay={160} icon="🏛️" title="โลโก้เว็บไซต์" subtitle="แสดงในแถบ Header มุมบนซ้าย">
           <p className="text-xs text-gray-400 mb-3">แนะนำรูปแบบ PNG พื้นหลังโปร่งใส ขนาด 200×200 px</p>
-          <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 hover:border-primary/40 transition-all duration-300 bg-gray-50 w-full hover:bg-primary/5">
-            <ImageUpload value={form.logoImage} onChange={url => set('logoImage', url)} />
-          </div>
+          <LogoUpload value={form.logoImage} onChange={url => set('logoImage', url)} />
           {form.logoImage && (
             <div className="mt-4" style={{ animation: 'scaleIn 0.3s ease both' }}>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">ตัวอย่างใน Header</p>
