@@ -1454,33 +1454,33 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
           onDrop={e => { e.preventDefault(); setDragOverId(null); if (dragRef.current.group === group) reorderDrop(dragRef.current.id, page, group) }}
           onDragEnd={() => { dragRef.current = { id: null, group: null }; setDragOverId(null) }}
           className={`flex items-center gap-2 px-3 py-1.5 border-b transition-colors select-none ${isChild ? 'pl-8 bg-gray-50/40' : ''} ${isOver ? 'bg-blue-50 border-l-2 border-l-blue-400 border-b-gray-50' : 'border-b-gray-50 hover:bg-gray-50/60'}`}>
-          <span className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing flex-shrink-0 text-base leading-none" title="ลากเพื่อเรียงลำดับ">⠿</span>
-          {isChild && <span className="text-gray-300">└</span>}
+          <span className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing flex-shrink-0 text-sm leading-none" title="ลากเพื่อเรียงลำดับ">⠿</span>
+          {isChild && <span className="text-gray-300 text-xs">└</span>}
           {hasChildren ? (
             <button
               onMouseDown={e => e.stopPropagation()}
               onClick={e => { e.stopPropagation(); toggleExpand(page.slug) }}
-              className="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all flex-shrink-0 text-[11px] font-bold"
+              className="w-5 h-5 flex items-center justify-center rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all flex-shrink-0 text-[10px] font-bold"
               title={isExpanded ? 'ซ่อนเมนูย่อย' : 'แสดงเมนูย่อย'}>
               {isExpanded ? '▼' : '▶'}
             </button>
           ) : !isChild && (
-            <span className="w-6 flex-shrink-0" />
+            <span className="w-5 flex-shrink-0" />
           )}
-          <span className="text-lg w-7 text-center flex-shrink-0">{page.icon}</span>
+          <span className="text-sm w-5 text-center flex-shrink-0">{page.icon}</span>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
-              <p className="text-sm font-semibold text-gray-800 truncate">{page.title}</p>
+            <div className="flex items-center gap-1">
+              <p className="text-xs font-semibold text-gray-800 truncate">{page.title}</p>
               {hasChildren && !isExpanded && (
-                <span className="text-[10px] font-medium text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0">
+                <span className="text-[9px] font-medium text-gray-400 bg-gray-100 px-1 py-px rounded-full flex-shrink-0">
                   {children.length}
                 </span>
               )}
             </div>
-            <p className="text-xs text-gray-400 font-mono truncate">{publicPath}</p>
+            <p className="text-[10px] text-gray-400 font-mono truncate leading-tight">{publicPath}</p>
           </div>
           {page.isBuiltin && (
-            <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium flex-shrink-0">ระบบ</span>
+            <span className="text-[9px] bg-blue-100 text-blue-600 px-1.5 py-px rounded-full font-medium flex-shrink-0">ระบบ</span>
           )}
           {!isChild && (
             group === 'navbar'
@@ -1488,33 +1488,33 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
                   onMouseDown={e => e.stopPropagation()}
                   onClick={e => { e.stopPropagation(); moveToSidebar(page) }}
                   title="ย้ายไป Sidebar"
-                  className="text-[11px] font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-1 rounded-lg transition-colors flex-shrink-0 whitespace-nowrap">
+                  className="text-[10px] font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-1.5 py-0.5 rounded transition-colors flex-shrink-0 whitespace-nowrap">
                   → Sidebar
                 </button>
               : <button
                   onMouseDown={e => e.stopPropagation()}
                   onClick={e => { e.stopPropagation(); moveToNavbar(page) }}
                   title="ย้ายไป Navbar"
-                  className="text-[11px] font-medium text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200 px-2 py-1 rounded-lg transition-colors flex-shrink-0 whitespace-nowrap">
+                  className="text-[10px] font-medium text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200 px-1.5 py-0.5 rounded transition-colors flex-shrink-0 whitespace-nowrap">
                   → Navbar
                 </button>
           )}
           <button onClick={() => toggleActive(page)}
-            className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 transition-colors ${page.isActive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
+            className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0 transition-colors ${page.isActive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
             {page.isActive ? '● แสดง' : '○ ซ่อน'}
           </button>
           <button onClick={() => { setEditPage(page); setShowForm(true) }}
-            className="text-xs font-medium text-secondary hover:text-primary bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg transition-colors flex-shrink-0">
+            className="text-[10px] font-medium text-secondary hover:text-primary bg-blue-50 hover:bg-blue-100 border border-blue-200 px-1.5 py-0.5 rounded transition-colors flex-shrink-0">
             แก้ไข
           </button>
           {!page.isBuiltin && (
             <>
               <button onClick={() => onEditContent(page)}
-                className="text-xs font-medium text-white bg-primary hover:opacity-90 px-2.5 py-1 rounded-lg transition-colors flex-shrink-0">
+                className="text-[10px] font-medium text-white bg-primary hover:opacity-90 px-1.5 py-0.5 rounded transition-colors flex-shrink-0">
                 เนื้อหา
               </button>
               <button onClick={() => remove(page)}
-                className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all text-sm flex-shrink-0">
+                className="w-5 h-5 flex items-center justify-center rounded text-red-400 hover:text-red-600 hover:bg-red-50 transition-all text-xs flex-shrink-0">
                 🗑️
               </button>
             </>
