@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { getAnnouncements, getDocuments } from '../services/api'
 
 const ANNOUNCE_TYPES = {
@@ -151,7 +151,7 @@ export default function InfoCenterPage() {
         <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
           {INFO_LINKS.map(l => (
             <a key={l.label} href={l.href} target="_blank" rel="noreferrer"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-gray-100 hover:border-primary/30 hover:bg-blue-50/50 transition-colors">
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-gray-100 hover:border-primary/30 hover:bg-pink-50/50 transition-colors">
               <span className="text-lg flex-shrink-0">{l.icon}</span>
               <span className="text-xs text-gray-700">{l.label}</span>
               <span className="ml-auto text-gray-300 text-xs">›</span>

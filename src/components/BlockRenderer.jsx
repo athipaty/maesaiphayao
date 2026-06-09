@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
 function TextBlock({ data }) {
@@ -28,7 +28,7 @@ function LinksBlock({ data }) {
           return isExternal ? (
             <li key={i}>
               <a href={item.url} target="_blank" rel="noreferrer"
-                className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors group">
+                className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-pink-50 hover:text-primary transition-colors group">
                 <span className="text-base w-6 text-center flex-shrink-0">{item.icon || '🔗'}</span>
                 <span className="flex-1">{item.label}</span>
                 <span className="text-gray-300 group-hover:text-secondary text-xs">↗</span>
@@ -37,7 +37,7 @@ function LinksBlock({ data }) {
           ) : (
             <li key={i}>
               <Link to={item.url || '#'}
-                className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors group">
+                className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-pink-50 hover:text-primary transition-colors group">
                 <span className="text-base w-6 text-center flex-shrink-0">{item.icon || '📄'}</span>
                 <span className="flex-1">{item.label}</span>
                 <span className="text-gray-300 group-hover:text-secondary text-xs">›</span>
@@ -276,7 +276,7 @@ function PdfBlock({ data, preview }) {
                 {open ? '▲ ซ่อน' : '▼ แสดง'}
               </button>
               <button onClick={() => downloadPdf(data.url, data.title)}
-                className="flex-shrink-0 text-xs text-blue-600 hover:text-blue-700 font-medium px-2">
+                className="flex-shrink-0 text-xs text-blue-600 hover:text-primary font-medium px-2">
                 📥 ดาวน์โหลด
               </button>
             </div>
@@ -340,7 +340,7 @@ function InfoRowsBlock({ data }) {
       {data.title && <div className="section-head"><h3 className="text-sm font-semibold">{data.title}</h3></div>}
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         {items.map((item, i) => (
-          <div key={i} className="flex items-start gap-3 p-3 bg-blue-50/50 rounded-lg">
+          <div key={i} className="flex items-start gap-3 p-3 bg-pink-50/50 rounded-lg">
             <span className="text-xl flex-shrink-0 w-7 text-center">{item.icon || '•'}</span>
             <div>
               <p className="text-xs text-gray-400 mb-0.5">{item.label}</p>

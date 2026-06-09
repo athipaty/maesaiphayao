@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import PageHeader from '../components/PageHeader'
 import { getProcurement, getEgpRss } from '../services/api'
 
@@ -37,7 +37,7 @@ function LocalTab() {
         const href = item.externalUrl || item.fileUrl || null
         const hasResult = item.winner || item.amount != null
         return (
-          <div key={item._id} className="px-4 py-3 hover:bg-blue-50/40 transition-colors">
+          <div key={item._id} className="px-4 py-3 hover:bg-pink-50/40 transition-colors">
             {/* Line 1: number + title (1 line truncated) + date */}
             <div className="flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0">{idx + 1}</span>
@@ -173,7 +173,7 @@ function EgpTab() {
       ) : items.length === 0 ? null : (
         <div className="divide-y divide-gray-50">
           {items.map((item, i) => (
-            <div key={i} className="px-4 py-3 hover:bg-blue-50/30 transition-colors">
+            <div key={i} className="px-4 py-3 hover:bg-pink-50/30 transition-colors">
 
               {/* Line 1: number + title (1 line) + date */}
               <div className="flex items-center gap-2">
@@ -232,7 +232,7 @@ export default function ProcurementPage() {
             <button key={t.key} onClick={() => setTab(t.key)}
               className={`px-4 py-2.5 text-xs font-medium border-b-2 -mb-px transition-colors whitespace-nowrap ${
                 tab === t.key
-                  ? 'border-secondary text-primary bg-blue-50'
+                  ? 'border-secondary text-primary bg-pink-50'
                   : 'border-transparent text-gray-500 hover:text-primary'
               }`}>
               {t.label}

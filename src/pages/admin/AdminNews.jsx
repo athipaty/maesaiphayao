@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import AdminCrud from './AdminCrud'
 import ImageUpload from '../../components/ImageUpload'
 import { getNews, createNews, updateNews, deleteNews } from '../../services/api'
@@ -106,7 +106,7 @@ export default function AdminNews() {
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">กอง/ฝ่าย <span className="text-red-400">*</span></label>
               <select
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all bg-white"
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all bg-white"
                 value={data.department}
                 onChange={e => onChange('department', e.target.value)}
               >
@@ -116,7 +116,7 @@ export default function AdminNews() {
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">หัวข้อข่าว <span className="text-red-400">*</span></label>
               <input
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                 value={data.title}
                 onChange={e => onChange('title', e.target.value)}
                 placeholder="ชื่อหัวข้อข่าว..."
@@ -125,7 +125,7 @@ export default function AdminNews() {
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">เนื้อหา</label>
               <textarea
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all resize-none"
                 rows={5}
                 value={data.content}
                 onChange={e => onChange('content', e.target.value)}
@@ -142,7 +142,7 @@ export default function AdminNews() {
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">📅 วันที่เผยแพร่</label>
               <input
                 type="date"
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                 value={data.publishedAt ? data.publishedAt.slice(0,10) : ''}
                 onChange={e => onChange('publishedAt', e.target.value)}
               />

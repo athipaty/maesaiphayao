@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { submitEService, trackEService, getEServiceTypes } from '../services/api'
 import PhotoUploader from '../components/PhotoUploader'
 import LocationPicker from '../components/LocationPicker'
@@ -116,7 +116,7 @@ export default function EServicePage() {
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">ประเภทคำร้อง <span className="text-red-400">*</span></label>
                 <select
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 bg-white"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 bg-white"
                   value={form.type} onChange={e => set('type', e.target.value)}
                 >
                   {types.map(t => <option key={t.value} value={t.value}>{t.icon} {t.label}</option>)}
@@ -127,7 +127,7 @@ export default function EServicePage() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">ชื่อ-สกุล <span className="text-red-400">*</span></label>
                   <input
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
                     value={form.citizenName} onChange={e => set('citizenName', e.target.value)}
                     placeholder="ชื่อ-สกุล"
                   />
@@ -135,7 +135,7 @@ export default function EServicePage() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">เบอร์โทรศัพท์ <span className="text-red-400">*</span></label>
                   <input
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
                     value={form.phone} onChange={e => set('phone', e.target.value)}
                     placeholder="08x-xxx-xxxx"
                   />
@@ -146,7 +146,7 @@ export default function EServicePage() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">หมู่ที่</label>
                   <input
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
                     value={form.villageNo} onChange={e => set('villageNo', e.target.value)}
                     placeholder="เช่น หมู่ 3"
                   />
@@ -154,7 +154,7 @@ export default function EServicePage() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">ที่อยู่/บ้านเลขที่</label>
                   <input
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
                     value={form.address} onChange={e => set('address', e.target.value)}
                     placeholder="บ้านเลขที่/ซอย"
                   />
@@ -170,7 +170,7 @@ export default function EServicePage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">รายละเอียด <span className="text-red-400">*</span></label>
                 <textarea
                   rows={4}
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 resize-none"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 resize-none"
                   value={form.detail} onChange={e => set('detail', e.target.value)}
                   placeholder="อธิบายรายละเอียดปัญหาหรือความต้องการ..."
                 />
@@ -274,7 +274,7 @@ export default function EServicePage() {
         <div className="card p-5">
           <form onSubmit={handleTrack} className="flex gap-2 mb-4">
             <input
-              className="flex-1 border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="flex-1 border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
               value={trackNo} onChange={e => setTrackNo(e.target.value)}
               placeholder="กรอกเลขที่คำร้อง เช่น ES6804xxxx"
             />

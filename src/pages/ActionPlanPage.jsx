@@ -1,4 +1,4 @@
-// แผนดำเนินงาน ประจำปีงบประมาณ พ.ศ.2568
+﻿// แผนดำเนินงาน ประจำปีงบประมาณ พ.ศ.2568
 import { useState } from 'react'
 import PageHeader from '../components/PageHeader'
 
@@ -131,7 +131,7 @@ export default function ActionPlanPage() {
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              tab === t.key ? 'bg-primary text-white' : 'bg-blue-50 text-primary hover:bg-blue-100'
+              tab === t.key ? 'bg-primary text-white' : 'bg-pink-50 text-primary hover:bg-blue-100'
             }`}>
             {t.label}
           </button>
@@ -234,7 +234,7 @@ export default function ActionPlanPage() {
                 {[{id:0,name:'ทั้งหมด'},...strategies].map(s => (
                   <button key={s.id} onClick={() => setFilterS(s.id)}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                      filterS === s.id ? 'bg-primary text-white' : 'bg-blue-50 text-primary hover:bg-blue-100'
+                      filterS === s.id ? 'bg-primary text-white' : 'bg-pink-50 text-primary hover:bg-blue-100'
                     }`}>
                     {s.id === 0 ? 'ทั้งหมด' : `ยุทธ ${s.id}`}
                   </button>
@@ -252,7 +252,7 @@ export default function ActionPlanPage() {
                 ].map(f => (
                   <button key={f.key} onClick={() => setFilterSt(f.key)}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                      filterSt === f.key ? 'bg-primary text-white' : 'bg-blue-50 text-primary hover:bg-blue-100'
+                      filterSt === f.key ? 'bg-primary text-white' : 'bg-pink-50 text-primary hover:bg-blue-100'
                     }`}>
                     {f.label}
                   </button>

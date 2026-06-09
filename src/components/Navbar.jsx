@@ -1,4 +1,4 @@
-import { Link, NavLink } from 'react-router-dom'
+﻿import { Link, NavLink } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { getSettings, getPages } from '../services/api'
 
@@ -162,7 +162,7 @@ export default function Navbar({ onMenuClick }) {
                   {dropItems.map(item => (
                     <Link key={item.key} to={item.to}
                       onClick={() => setMobileOpenSlug(null)}
-                      className="flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-blue-50 hover:text-primary rounded-xl transition-colors border border-gray-100 hover:border-blue-200 group">
+                      className="flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-pink-50 hover:text-primary rounded-xl transition-colors border border-gray-100 hover:border-blue-200 group">
                       {item.icon && <span className="text-base flex-shrink-0">{item.icon}</span>}
                       <span className="flex-1 leading-snug">{item.title}</span>
                       <span className="text-gray-300 group-hover:text-primary text-sm">›</span>
@@ -227,7 +227,7 @@ export default function Navbar({ onMenuClick }) {
                       {dropItems.map(item => (
                         <Link key={item.key} to={item.to}
                           onClick={() => setOpenSlug(null)}
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-blue-50 hover:text-primary transition-colors group">
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-pink-50 hover:text-primary transition-colors group">
                           {item.icon && <span className="text-base flex-shrink-0">{item.icon}</span>}
                           <span className="flex-1">{item.title}</span>
                           <span className="text-gray-300 group-hover:text-primary">›</span>

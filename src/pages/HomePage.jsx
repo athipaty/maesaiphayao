@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { getNews, getAnnouncements, getProcurement, getTravel, getFacebookPage, getEgpRss } from '../services/api'
 import { DEPT_LABELS, DEPT_ICONS } from '../components/NewsSection'
@@ -371,7 +371,7 @@ export default function HomePage() {
               <button key={t.key} onClick={() => setProcTab(t.key)}
                 className={`px-4 py-2.5 text-xs font-medium border-b-2 -mb-px transition-colors whitespace-nowrap ${
                   procTab === t.key
-                    ? 'border-secondary text-primary bg-blue-50'
+                    ? 'border-secondary text-primary bg-pink-50'
                     : 'border-transparent text-gray-500 hover:text-primary'
                 }`}>
                 <span className="sm:hidden">{t.shortLabel}</span>
@@ -397,7 +397,7 @@ export default function HomePage() {
             ) : (
               <div className="divide-y divide-gray-50">
                 {egp.slice(0, 8).map((p, i) => (
-                  <div key={i} className="px-3 py-2.5 hover:bg-blue-50/40 transition-colors">
+                  <div key={i} className="px-3 py-2.5 hover:bg-pink-50/40 transition-colors">
                     {/* Line 1: number + title (1 line) + date */}
                     <div className="flex items-center gap-1.5">
                       <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
@@ -435,7 +435,7 @@ export default function HomePage() {
                 <li className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</li>
               )}
               {procNews.map((p, i) => (
-                <li key={p._id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 transition-colors">
+                <li key={p._id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-pink-50/50 transition-colors">
                   <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
                   <div className="min-w-0 flex-1">
                     {p.externalUrl

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import PageHeader from '../components/PageHeader'
 
 const villages = [
@@ -90,7 +90,7 @@ export default function ParticipationPage() {
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              tab === t.key ? 'bg-primary text-white' : 'bg-blue-50 text-primary hover:bg-blue-100'
+              tab === t.key ? 'bg-primary text-white' : 'bg-pink-50 text-primary hover:bg-blue-100'
             }`}>
             {t.label}
           </button>
@@ -160,12 +160,12 @@ export default function ParticipationPage() {
             <p className="text-xs text-gray-400 mb-2">กรองตามหมู่บ้าน:</p>
             <div className="flex gap-1.5 flex-wrap">
               <button onClick={() => setSelectedVillage(null)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${!selectedVillage ? 'bg-primary text-white' : 'bg-blue-50 text-primary hover:bg-blue-100'}`}>
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${!selectedVillage ? 'bg-primary text-white' : 'bg-pink-50 text-primary hover:bg-blue-100'}`}>
                 ทั้งหมด
               </button>
               {villages.map(v => (
                 <button key={v.no} onClick={() => setSelectedVillage(v.no)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${selectedVillage === v.no ? 'bg-primary text-white' : 'bg-blue-50 text-primary hover:bg-blue-100'}`}>
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${selectedVillage === v.no ? 'bg-primary text-white' : 'bg-pink-50 text-primary hover:bg-blue-100'}`}>
                   หมู่ {v.no}
                 </button>
               ))}

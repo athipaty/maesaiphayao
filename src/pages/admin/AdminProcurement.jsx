@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import AdminCrud from './AdminCrud'
 import { getProcurement, createProcurement, updateProcurement, deleteProcurement, summarizeProcurement } from '../../services/api'
 
@@ -42,7 +42,7 @@ export default function AdminProcurement() {
     {
       label: 'ประเภท',
       render: item => (
-        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${item.type === 'egp' ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600'}`}>
+        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${item.type === 'egp' ? 'bg-orange-50 text-orange-600' : 'bg-pink-50 text-pink-700'}`}>
           {item.type === 'egp' ? 'EGP' : 'ข่าวจัดซื้อ'}
         </span>
       )
@@ -95,7 +95,7 @@ export default function AdminProcurement() {
             {/* Title */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">ชื่อโครงการ / หัวข้อ <span className="text-red-400">*</span></label>
-              <textarea className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
+              <textarea className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all resize-none"
                 rows={2} value={data.title} onChange={e => onChange('title', e.target.value)}
                 placeholder="ชื่อโครงการจัดซื้อจัดจ้าง..." />
             </div>
@@ -135,13 +135,13 @@ export default function AdminProcurement() {
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">🔗 ลิงค์ระบบ EGP</label>
-                <input className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+                <input className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 transition-all"
                   value={data.externalUrl} onChange={e => onChange('externalUrl', e.target.value)}
                   placeholder="http://process.gprocurement.go.th/..." />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">📎 ลิงค์ PDF / ไฟล์แนบ <span className="text-xs font-normal text-blue-500">(ใช้กับ AI สรุป)</span></label>
-                <input className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+                <input className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 transition-all"
                   value={data.fileUrl} onChange={e => onChange('fileUrl', e.target.value)}
                   placeholder="https://..." />
               </div>

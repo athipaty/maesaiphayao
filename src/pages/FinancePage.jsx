@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { getDocuments } from '../services/api'
 
 const SECTIONS = [
@@ -105,7 +105,7 @@ export default function FinancePage() {
         <div className="p-3 space-y-2">
           {QUICK_LINKS.map(l => (
             <a key={l.label} href={l.href} target="_blank" rel="noreferrer"
-              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-50 text-sm text-gray-700 hover:text-primary transition-colors">
+              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-pink-50 text-sm text-gray-700 hover:text-primary transition-colors">
               <span className="text-lg">{l.icon}</span>
               <span className="text-xs">{l.label}</span>
               <span className="ml-auto text-gray-300 text-xs">›</span>

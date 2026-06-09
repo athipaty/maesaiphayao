@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import AdminCrud from './AdminCrud'
 import ImageUpload from '../../components/ImageUpload'
 import { getStaff, createStaff, updateStaff, deleteStaff, getSettings, updateSetting } from '../../services/api'
@@ -87,7 +87,7 @@ function DeptManager({ depts, onChange }) {
 
           <div className="mt-4 flex gap-2">
             <input
-              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
               placeholder="ชื่อกอง/ฝ่ายใหม่ เช่น กองการศึกษา"
               value={newLabel}
               onChange={e => setNewLabel(e.target.value)}
@@ -182,7 +182,7 @@ export default function AdminStaff() {
     {
       label: 'ชั้น',
       render: item => (
-        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">
+        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-pink-50 text-pink-700 text-xs font-semibold">
           {item.level ?? '-'}
         </span>
       )
@@ -207,7 +207,7 @@ export default function AdminStaff() {
         <div className="relative flex-1">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
           <input
-            className="w-full border border-gray-200 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+            className="w-full border border-gray-200 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
             placeholder="ค้นหาชื่อ ตำแหน่ง หรือเบอร์โทร..."
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -224,7 +224,7 @@ export default function AdminStaff() {
 
         {/* Dept filter */}
         <select
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all bg-white min-w-[160px]"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all bg-white min-w-[160px]"
           value={filterDept}
           onChange={e => setFilterDept(e.target.value)}
         >
@@ -255,7 +255,7 @@ export default function AdminStaff() {
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">กอง/ฝ่าย <span className="text-red-400">*</span></label>
                 <select
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all bg-white"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all bg-white"
                   value={data.department}
                   onChange={e => onChange('department', e.target.value)}
                 >
@@ -266,7 +266,7 @@ export default function AdminStaff() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">ชื่อ-นามสกุล <span className="text-red-400">*</span></label>
                   <input
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                     value={data.name}
                     onChange={e => onChange('name', e.target.value)}
                     placeholder="นาย/นาง/นางสาว..."
@@ -275,7 +275,7 @@ export default function AdminStaff() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">เบอร์โทร</label>
                   <input
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                     value={data.phone}
                     onChange={e => onChange('phone', e.target.value)}
                     placeholder="08x-xxxxxxx"
@@ -285,7 +285,7 @@ export default function AdminStaff() {
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">ตำแหน่ง <span className="text-red-400">*</span></label>
                 <input
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                   value={data.position}
                   onChange={e => onChange('position', e.target.value)}
                   placeholder="นักวิชาการ / ผู้อำนวยการ..."
@@ -295,7 +295,7 @@ export default function AdminStaff() {
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">หน้าที่ความรับผิดชอบ</label>
                 <textarea
                   rows={3}
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all resize-none"
                   value={data.responsibilities || ''}
                   onChange={e => onChange('responsibilities', e.target.value)}
                   placeholder="ระบุหน้าที่และความรับผิดชอบ..."
@@ -305,7 +305,7 @@ export default function AdminStaff() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">ชั้นลำดับ (row)</label>
                   <select
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all bg-white"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all bg-white"
                     value={data.level}
                     onChange={e => onChange('level', parseInt(e.target.value))}
                   >
@@ -318,7 +318,7 @@ export default function AdminStaff() {
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">ลำดับในชั้น</label>
                   <input
                     type="number"
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                     value={data.order}
                     onChange={e => onChange('order', parseInt(e.target.value))}
                     placeholder="1, 2, 3..."

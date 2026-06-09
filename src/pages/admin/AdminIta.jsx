@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { getOIT, getOITYears, saveOIT, updateOIT, deleteOIT } from '../../services/api'
 
 const STATUSES = [
@@ -152,7 +152,7 @@ export default function AdminIta() {
       <div className="bg-white rounded-lg shadow-sm p-4 mb-4 flex flex-wrap items-center gap-3">
         <span className="text-sm font-medium text-gray-700">สร้าง OIT 26 ข้อ สำหรับปีงบประมาณ:</span>
         <input
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-28"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 w-28"
           value={initYear} onChange={e => setInitYear(e.target.value)}
           placeholder="เช่น 2568"
         />

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 
 const SERVICES = [
   {
@@ -122,7 +122,7 @@ export default function PublicServicePage() {
               {s.items.map(item => (
                 item.link ? (
                   <Link key={item.label} to={item.link}
-                    className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 hover:border-primary/30 hover:bg-blue-50/50 transition-colors">
+                    className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 hover:border-primary/30 hover:bg-pink-50/50 transition-colors">
                     <span className="text-xl flex-shrink-0">{item.icon}</span>
                     <div>
                       <p className="text-sm font-semibold text-primary">{item.label} →</p>

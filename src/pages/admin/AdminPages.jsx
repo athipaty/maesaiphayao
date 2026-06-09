@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { getPages, createPage, updatePage, deletePage, uploadImage } from '../../services/api'
 import ImageUpload from '../../components/ImageUpload'
 import PdfUpload from '../../components/PdfUpload'
@@ -152,8 +152,8 @@ function Field({ label, hint, children }) {
   )
 }
 
-const inp = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-[border-color,box-shadow] bg-white'
-const smallInp = 'border border-gray-200 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition-[border-color,box-shadow] bg-white'
+const inp = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-[border-color,box-shadow] bg-white'
+const smallInp = 'border border-gray-200 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-100 transition-[border-color,box-shadow] bg-white'
 
 function emptyBlock(type) {
   if (type === 'text')  return { type, data: { title: '', content: '' } }
@@ -618,7 +618,7 @@ function TableBlockEdit({ data, onChange }) {
                 {headers.map((h, ci) => (
                   <th key={ci} className="border-b border-r border-gray-200 p-1.5 min-w-[100px]">
                     <div className="flex gap-1 items-center">
-                      <input className="flex-1 bg-white border border-gray-200 rounded px-2 py-1 text-xs font-semibold focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100" placeholder={`คอลัมน์ ${ci+1}`} value={h} onChange={e => { const nh = [...headers]; nh[ci] = e.target.value; setHeaders(nh) }} />
+                      <input className="flex-1 bg-white border border-gray-200 rounded px-2 py-1 text-xs font-semibold focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-100" placeholder={`คอลัมน์ ${ci+1}`} value={h} onChange={e => { const nh = [...headers]; nh[ci] = e.target.value; setHeaders(nh) }} />
                       {headers.length > 1 && <button onClick={() => removeCol(ci)} className="w-5 h-5 flex items-center justify-center rounded text-red-400 hover:bg-red-50 text-[10px] flex-shrink-0">✕</button>}
                     </div>
                   </th>
@@ -630,11 +630,11 @@ function TableBlockEdit({ data, onChange }) {
             </thead>
             <tbody>
               {rows.map((row, ri) => (
-                <tr key={ri} className="hover:bg-blue-50/30">
+                <tr key={ri} className="hover:bg-pink-50/30">
                   <td className="border-b border-r border-gray-100 p-1 text-center text-gray-400 font-mono">{ri+1}</td>
                   {row.map((cell, ci) => (
                     <td key={ci} className="border-b border-r border-gray-100 p-1">
-                      <input className="w-full bg-transparent border border-transparent hover:border-gray-200 focus:border-blue-400 focus:bg-white rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-100 transition-all" value={cell} onChange={e => updateCell(ri, ci, e.target.value)} />
+                      <input className="w-full bg-transparent border border-transparent hover:border-gray-200 focus:border-pink-400 focus:bg-white rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-pink-100 transition-all" value={cell} onChange={e => updateCell(ri, ci, e.target.value)} />
                     </td>
                   ))}
                   <td className="border-b border-gray-100 p-1 text-center">

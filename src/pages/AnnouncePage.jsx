@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { getAnnouncements } from '../services/api'
 import PageHeader from '../components/PageHeader'
 
@@ -30,7 +30,7 @@ export default function AnnouncePage() {
             <button key={t.key} onClick={() => setTab(t.key)}
               className={`px-5 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
                 tab === t.key
-                  ? 'border-secondary text-primary bg-blue-50'
+                  ? 'border-secondary text-primary bg-pink-50'
                   : 'border-transparent text-gray-500 hover:text-primary'
               }`}>
               {t.label}
@@ -54,7 +54,7 @@ export default function AnnouncePage() {
                 <tr><td colSpan={3} className="px-3 py-8 text-center text-gray-400">ยังไม่มีข้อมูล</td></tr>
               )}
               {items.map((a, i) => (
-                <tr key={a._id} className="border-b border-gray-50 hover:bg-blue-50/50">
+                <tr key={a._id} className="border-b border-gray-50 hover:bg-pink-50/50">
                   <td className="px-3 py-2.5 text-gray-400 text-center">{i + 1}</td>
                   <td className="px-3 py-2.5">
                     {a.fileUrl

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { getDocuments } from '../services/api'
 
 const CATS = [
@@ -126,7 +126,7 @@ export default function LawPage() {
             <div className="divide-y divide-gray-50">
               {group.items.map(item => (
                 <a key={item.label} href={item.href} target="_blank" rel="noreferrer"
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50/50 transition-colors group">
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-pink-50/50 transition-colors group">
                   <span className="text-primary text-xs flex-shrink-0">›</span>
                   <span className="text-xs text-gray-700 group-hover:text-primary flex-1">{item.label}</span>
                   <span className="text-gray-300 text-xs flex-shrink-0">🔗</span>

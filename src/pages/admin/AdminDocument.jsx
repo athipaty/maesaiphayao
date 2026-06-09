@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import AdminCrud from './AdminCrud'
 import { getDocuments, createDocument, updateDocument, deleteDocument } from '../../services/api'
 
@@ -78,34 +78,34 @@ export default function AdminDocument() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">หมวดหมู่ <span className="text-red-400">*</span></label>
-                <select className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 bg-white"
+                <select className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 bg-white"
                   value={data.category} onChange={e => onChange('category', e.target.value)}>
                   {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">ปีงบประมาณ</label>
-                <input className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+                <input className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400"
                   value={data.fiscalYear} onChange={e => onChange('fiscalYear', e.target.value)} placeholder="เช่น 2568" />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">ชื่อเอกสาร <span className="text-red-400">*</span></label>
-              <input className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+              <input className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400"
                 value={data.title} onChange={e => onChange('title', e.target.value)} placeholder="ชื่อเอกสาร..." />
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">คำอธิบาย</label>
-              <input className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+              <input className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400"
                 value={data.description} onChange={e => onChange('description', e.target.value)} placeholder="คำอธิบายเพิ่มเติม..." />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">ประเภทไฟล์</label>
-                <select className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 bg-white"
+                <select className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 bg-white"
                   value={data.fileType} onChange={e => onChange('fileType', e.target.value)}>
                   {FILE_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
@@ -121,7 +121,7 @@ export default function AdminDocument() {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">🔗 ลิงก์ดาวน์โหลด <span className="text-red-400">*</span></label>
-              <input className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+              <input className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400"
                 value={data.fileUrl} onChange={e => onChange('fileUrl', e.target.value)} placeholder="https://..." />
               {data.fileUrl && (
                 <a href={data.fileUrl} target="_blank" rel="noreferrer" className="inline-block mt-1 text-xs text-blue-500 hover:underline">

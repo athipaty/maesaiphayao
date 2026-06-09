@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 
 const TABS = [
   { id: 'info',    label: '📋 ข้อมูลพื้นฐาน' },
@@ -24,7 +24,7 @@ function TabInfo() {
             { icon: '📏', label: 'พื้นที่',          value: '29.96 ตารางกิโลเมตร (18,163 ไร่)' },
             { icon: '⏰', label: 'เวลาทำการ',       value: 'จันทร์ – ศุกร์ 08:30 – 16:30 น.' },
           ].map(item => (
-            <div key={item.label} className="flex items-start gap-3 p-3 bg-blue-50/50 rounded-lg">
+            <div key={item.label} className="flex items-start gap-3 p-3 bg-pink-50/50 rounded-lg">
               <span className="text-xl flex-shrink-0">{item.icon}</span>
               <div>
                 <p className="text-xs text-gray-400 mb-0.5">{item.label}</p>
@@ -112,7 +112,7 @@ function TabInfo() {
                   { mu: 11, name: 'บ้านร่องไฮ',           hh: 283, m: 282, f: 281, t: 563 },
                   { mu: 12, name: 'บ้านแม่ใสเหล่าใต้',    hh: 186, m: 242, f: 233, t: 475 },
                 ].map((row, i) => (
-                  <tr key={row.mu} className={`border-b border-gray-50 ${i % 2 === 1 ? 'bg-gray-50/50' : ''} hover:bg-blue-50/50`}>
+                  <tr key={row.mu} className={`border-b border-gray-50 ${i % 2 === 1 ? 'bg-gray-50/50' : ''} hover:bg-pink-50/50`}>
                     <td className="px-3 py-2 text-center font-medium text-primary text-xs">{row.mu}</td>
                     <td className="px-3 py-2 text-gray-700 text-xs">{row.name}</td>
                     <td className="px-3 py-2 text-center text-gray-600 text-xs">{row.hh.toLocaleString()}</td>
@@ -307,7 +307,7 @@ function TabPower() {
           <span className="w-1 h-5 bg-accent rounded inline-block"/>
           <h2 className="text-white font-bold text-sm">✅ อำนาจหน้าที่ที่ต้องดำเนินการ (มาตรา 67)</h2>
         </div>
-        <div className="px-5 py-2 bg-blue-50/50 border-b border-blue-100">
+        <div className="px-5 py-2 bg-pink-50/50 border-b border-blue-100">
           <p className="text-xs text-gray-500">ตาม พ.ร.บ.สภาตำบลและองค์การบริหารส่วนตำบล พ.ศ.2537 แก้ไขเพิ่มเติม ฉบับที่ 7 พ.ศ.2562</p>
         </div>
         <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-3">

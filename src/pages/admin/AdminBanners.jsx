@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { getAllBanners, createBanner, updateBanner, deleteBanner, uploadImage } from '../../services/api'
 
 const GRADIENT_PRESETS = [
@@ -187,7 +187,7 @@ export default function AdminBanners() {
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <button onClick={() => openEdit(item)}
-                          className="px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                          className="px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-pink-50 rounded-lg transition-colors">
                           แก้ไข
                         </button>
                         <button onClick={() => handleDelete(item._id)} disabled={deleting === item._id}
@@ -264,7 +264,7 @@ export default function AdminBanners() {
                   </div>
                 ) : (
                   <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
-                    className="w-full border-2 border-dashed border-gray-200 rounded-xl py-6 flex flex-col items-center gap-2 hover:border-blue-300 hover:bg-blue-50 transition-colors disabled:opacity-50">
+                    className="w-full border-2 border-dashed border-gray-200 rounded-xl py-6 flex flex-col items-center gap-2 hover:border-blue-300 hover:bg-pink-50 transition-colors disabled:opacity-50">
                     {uploading ? (
                       <span className="text-sm text-blue-500 animate-pulse">กำลังอัพโหลด...</span>
                     ) : (
@@ -286,13 +286,13 @@ export default function AdminBanners() {
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">ชื่อแบนเนอร์ *</label>
                   <input value={form.label} onChange={e => setForm(f => ({ ...f, label: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
                     placeholder="เช่น กรมส่งเสริมการปกครอง" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">รหัสย่อ (SUB)</label>
                   <input value={form.sub} onChange={e => setForm(f => ({ ...f, sub: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
                     placeholder="เช่น DLA" />
                 </div>
               </div>
@@ -300,7 +300,7 @@ export default function AdminBanners() {
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">URL ลิงค์</label>
                 <input value={form.href} onChange={e => setForm(f => ({ ...f, href: e.target.value }))}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
                   placeholder="https://..." />
               </div>
 
@@ -308,7 +308,7 @@ export default function AdminBanners() {
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">ลำดับ</label>
                   <input type="number" value={form.order} onChange={e => setForm(f => ({ ...f, order: Number(e.target.value) }))}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100" />
                 </div>
                 <div className="flex items-end pb-0.5">
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -335,7 +335,7 @@ export default function AdminBanners() {
                 <div className="mt-2">
                   <label className="block text-[11px] text-gray-400 mb-1">หรือกรอก CSS gradient เอง</label>
                   <input value={form.bg} onChange={e => setForm(f => ({ ...f, bg: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
                     placeholder="linear-gradient(135deg,#...,#...)" />
                 </div>
               </div>

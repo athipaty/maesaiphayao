@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { submitComplaint, trackComplaint } from '../services/api'
 import PhotoUploader from '../components/PhotoUploader'
 import LocationPicker from '../components/LocationPicker'
@@ -10,7 +10,7 @@ const STATUS_CONFIG = {
   rejected:     { label: 'ไม่รับเรื่อง',         color: 'bg-red-100 text-red-600',      dot: '🔴' },
 }
 
-const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all bg-white placeholder-gray-300'
+const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all bg-white placeholder-gray-300'
 
 export default function ComplaintPage() {
   const [tab, setTab]             = useState('form')

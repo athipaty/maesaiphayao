@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { uploadPdf } from '../services/api'
 
 export default function PdfUpload({ value, label, onChange }) {
@@ -72,7 +72,7 @@ export default function PdfUpload({ value, label, onChange }) {
       {tab === 'url' && (
         <div className="space-y-2">
           <input
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
             placeholder="https://drive.google.com/file/d/.../view"
             value={urlInput}
             onChange={e => setUrlInput(e.target.value)}

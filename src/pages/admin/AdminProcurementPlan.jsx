@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import AdminCrud from './AdminCrud'
 import { getProcurementPlans, createProcurementPlan, updateProcurementPlan, deleteProcurementPlan } from '../../services/api'
 
@@ -76,7 +76,7 @@ export default function AdminProcurementPlan() {
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">ปีงบประมาณ (พ.ศ.) <span className="text-red-400">*</span></label>
                 <input
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                   value={data.year}
                   onChange={e => onChange('year', e.target.value)}
                   placeholder="เช่น 2567"
@@ -85,7 +85,7 @@ export default function AdminProcurementPlan() {
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">ประเภทไฟล์ <span className="text-red-400">*</span></label>
                 <select
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all bg-white"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all bg-white"
                   value={data.fileType}
                   onChange={e => onChange('fileType', e.target.value)}
                 >
@@ -96,7 +96,7 @@ export default function AdminProcurementPlan() {
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">ชื่อเอกสาร <span className="text-red-400">*</span></label>
               <input
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                 value={data.title}
                 onChange={e => onChange('title', e.target.value)}
                 placeholder="เช่น รายการจัดซื้อจัดจ้าง ประจำปีงบประมาณ 2567"
@@ -105,7 +105,7 @@ export default function AdminProcurementPlan() {
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">🔗 ลิงค์ดาวน์โหลดไฟล์ <span className="text-red-400">*</span></label>
               <input
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                 value={data.fileUrl}
                 onChange={e => onChange('fileUrl', e.target.value)}
                 placeholder="https://..."
@@ -126,7 +126,7 @@ export default function AdminProcurementPlan() {
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">จำนวนรายการ</label>
                   <input
                     type="number"
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                     value={data.totalItems}
                     onChange={e => onChange('totalItems', e.target.value ? Number(e.target.value) : '')}
                     placeholder="เช่น 45"
@@ -136,7 +136,7 @@ export default function AdminProcurementPlan() {
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">งบประมาณรวม (บาท)</label>
                   <input
                     type="number"
-                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                     value={data.totalBudget}
                     onChange={e => onChange('totalBudget', e.target.value ? Number(e.target.value) : '')}
                     placeholder="เช่น 5000000"
@@ -146,7 +146,7 @@ export default function AdminProcurementPlan() {
               <div className="mt-4">
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">ช่วงเวลาดำเนินการ</label>
                 <input
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                   value={data.period}
                   onChange={e => onChange('period', e.target.value)}
                   placeholder="เช่น ตุลาคม 2566 – กันยายน 2567"
@@ -155,7 +155,7 @@ export default function AdminProcurementPlan() {
               <div className="mt-4">
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">หมายเหตุ</label>
                 <input
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                   value={data.note}
                   onChange={e => onChange('note', e.target.value)}
                   placeholder="หมายเหตุเพิ่มเติม..."

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import AdminCrud from './AdminCrud'
 import ImageUpload from '../../components/ImageUpload'
 import PdfUpload from '../../components/PdfUpload'
@@ -34,7 +34,7 @@ export default function AdminAnnounce() {
     {
       label: 'ประเภท',
       render: item => (
-        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${item.type === 'announcement' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
+        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${item.type === 'announcement' ? 'bg-pink-50 text-pink-700' : 'bg-purple-50 text-purple-600'}`}>
           {item.type === 'announcement' ? 'ประชาสัมพันธ์' : 'จดหมายข่าว'}
         </span>
       )
@@ -79,7 +79,7 @@ export default function AdminAnnounce() {
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">หัวข้อ <span className="text-red-400">*</span></label>
               <input
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                 value={data.title}
                 onChange={e => onChange('title', e.target.value)}
                 placeholder="ชื่อหัวข้อ..."

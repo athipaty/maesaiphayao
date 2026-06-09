@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { getComplaints, updateComplaint } from '../../services/api'
 
 const STATUSES = [
@@ -101,14 +101,14 @@ export default function AdminComplaint() {
               <div><span className="text-gray-400 text-xs">รายละเอียด</span><p className="mt-1 leading-relaxed">{selected.detail}</p></div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">อัปเดตสถานะ</label>
-                <select className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none focus:border-blue-400"
+                <select className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none focus:border-pink-400"
                   value={status} onChange={e => setStatus(e.target.value)}>
                   {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">ผลการดำเนินการ</label>
-                <textarea rows={3} className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 resize-none"
+                <textarea rows={3} className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 resize-none"
                   value={note} onChange={e => setNote(e.target.value)} placeholder="บันทึกผลการสอบสวน/ดำเนินการ..." />
               </div>
             </div>
