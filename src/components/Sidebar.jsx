@@ -150,7 +150,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
       {/* บริการสาธารณะ + E-Service (combined) */}
       <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
         <div style={{
-          background: 'linear-gradient(135deg, #831843 0%, #be185d 60%, #ec4899 100%)',
+          background: 'linear-gradient(135deg, #be185d 0%, #ec4899 60%, #f9a8d4 100%)',
           padding: '14px 16px 10px',
         }}>
           <div className="flex items-center gap-2 mb-1">
