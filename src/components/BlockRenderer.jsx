@@ -1,6 +1,13 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
+const BACKEND_ORIGIN = (import.meta.env.VITE_API_URL || '').replace(/\/api\/abt.*$/, '') || 'https://center-kitchen-backend.onrender.com'
+function resolveFileUrl(url) {
+  if (!url) return url
+  if (url.startsWith('/')) return BACKEND_ORIGIN + url
+  return url
+}
+
 function TextBlock({ data }) {
   const paragraphs = (data.content || '').split(/\n\n+/).filter(Boolean)
   return (
@@ -246,8 +253,9 @@ async function downloadPdf(url, title) {
 function PdfBlock({ data, preview }) {
   const [open, setOpen] = useState(false)
   if (!data.url) return null
-  const isB2 = data.url.includes('backblazeb2.com')
-  const viewUrl = isB2 ? data.url : `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
+  const absUrl = resolveFileUrl(data.url)
+  const isB2 = absUrl.includes('backblazeb2.com')
+  const viewUrl = isB2 ? absUrl : `https://docs.google.com/viewer?url=${encodeURIComponent(absUrl)}&embedded=true`
   return (
     <div className="bg-white border-b border-gray-100">
       {data.description && <p className="text-xs text-gray-500 px-3 pt-2 leading-relaxed">{data.description}</p>}
@@ -272,7 +280,7 @@ function PdfBlock({ data, preview }) {
               className="text-xs text-gray-400 hover:text-gray-600 flex-shrink-0 px-2">
               {open ? '▲ ซ่อน' : '▼ แสดง'}
             </button>
-            <button onClick={() => downloadPdf(data.url, data.title)}
+            <button onClick={() => downloadPdf(absUrl, data.title)}
               className="flex-shrink-0 text-xs text-secondary hover:text-primary font-medium px-2">
               📥 ดาวน์โหลด
             </button>
@@ -463,7 +471,8 @@ function ExcelFileIcon({ size = 44 }) {
 function ExcelBlock({ data, preview }) {
   const [open, setOpen] = useState(false)
   if (!data.url) return null
-  const viewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(data.url)}&embedded=true`
+  const absUrl = resolveFileUrl(data.url)
+  const viewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(absUrl)}&embedded=true`
   return (
     <div className="card mb-2 overflow-hidden">
       <div className="p-4">
