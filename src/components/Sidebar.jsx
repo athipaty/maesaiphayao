@@ -150,7 +150,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
       {/* บริการสาธารณะ + E-Service (combined) */}
       <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
         <div style={{
-          background: 'linear-gradient(135deg, #1a5276 0%, #2980b9 60%, #1abc9c 100%)',
+          background: 'linear-gradient(135deg, #831843 0%, #be185d 60%, #ec4899 100%)',
           padding: '14px 16px 10px',
         }}>
           <div className="flex items-center gap-2 mb-1">
@@ -201,7 +201,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
             { label: 'ปีนี้',      value: visits.year,  icon: '🗓️' },
             { label: 'ทั้งหมด',    value: visits.total, icon: '📊' },
           ].map(({ label, value, icon }) => (
-            <div key={label} className="flex items-center justify-between bg-blue-50 rounded px-3 py-1.5">
+            <div key={label} className="flex items-center justify-between bg-pink-50 rounded px-3 py-1.5">
               <span className="text-xs text-gray-600 flex items-center gap-1.5">{icon} {label}</span>
               <span className="text-sm font-bold text-primary tabular-nums">{value.toLocaleString()}</span>
             </div>
