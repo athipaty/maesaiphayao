@@ -83,7 +83,7 @@ export default function AdminContactMessages() {
   const newCount = items.filter(i => i.status === 'new').length
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <div className="flex items-center gap-3 mb-5">
         <h1 className="text-base font-bold text-gray-800">💬 แจ้งผู้ดูแลระบบ</h1>
         {newCount > 0 && (
