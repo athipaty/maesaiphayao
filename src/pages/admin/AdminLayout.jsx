@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { loginAdmin, verifyAdmin } from '../../services/api'
 
@@ -41,6 +41,11 @@ export default function AdminLayout() {
   const [collapsed, setCollapsed] = useState(false)
   const navigate                  = useNavigate()
   const location                  = useLocation()
+  const mainRef                   = useRef(null)
+
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, behavior: 'instant' })
+  }, [location.pathname])
 
   useEffect(() => {
     const token = sessionStorage.getItem('abt_token')
@@ -206,7 +211,7 @@ export default function AdminLayout() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 min-w-0 overflow-auto">
+      <main ref={mainRef} className="flex-1 min-w-0 overflow-auto">
         <div className="p-5">
           <Outlet />
         </div>
