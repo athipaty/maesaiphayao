@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { getStaff, getSettings } from '../services/api'
 
@@ -95,15 +95,14 @@ export default function StaffPage() {
   const [activeDept, setActiveDept] = useState('all')
   const [fading, setFading] = useState(false)
   const location = useLocation()
-  const topRef = useRef(null)
 
   function switchDept(dept) {
     if (dept === activeDept) return
+    window.scrollTo({ top: 0, behavior: 'smooth' })
     setFading(true)
     setTimeout(() => {
       setActiveDept(dept)
       setFading(false)
-      topRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, 150)
   }
 
@@ -173,7 +172,6 @@ export default function StaffPage() {
         </div>
       )}
 
-      <div ref={topRef} />
       <div style={{ opacity: fading ? 0 : 1, transition: 'opacity 0.15s ease' }}>
         {loading ? (
           <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
