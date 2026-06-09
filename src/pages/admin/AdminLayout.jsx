@@ -44,7 +44,7 @@ export default function AdminLayout() {
   const mainRef                   = useRef(null)
 
   useEffect(() => {
-    mainRef.current?.scrollTo({ top: 0, behavior: 'instant' })
+    mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }, [location.pathname])
 
   useEffect(() => {
