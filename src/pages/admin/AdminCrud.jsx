@@ -61,8 +61,8 @@ export default function AdminCrud({ title, items = [], loading, columns, onDelet
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-lg font-bold text-gray-800">{title}</h1>
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="text-base font-bold text-gray-800">{title}</h1>
         <button onClick={openAdd} className="btn-primary text-xs">
           + เพิ่มรายการ
         </button>
@@ -112,24 +112,24 @@ export default function AdminCrud({ title, items = [], loading, columns, onDelet
           <div className="p-10 text-center text-gray-400">ยังไม่มีข้อมูล — กดปุ่ม "เพิ่มรายการ" เพื่อเริ่มต้น</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-xs">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100">
-                  <th className="px-3 py-2.5 text-left text-gray-500 font-medium w-10">#</th>
+                  <th className="px-2 py-1.5 text-left text-gray-500 font-medium w-8">#</th>
                   {columns.map(c => (
-                    <th key={c.label} className="px-3 py-2.5 text-left text-gray-500 font-medium">{c.label}</th>
+                    <th key={c.label} className="px-2 py-1.5 text-left text-gray-500 font-medium">{c.label}</th>
                   ))}
-                  <th className="px-3 py-2.5 text-right text-gray-500 font-medium w-24">จัดการ</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500 font-medium w-20">จัดการ</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item, i) => (
                   <tr key={item._id} className="border-b border-gray-50 hover:bg-gray-50/60">
-                    <td className="px-3 py-2.5 text-gray-400">{i + 1}</td>
+                    <td className="px-2 py-1.5 text-gray-400">{i + 1}</td>
                     {columns.map(c => (
-                      <td key={c.label} className="px-3 py-2.5 text-gray-700">{c.render(item)}</td>
+                      <td key={c.label} className="px-2 py-1.5 text-gray-700">{c.render(item)}</td>
                     ))}
-                    <td className="px-3 py-2.5 text-right">
+                    <td className="px-2 py-1.5 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <button onClick={() => openEdit(item)}
                           className="text-xs text-secondary hover:underline">แก้ไข</button>
