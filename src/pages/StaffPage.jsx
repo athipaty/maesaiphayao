@@ -93,17 +93,12 @@ export default function StaffPage() {
   const [depts, setDepts]     = useState(DEFAULT_DEPTS)
   const [loading, setLoading] = useState(true)
   const [activeDept, setActiveDept] = useState('all')
-  const [fading, setFading] = useState(false)
   const location = useLocation()
 
   function switchDept(dept) {
     if (dept === activeDept) return
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    setFading(true)
-    setTimeout(() => {
-      setActiveDept(dept)
-      setFading(false)
-    }, 150)
+    setActiveDept(dept)
   }
 
   useEffect(() => {
@@ -172,7 +167,7 @@ export default function StaffPage() {
         </div>
       )}
 
-      <div style={{ opacity: fading ? 0 : 1, transition: 'opacity 0.15s ease' }}>
+      <div>
         {loading ? (
           <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
         ) : staff.length === 0 ? (
