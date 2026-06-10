@@ -345,32 +345,26 @@ export default function HomePage() {
             ) : (
               <div className="divide-y divide-gray-50">
                 {egp.slice(0, 8).map((p, i) => (
-                  <div key={i} className="px-3 py-2.5 hover:bg-pink-50/40 transition-colors">
-                    {/* Line 1: number + title (1 line) + date */}
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
-                      {p.link
-                        ? <a href={p.link} target="_blank" rel="noreferrer"
-                            className="flex-1 min-w-0 text-xs text-primary hover:text-secondary font-medium truncate">{p.title}</a>
-                        : <span className="flex-1 min-w-0 text-xs text-gray-700 font-medium truncate">{p.title}</span>
-                      }
-                      {p.date && (
-                        <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
-                          {new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                        </span>
-                      )}
-                    </div>
-                    {/* Line 2: winner + amount + original link */}
-                    <div className="flex items-center gap-2 mt-1 pl-5">
-                      <span className="flex-1 min-w-0 text-[10px] text-green-700 truncate">
-                        {p.winner ? `🏆 ${p.winner}` : ''}
+                  <div key={i} className="flex items-center gap-2 px-3 py-2 hover:bg-pink-50/40 transition-colors">
+                    <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                    {p.link
+                      ? <a href={p.link} target="_blank" rel="noreferrer"
+                          className="flex-1 min-w-0 text-xs text-primary hover:text-secondary font-medium truncate">{p.title}</a>
+                      : <span className="flex-1 min-w-0 text-xs text-gray-700 font-medium truncate">{p.title}</span>
+                    }
+                    {p.winner && (
+                      <span className="hidden sm:block text-[10px] text-green-700 truncate max-w-[160px] flex-shrink-0">🏆 {p.winner}</span>
+                    )}
+                    {p.amount != null && (
+                      <span className="text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
+                        {Number(p.amount).toLocaleString('th-TH')} บาท
                       </span>
-                      {p.amount != null && (
-                        <span className="text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
-                          {Number(p.amount).toLocaleString('th-TH')} บาท
-                        </span>
-                      )}
-                    </div>
+                    )}
+                    {p.date && (
+                      <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
+                        {new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
