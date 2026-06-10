@@ -18,6 +18,7 @@ export default function HomePage() {
   const [travel, setTravel]         = useState([])
   const [prTab, setPrTab]           = useState('announcement')
   const [procTab, setProcTab]       = useState('egp')
+  const [egpOpen, setEgpOpen]       = useState({})
   const [fbPage, setFbPage]         = useState(null)
   const [lightboxItem, setLightboxItem] = useState(null)
   const [annSlide, setAnnSlide]         = useState(0)
@@ -344,29 +345,43 @@ export default function HomePage() {
               <div className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</div>
             ) : (
               <div className="divide-y divide-gray-50">
-                {egp.slice(0, 8).map((p, i) => (
-                  <div key={i} className="flex items-center gap-2 px-3 py-2 hover:bg-pink-50/40 transition-colors">
-                    <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
-                    {p.link
-                      ? <a href={p.link} target="_blank" rel="noreferrer"
-                          className="flex-1 min-w-0 text-xs text-primary hover:text-secondary font-medium truncate">{p.title}</a>
-                      : <span className="flex-1 min-w-0 text-xs text-gray-700 font-medium truncate">{p.title}</span>
-                    }
-                    {p.winner && (
-                      <span className="hidden sm:block text-[10px] text-green-700 truncate max-w-[160px] flex-shrink-0">🏆 {p.winner}</span>
-                    )}
-                    {p.amount != null && (
-                      <span className="text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
-                        {Number(p.amount).toLocaleString('th-TH')} บาท
-                      </span>
-                    )}
-                    {p.date && (
-                      <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
-                        {new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                      </span>
-                    )}
-                  </div>
-                ))}
+                {egp.slice(0, 8).map((p, i) => {
+                  const open = !!egpOpen[i]
+                  return (
+                    <div key={i} className="transition-colors">
+                      {/* Main row */}
+                      <div className="flex items-center gap-2 px-3 py-2 hover:bg-pink-50/40 cursor-pointer"
+                        onClick={() => setEgpOpen(s => ({ ...s, [i]: !s[i] }))}>
+                        <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                        {p.link
+                          ? <a href={p.link} target="_blank" rel="noreferrer"
+                              onClick={e => e.stopPropagation()}
+                              className="flex-1 min-w-0 text-xs text-primary hover:text-secondary font-medium truncate">{p.title}</a>
+                          : <span className="flex-1 min-w-0 text-xs text-gray-700 font-medium truncate">{p.title}</span>
+                        }
+                        {p.amount != null && (
+                          <span className="text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
+                            {Number(p.amount).toLocaleString('th-TH')} บาท
+                          </span>
+                        )}
+                        <span className={`text-gray-400 text-[10px] flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
+                      </div>
+                      {/* Expanded row */}
+                      {open && (
+                        <div className="flex items-center gap-3 px-3 pb-2 pl-9 bg-pink-50/30">
+                          {p.winner && (
+                            <span className="flex-1 min-w-0 text-[10px] text-green-700 truncate">🏆 {p.winner}</span>
+                          )}
+                          {p.date && (
+                            <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
+                              📅 {new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             )
           ) : (
