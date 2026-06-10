@@ -70,8 +70,8 @@ export default function HomePage() {
         setNewsletter(nl?.data || [])
         setProcNews(pn?.data || [])
 
-        // Fetch EGP W0 (ประกาศผู้ชนะ) — has winner/amount summary data
-        getEgpRss({ anounceType: 'W0' })
+        // Fetch EGP W0: serve from DB immediately, then re-fetch after backend background sync completes
+        const fetchEgp = () => getEgpRss({ anounceType: 'W0' })
           .then(r => {
             const d = r?.data || {}
             setEgp(Array.isArray(d) ? d : (d.items || []))
@@ -81,7 +81,11 @@ export default function HomePage() {
             const d = err?.response?.data || {}
             setEgpError(d.notice || d.error || 'ระบบ e-GP ไม่พร้อมให้บริการในขณะนี้')
           })
-          .finally(() => setEgpLoading(false))
+        fetchEgp().finally(() => {
+          setEgpLoading(false)
+          // Re-fetch after 6s to pick up items the backend just enriched in the background
+          setTimeout(() => fetchEgp(), 6000)
+        })
         setTravel((tv?.data || []).slice(0, 6))
       } catch (err) {
         console.error(err)
