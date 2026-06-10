@@ -1,3 +1,9 @@
+function iframeSrc(url) {
+  if (!url) return ''
+  if (url.includes('backblazeb2.com') || url.includes('drive.google.com')) return url
+  return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
+}
+
 export default function PdfPreviewPanel({ fileUrl, title }) {
   if (!fileUrl) return null
   return (
@@ -10,7 +16,7 @@ export default function PdfPreviewPanel({ fileUrl, title }) {
         </a>
       </div>
       <iframe
-        src={`https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`}
+        src={iframeSrc(fileUrl)}
         className="w-full rounded border border-gray-200"
         style={{ height: '480px' }}
         title={title || 'เอกสาร'}
