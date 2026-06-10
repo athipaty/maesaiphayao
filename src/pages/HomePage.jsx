@@ -370,12 +370,6 @@ export default function HomePage() {
                           {Number(p.amount).toLocaleString('th-TH')} บาท
                         </span>
                       )}
-                      {p.link && (
-                        <a href={p.link} target="_blank" rel="noreferrer"
-                          className="text-[10px] font-semibold text-white bg-primary hover:bg-secondary px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 transition-colors">
-                          📄 ต้นฉบับ
-                        </a>
-                      )}
                     </div>
                   </div>
                 ))}
