@@ -101,19 +101,8 @@ export default function HomePage() {
   return (
     <div>
 
-      {/* ── Combined news marquee ─────────────────────────────────────── */}
-      <div className="card">
-        <style>{`
-          @keyframes news-marquee {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-          }
-          .news-marquee {
-            animation: news-marquee ${Math.max(allNews.length * 8, 50)}s linear infinite;
-          }
-          .news-marquee:hover { animation-play-state: paused; }
-        `}</style>
-
+      {/* ── Combined news list ───────────────────────────────────────── */}
+      <div className="card p-0 overflow-hidden">
         <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-100">
           <div className="flex items-center gap-2">
             <span>📰</span>
@@ -127,42 +116,41 @@ export default function HomePage() {
         ) : allNews.length === 0 ? (
           <div className="px-4 py-6 text-center text-gray-400 text-sm">ยังไม่มีข่าวสาร</div>
         ) : (
-          <div className="overflow-hidden pt-2 pb-2">
-            <div className="news-marquee flex gap-3 w-max">
-              {[...allNews, ...allNews].map((item, i) => {
-                const img  = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
-                const dept = item.department || item._dept
-                const icon = DEPT_ICONS[dept] || '📰'
-                const label = DEPT_LABELS[dept] || ''
-                return (
-                  <Link
-                    key={i}
-                    to={`/news/detail/${item._id}`}
-                    className="w-72 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-0.5 transition-all"
-                  >
-                    <div className="relative overflow-hidden bg-blue-50" style={{ height: '210px' }}>
-                      {img
-                        ? <img src={img} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                        : <div className="w-full h-full flex items-center justify-center text-4xl opacity-40">{icon}</div>
-                      }
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-                      <span className="absolute top-2 left-2 inline-flex items-center gap-1 text-[10px] bg-white/90 text-primary font-semibold px-2 py-0.5 rounded-full shadow">
-                        {icon} {label}
-                      </span>
-                      <p className="absolute bottom-0 left-0 right-0 px-3 py-2 text-white text-xs font-semibold leading-snug drop-shadow line-clamp-2">
-                        {item.title}
-                      </p>
-                    </div>
-                    <div className="px-3 py-2 flex items-center justify-between">
-                      <span className="text-[10px] text-gray-400">
-                        📅 {new Date(item.publishedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                      </span>
-                      <span className="text-[10px] text-gray-400">👁 {item.views}</span>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
+          <div className="divide-y divide-gray-50">
+            {allNews.slice(0, 8).map((item) => {
+              const img  = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
+              const dept = item.department || item._dept
+              const icon = DEPT_ICONS[dept] || '📰'
+              const label = DEPT_LABELS[dept] || ''
+              return (
+                <Link
+                  key={item._id}
+                  to={`/news/detail/${item._id}`}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50/40 transition-colors group"
+                >
+                  <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-blue-50">
+                    {img
+                      ? <img src={img} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      : <div className="w-full h-full flex items-center justify-center text-2xl opacity-40">{icon}</div>
+                    }
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="inline-flex items-center gap-1 text-[10px] bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full mb-1">
+                      {icon} {label}
+                    </span>
+                    <p className="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+                      {item.title}
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0 text-right">
+                    <p className="text-[10px] text-gray-400 whitespace-nowrap">
+                      📅 {new Date(item.publishedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                    </p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">👁 {item.views}</p>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         )}
       </div>
