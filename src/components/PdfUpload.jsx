@@ -76,6 +76,8 @@ export default function PdfUpload({ value, label, onChange }) {
             placeholder="https://drive.google.com/file/d/.../view"
             value={urlInput}
             onChange={e => setUrlInput(e.target.value)}
+            onBlur={() => { if (urlInput.trim()) handleUrlSave() }}
+            onKeyDown={e => e.key === 'Enter' && handleUrlSave()}
           />
           <button type="button" onClick={handleUrlSave}
             className="btn-primary text-xs px-3 py-1.5">

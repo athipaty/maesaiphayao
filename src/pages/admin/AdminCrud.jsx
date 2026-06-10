@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 /**
  * Reusable CRUD table for admin pages.
@@ -17,7 +17,14 @@ export default function AdminCrud({ title, items = [], loading, columns, onDelet
   const [editing, setEditing]   = useState(null) // id being edited
   const [saving, setSaving]     = useState(false)
   const [saveErr, setSaveErr]   = useState('')
+  const [saved, setSaved]       = useState(false)
   const [deleting, setDeleting] = useState(null)
+
+  useEffect(() => {
+    if (!saved) return
+    const t = setTimeout(() => setSaved(false), 2500)
+    return () => clearTimeout(t)
+  }, [saved])
 
   function openAdd() {
     setFormData(emptyForm)
@@ -51,6 +58,7 @@ export default function AdminCrud({ title, items = [], loading, columns, onDelet
       setShowForm(false)
       setFormData(emptyForm)
       setEditing(null)
+      setSaved(true)
     } catch (err) {
       setSaveErr(err?.response?.data?.error || err?.message || 'บันทึกไม่สำเร็จ')
     } finally {
@@ -60,6 +68,13 @@ export default function AdminCrud({ title, items = [], loading, columns, onDelet
 
   return (
     <div>
+      {/* Success toast */}
+      {saved && (
+        <div className="fixed top-4 right-4 z-[9999] bg-green-500 text-white text-sm font-medium px-4 py-2.5 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in">
+          ✅ บันทึกสำเร็จ
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-base font-bold text-gray-800">{title}</h1>
@@ -95,8 +110,8 @@ export default function AdminCrud({ title, items = [], loading, columns, onDelet
               )}
               <div className="flex justify-end gap-2">
                 <button onClick={() => setShowForm(false)} className="btn-ghost text-xs">ยกเลิก</button>
-                <button onClick={handleSubmit} disabled={saving} className="btn-primary text-xs disabled:opacity-50">
-                  {saving ? 'กำลังบันทึก...' : '💾 บันทึก'}
+                <button onClick={handleSubmit} disabled={saving} className="btn-primary text-xs disabled:opacity-50 min-w-[90px]">
+                  {saving ? '⏳ กำลังบันทึก...' : '💾 บันทึก'}
                 </button>
               </div>
             </div>
