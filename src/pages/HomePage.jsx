@@ -20,6 +20,7 @@ export default function HomePage() {
   const [procTab, setProcTab]       = useState('egp')
   const [egpOpen, setEgpOpen]       = useState({})
   const [notices, setNotices]       = useState([])
+  const [noticeOpen, setNoticeOpen] = useState({})
   const [fbPage, setFbPage]         = useState(null)
   const [lightboxItem, setLightboxItem] = useState(null)
   const [annSlide, setAnnSlide]         = useState(0)
@@ -320,24 +321,48 @@ export default function HomePage() {
             </div>
           </div>
           <div className="divide-y divide-gray-50">
-            {notices.slice(0, 8).map((n, i) => (
-              <div key={n._id} className="flex items-center gap-2 px-4 py-2.5 hover:bg-blue-50/40 transition-colors">
-                <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
-                <span className="flex-1 min-w-0 text-xs text-gray-800 font-medium truncate">{n.title}</span>
-                {n.topic && (
-                  <span className="hidden sm:inline text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">{n.topic}</span>
-                )}
-                {n.fileUrl && (
-                  <a href={n.fileUrl} target="_blank" rel="noreferrer"
-                    className="text-[10px] font-semibold text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 transition-colors">
-                    📄 PDF
-                  </a>
-                )}
-                <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
-                  {new Date(n.publishedAt || n.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                </span>
-              </div>
-            ))}
+            {notices.slice(0, 5).map((n, i) => {
+              const open = !!noticeOpen[n._id]
+              return (
+                <div key={n._id}>
+                  {/* Row */}
+                  <div
+                    className="flex items-center gap-2 px-4 py-2.5 hover:bg-blue-50/40 transition-colors cursor-pointer"
+                    onClick={() => n.fileUrl && setNoticeOpen(s => ({ ...s, [n._id]: !s[n._id] }))}
+                  >
+                    <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                    <span className="flex-1 min-w-0 text-xs text-gray-800 font-medium truncate">{n.title}</span>
+                    {n.topic && (
+                      <span className="hidden sm:inline text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">{n.topic}</span>
+                    )}
+                    <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
+                      {new Date(n.publishedAt || n.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                    </span>
+                    {n.fileUrl && (
+                      <span className={`text-[10px] text-gray-400 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
+                    )}
+                  </div>
+                  {/* PDF preview */}
+                  {open && n.fileUrl && (
+                    <div className="px-4 pb-3 bg-blue-50/30">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] text-gray-400">📄 ตัวอย่างเอกสาร</span>
+                        <a href={n.fileUrl} target="_blank" rel="noreferrer"
+                          className="text-[10px] font-semibold text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors">
+                          เปิดใน Tab ใหม่ ↗
+                        </a>
+                      </div>
+                      <iframe
+                        src={n.fileUrl}
+                        className="w-full rounded border border-gray-200"
+                        style={{ height: '480px' }}
+                        title={n.title}
+                      />
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
       )}
