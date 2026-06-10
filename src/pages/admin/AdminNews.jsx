@@ -18,22 +18,26 @@ const EMPTY = { title: '', content: '', images: [], department: 'council', publi
 export default function AdminNews() {
   const [items, setItems]       = useState([])
   const [loading, setLoading]   = useState(true)
+  const [loadErr, setLoadErr]   = useState('')
   const [filterDept, setFilterDept] = useState('all')
 
   async function load() {
     setLoading(true)
+    setLoadErr('')
     try {
       const r = await getNews({ all: 1 })
-      // normalize — ถ้าไม่มี images ให้ใช้ image เดิม
-      const normalized = (r?.data || []).map(item => ({
+      const normalized = (Array.isArray(r?.data) ? r.data : []).map(item => ({
         ...item,
         images: Array.isArray(item.images) && item.images.length > 0
           ? item.images
           : item.image ? [item.image] : []
       }))
       setItems(normalized)
+    } catch (err) {
+      setLoadErr(err?.response?.data?.error || err?.message || 'โหลดข้อมูลไม่สำเร็จ')
+    } finally {
+      setLoading(false)
     }
-    finally { setLoading(false) }
   }
 
   useEffect(() => { load() }, [])
@@ -75,6 +79,14 @@ export default function AdminNews() {
   const filtered = filterDept === 'all'
     ? items
     : items.filter(i => i.department === filterDept)
+
+  if (loadErr) return (
+    <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
+      <span className="text-3xl">⚠️</span>
+      <p className="text-sm text-gray-500">{loadErr}</p>
+      <button onClick={load} className="btn-primary text-xs">🔄 ลองใหม่</button>
+    </div>
+  )
 
   return (
     <>

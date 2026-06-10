@@ -1,4 +1,19 @@
-import { useState, lazy, Suspense, useEffect } from "react";
+import { useState, lazy, Suspense, useEffect, Component } from "react";
+
+class ChunkErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { err: null } }
+  static getDerivedStateFromError(err) { return { err } }
+  render() {
+    if (this.state.err) return (
+      <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
+        <span className="text-3xl">⚠️</span>
+        <p className="text-sm text-gray-500">โหลดหน้าไม่สำเร็จ กรุณาลองใหม่</p>
+        <button onClick={() => this.setState({ err: null })} className="btn-primary text-xs">🔄 ลองใหม่</button>
+      </div>
+    )
+    return this.props.children
+  }
+}
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 function ScrollToTop() {
@@ -133,21 +148,21 @@ export default function App() {
         {/* Admin panel */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/pages" replace />} />
-          <Route path="news"             element={<Suspense fallback={null}><AdminNews /></Suspense>} />
-          <Route path="announcements"    element={<Suspense fallback={null}><AdminAnnounce /></Suspense>} />
-          <Route path="procurement"      element={<Suspense fallback={null}><AdminProcurement /></Suspense>} />
-          <Route path="procurement-plans" element={<Suspense fallback={null}><AdminProcurementPlan /></Suspense>} />
-          <Route path="staff"            element={<Suspense fallback={null}><AdminStaff /></Suspense>} />
-          <Route path="travel"           element={<Suspense fallback={null}><AdminTravel /></Suspense>} />
-          <Route path="products"         element={<Suspense fallback={null}><AdminProducts /></Suspense>} />
-          <Route path="ita"              element={<Suspense fallback={null}><AdminIta /></Suspense>} />
-          <Route path="eservice"         element={<Suspense fallback={null}><AdminEService /></Suspense>} />
-          <Route path="complaints"       element={<Suspense fallback={null}><AdminComplaint /></Suspense>} />
-          <Route path="documents"        element={<Suspense fallback={null}><AdminDocument /></Suspense>} />
-          <Route path="banners"          element={<Suspense fallback={null}><AdminBanners /></Suspense>} />
-          <Route path="settings"         element={<Suspense fallback={null}><AdminSettings /></Suspense>} />
-          <Route path="pages"            element={<Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm animate-pulse">กำลังโหลด...</div>}><AdminPages /></Suspense>} />
-          <Route path="contact"          element={<Suspense fallback={null}><AdminContactMessages /></Suspense>} />
+          <Route path="news"             element={<ChunkErrorBoundary><Suspense fallback={null}><AdminNews /></Suspense></ChunkErrorBoundary>} />
+          <Route path="announcements"    element={<ChunkErrorBoundary><Suspense fallback={null}><AdminAnnounce /></Suspense></ChunkErrorBoundary>} />
+          <Route path="procurement"      element={<ChunkErrorBoundary><Suspense fallback={null}><AdminProcurement /></Suspense></ChunkErrorBoundary>} />
+          <Route path="procurement-plans" element={<ChunkErrorBoundary><Suspense fallback={null}><AdminProcurementPlan /></Suspense></ChunkErrorBoundary>} />
+          <Route path="staff"            element={<ChunkErrorBoundary><Suspense fallback={null}><AdminStaff /></Suspense></ChunkErrorBoundary>} />
+          <Route path="travel"           element={<ChunkErrorBoundary><Suspense fallback={null}><AdminTravel /></Suspense></ChunkErrorBoundary>} />
+          <Route path="products"         element={<ChunkErrorBoundary><Suspense fallback={null}><AdminProducts /></Suspense></ChunkErrorBoundary>} />
+          <Route path="ita"              element={<ChunkErrorBoundary><Suspense fallback={null}><AdminIta /></Suspense></ChunkErrorBoundary>} />
+          <Route path="eservice"         element={<ChunkErrorBoundary><Suspense fallback={null}><AdminEService /></Suspense></ChunkErrorBoundary>} />
+          <Route path="complaints"       element={<ChunkErrorBoundary><Suspense fallback={null}><AdminComplaint /></Suspense></ChunkErrorBoundary>} />
+          <Route path="documents"        element={<ChunkErrorBoundary><Suspense fallback={null}><AdminDocument /></Suspense></ChunkErrorBoundary>} />
+          <Route path="banners"          element={<ChunkErrorBoundary><Suspense fallback={null}><AdminBanners /></Suspense></ChunkErrorBoundary>} />
+          <Route path="settings"         element={<ChunkErrorBoundary><Suspense fallback={null}><AdminSettings /></Suspense></ChunkErrorBoundary>} />
+          <Route path="pages"            element={<ChunkErrorBoundary><Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm animate-pulse">กำลังโหลด...</div>}><AdminPages /></Suspense></ChunkErrorBoundary>} />
+          <Route path="contact"          element={<ChunkErrorBoundary><Suspense fallback={null}><AdminContactMessages /></Suspense></ChunkErrorBoundary>} />
         </Route>
       </Routes>
     </>
