@@ -1,29 +1,36 @@
-﻿import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { getNews, getAnnouncements, getProcurement, getTravel, getFacebookPage, getEgpRss, getNotices } from '../services/api'
-import { NewsSection, DEPT_LABELS, DEPT_ICONS } from '../components/NewsSection'
+import { DEPT_LABELS, DEPT_ICONS } from '../components/NewsSection'
 
 const DEPARTMENTS = ['council', 'office', 'disaster', 'health', 'engineering', 'finance']
 
+function SectionDivider({ label }) {
+  return (
+    <div className="flex items-center gap-3 my-1">
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+      <span className="text-[11px] text-gray-400 font-medium tracking-wide px-1">{label}</span>
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+    </div>
+  )
+}
+
 export default function HomePage() {
-  const [allNews, setAllNews]       = useState([])
   const [deptNews, setDeptNews]     = useState({})
   const [announce, setAnnounce]     = useState([])
   const [newsletter, setNewsletter] = useState([])
   const [egp, setEgp]               = useState([])
   const [egpLoading, setEgpLoading] = useState(true)
   const [egpError, setEgpError]     = useState('')
-  const [procNews, setProcNews]     = useState([])
   const [loading, setLoading]       = useState(true)
   const [travel, setTravel]         = useState([])
-  const [prTab, setPrTab]           = useState('announcement')
-  const [procTab, setProcTab]       = useState('egp')
   const [egpOpen, setEgpOpen]       = useState({})
   const [notices, setNotices]       = useState([])
   const [noticeOpen, setNoticeOpen] = useState({})
   const [fbPage, setFbPage]         = useState(null)
   const [lightboxItem, setLightboxItem] = useState(null)
   const [annSlide, setAnnSlide]         = useState(0)
+  const [newsDept, setNewsDept]         = useState('council')
   const fbContainerRef = useRef(null)
   const [fbScale, setFbScale] = useState(1)
 
@@ -51,30 +58,22 @@ export default function HomePage() {
         const deptResults = await Promise.all(
           DEPARTMENTS.map(dept => getNews({ dept, limit: 3 }))
         )
-        const flat = []
         const map = {}
         DEPARTMENTS.forEach((dept, i) => {
-          const items = deptResults[i]?.data || []
-          map[dept] = items
-          items.forEach(item => flat.push({ ...item, _dept: dept }))
+          map[dept] = deptResults[i]?.data || []
         })
-        flat.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
-        setAllNews(flat)
         setDeptNews(map)
 
-        const [ann, nl, pn, tv] = await Promise.all([
+        const [ann, nl, tv] = await Promise.all([
           getAnnouncements({ type: 'announcement' }),
           getAnnouncements({ type: 'newsletter' }),
-          getProcurement({ type: 'news' }),
           getTravel({ limit: 6 }),
         ])
         getFacebookPage().then(r => setFbPage(r?.data)).catch(() => {})
         getNotices().then(r => setNotices(Array.isArray(r?.data) ? r.data : [])).catch(() => {})
         setAnnounce(ann?.data || [])
         setNewsletter(nl?.data || [])
-        setProcNews(pn?.data || [])
 
-        // Fetch EGP W0: serve from DB immediately, then re-fetch after backend background sync completes
         const fetchEgp = () => getEgpRss({ anounceType: 'W0' })
           .then(r => {
             const d = r?.data || {}
@@ -87,7 +86,6 @@ export default function HomePage() {
           })
         fetchEgp().finally(() => {
           setEgpLoading(false)
-          // Re-fetch after 6s to pick up items the backend just enriched in the background
           setTimeout(() => fetchEgp(), 6000)
         })
         setTravel((tv?.data || []).slice(0, 6))
@@ -111,128 +109,164 @@ export default function HomePage() {
     return () => clearInterval(timer)
   }, [annItems.length])
 
+  const currentNews = deptNews[newsDept] || []
+
   return (
     <div>
 
-      {/* ── Per-department news sections ─────────────────────────────── */}
-      {DEPARTMENTS.map(dept => (
-        <NewsSection key={dept} dept={dept} items={deptNews[dept] || []} loading={loading} />
-      ))}
+      {/* ── ข่าวสารกิจกรรม (tabbed by department) ───────────────────── */}
+      <SectionDivider label="📰 ข่าวสารกิจกรรม" />
+      <div className="card p-0 overflow-hidden">
+        {/* Header */}
+        <div className="section-head">
+          <div className="flex items-center gap-2">
+            <span className="text-base">{DEPT_ICONS[newsDept] || '📰'}</span>
+            <span className="text-sm font-semibold">{DEPT_LABELS[newsDept] || 'ข่าวสารกิจกรรม'}</span>
+          </div>
+          <Link to={`/news/${newsDept}`} className="text-xs bg-white/20 hover:bg-white/35 transition-colors px-3 py-1 rounded-full">
+            ดูทั้งหมด »
+          </Link>
+        </div>
 
-      {/* ── Announcement marquee — mobile only (desktop shows in Facebook right panel) ── */}
-      {annItems.length > 0 && (() => {
-        return (
-          <div className="card lg:hidden">
-            <style>{`
-              @keyframes ann-marquee {
-                0%   { transform: translateX(0); }
-                100% { transform: translateX(-50%); }
-              }
-              .ann-marquee {
-                animation: ann-marquee ${Math.max(annItems.length * 8, 50)}s linear infinite;
-              }
-              .ann-marquee:hover { animation-play-state: paused; }
-            `}</style>
+        {/* Department pill tabs — horizontal scroll */}
+        <div className="flex gap-1.5 px-3 py-2 overflow-x-auto border-b border-gray-100"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {DEPARTMENTS.map(dept => (
+            <button key={dept}
+              onClick={() => setNewsDept(dept)}
+              className={`flex-shrink-0 text-[11px] px-2.5 py-1 rounded-full border font-medium transition-all duration-150 ${
+                newsDept === dept
+                  ? 'bg-primary text-white border-primary shadow-sm'
+                  : 'border-gray-200 text-gray-500 hover:border-primary/50 hover:text-primary bg-white'
+              }`}>
+              {DEPT_ICONS[dept]} {DEPT_LABELS[dept]}
+            </button>
+          ))}
+        </div>
 
-            <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-100">
-              <div className="flex items-center gap-2">
-                <span>📢</span>
-                <span className="text-sm font-semibold text-primary">ข่าวประชาสัมพันธ์ &amp; จดหมายข่าว</span>
-              </div>
-              <Link to="/announcements" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
-            </div>
-
-            <div className="overflow-hidden pt-2 pb-3">
-              <div className="ann-marquee flex gap-3 w-max px-3">
-                {[...annItems, ...annItems].map((item, i) => (
-                  <div
-                    key={i}
-                    onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
-                    className="w-52 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
-                  >
-                    {/* Image — tall portrait, object-contain shows full image without cropping */}
-                    <div className="relative overflow-hidden" style={{
-                      height: '300px',
-                      background: item.image
-                        ? '#f1f5f9'
-                        : item._kind === 'newsletter'
-                          ? 'linear-gradient(135deg,#065f46 0%,#059669 60%,#34d399 100%)'
-                          : 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)'
-                    }}>
-                      {item.image ? (
-                        <img src={item.image} alt={item.title}
-                          className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-300">
-                            {item._kind === 'newsletter' ? '📰' : '📄'}
-                          </span>
-                        </div>
-                      )}
-                      {/* Thin top gradient for badge readability only */}
-                      <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-black/40 to-transparent" />
-                      <span className="absolute top-2 left-2 text-[10px] font-bold bg-white/90 text-primary px-2 py-0.5 rounded-full z-10">
-                        {item._kind === 'newsletter' ? '📰 จดหมายข่าว' : '📢 ประชาสัมพันธ์'}
-                      </span>
-                      {item.image && (
-                        <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                          <span className="bg-black/50 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">🔍 ดูรูปภาพ</span>
-                        </span>
-                      )}
+        {/* News cards */}
+        {loading ? (
+          <div className="p-8 text-center text-gray-400 text-sm animate-pulse">กำลังโหลด...</div>
+        ) : currentNews.length === 0 ? (
+          <div className="p-8 text-center text-gray-400 text-sm">ยังไม่มีข่าวสาร</div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-3">
+            {currentNews.slice(0, 3).map(item => {
+              const img = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
+              return (
+                <Link to={`/news/detail/${item._id}`} key={item._id}
+                  className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group">
+                  {img ? (
+                    <img src={img} alt={item.title} className="w-full h-36 object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+                  ) : (
+                    <div className="w-full h-36 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center text-3xl">
+                      {DEPT_ICONS[newsDept] || '📰'}
                     </div>
-                    {/* Title + date + PDF link below image */}
-                    <div className="px-3 py-2.5">
-                      <p className="text-xs font-semibold text-gray-800 line-clamp-2 leading-snug mb-1.5 group-hover:text-primary transition-colors">
-                        {item.title}
-                      </p>
-                      <div className="flex items-center justify-between gap-2">
-                        {item.createdAt && (
-                          <p className="text-[10px] text-gray-400">
-                            📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                          </p>
-                        )}
-                        {item.fileUrl && (
-                          <a href={item.fileUrl} target="_blank" rel="noreferrer"
-                            onClick={e => e.stopPropagation()}
-                            className="text-[10px] font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors flex-shrink-0">
-                            📄 PDF
-                          </a>
-                        )}
-                      </div>
+                  )}
+                  <div className="p-2.5">
+                    <h3 className="text-xs font-semibold text-gray-800 line-clamp-2 leading-snug mb-1.5 group-hover:text-primary transition-colors">{item.title}</h3>
+                    <div className="flex items-center justify-between text-[10px] text-gray-400">
+                      <span>👁 {item.views}</span>
+                      <span>{new Date(item.publishedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}</span>
                     </div>
                   </div>
-                ))}
-              </div>
+                </Link>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ── ประชาสัมพันธ์ ─────────────────────────────────────────────── */}
+      <SectionDivider label="📢 ประชาสัมพันธ์" />
+
+      {/* Announcement marquee — mobile only */}
+      {annItems.length > 0 && (
+        <div className="card lg:hidden p-0 overflow-hidden">
+          <style>{`
+            @keyframes ann-marquee {
+              0%   { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            .ann-marquee {
+              animation: ann-marquee ${Math.max(annItems.length * 8, 50)}s linear infinite;
+            }
+            .ann-marquee:hover { animation-play-state: paused; }
+          `}</style>
+
+          <div className="section-head">
+            <div className="flex items-center gap-2">
+              <span>📢</span>
+              <span className="text-sm font-semibold">ข่าวประชาสัมพันธ์ &amp; จดหมายข่าว</span>
+            </div>
+            <Link to="/announcements" className="text-xs bg-white/20 hover:bg-white/35 px-3 py-1 rounded-full">ดูทั้งหมด »</Link>
+          </div>
+
+          <div className="overflow-hidden pt-2 pb-3">
+            <div className="ann-marquee flex gap-3 w-max px-3">
+              {[...annItems, ...annItems].map((item, i) => (
+                <div key={i}
+                  onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
+                  className="w-52 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer">
+                  <div className="relative overflow-hidden" style={{
+                    height: '300px',
+                    background: item.image ? '#f1f5f9'
+                      : item._kind === 'newsletter'
+                        ? 'linear-gradient(135deg,#065f46 0%,#059669 60%,#34d399 100%)'
+                        : 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)'
+                  }}>
+                    {item.image ? (
+                      <img src={item.image} alt={item.title}
+                        className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-6xl opacity-40">{item._kind === 'newsletter' ? '📰' : '📄'}</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-black/40 to-transparent" />
+                    <span className="absolute top-2 left-2 text-[10px] font-bold bg-white/90 text-primary px-2 py-0.5 rounded-full z-10">
+                      {item._kind === 'newsletter' ? '📰 จดหมายข่าว' : '📢 ประชาสัมพันธ์'}
+                    </span>
+                  </div>
+                  <div className="px-3 py-2.5">
+                    <p className="text-xs font-semibold text-gray-800 line-clamp-2 leading-snug mb-1.5 group-hover:text-primary transition-colors">{item.title}</p>
+                    <div className="flex items-center justify-between gap-2">
+                      {item.createdAt && (
+                        <p className="text-[10px] text-gray-400">
+                          📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                        </p>
+                      )}
+                      {item.fileUrl && (
+                        <a href={item.fileUrl} target="_blank" rel="noreferrer"
+                          onClick={e => e.stopPropagation()}
+                          className="text-[10px] font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors flex-shrink-0">
+                          📄 PDF
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        )
-      })()}
+        </div>
+      )}
 
-      {/* ── Facebook ─────────────────────────────────────────────────── */}
+      {/* Facebook + Announcement slideshow */}
       <div className="card p-0 overflow-hidden">
         <div className="flex flex-col lg:flex-row">
-          {/* Left: Facebook iframe — full width on mobile, half on desktop */}
           <div ref={fbContainerRef} className="overflow-hidden lg:w-1/2"
             style={{ height: `${Math.round(500 * fbScale)}px` }}>
             <iframe
               src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false"
-              style={{
-                border: 'none',
-                width: '500px',
-                height: '500px',
-                display: 'block',
-                transform: `scale(${fbScale})`,
-                transformOrigin: 'top left',
-              }}
-              frameBorder="0"
-              allowFullScreen
+              style={{ border: 'none', width: '500px', height: '500px', display: 'block', transform: `scale(${fbScale})`, transformOrigin: 'top left' }}
+              frameBorder="0" allowFullScreen
               allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
               sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox"
               title="Facebook Page อบต.แม่ใส"
             />
           </div>
 
-          {/* Right: Announcement slideshow — desktop only */}
           <div className="hidden lg:block flex-1 relative overflow-hidden"
             style={{ height: `${Math.round(500 * fbScale)}px` }}>
             <style>{`
@@ -244,15 +278,13 @@ export default function HomePage() {
               .ann-dot:nth-child(2) { animation-delay: 0.2s; }
               .ann-dot:nth-child(3) { animation-delay: 0.4s; }
             `}</style>
-
             {annItems.length > 0 ? (
               <>
                 {annItems.map((item, i) => (
                   <div key={i}
                     className={`absolute inset-0 transition-opacity duration-700 ${i === annSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
                     onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
-                    style={{ cursor: item.image || item.fileUrl ? 'pointer' : 'default' }}
-                  >
+                    style={{ cursor: item.image || item.fileUrl ? 'pointer' : 'default' }}>
                     {item.image ? (
                       <img src={item.image} alt={item.title} className="w-full h-full object-contain" style={{ background: '#111' }} />
                     ) : (
@@ -282,18 +314,12 @@ export default function HomePage() {
                     </div>
                   </div>
                 ))}
-
-                {/* Slide indicator dots */}
                 <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-30">
                   {annItems.map((_, i) => (
-                    <button key={i}
-                      onClick={() => setAnnSlide(i)}
-                      className={`rounded-full transition-all duration-300 ${i === annSlide ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/75'}`}
-                    />
+                    <button key={i} onClick={() => setAnnSlide(i)}
+                      className={`rounded-full transition-all duration-300 ${i === annSlide ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/75'}`} />
                   ))}
                 </div>
-
-                {/* Header label */}
                 <div className="absolute top-0 left-0 right-0 px-4 pt-3 pb-6 bg-gradient-to-b from-black/50 to-transparent z-20 flex items-center justify-between">
                   <span className="text-xs font-semibold text-white/90">📢 ข่าวประชาสัมพันธ์ &amp; จดหมายข่าว</span>
                   <Link to="/announcements" className="text-[10px] text-white/70 hover:text-white transition-colors">ดูทั้งหมด →</Link>
@@ -311,197 +337,186 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── Notices (หัวข้อประกาศ) ───────────────────────────────────── */}
-      {notices.length > 0 && (
-        <div className="card p-0 overflow-hidden">
-          <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <span>📋</span>
-              <span className="text-sm font-semibold text-primary">หัวข้อประกาศ</span>
-            </div>
-          </div>
-          <div className="divide-y divide-gray-50">
-            {notices.slice(0, 5).map((n, i) => {
-              const open = !!noticeOpen[n._id]
-              return (
-                <div key={n._id}>
-                  {/* Row */}
-                  <div
-                    className="flex items-center gap-2 px-4 py-2.5 hover:bg-blue-50/40 transition-colors cursor-pointer"
-                    onClick={() => setNoticeOpen(s => ({ ...s, [n._id]: !s[n._id] }))}
-                  >
-                    <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
-                    <span className="flex-1 min-w-0 text-xs text-gray-800 font-medium truncate">{n.title}</span>
-                    {n.topic && (
-                      <span className="hidden sm:inline text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">{n.topic}</span>
-                    )}
-                    <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
-                      {new Date(n.publishedAt || n.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                    </span>
-                    {n.fileUrl && (
-                      <span className={`text-[10px] text-gray-400 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
-                    )}
-                  </div>
-                  {/* PDF preview */}
-                  {open && (
-                    n.fileUrl ? (
-                      <div className="px-4 pb-3 bg-blue-50/30">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[10px] text-gray-400">📄 ตัวอย่างเอกสาร</span>
-                          <a href={n.fileUrl} target="_blank" rel="noreferrer"
-                            className="text-[10px] font-semibold text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors">
-                            เปิดใน Tab ใหม่ ↗
-                          </a>
-                        </div>
-                        <iframe
-                          src={`https://docs.google.com/viewer?url=${encodeURIComponent(n.fileUrl)}&embedded=true`}
-                          className="w-full rounded border border-gray-200"
-                          style={{ height: '480px' }}
-                          title={n.title}
-                        />
-                      </div>
-                    ) : (
-                      <div className="px-4 pb-3 text-[11px] text-gray-400">ไม่มีไฟล์แนบ</div>
-                    )
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
+      {/* ── หัวข้อประกาศ + e-GP ──────────────────────────────────────── */}
+      <SectionDivider label="📋 ประกาศและจัดซื้อจัดจ้าง" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
 
-      {/* ── Procurement e-GP ─────────────────────────────────────────── */}
-      <div className="card p-0 overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-100 flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <span>📦</span>
-            <span className="text-sm font-semibold text-primary">ระบบ e-GP (เรียลไทม์)</span>
-          </div>
-          <Link to="/procurement" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
-        </div>
-
-        <div className="overflow-y-auto flex-1" style={{ maxHeight: '460px' }}>
-          {egpLoading ? (
-            <div className="px-3 py-4 text-center text-gray-400 text-sm animate-pulse">กำลังดึงข้อมูลจากระบบ e-GP...</div>
-          ) : egpError ? (
-            <div className="px-3 py-4 text-center">
-              <span className="text-2xl">🔧</span>
-              <p className="text-gray-400 text-sm mt-2">{egpError}</p>
-              <p className="text-gray-300 text-xs mt-1">เปิดให้บริการ 17:01–08:59 น.</p>
+        {/* Notices */}
+        {notices.length > 0 && (
+          <div className="card p-0 overflow-hidden">
+            <div className="section-head">
+              <div className="flex items-center gap-2">
+                <span>📋</span>
+                <span className="text-sm font-semibold">หัวข้อประกาศ</span>
+              </div>
+              <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{notices.length} รายการ</span>
             </div>
-          ) : egp.length === 0 ? (
-            <div className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</div>
-          ) : (
             <div className="divide-y divide-gray-50">
-              {egp.slice(0, 8).map((p, i) => {
-                const open = !!egpOpen[i]
+              {notices.slice(0, 5).map((n, i) => {
+                const open = !!noticeOpen[n._id]
                 return (
-                  <div key={i} className="transition-colors">
-                    <div className="flex items-center gap-2 px-3 py-2 hover:bg-pink-50/40 cursor-pointer"
-                      onClick={() => setEgpOpen(s => ({ ...s, [i]: !s[i] }))}>
-                      <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
-                      {p.link
-                        ? <a href={p.link} target="_blank" rel="noreferrer"
-                            onClick={e => e.stopPropagation()}
-                            className="flex-1 min-w-0 text-xs text-primary hover:text-secondary font-medium truncate">{p.title}</a>
-                        : <span className="flex-1 min-w-0 text-xs text-gray-700 font-medium truncate">{p.title}</span>
-                      }
-                      {p.amount != null && (
-                        <span className="text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
-                          {Number(p.amount).toLocaleString('th-TH')} บาท
-                        </span>
+                  <div key={n._id}>
+                    <div
+                      className="flex items-center gap-2 px-4 py-2.5 hover:bg-blue-50/40 transition-colors cursor-pointer"
+                      onClick={() => setNoticeOpen(s => ({ ...s, [n._id]: !s[n._id] }))}>
+                      <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                      <span className="flex-1 min-w-0 text-xs text-gray-800 font-medium truncate">{n.title}</span>
+                      {n.topic && (
+                        <span className="hidden sm:inline text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">{n.topic}</span>
                       )}
-                      <span className={`text-gray-400 text-[10px] flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
+                      <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
+                        {new Date(n.publishedAt || n.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                      </span>
+                      <span className={`text-[10px] text-gray-400 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
                     </div>
                     {open && (
-                      <div className="flex items-center gap-3 px-3 pb-2 pl-9 bg-pink-50/30">
-                        {p.winner && (
-                          <span className="flex-1 min-w-0 text-[10px] text-green-700 truncate">🏆 {p.winner}</span>
-                        )}
-                        {p.date && (
-                          <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
-                            📅 {new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                          </span>
-                        )}
-                      </div>
+                      n.fileUrl ? (
+                        <div className="px-4 pb-3 bg-blue-50/30">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-[10px] text-gray-400">📄 ตัวอย่างเอกสาร</span>
+                            <a href={n.fileUrl} target="_blank" rel="noreferrer"
+                              className="text-[10px] font-semibold text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors">
+                              เปิดใน Tab ใหม่ ↗
+                            </a>
+                          </div>
+                          <iframe
+                            src={`https://docs.google.com/viewer?url=${encodeURIComponent(n.fileUrl)}&embedded=true`}
+                            className="w-full rounded border border-gray-200"
+                            style={{ height: '420px' }}
+                            title={n.title}
+                          />
+                        </div>
+                      ) : (
+                        <div className="px-4 pb-3 text-[11px] text-gray-400">ไม่มีไฟล์แนบ</div>
+                      )
                     )}
                   </div>
                 )
               })}
             </div>
-          )}
+          </div>
+        )}
+
+        {/* e-GP */}
+        <div className="card p-0 overflow-hidden flex flex-col">
+          <div className="section-head flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <span>📦</span>
+              <span className="text-sm font-semibold">ระบบ e-GP (เรียลไทม์)</span>
+            </div>
+            <Link to="/procurement" className="text-xs bg-white/20 hover:bg-white/35 px-3 py-1 rounded-full">ดูทั้งหมด »</Link>
+          </div>
+          <div className="overflow-y-auto flex-1" style={{ maxHeight: '420px' }}>
+            {egpLoading ? (
+              <div className="px-3 py-4 text-center text-gray-400 text-sm animate-pulse">กำลังดึงข้อมูลจากระบบ e-GP...</div>
+            ) : egpError ? (
+              <div className="px-3 py-6 text-center">
+                <span className="text-2xl">🔧</span>
+                <p className="text-gray-400 text-sm mt-2">{egpError}</p>
+                <p className="text-gray-300 text-xs mt-1">เปิดให้บริการ 17:01–08:59 น.</p>
+              </div>
+            ) : egp.length === 0 ? (
+              <div className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</div>
+            ) : (
+              <div className="divide-y divide-gray-50">
+                {egp.slice(0, 8).map((p, i) => {
+                  const open = !!egpOpen[i]
+                  return (
+                    <div key={i}>
+                      <div className="flex items-center gap-2 px-3 py-2 hover:bg-pink-50/40 cursor-pointer"
+                        onClick={() => setEgpOpen(s => ({ ...s, [i]: !s[i] }))}>
+                        <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                        {p.link
+                          ? <a href={p.link} target="_blank" rel="noreferrer"
+                              onClick={e => e.stopPropagation()}
+                              className="flex-1 min-w-0 text-xs text-primary hover:text-secondary font-medium truncate">{p.title}</a>
+                          : <span className="flex-1 min-w-0 text-xs text-gray-700 font-medium truncate">{p.title}</span>
+                        }
+                        {p.amount != null && (
+                          <span className="text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
+                            {Number(p.amount).toLocaleString('th-TH')} บาท
+                          </span>
+                        )}
+                        <span className={`text-gray-400 text-[10px] flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
+                      </div>
+                      {open && (
+                        <div className="flex items-center gap-3 px-3 pb-2 pl-9 bg-pink-50/30">
+                          {p.winner && <span className="flex-1 min-w-0 text-[10px] text-green-700 truncate">🏆 {p.winner}</span>}
+                          {p.date && (
+                            <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
+                              📅 {new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* ── Travel marquee ────────────────────────────────────────────── */}
+      {/* ── สถานที่ท่องเที่ยว ─────────────────────────────────────────── */}
       {travel.length > 0 && (
-        <div className="card">
-          <style>{`
-            @keyframes marquee {
-              0%   { transform: translateX(0); }
-              100% { transform: translateX(-50%); }
-            }
-            .travel-marquee {
-              animation: marquee ${Math.max(travel.length * 8, 50)}s linear infinite;
-            }
-            .travel-marquee:hover { animation-play-state: paused; }
-          `}</style>
+        <>
+          <SectionDivider label="🗺️ ท่องเที่ยว" />
+          <div className="card p-0 overflow-hidden">
+            <style>{`
+              @keyframes marquee {
+                0%   { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+              }
+              .travel-marquee {
+                animation: marquee ${Math.max(travel.length * 8, 50)}s linear infinite;
+              }
+              .travel-marquee:hover { animation-play-state: paused; }
+            `}</style>
 
-          <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <span>🗺️</span>
-              <span className="text-sm font-semibold text-primary">แนะนำสถานที่ท่องเที่ยว</span>
+            <div className="section-head">
+              <div className="flex items-center gap-2">
+                <span>🗺️</span>
+                <span className="text-sm font-semibold">แนะนำสถานที่ท่องเที่ยว</span>
+              </div>
+              <Link to="/travel" className="text-xs bg-white/20 hover:bg-white/35 px-3 py-1 rounded-full">ดูทั้งหมด »</Link>
             </div>
-            <Link to="/travel" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
-          </div>
 
-          <div className="overflow-hidden pt-3 pb-4">
-            <div className="travel-marquee flex gap-3 w-max">
-              {[...travel, ...travel].map((item, i) => {
-                const mainImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
-                return (
-                  <div key={i} className="w-72 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
-                    <div className="relative overflow-hidden bg-teal-50" style={{ height: '210px' }}>
-                      {mainImg
-                        ? <img src={mainImg} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                        : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🏞️</div>
-                      }
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 px-3 py-2">
-                        <p className="text-white text-xs font-semibold leading-snug drop-shadow line-clamp-2">{item.title}</p>
+            <div className="overflow-hidden pt-3 pb-4">
+              <div className="travel-marquee flex gap-3 w-max px-3">
+                {[...travel, ...travel].map((item, i) => {
+                  const mainImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
+                  return (
+                    <div key={i} className="w-72 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
+                      <div className="relative overflow-hidden bg-teal-50" style={{ height: '210px' }}>
+                        {mainImg
+                          ? <img src={mainImg} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                          : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🏞️</div>
+                        }
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 px-3 py-2">
+                          <p className="text-white text-xs font-semibold leading-snug drop-shadow line-clamp-2">{item.title}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* ── Lightbox ─────────────────────────────────────────────────── */}
       {lightboxItem && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          onClick={() => setLightboxItem(null)}
-        >
-          {/* Blurred backdrop */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => setLightboxItem(null)}>
           <div className="absolute inset-0 bg-black/75 backdrop-blur-md" />
-
-          {/* Image container */}
-          <div
-            className="relative max-w-3xl w-full max-h-[90vh] flex flex-col items-center"
-            onClick={e => e.stopPropagation()}
-          >
-            <img
-              src={lightboxItem.image}
-              alt={lightboxItem.title}
-              className="max-h-[80vh] max-w-full w-auto rounded-2xl shadow-2xl object-contain"
-            />
-            <p className="mt-3 text-white text-sm font-semibold text-center drop-shadow line-clamp-2 px-4">
-              {lightboxItem.title}
-            </p>
+          <div className="relative max-w-3xl w-full max-h-[90vh] flex flex-col items-center"
+            onClick={e => e.stopPropagation()}>
+            <img src={lightboxItem.image} alt={lightboxItem.title}
+              className="max-h-[80vh] max-w-full w-auto rounded-2xl shadow-2xl object-contain" />
+            <p className="mt-3 text-white text-sm font-semibold text-center drop-shadow line-clamp-2 px-4">{lightboxItem.title}</p>
             <div className="flex items-center gap-3 mt-3">
               {lightboxItem.fileUrl && (
                 <a href={lightboxItem.fileUrl} target="_blank" rel="noreferrer"
@@ -509,19 +524,14 @@ export default function HomePage() {
                   📄 เปิด PDF
                 </a>
               )}
-              <button
-                onClick={() => setLightboxItem(null)}
+              <button onClick={() => setLightboxItem(null)}
                 className="text-xs font-semibold bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full backdrop-blur-sm transition-colors">
                 ✕ ปิด
               </button>
             </div>
           </div>
-
-          {/* Close X top-right */}
-          <button
-            onClick={() => setLightboxItem(null)}
-            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center text-lg backdrop-blur-sm transition-colors z-10"
-          >
+          <button onClick={() => setLightboxItem(null)}
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center text-lg backdrop-blur-sm transition-colors z-10">
             ✕
           </button>
         </div>
