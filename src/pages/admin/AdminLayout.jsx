@@ -6,6 +6,7 @@ const MENU = [
   { path: '/admin/pages',         label: 'จัดการเมนู/หน้า',    icon: '🗂️' },
   { path: '/admin/news',          label: 'ข่าวสารกิจกรรม',     icon: '📰' },
   { path: '/admin/announcements', label: 'ประชาสัมพันธ์',       icon: '📢' },
+  { path: '/admin/notices',       label: 'หัวข้อประกาศ',        icon: '📋' },
 { path: '/admin/staff',         label: 'บุคลากร',             icon: '👥' },
   { path: '/admin/travel',        label: 'สถานที่ท่องเที่ยว',   icon: '🗺️' },
   { path: '/admin/products',      label: 'สินค้า OTOP',         icon: '🛍️' },

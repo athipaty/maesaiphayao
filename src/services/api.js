@@ -122,6 +122,12 @@ export const createContactMessage  = (data)       => api.post('/contact-messages
 export const updateContactMessage  = (id, data)   => api.put(`/contact-messages/${id}`, data)
 export const deleteContactMessage  = (id)         => api.delete(`/contact-messages/${id}`)
 
+// ── Notices (หัวข้อประกาศ) ────────────────────────────────────────────────────
+export const getNotices    = (params)    => api.get('/notices', { params })
+export const createNotice  = (data)      => api.post('/notices', data)
+export const updateNotice  = (id, data)  => api.put(`/notices/${id}`, data)
+export const deleteNotice  = (id)        => api.delete(`/notices/${id}`)
+
 // ── Facebook page info ────────────────────────────────────────────────────────
 export const getFacebookPage = () => api.get('/facebook-page')
 

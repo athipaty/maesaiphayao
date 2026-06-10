@@ -66,6 +66,7 @@ const AdminDocument       = lazy(() => import("./pages/admin/AdminDocument"));
 const AdminSettings       = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminPages          = lazy(() => import("./pages/admin/AdminPages"));
 const AdminBanners           = lazy(() => import("./pages/admin/AdminBanners"));
+const AdminNotice            = lazy(() => import("./pages/admin/AdminNotice"));
 const AdminContactMessages   = lazy(() => import("./pages/admin/AdminContactMessages"));
 
 export default function App() {
@@ -163,6 +164,7 @@ export default function App() {
           <Route path="settings"         element={<ChunkErrorBoundary><Suspense fallback={null}><AdminSettings /></Suspense></ChunkErrorBoundary>} />
           <Route path="pages"            element={<ChunkErrorBoundary><Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm animate-pulse">กำลังโหลด...</div>}><AdminPages /></Suspense></ChunkErrorBoundary>} />
           <Route path="contact"          element={<ChunkErrorBoundary><Suspense fallback={null}><AdminContactMessages /></Suspense></ChunkErrorBoundary>} />
+          <Route path="notices"          element={<ChunkErrorBoundary><Suspense fallback={null}><AdminNotice /></Suspense></ChunkErrorBoundary>} />
         </Route>
       </Routes>
     </>
