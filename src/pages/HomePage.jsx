@@ -1,12 +1,13 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { getNews, getAnnouncements, getProcurement, getTravel, getFacebookPage, getEgpRss } from '../services/api'
-import { DEPT_LABELS, DEPT_ICONS } from '../components/NewsSection'
+import { NewsSection, DEPT_LABELS, DEPT_ICONS } from '../components/NewsSection'
 
 const DEPARTMENTS = ['council', 'office', 'disaster', 'health', 'engineering', 'finance']
 
 export default function HomePage() {
   const [allNews, setAllNews]       = useState([])
+  const [deptNews, setDeptNews]     = useState({})
   const [announce, setAnnounce]     = useState([])
   const [newsletter, setNewsletter] = useState([])
   const [egp, setEgp]               = useState([])
@@ -48,11 +49,15 @@ export default function HomePage() {
           DEPARTMENTS.map(dept => getNews({ dept, limit: 3 }))
         )
         const flat = []
+        const map = {}
         DEPARTMENTS.forEach((dept, i) => {
-          ;(deptResults[i]?.data || []).forEach(item => flat.push({ ...item, _dept: dept }))
+          const items = deptResults[i]?.data || []
+          map[dept] = items
+          items.forEach(item => flat.push({ ...item, _dept: dept }))
         })
         flat.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
         setAllNews(flat)
+        setDeptNews(map)
 
         const [ann, nl, pn, tv] = await Promise.all([
           getAnnouncements({ type: 'announcement' }),
@@ -101,59 +106,10 @@ export default function HomePage() {
   return (
     <div>
 
-      {/* ── Combined news list ───────────────────────────────────────── */}
-      <div className="card p-0 overflow-hidden">
-        <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-100">
-          <div className="flex items-center gap-2">
-            <span>📰</span>
-            <span className="text-sm font-semibold text-primary">ข่าวสาร กิจกรรม ทั้งหมด</span>
-          </div>
-          <Link to="/news" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
-        </div>
-
-        {loading ? (
-          <div className="px-4 py-6 text-center text-gray-400 text-sm">กำลังโหลด...</div>
-        ) : allNews.length === 0 ? (
-          <div className="px-4 py-6 text-center text-gray-400 text-sm">ยังไม่มีข่าวสาร</div>
-        ) : (
-          <div className="divide-y divide-gray-50">
-            {allNews.slice(0, 8).map((item) => {
-              const img  = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
-              const dept = item.department || item._dept
-              const icon = DEPT_ICONS[dept] || '📰'
-              const label = DEPT_LABELS[dept] || ''
-              return (
-                <Link
-                  key={item._id}
-                  to={`/news/detail/${item._id}`}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50/40 transition-colors group"
-                >
-                  <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-blue-50">
-                    {img
-                      ? <img src={img} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                      : <div className="w-full h-full flex items-center justify-center text-2xl opacity-40">{icon}</div>
-                    }
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="inline-flex items-center gap-1 text-[10px] bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full mb-1">
-                      {icon} {label}
-                    </span>
-                    <p className="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug group-hover:text-primary transition-colors">
-                      {item.title}
-                    </p>
-                  </div>
-                  <div className="flex-shrink-0 text-right">
-                    <p className="text-[10px] text-gray-400 whitespace-nowrap">
-                      📅 {new Date(item.publishedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                    </p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">👁 {item.views}</p>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-        )}
-      </div>
+      {/* ── Per-department news sections ─────────────────────────────── */}
+      {DEPARTMENTS.map(dept => (
+        <NewsSection key={dept} dept={dept} items={deptNews[dept] || []} loading={loading} />
+      ))}
 
       {/* ── Announcement marquee — mobile only (desktop shows in Facebook right panel) ── */}
       {annItems.length > 0 && (() => {
