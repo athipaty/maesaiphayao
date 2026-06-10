@@ -328,7 +328,7 @@ export default function HomePage() {
                   {/* Row */}
                   <div
                     className="flex items-center gap-2 px-4 py-2.5 hover:bg-blue-50/40 transition-colors cursor-pointer"
-                    onClick={() => n.fileUrl && setNoticeOpen(s => ({ ...s, [n._id]: !s[n._id] }))}
+                    onClick={() => setNoticeOpen(s => ({ ...s, [n._id]: !s[n._id] }))}
                   >
                     <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
                     <span className="flex-1 min-w-0 text-xs text-gray-800 font-medium truncate">{n.title}</span>
@@ -343,22 +343,26 @@ export default function HomePage() {
                     )}
                   </div>
                   {/* PDF preview */}
-                  {open && n.fileUrl && (
-                    <div className="px-4 pb-3 bg-blue-50/30">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[10px] text-gray-400">📄 ตัวอย่างเอกสาร</span>
-                        <a href={n.fileUrl} target="_blank" rel="noreferrer"
-                          className="text-[10px] font-semibold text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors">
-                          เปิดใน Tab ใหม่ ↗
-                        </a>
+                  {open && (
+                    n.fileUrl ? (
+                      <div className="px-4 pb-3 bg-blue-50/30">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[10px] text-gray-400">📄 ตัวอย่างเอกสาร</span>
+                          <a href={n.fileUrl} target="_blank" rel="noreferrer"
+                            className="text-[10px] font-semibold text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors">
+                            เปิดใน Tab ใหม่ ↗
+                          </a>
+                        </div>
+                        <iframe
+                          src={`https://docs.google.com/viewer?url=${encodeURIComponent(n.fileUrl)}&embedded=true`}
+                          className="w-full rounded border border-gray-200"
+                          style={{ height: '480px' }}
+                          title={n.title}
+                        />
                       </div>
-                      <iframe
-                        src={n.fileUrl}
-                        className="w-full rounded border border-gray-200"
-                        style={{ height: '480px' }}
-                        title={n.title}
-                      />
-                    </div>
+                    ) : (
+                      <div className="px-4 pb-3 text-[11px] text-gray-400">ไม่มีไฟล์แนบ</div>
+                    )
                   )}
                 </div>
               )
