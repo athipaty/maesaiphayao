@@ -1,10 +1,11 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { getDocuments } from '../services/api'
+import PdfPreviewPanel from '../components/PdfPreviewPanel'
 
 const SECTIONS = [
-  { id: 'all',     label: 'ทั้งหมด',                cats: ['finance', 'budget'] },
-  { id: 'finance', label: 'รายงานการเงิน',           cats: ['finance'] },
-  { id: 'budget',  label: 'งบประมาณ',               cats: ['budget'] },
+  { id: 'all',     label: 'ทั้งหมด',      cats: ['finance', 'budget'] },
+  { id: 'finance', label: 'รายงานการเงิน', cats: ['finance'] },
+  { id: 'budget',  label: 'งบประมาณ',      cats: ['budget'] },
 ]
 
 const QUICK_LINKS = [
@@ -16,9 +17,10 @@ const QUICK_LINKS = [
 const FILE_ICON = { pdf: '📄', excel: '📊', word: '📝', zip: '📦', other: '📎' }
 
 export default function FinancePage() {
-  const [items, setItems] = useState([])
+  const [items, setItems]     = useState([])
   const [loading, setLoading] = useState(true)
   const [section, setSection] = useState('all')
+  const [pdfOpen, setPdfOpen] = useState({})
 
   useEffect(() => {
     Promise.all([getDocuments({ category: 'finance' }), getDocuments({ category: 'budget' })])
@@ -29,6 +31,10 @@ export default function FinancePage() {
 
   const cats = SECTIONS.find(s => s.id === section)?.cats || ['finance', 'budget']
   const displayed = items.filter(i => cats.includes(i.category))
+
+  function toggle(id) {
+    setPdfOpen(s => ({ ...s, [id]: !s[id] }))
+  }
 
   return (
     <div>
@@ -79,19 +85,31 @@ export default function FinancePage() {
       ) : (
         <div className="space-y-2 mb-5">
           {displayed.map(item => (
-            <div key={item._id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-4">
-              <span className="text-2xl flex-shrink-0">{FILE_ICON[item.fileType] || '📎'}</span>
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 mb-0.5">
-                  {item.fiscalYear && <span className="text-xs text-gray-400">ปี {item.fiscalYear}</span>}
+            <div key={item._id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <div
+                className="p-4 flex items-center gap-4 cursor-pointer hover:bg-blue-50/30 transition-colors"
+                onClick={() => toggle(item._id)}
+              >
+                <span className="text-2xl flex-shrink-0">{FILE_ICON[item.fileType] || '📎'}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                    {item.fiscalYear && <span className="text-xs text-gray-400">ปี {item.fiscalYear}</span>}
+                  </div>
+                  <p className="text-sm font-semibold text-gray-800">{item.title}</p>
+                  {item.description && <p className="text-xs text-gray-400 mt-0.5">{item.description}</p>}
                 </div>
-                <p className="text-sm font-semibold text-gray-800">{item.title}</p>
-                {item.description && <p className="text-xs text-gray-400 mt-0.5">{item.description}</p>}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <a href={item.fileUrl} target="_blank" rel="noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    className="text-xs border-2 border-primary text-primary px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-colors font-medium">
+                    ⬇ ดาวน์โหลด
+                  </a>
+                  {item.fileUrl && (
+                    <span className={`text-sm text-gray-400 transition-transform duration-200 ${pdfOpen[item._id] ? 'rotate-180' : ''}`}>▾</span>
+                  )}
+                </div>
               </div>
-              <a href={item.fileUrl} target="_blank" rel="noreferrer"
-                className="flex-shrink-0 text-xs border-2 border-primary text-primary px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-colors font-medium">
-                ⬇ ดาวน์โหลด
-              </a>
+              {pdfOpen[item._id] && <PdfPreviewPanel fileUrl={item.fileUrl} title={item.title} />}
             </div>
           ))}
         </div>

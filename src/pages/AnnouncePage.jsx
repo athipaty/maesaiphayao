@@ -1,13 +1,16 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { getAnnouncements } from '../services/api'
 import PageHeader from '../components/PageHeader'
+import PdfPreviewPanel from '../components/PdfPreviewPanel'
 
 export default function AnnouncePage() {
-  const [tab, setTab]             = useState('announcement')
-  const [items, setItems]         = useState([])
-  const [loading, setLoading]     = useState(true)
+  const [tab, setTab]         = useState('announcement')
+  const [items, setItems]     = useState([])
+  const [loading, setLoading] = useState(true)
+  const [pdfOpen, setPdfOpen] = useState({})
 
   useEffect(() => {
+    setPdfOpen({})
     setLoading(true)
     getAnnouncements({ type: tab })
       .then(r => setItems(r?.data || []))
@@ -15,11 +18,15 @@ export default function AnnouncePage() {
       .finally(() => setLoading(false))
   }, [tab])
 
+  function toggle(id) {
+    setPdfOpen(s => ({ ...s, [id]: !s[id] }))
+  }
+
   return (
     <div>
       <PageHeader icon="📢" title="ข่าวประชาสัมพันธ์และจดหมายข่าว"
         desc="ข่าวประชาสัมพันธ์ ประกาศ และจดหมายข่าวขององค์การบริหารส่วนตำบลแม่ใส" />
-      <div className="card">
+      <div className="card overflow-hidden p-0">
 
         {/* Tabs */}
         <div className="flex border-b border-gray-200">
@@ -40,38 +47,29 @@ export default function AnnouncePage() {
 
         {loading ? (
           <div className="p-10 text-center text-gray-400">กำลังโหลด...</div>
+        ) : items.length === 0 ? (
+          <div className="p-10 text-center text-gray-400">ยังไม่มีข้อมูล</div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-blue-50">
-                <th className="px-3 py-2 text-left text-primary font-semibold w-10">ที่</th>
-                <th className="px-3 py-2 text-left text-primary font-semibold">รายการ</th>
-                <th className="px-3 py-2 text-left text-primary font-semibold w-32">วันที่</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.length === 0 && (
-                <tr><td colSpan={3} className="px-3 py-8 text-center text-gray-400">ยังไม่มีข้อมูล</td></tr>
-              )}
-              {items.map((a, i) => (
-                <tr key={a._id} className="border-b border-gray-50 hover:bg-pink-50/50">
-                  <td className="px-3 py-2.5 text-gray-400 text-center">{i + 1}</td>
-                  <td className="px-3 py-2.5">
-                    {a.fileUrl
-                      ? <a href={a.fileUrl} target="_blank" rel="noreferrer"
-                          className="text-primary hover:text-secondary">
-                          {a.title}
-                        </a>
-                      : <span>{a.title}</span>
-                    }
-                  </td>
-                  <td className="px-3 py-2.5 text-gray-400 text-xs">
+          <div className="divide-y divide-gray-50">
+            {items.map((a, i) => (
+              <div key={a._id}>
+                <div
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-pink-50/40 transition-colors cursor-pointer"
+                  onClick={() => toggle(a._id)}
+                >
+                  <span className="text-xs text-gray-400 w-6 flex-shrink-0 text-center">{i + 1}</span>
+                  <span className="flex-1 min-w-0 text-sm text-gray-800 leading-snug">{a.title}</span>
+                  <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
                     {new Date(a.publishedAt).toLocaleDateString('th-TH')}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </span>
+                  {a.fileUrl && (
+                    <span className={`text-xs text-gray-400 flex-shrink-0 transition-transform duration-200 ${pdfOpen[a._id] ? 'rotate-180' : ''}`}>▾</span>
+                  )}
+                </div>
+                {pdfOpen[a._id] && <PdfPreviewPanel fileUrl={a.fileUrl} title={a.title} />}
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

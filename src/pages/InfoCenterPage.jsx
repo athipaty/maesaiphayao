@@ -1,13 +1,14 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { getAnnouncements, getDocuments } from '../services/api'
+import PdfPreviewPanel from '../components/PdfPreviewPanel'
 
 const ANNOUNCE_TYPES = {
-  general:   { label: 'ประกาศทั่วไป',          color: 'bg-blue-100 text-blue-700' },
-  budget:    { label: 'งบประมาณ',              color: 'bg-green-100 text-green-700' },
-  personnel: { label: 'บุคลากร',               color: 'bg-purple-100 text-purple-700' },
-  tax:       { label: 'ภาษี',                  color: 'bg-yellow-100 text-yellow-700' },
-  law:       { label: 'กฎหมาย/ระเบียบ',        color: 'bg-orange-100 text-orange-700' },
-  other:     { label: 'อื่น ๆ',               color: 'bg-gray-100 text-gray-700' },
+  general:   { label: 'ประกาศทั่วไป',     color: 'bg-blue-100 text-blue-700' },
+  budget:    { label: 'งบประมาณ',         color: 'bg-green-100 text-green-700' },
+  personnel: { label: 'บุคลากร',          color: 'bg-purple-100 text-purple-700' },
+  tax:       { label: 'ภาษี',             color: 'bg-yellow-100 text-yellow-700' },
+  law:       { label: 'กฎหมาย/ระเบียบ',   color: 'bg-orange-100 text-orange-700' },
+  other:     { label: 'อื่น ๆ',           color: 'bg-gray-100 text-gray-700' },
 }
 
 const INFO_LINKS = [
@@ -23,6 +24,7 @@ export default function InfoCenterPage() {
   const [announcements, setAnnouncements] = useState([])
   const [docs, setDocs]       = useState([])
   const [loading, setLoading] = useState(true)
+  const [pdfOpen, setPdfOpen] = useState({})
 
   useEffect(() => {
     Promise.all([getAnnouncements(), getDocuments()])
@@ -33,6 +35,10 @@ export default function InfoCenterPage() {
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
+
+  function toggle(id) {
+    setPdfOpen(s => ({ ...s, [id]: !s[id] }))
+  }
 
   return (
     <div>
@@ -75,17 +81,23 @@ export default function InfoCenterPage() {
               {announcements.map(a => {
                 const tc = ANNOUNCE_TYPES[a.type] || ANNOUNCE_TYPES.other
                 return (
-                  <div key={a._id} className="px-4 py-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${tc.color}`}>{tc.label}</span>
-                      <span className="text-xs text-gray-400">
-                        {new Date(a.publishedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                      </span>
+                  <div key={a._id}>
+                    <div
+                      className="px-4 py-3 cursor-pointer hover:bg-pink-50/40 transition-colors"
+                      onClick={() => toggle(a._id)}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${tc.color}`}>{tc.label}</span>
+                        <span className="text-xs text-gray-400">
+                          {new Date(a.publishedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                        </span>
+                        {a.fileUrl && (
+                          <span className={`ml-auto text-xs text-gray-400 transition-transform duration-200 ${pdfOpen[a._id] ? 'rotate-180' : ''}`}>▾</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-700 line-clamp-2">{a.title}</p>
                     </div>
-                    <p className="text-xs text-gray-700 line-clamp-2">{a.title}</p>
-                    {a.fileUrl && (
-                      <a href={a.fileUrl} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline">⬇ ดาวน์โหลด</a>
-                    )}
+                    {pdfOpen[a._id] && <PdfPreviewPanel fileUrl={a.fileUrl} title={a.title} />}
                   </div>
                 )
               })}
@@ -105,12 +117,24 @@ export default function InfoCenterPage() {
           ) : (
             <div className="divide-y divide-gray-50">
               {docs.map(d => (
-                <div key={d._id} className="px-4 py-3 flex items-center justify-between gap-3">
-                  <p className="text-xs text-gray-700 flex-1 line-clamp-2">{d.title}</p>
-                  <a href={d.fileUrl} target="_blank" rel="noreferrer"
-                    className="flex-shrink-0 text-xs text-primary border border-primary/30 px-2 py-1 rounded hover:bg-primary hover:text-white transition-colors">
-                    ⬇
-                  </a>
+                <div key={d._id}>
+                  <div
+                    className="px-4 py-3 flex items-center justify-between gap-3 cursor-pointer hover:bg-blue-50/30 transition-colors"
+                    onClick={() => toggle(d._id)}
+                  >
+                    <p className="text-xs text-gray-700 flex-1 line-clamp-2">{d.title}</p>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <a href={d.fileUrl} target="_blank" rel="noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="text-xs text-primary border border-primary/30 px-2 py-1 rounded hover:bg-primary hover:text-white transition-colors">
+                        ⬇
+                      </a>
+                      {d.fileUrl && (
+                        <span className={`text-xs text-gray-400 transition-transform duration-200 ${pdfOpen[d._id] ? 'rotate-180' : ''}`}>▾</span>
+                      )}
+                    </div>
+                  </div>
+                  {pdfOpen[d._id] && <PdfPreviewPanel fileUrl={d.fileUrl} title={d.title} />}
                 </div>
               ))}
             </div>
@@ -125,12 +149,12 @@ export default function InfoCenterPage() {
         </div>
         <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
-            { icon: '⚖️', label: 'โครงสร้างและอำนาจหน้าที่',     desc: 'โครงสร้างองค์กร ผู้บริหาร อำนาจหน้าที่' },
+            { icon: '⚖️', label: 'โครงสร้างและอำนาจหน้าที่',       desc: 'โครงสร้างองค์กร ผู้บริหาร อำนาจหน้าที่' },
             { icon: '📊', label: 'แผนงาน งบประมาณ และผลการปฏิบัติ', desc: 'แผนพัฒนา แผนดำเนินงาน รายงานผล' },
-            { icon: '💰', label: 'การเงินและการคลัง',             desc: 'งบประมาณ รายงานทางการเงิน งบทดลอง' },
-            { icon: '📦', label: 'การจัดซื้อจัดจ้าง',             desc: 'ประกาศ TOR ผู้ชนะ สัญญา' },
-            { icon: '📋', label: 'มติที่ประชุม',                  desc: 'มติสภา มติคณะผู้บริหาร' },
-            { icon: '📜', label: 'กฎหมาย ระเบียบ ข้อบัญญัติ',    desc: 'ข้อบัญญัติท้องถิ่น ระเบียบที่เกี่ยวข้อง' },
+            { icon: '💰', label: 'การเงินและการคลัง',               desc: 'งบประมาณ รายงานทางการเงิน งบทดลอง' },
+            { icon: '📦', label: 'การจัดซื้อจัดจ้าง',               desc: 'ประกาศ TOR ผู้ชนะ สัญญา' },
+            { icon: '📋', label: 'มติที่ประชุม',                    desc: 'มติสภา มติคณะผู้บริหาร' },
+            { icon: '📜', label: 'กฎหมาย ระเบียบ ข้อบัญญัติ',      desc: 'ข้อบัญญัติท้องถิ่น ระเบียบที่เกี่ยวข้อง' },
           ].map(item => (
             <div key={item.label} className="flex items-start gap-3 p-3 rounded-lg border border-gray-100">
               <span className="text-xl flex-shrink-0">{item.icon}</span>

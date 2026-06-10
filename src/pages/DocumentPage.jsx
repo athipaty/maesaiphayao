@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getDocuments } from '../services/api'
 import PageHeader from '../components/PageHeader'
+import PdfPreviewPanel from '../components/PdfPreviewPanel'
 
 const CATEGORIES = [
   { value: 'all',       label: 'ทั้งหมด',                 icon: '📂' },
@@ -15,7 +16,7 @@ const CATEGORIES = [
   { value: 'other',     label: 'อื่น ๆ',                  icon: '📄' },
 ]
 
-const FILE_ICON = { pdf: '📄', excel: '📊', word: '📝', zip: '📦', other: '📎' }
+const FILE_ICON  = { pdf: '📄', excel: '📊', word: '📝', zip: '📦', other: '📎' }
 const FILE_COLOR = {
   pdf:   'bg-red-50 text-red-700 border-red-200',
   excel: 'bg-green-50 text-green-700 border-green-200',
@@ -25,10 +26,11 @@ const FILE_COLOR = {
 }
 
 export default function DocumentPage() {
-  const [items, setItems]     = useState([])
-  const [loading, setLoading] = useState(true)
+  const [items, setItems]         = useState([])
+  const [loading, setLoading]     = useState(true)
   const [catFilter, setCatFilter] = useState('all')
   const [yearFilter, setYearFilter] = useState('all')
+  const [pdfOpen, setPdfOpen]     = useState({})
 
   useEffect(() => {
     getDocuments()
@@ -47,6 +49,10 @@ export default function DocumentPage() {
   })
 
   const catLabel = (v) => CATEGORIES.find(c => c.value === v)?.label || v
+
+  function toggle(id) {
+    setPdfOpen(s => ({ ...s, [id]: !s[id] }))
+  }
 
   return (
     <div>
@@ -98,29 +104,41 @@ export default function DocumentPage() {
           ) : (
             <div className="space-y-2">
               {displayed.map(item => (
-                <div key={item._id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-start gap-4 hover:border-primary/30 transition-colors">
-                  <div className="text-2xl flex-shrink-0">{FILE_ICON[item.fileType] || '📎'}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <span className="text-xs text-primary font-semibold bg-primary/10 px-2 py-0.5 rounded">
-                        {catLabel(item.category)}
-                      </span>
-                      {item.fiscalYear && (
-                        <span className="text-xs text-gray-500">ปี {item.fiscalYear}</span>
+                <div key={item._id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:border-primary/30 transition-colors">
+                  <div
+                    className="p-4 flex items-start gap-4 cursor-pointer"
+                    onClick={() => toggle(item._id)}
+                  >
+                    <div className="text-2xl flex-shrink-0">{FILE_ICON[item.fileType] || '📎'}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <span className="text-xs text-primary font-semibold bg-primary/10 px-2 py-0.5 rounded">
+                          {catLabel(item.category)}
+                        </span>
+                        {item.fiscalYear && (
+                          <span className="text-xs text-gray-500">ปี {item.fiscalYear}</span>
+                        )}
+                        <span className={`text-xs px-2 py-0.5 rounded border ${FILE_COLOR[item.fileType] || FILE_COLOR.other}`}>
+                          {(item.fileType || 'pdf').toUpperCase()}
+                        </span>
+                      </div>
+                      <h3 className="text-sm font-semibold text-gray-800 leading-snug">{item.title}</h3>
+                      {item.description && (
+                        <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{item.description}</p>
                       )}
-                      <span className={`text-xs px-2 py-0.5 rounded border ${FILE_COLOR[item.fileType] || FILE_COLOR.other}`}>
-                        {(item.fileType || 'pdf').toUpperCase()}
-                      </span>
                     </div>
-                    <h3 className="text-sm font-semibold text-gray-800 leading-snug">{item.title}</h3>
-                    {item.description && (
-                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{item.description}</p>
-                    )}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <a href={item.fileUrl} target="_blank" rel="noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="text-xs border-2 border-primary text-primary px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-colors font-medium">
+                        ⬇ ดาวน์โหลด
+                      </a>
+                      {item.fileUrl && (
+                        <span className={`text-sm text-gray-400 transition-transform duration-200 ${pdfOpen[item._id] ? 'rotate-180' : ''}`}>▾</span>
+                      )}
+                    </div>
                   </div>
-                  <a href={item.fileUrl} target="_blank" rel="noreferrer"
-                    className="flex-shrink-0 text-xs border-2 border-primary text-primary px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-colors font-medium">
-                    ⬇ ดาวน์โหลด
-                  </a>
+                  {pdfOpen[item._id] && <PdfPreviewPanel fileUrl={item.fileUrl} title={item.title} />}
                 </div>
               ))}
             </div>
