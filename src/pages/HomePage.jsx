@@ -342,102 +342,65 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* ── Procurement ──────────────────────────────────────────────── */}
+      {/* ── Procurement e-GP ─────────────────────────────────────────── */}
       <div className="card p-0 overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 pt-3 pb-0 border-b border-gray-100 flex-shrink-0">
-          <div className="flex">
-            {[
-              { key: 'egp',  label: 'ระบบ e-GP (เรียลไทม์)', shortLabel: 'e-GP' },
-              { key: 'news', label: 'ข่าวจัดซื้อจัดจ้าง', shortLabel: 'ข่าว' },
-            ].map(t => (
-              <button key={t.key} onClick={() => setProcTab(t.key)}
-                className={`px-4 py-2.5 text-xs font-medium border-b-2 -mb-px transition-colors whitespace-nowrap ${
-                  procTab === t.key
-                    ? 'border-secondary text-primary bg-pink-50'
-                    : 'border-transparent text-gray-500 hover:text-primary'
-                }`}>
-                <span className="sm:hidden">{t.shortLabel}</span>
-                <span className="hidden sm:inline">{t.label}</span>
-              </button>
-            ))}
+        <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-100 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <span>📦</span>
+            <span className="text-sm font-semibold text-primary">ระบบ e-GP (เรียลไทม์)</span>
           </div>
-          <Link to="/procurement" className="text-xs text-secondary hover:underline pb-2">ดูทั้งหมด →</Link>
+          <Link to="/procurement" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
         </div>
 
         <div className="overflow-y-auto flex-1" style={{ maxHeight: '460px' }}>
-          {procTab === 'egp' ? (
-            egpLoading ? (
-              <div className="px-3 py-4 text-center text-gray-400 text-sm animate-pulse">กำลังดึงข้อมูลจากระบบ e-GP...</div>
-            ) : egpError ? (
-              <div className="px-3 py-4 text-center">
-                <span className="text-2xl">🔧</span>
-                <p className="text-gray-400 text-sm mt-2">{egpError}</p>
-                <p className="text-gray-300 text-xs mt-1">เปิดให้บริการ 17:01–08:59 น.</p>
-              </div>
-            ) : egp.length === 0 ? (
-              <div className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</div>
-            ) : (
-              <div className="divide-y divide-gray-50">
-                {egp.slice(0, 8).map((p, i) => {
-                  const open = !!egpOpen[i]
-                  return (
-                    <div key={i} className="transition-colors">
-                      {/* Main row */}
-                      <div className="flex items-center gap-2 px-3 py-2 hover:bg-pink-50/40 cursor-pointer"
-                        onClick={() => setEgpOpen(s => ({ ...s, [i]: !s[i] }))}>
-                        <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
-                        {p.link
-                          ? <a href={p.link} target="_blank" rel="noreferrer"
-                              onClick={e => e.stopPropagation()}
-                              className="flex-1 min-w-0 text-xs text-primary hover:text-secondary font-medium truncate">{p.title}</a>
-                          : <span className="flex-1 min-w-0 text-xs text-gray-700 font-medium truncate">{p.title}</span>
-                        }
-                        {p.amount != null && (
-                          <span className="text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
-                            {Number(p.amount).toLocaleString('th-TH')} บาท
+          {egpLoading ? (
+            <div className="px-3 py-4 text-center text-gray-400 text-sm animate-pulse">กำลังดึงข้อมูลจากระบบ e-GP...</div>
+          ) : egpError ? (
+            <div className="px-3 py-4 text-center">
+              <span className="text-2xl">🔧</span>
+              <p className="text-gray-400 text-sm mt-2">{egpError}</p>
+              <p className="text-gray-300 text-xs mt-1">เปิดให้บริการ 17:01–08:59 น.</p>
+            </div>
+          ) : egp.length === 0 ? (
+            <div className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</div>
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {egp.slice(0, 8).map((p, i) => {
+                const open = !!egpOpen[i]
+                return (
+                  <div key={i} className="transition-colors">
+                    <div className="flex items-center gap-2 px-3 py-2 hover:bg-pink-50/40 cursor-pointer"
+                      onClick={() => setEgpOpen(s => ({ ...s, [i]: !s[i] }))}>
+                      <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                      {p.link
+                        ? <a href={p.link} target="_blank" rel="noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            className="flex-1 min-w-0 text-xs text-primary hover:text-secondary font-medium truncate">{p.title}</a>
+                        : <span className="flex-1 min-w-0 text-xs text-gray-700 font-medium truncate">{p.title}</span>
+                      }
+                      {p.amount != null && (
+                        <span className="text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
+                          {Number(p.amount).toLocaleString('th-TH')} บาท
+                        </span>
+                      )}
+                      <span className={`text-gray-400 text-[10px] flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
+                    </div>
+                    {open && (
+                      <div className="flex items-center gap-3 px-3 pb-2 pl-9 bg-pink-50/30">
+                        {p.winner && (
+                          <span className="flex-1 min-w-0 text-[10px] text-green-700 truncate">🏆 {p.winner}</span>
+                        )}
+                        {p.date && (
+                          <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
+                            📅 {new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
                           </span>
                         )}
-                        <span className={`text-gray-400 text-[10px] flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
                       </div>
-                      {/* Expanded row */}
-                      {open && (
-                        <div className="flex items-center gap-3 px-3 pb-2 pl-9 bg-pink-50/30">
-                          {p.winner && (
-                            <span className="flex-1 min-w-0 text-[10px] text-green-700 truncate">🏆 {p.winner}</span>
-                          )}
-                          {p.date && (
-                            <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
-                              📅 {new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            )
-          ) : (
-            <ul className="divide-y divide-gray-50">
-              {procNews.length === 0 && (
-                <li className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</li>
-              )}
-              {procNews.map((p, i) => (
-                <li key={p._id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-pink-50/50 transition-colors">
-                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
-                  <div className="min-w-0 flex-1">
-                    {p.externalUrl
-                      ? <a href={p.externalUrl} target="_blank" rel="noreferrer" className="text-sm text-secondary hover:underline leading-snug block">{p.title}</a>
-                      : <span className="text-sm text-gray-700 leading-snug">{p.title}</span>
-                    }
-                    {p.winner && (
-                      <span className="text-[10px] bg-green-100 text-green-800 font-medium px-2 py-0.5 rounded-full mt-1 inline-block">🏆 {p.winner}</span>
                     )}
                   </div>
-                </li>
-              ))}
-            </ul>
+                )
+              })}
+            </div>
           )}
         </div>
       </div>
