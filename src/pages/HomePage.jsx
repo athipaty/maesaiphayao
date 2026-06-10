@@ -360,19 +360,23 @@ export default function HomePage() {
                         </span>
                       )}
                     </div>
-                    {/* Line 2: winner (left, truncated) + amount (right edge) */}
-                    {(p.winner || p.amount != null) && (
-                      <div className="flex items-center gap-2 mt-1 pl-5">
-                        <span className="flex-1 min-w-0 text-[10px] text-green-700 truncate">
-                          {p.winner ? `🏆 ${p.winner}` : ''}
+                    {/* Line 2: winner + amount + original link */}
+                    <div className="flex items-center gap-2 mt-1 pl-5">
+                      <span className="flex-1 min-w-0 text-[10px] text-green-700 truncate">
+                        {p.winner ? `🏆 ${p.winner}` : ''}
+                      </span>
+                      {p.amount != null && (
+                        <span className="text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
+                          {Number(p.amount).toLocaleString('th-TH')} บาท
                         </span>
-                        {p.amount != null && (
-                          <span className="text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
-                            {Number(p.amount).toLocaleString('th-TH')} บาท
-                          </span>
-                        )}
-                      </div>
-                    )}
+                      )}
+                      {p.link && (
+                        <a href={p.link} target="_blank" rel="noreferrer"
+                          className="text-[10px] font-semibold text-white bg-primary hover:bg-secondary px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 transition-colors">
+                          📄 ต้นฉบับ
+                        </a>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
