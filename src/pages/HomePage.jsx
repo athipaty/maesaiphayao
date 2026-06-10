@@ -5,6 +5,18 @@ import { NewsSection, DEPT_LABELS, DEPT_ICONS } from '../components/NewsSection'
 
 const DEPARTMENTS = ['council', 'office', 'disaster', 'health', 'engineering', 'finance']
 
+function SectionBanner({ icon, label }) {
+  return (
+    <div className="flex items-center gap-3 mt-5 mb-2 px-1">
+      <div className="flex items-center gap-2 bg-gradient-to-r from-primary to-secondary text-white px-4 py-1.5 rounded-full shadow-sm">
+        <span className="text-sm">{icon}</span>
+        <span className="text-xs font-bold tracking-wide">{label}</span>
+      </div>
+      <div className="flex-1 h-px bg-gradient-to-r from-secondary/30 to-transparent" />
+    </div>
+  )
+}
+
 export default function HomePage() {
   const [allNews, setAllNews]       = useState([])
   const [deptNews, setDeptNews]     = useState({})
@@ -114,10 +126,14 @@ export default function HomePage() {
   return (
     <div>
 
-      {/* ── Per-department news sections ─────────────────────────────── */}
+      {/* ── ข่าวสารกิจกรรม ───────────────────────────────────────────── */}
+      <SectionBanner icon="📰" label="ข่าวสารกิจกรรม" />
       {DEPARTMENTS.map(dept => (
         <NewsSection key={dept} dept={dept} items={deptNews[dept] || []} loading={loading} />
       ))}
+
+      {/* ── ประชาสัมพันธ์ ─────────────────────────────────────────────── */}
+      <SectionBanner icon="📢" label="ประชาสัมพันธ์" />
 
       {/* ── Announcement marquee — mobile only (desktop shows in Facebook right panel) ── */}
       {annItems.length > 0 && (() => {
@@ -311,6 +327,9 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* ── ประกาศและจัดซื้อจัดจ้าง ──────────────────────────────────── */}
+      <SectionBanner icon="📋" label="ประกาศและจัดซื้อจัดจ้าง" />
+
       {/* ── Notices (หัวข้อประกาศ) ───────────────────────────────────── */}
       {notices.length > 0 && (
         <div className="card p-0 overflow-hidden">
@@ -433,6 +452,9 @@ export default function HomePage() {
           )}
         </div>
       </div>
+
+      {/* ── สถานที่ท่องเที่ยว ─────────────────────────────────────────── */}
+      {travel.length > 0 && <SectionBanner icon="🗺️" label="สถานที่ท่องเที่ยว" />}
 
       {/* ── Travel marquee ────────────────────────────────────────────── */}
       {travel.length > 0 && (
