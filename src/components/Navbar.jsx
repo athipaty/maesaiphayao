@@ -95,7 +95,7 @@ export default function Navbar({ onMenuClick }) {
               <div>📞 0-5488-9909</div>
               <div>📧 saraban_06560115@dla.go.th</div>
             </div>
-            <Link to="/admin"
+            <Link to="/admin" target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/30 rounded-lg transition-colors whitespace-nowrap backdrop-blur-sm">
               🔐 <span className="hidden sm:inline">เข้าสู่ระบบ</span><span className="sm:hidden">Admin</span>
             </Link>
