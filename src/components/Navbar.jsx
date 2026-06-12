@@ -59,15 +59,6 @@ export default function Navbar({ onMenuClick }) {
       <div className="bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md">
         <div className="max-w-[1200px] mx-auto px-3 py-2 flex items-center justify-between gap-3">
 
-          {/* Hamburger */}
-          <button
-            className="lg:hidden flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/20 active:bg-white/30 transition-colors text-xl"
-            onClick={onMenuClick}
-            aria-label="เปิดเมนู"
-          >
-            ☰
-          </button>
-
           {/* Logo + title */}
           <Link to="/" className="flex items-center gap-3 min-w-0 flex-1">
             {logoImage ? (
@@ -95,9 +86,17 @@ export default function Navbar({ onMenuClick }) {
               <div>📧 saraban_06560115@dla.go.th</div>
             </div>
             <Link to="/admin" target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/30 rounded-lg transition-colors whitespace-nowrap backdrop-blur-sm">
-              🔐 <span className="hidden sm:inline">เข้าสู่ระบบ</span><span className="sm:hidden">Admin</span>
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/30 rounded-lg transition-colors whitespace-nowrap backdrop-blur-sm">
+              🔐 เข้าสู่ระบบ
             </Link>
+            {/* Hamburger — mobile only, right side */}
+            <button
+              className="lg:hidden flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/20 active:bg-white/30 transition-colors text-xl"
+              onClick={onMenuClick}
+              aria-label="เปิดเมนู"
+            >
+              ☰
+            </button>
           </div>
         </div>
       </div>

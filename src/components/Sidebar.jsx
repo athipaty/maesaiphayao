@@ -158,6 +158,13 @@ export default function Sidebar({ onNavigate, mobile = false }) {
                   </div>
                 )
               })}
+              {/* Admin link — last item */}
+              <a href="/admin" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-3 px-5 py-3.5 border-b border-gray-100 text-sm text-gray-700 hover:bg-blue-50/60 hover:text-primary transition-colors">
+                <span className="w-6 text-center text-base flex-shrink-0">🔐</span>
+                <span className="flex-1 font-medium">เข้าสู่ระบบ (Admin)</span>
+                <span className="text-gray-300 text-sm flex-shrink-0">↗</span>
+              </a>
             </div>
           </div>
 
