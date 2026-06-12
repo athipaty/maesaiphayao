@@ -24,9 +24,8 @@ export default function Navbar({ onMenuClick }) {
   const [logoImage, setLogoImage]           = useState('')
   const [pages, setPages]                   = useState([])
   const [depts, setDepts]                   = useState(DEFAULT_DEPTS)
-  const [openSlug, setOpenSlug]             = useState(null)
-  const [mobileOpenSlug, setMobileOpenSlug] = useState(null)
-  const closeTimer                          = useRef(null)
+  const [openSlug, setOpenSlug] = useState(null)
+  const closeTimer              = useRef(null)
 
   useEffect(() => {
     getSettings().then(r => {
@@ -102,75 +101,6 @@ export default function Navbar({ onMenuClick }) {
           </div>
         </div>
       </div>
-
-      {/* ── Mobile nav strip ────────────────────────────────────────── */}
-      {navItems.length > 0 && (
-        <div className="lg:hidden bg-slate-50 border-b border-gray-200 shadow-sm">
-          <div className="overflow-x-auto">
-            <div className="flex items-center gap-1.5 px-3 py-2 w-max">
-              {navItems.map(m => {
-                const dropItems   = getDropItems(m)
-                const hasChildren = dropItems.length > 0
-                const isOpen      = mobileOpenSlug === m.slug
-
-                if (hasChildren) {
-                  return (
-                    <button key={m.slug}
-                      onClick={() => setMobileOpenSlug(isOpen ? null : m.slug)}
-                      className={`flex items-center gap-1 flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap border shadow-sm ${
-                        isOpen
-                          ? 'bg-primary text-white border-primary shadow-primary/20'
-                          : 'bg-white text-gray-700 border-gray-200 hover:border-primary/40 hover:text-primary'
-                      }`}>
-                      {m.icon && <span className="text-sm">{m.icon}</span>}
-                      {m.title}
-                      <ChevronDown open={isOpen} />
-                    </button>
-                  )
-                }
-
-                const linkPath = m.isBuiltin ? m.path : `/page/${m.slug}`
-                return (
-                  <NavLink key={m.slug} to={linkPath}
-                    onClick={() => setMobileOpenSlug(null)}
-                    className={({ isActive }) =>
-                      `flex items-center gap-1 flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap border shadow-sm ${
-                        isActive
-                          ? 'bg-primary text-white border-primary shadow-primary/20'
-                          : 'bg-white text-gray-700 border-gray-200 hover:border-primary/40 hover:text-primary'
-                      }`
-                    }>
-                    {m.icon && <span className="text-sm">{m.icon}</span>}
-                    {m.title}
-                  </NavLink>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Mobile dropdown panel */}
-          {mobileOpenSlug && (() => {
-            const openItem = navItems.find(m => m.slug === mobileOpenSlug)
-            if (!openItem) return null
-            const dropItems = getDropItems(openItem)
-            return (
-              <div className="border-t border-gray-200 bg-white shadow-inner px-3 py-3">
-                <div className="grid grid-cols-2 gap-1.5">
-                  {dropItems.map(item => (
-                    <Link key={item.key} to={item.to}
-                      onClick={() => setMobileOpenSlug(null)}
-                      className="flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-pink-50 hover:text-primary rounded-xl transition-colors border border-gray-100 hover:border-blue-200 group">
-                      {item.icon && <span className="text-base flex-shrink-0">{item.icon}</span>}
-                      <span className="flex-1 leading-snug">{item.title}</span>
-                      <span className="text-gray-300 group-hover:text-primary text-sm">›</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )
-          })()}
-        </div>
-      )}
 
       {/* ── Desktop secondary nav ────────────────────────────────────── */}
       <nav className="hidden lg:block bg-white border-b border-gray-200 shadow-sm">

@@ -20,7 +20,7 @@ export default function Layout() {
       >
         <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
         <div
-          className={`absolute left-0 top-0 bottom-0 w-[260px] bg-white overflow-y-auto z-50 shadow-xl transition-transform duration-300 ease-out ${
+          className={`absolute left-0 top-0 bottom-0 w-full bg-white overflow-y-auto z-50 shadow-xl transition-transform duration-300 ease-out ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
