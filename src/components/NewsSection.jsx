@@ -36,13 +36,13 @@ export function NewsSection({ dept, items = [], loading }) {
         <div className="px-3 py-2 text-gray-400 text-sm">ยังไม่มีข่าวสาร</div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-3">
-          {items.slice(0, 3).map(item => {
+          {items.slice(0, 3).map((item, idx) => {
             const img = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
             const icon = DEPT_ICONS[item.department] || DEPT_ICONS[dept] || '📰'
             const label = DEPT_LABELS[item.department] || DEPT_LABELS[dept] || ''
             return (
               <Link to={`/news/detail/${item._id}`} key={item._id}
-                className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group">
+                className={`bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group${idx === 2 ? ' hidden md:block' : ''}`}>
                 {img ? (
                   <img src={img} alt={item.title} className="w-full h-44 object-cover group-hover:scale-[1.02] transition-transform duration-300" />
                 ) : (
