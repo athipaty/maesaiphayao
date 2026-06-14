@@ -234,12 +234,11 @@ function PdfFileIcon({ size = 44 }) {
 }
 
 // Returns the best embeddable URL for a given file URL.
-// Priority: Google Drive → native preview; B2 → direct; everything else → Google Docs viewer.
-function getEmbedUrl(url, type = 'pdf') {
+// Priority: Google Drive → native preview; everything else → Google Docs viewer.
+function getEmbedUrl(url) {
   if (!url) return ''
   const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/)
   if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`
-  if (type === 'pdf' && url.includes('backblazeb2.com')) return url
   return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
 }
 
@@ -272,7 +271,7 @@ function PdfBlock({ data, preview }) {
   const [loadErr, setLoadErr] = useState(false)
   if (!data.url) return null
   const absUrl  = resolveFileUrl(data.url)
-  const viewUrl = getEmbedUrl(absUrl, 'pdf')
+  const viewUrl = getEmbedUrl(absUrl)
 
   function handleOpen() { setOpen(v => !v); setLoadErr(false) }
 
@@ -512,7 +511,7 @@ function ExcelBlock({ data, preview }) {
   const [loadErr, setLoadErr] = useState(false)
   if (!data.url) return null
   const absUrl  = resolveFileUrl(data.url)
-  const viewUrl = getEmbedUrl(absUrl, 'excel')
+  const viewUrl = getEmbedUrl(absUrl)
 
   function handleOpen() { setOpen(v => !v); setLoadErr(false) }
 
