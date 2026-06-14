@@ -131,10 +131,12 @@ export default function DocumentPage() {
                       <a href={item.fileUrl} target="_blank" rel="noreferrer"
                         onClick={e => e.stopPropagation()}
                         className="text-xs border-2 border-primary text-primary px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-colors font-medium">
-                        ⬇ ดาวน์โหลด
+                        📥 ดาวน์โหลด
                       </a>
                       {item.fileUrl && (
-                        <span className={`text-sm text-gray-400 transition-transform duration-200 ${pdfOpen[item._id] ? 'rotate-180' : ''}`}>▾</span>
+                        <span className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${pdfOpen[item._id] ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'}`}>
+                          {pdfOpen[item._id] ? '▲ ซ่อน' : '▼ แสดง'}
+                        </span>
                       )}
                     </div>
                   </div>

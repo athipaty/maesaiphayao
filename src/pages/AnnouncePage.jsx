@@ -63,7 +63,16 @@ export default function AnnouncePage() {
                     {new Date(a.publishedAt).toLocaleDateString('th-TH')}
                   </span>
                   {a.fileUrl && (
-                    <span className={`text-xs text-gray-400 flex-shrink-0 transition-transform duration-200 ${pdfOpen[a._id] ? 'rotate-180' : ''}`}>▾</span>
+                    <>
+                      <a href={a.fileUrl} target="_blank" rel="noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="text-xs font-semibold px-3 py-1.5 rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors flex-shrink-0">
+                        📥 ดาวน์โหลด
+                      </a>
+                      <span className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex-shrink-0 ${pdfOpen[a._id] ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'}`}>
+                        {pdfOpen[a._id] ? '▲ ซ่อน' : '▼ แสดง'}
+                      </span>
+                    </>
                   )}
                 </div>
                 {pdfOpen[a._id] && <PdfPreviewPanel fileUrl={a.fileUrl} title={a.title} />}

@@ -92,7 +92,16 @@ export default function InfoCenterPage() {
                           {new Date(a.publishedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
                         </span>
                         {a.fileUrl && (
-                          <span className={`ml-auto text-xs text-gray-400 transition-transform duration-200 ${pdfOpen[a._id] ? 'rotate-180' : ''}`}>▾</span>
+                          <>
+                            <a href={a.fileUrl} target="_blank" rel="noreferrer"
+                              onClick={e => e.stopPropagation()}
+                              className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors flex-shrink-0">
+                              📥 ดาวน์โหลด
+                            </a>
+                            <span className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex-shrink-0 ${pdfOpen[a._id] ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'}`}>
+                              {pdfOpen[a._id] ? '▲ ซ่อน' : '▼ แสดง'}
+                            </span>
+                          </>
                         )}
                       </div>
                       <p className="text-xs text-gray-700 line-clamp-2">{a.title}</p>
@@ -126,11 +135,13 @@ export default function InfoCenterPage() {
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <a href={d.fileUrl} target="_blank" rel="noreferrer"
                         onClick={e => e.stopPropagation()}
-                        className="text-xs text-primary border border-primary/30 px-2 py-1 rounded hover:bg-primary hover:text-white transition-colors">
-                        ⬇
+                        className="text-xs font-semibold px-3 py-1.5 rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors">
+                        📥 ดาวน์โหลด
                       </a>
                       {d.fileUrl && (
-                        <span className={`text-xs text-gray-400 transition-transform duration-200 ${pdfOpen[d._id] ? 'rotate-180' : ''}`}>▾</span>
+                        <span className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${pdfOpen[d._id] ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600'}`}>
+                          {pdfOpen[d._id] ? '▲ ซ่อน' : '▼ แสดง'}
+                        </span>
                       )}
                     </div>
                   </div>
