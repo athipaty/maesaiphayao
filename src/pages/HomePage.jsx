@@ -373,7 +373,7 @@ export default function HomePage() {
                           </a>
                         </div>
                         <iframe
-                          src={n.fileUrl.includes('backblazeb2.com') || n.fileUrl.includes('drive.google.com') ? n.fileUrl : `https://docs.google.com/viewer?url=${encodeURIComponent(n.fileUrl)}&embedded=true`}
+                          src={(() => { const m = n.fileUrl.match(/drive\.google\.com\/file\/d\/([^/?#]+)/); return m ? `https://drive.google.com/file/d/${m[1]}/preview` : `https://docs.google.com/viewer?url=${encodeURIComponent(n.fileUrl)}&embedded=true` })()}
                           className="w-full rounded border border-gray-200"
                           style={{ height: '480px' }}
                           title={n.title}
