@@ -15,10 +15,12 @@ export default function ImageUpload({ value, onChange, multiple = false }) {
     setUploading(true)
     try {
       if (multiple) {
-        // อัปโหลดทีละไฟล์ แล้ว merge กับรูปเดิม
-        const results = await Promise.all(files.map(f => uploadImage(f)))
-        const newUrls = results.map(r => r.data.url)
-        onChange([...(images || []), ...newUrls])
+        // อัปโหลดทีละไฟล์ แล้ว merge กับรูปเดิม — เก็บรูปที่สำเร็จไว้แม้บางไฟล์จะล้มเหลว
+        const results = await Promise.allSettled(files.map(f => uploadImage(f)))
+        const newUrls = results.filter(r => r.status === 'fulfilled').map(r => r.value.data.url)
+        const failedCount = results.length - newUrls.length
+        if (newUrls.length) onChange([...(images || []), ...newUrls])
+        if (failedCount) alert(`อัปโหลดไม่สำเร็จ ${failedCount} จาก ${results.length} รูป`)
       } else {
         const res = await uploadImage(files[0])
         onChange(res.data.url)

@@ -9,12 +9,13 @@ export default function PhotoUploader({ photos = [], onChange }) {
     if (!files.length) return
     setUploading(true)
     try {
-      const urls = await Promise.all(
+      const results = await Promise.allSettled(
         Array.from(files).map(f => uploadImage(f).then(r => r.data.url))
       )
-      onChange([...photos, ...urls])
-    } catch {
-      alert('อัปโหลดรูปภาพล้มเหลว กรุณาลองใหม่')
+      const urls = results.filter(r => r.status === 'fulfilled').map(r => r.value)
+      const failedCount = results.length - urls.length
+      if (urls.length) onChange([...photos, ...urls])
+      if (failedCount) alert(`อัปโหลดไม่สำเร็จ ${failedCount} จาก ${results.length} รูป กรุณาลองใหม่`)
     } finally {
       setUploading(false)
       if (fileRef.current) fileRef.current.value = ''

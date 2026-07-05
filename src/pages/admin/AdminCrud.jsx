@@ -19,12 +19,19 @@ export default function AdminCrud({ title, items = [], loading, columns, onDelet
   const [saveErr, setSaveErr]   = useState('')
   const [saved, setSaved]       = useState(false)
   const [deleting, setDeleting] = useState(null)
+  const [deleteErr, setDeleteErr] = useState('')
 
   useEffect(() => {
     if (!saved) return
     const t = setTimeout(() => setSaved(false), 2500)
     return () => clearTimeout(t)
   }, [saved])
+
+  useEffect(() => {
+    if (!deleteErr) return
+    const t = setTimeout(() => setDeleteErr(''), 4000)
+    return () => clearTimeout(t)
+  }, [deleteErr])
 
   function openAdd() {
     setFormData(emptyForm)
@@ -47,7 +54,14 @@ export default function AdminCrud({ title, items = [], loading, columns, onDelet
   async function handleDelete(id) {
     if (!window.confirm('ยืนยันการลบ?')) return
     setDeleting(id)
-    try { await onDelete(id) } finally { setDeleting(null) }
+    setDeleteErr('')
+    try {
+      await onDelete(id)
+    } catch (err) {
+      setDeleteErr(err?.response?.data?.error || err?.message || 'ลบไม่สำเร็จ')
+    } finally {
+      setDeleting(null)
+    }
   }
 
   async function handleSubmit() {
@@ -72,6 +86,13 @@ export default function AdminCrud({ title, items = [], loading, columns, onDelet
       {saved && (
         <div className="fixed top-4 right-4 z-[9999] bg-green-500 text-white text-sm font-medium px-4 py-2.5 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in">
           ✅ บันทึกสำเร็จ
+        </div>
+      )}
+
+      {/* Delete error toast */}
+      {deleteErr && (
+        <div className="fixed top-4 right-4 z-[9999] bg-red-500 text-white text-sm font-medium px-4 py-2.5 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in">
+          ⚠️ {deleteErr}
         </div>
       )}
 

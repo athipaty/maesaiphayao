@@ -18,6 +18,7 @@ export default function ComplaintPage() {
   const [form, setForm]           = useState({ citizenName: '', phone: '', location: null, detail: '', attachments: [] })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted]   = useState(null)
+  const [formErr, setFormErr]       = useState('')
   const [trackNo, setTrackNo]     = useState('')
   const [tracking, setTracking]   = useState(false)
   const [tracked, setTracked]     = useState(null)
@@ -27,8 +28,15 @@ export default function ComplaintPage() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!form.detail) return
-    if (!anonymous && (!form.citizenName || !form.phone)) return
+    if (!form.detail.trim()) {
+      setFormErr('กรุณากรอกรายละเอียดก่อนส่งเรื่องร้องเรียน')
+      return
+    }
+    if (!anonymous && (!form.citizenName.trim() || !form.phone.trim())) {
+      setFormErr('กรุณากรอกชื่อ-สกุลและเบอร์โทรศัพท์ หรือเลือก "ไม่ระบุชื่อ"')
+      return
+    }
+    setFormErr('')
     setSubmitting(true)
     try {
       const r = await submitComplaint({
@@ -126,14 +134,14 @@ export default function ComplaintPage() {
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       ชื่อ-สกุล <span className="text-red-400">*</span>
                     </label>
-                    <input className={inputCls} value={form.citizenName}
+                    <input className={inputCls} value={form.citizenName} required={!anonymous}
                       onChange={e => set('citizenName', e.target.value)} placeholder="ระบุชื่อ-สกุล" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       เบอร์โทรศัพท์ <span className="text-red-400">*</span>
                     </label>
-                    <input className={inputCls} value={form.phone}
+                    <input className={inputCls} value={form.phone} required={!anonymous}
                       onChange={e => set('phone', e.target.value)} placeholder="08x-xxx-xxxx" />
                   </div>
                 </div>
@@ -148,12 +156,18 @@ export default function ComplaintPage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   รายละเอียด <span className="text-red-400">*</span>
                 </label>
-                <textarea rows={5} className={inputCls + ' resize-none'} value={form.detail}
+                <textarea rows={5} className={inputCls + ' resize-none'} value={form.detail} required
                   onChange={e => set('detail', e.target.value)}
                   placeholder="อธิบายรายละเอียดปัญหา สถานที่ วันเวลา และข้อมูลที่เกี่ยวข้อง..." />
               </div>
 
               <PhotoUploader photos={form.attachments} onChange={urls => set('attachments', urls)} />
+
+              {formErr && (
+                <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-600">
+                  ⚠️ {formErr}
+                </div>
+              )}
 
               <button type="submit" disabled={submitting}
                 className="w-full bg-primary text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 shadow-sm">
