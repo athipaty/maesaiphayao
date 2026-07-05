@@ -234,11 +234,14 @@ function PdfFileIcon({ size = 44 }) {
 }
 
 // Returns the best embeddable URL for a given file URL.
-// Priority: Google Drive → native preview; everything else → Google Docs viewer.
+// Priority: Google Drive → native preview; B2 → direct (Google Docs viewer
+// fetches B2 URLs server-side and often triggers a download instead of a
+// preview); everything else → Google Docs viewer.
 function getEmbedUrl(url) {
   if (!url) return ''
   const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/)
   if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`
+  if (url.includes('backblazeb2.com')) return url
   return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
 }
 

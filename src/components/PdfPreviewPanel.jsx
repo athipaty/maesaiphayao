@@ -2,6 +2,7 @@ function iframeSrc(url) {
   if (!url) return ''
   const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/)
   if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`
+  if (url.includes('backblazeb2.com')) return url
   return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
 }
 
