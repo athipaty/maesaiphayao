@@ -67,10 +67,9 @@ export default function NewsDetailPage() {
 
           {/* เนื้อหาข่าว */}
           {item.content ? (
-            <div
-              className="text-sm text-gray-700 leading-relaxed mb-6"
-              dangerouslySetInnerHTML={{ __html: item.content.replace(/\n/g, '<br/>') }}
-            />
+            <div className="text-sm text-gray-700 leading-relaxed mb-6 whitespace-pre-wrap">
+              {item.content}
+            </div>
           ) : (
             <p className="text-gray-400 text-sm mb-6">ไม่มีเนื้อหาเพิ่มเติม</p>
           )}

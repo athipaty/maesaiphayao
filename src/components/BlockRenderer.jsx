@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react'
+﻿import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 const BACKEND_ORIGIN = (import.meta.env.VITE_API_URL || '').replace(/\/api\/abt.*$/, '') || 'https://center-kitchen-backend.onrender.com'
@@ -579,19 +579,12 @@ function ExcelBlock({ data, preview }) {
   )
 }
 
+// Renders admin-authored HTML (embeds, custom markup). Deliberately does NOT
+// execute <script> tags inside it -- dangerouslySetInnerHTML already inserts
+// them inert, and that's load-bearing here: this block is reachable by anyone
+// with the admin password, so letting scripts run would make it a stored-XSS
+// vector served to every site visitor.
 function HtmlBlock({ data, preview }) {
-  const ref = useRef(null)
-
-  useEffect(() => {
-    if (!ref.current) return
-    ref.current.querySelectorAll('script').forEach(old => {
-      const s = document.createElement('script')
-      Array.from(old.attributes).forEach(a => s.setAttribute(a.name, a.value))
-      s.textContent = old.textContent
-      old.parentNode.replaceChild(s, old)
-    })
-  }, [data.html])
-
   if (!data.html) return null
   if (preview) {
     return (
@@ -602,7 +595,7 @@ function HtmlBlock({ data, preview }) {
     )
   }
   return (
-    <div ref={ref} className="mb-2" dangerouslySetInnerHTML={{ __html: data.html }} />
+    <div className="mb-2" dangerouslySetInnerHTML={{ __html: data.html }} />
   )
 }
 

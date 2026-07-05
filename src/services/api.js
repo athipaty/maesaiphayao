@@ -15,6 +15,7 @@ api.interceptors.request.use(config => {
 // ── Admin auth ────────────────────────────────────────────────────────────────
 export const loginAdmin  = (password) => authApi.post('/login', { password })
 export const verifyAdmin = (token)    => authApi.post('/verify', { token })
+export const logoutAdmin = (token)    => authApi.post('/logout', { token })
 
 // ── News ──────────────────────────────────────────────────────────────────────
 export const getNews       = (params) => api.get('/news', { params })

@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { loginAdmin, verifyAdmin } from '../../services/api'
+import { loginAdmin, verifyAdmin, logoutAdmin } from '../../services/api'
 
 const MENU = [
   { path: '/admin/pages',         label: 'จัดการเมนู/หน้า',    icon: '🗂️' },
@@ -72,6 +72,8 @@ export default function AdminLayout() {
   }
 
   function logout() {
+    const token = sessionStorage.getItem('abt_token')
+    if (token) logoutAdmin(token).catch(() => {})
     sessionStorage.removeItem('abt_token')
     setAuthed(false)
     navigate('/admin')
