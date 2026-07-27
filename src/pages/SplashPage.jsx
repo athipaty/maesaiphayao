@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-const PRINCESS_IMAGE = 'https://th-images.th-hellomagazine.com/wp-content/uploads/2023/01/08103033/F12FE394-89D1-4736-9AAC-7D4BBE116809.png?tr=w-1600'
+const KING_IMAGE = '/king-rama-x.jpg'
 
 export default function SplashPage({ onEnter }) {
   const [anim, setAnim] = useState('hidden') // hidden → entering → visible → leaving
@@ -29,7 +29,7 @@ export default function SplashPage({ onEnter }) {
     <div style={{
       position: 'fixed', inset: 0, zIndex: 9999,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: `rgba(0,0,0,${backdropOpacity})`,
+      background: `rgba(40,30,0,${backdropOpacity})`,
       backdropFilter: anim === 'hidden' || anim === 'leaving' ? 'blur(0px)' : 'blur(6px)',
       transition: 'background 0.6s ease, backdrop-filter 0.6s ease',
       fontFamily: "'Sarabun', sans-serif",
@@ -52,10 +52,10 @@ export default function SplashPage({ onEnter }) {
 
       {/* Card */}
       <div style={{
-        background: 'linear-gradient(160deg, #1a1a1a 0%, #111111 60%, #0d0d0d 100%)',
+        background: 'linear-gradient(160deg, #3a2a05 0%, #241a02 60%, #1a1200 100%)',
         borderRadius: '6px',
-        border: '1px solid rgba(255,255,255,0.12)',
-        boxShadow: '0 28px 72px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.06)',
+        border: '1px solid rgba(255,215,90,0.35)',
+        boxShadow: '0 28px 72px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,215,90,0.15)',
         padding: '28px 20px 22px',
         maxWidth: '340px',
         width: '88%',
@@ -64,7 +64,7 @@ export default function SplashPage({ onEnter }) {
         animation: cardAnimation,
       }}>
 
-        {/* Black ribbon corner */}
+        {/* Gold ribbon corner */}
         <div style={{
           position: 'absolute', top: 0, right: 0,
           width: '80px', height: '80px',
@@ -74,23 +74,23 @@ export default function SplashPage({ onEnter }) {
             position: 'absolute',
             top: '18px', right: '-22px',
             width: '100px', height: '22px',
-            background: '#2a2a2a',
-            borderTop: '1px solid rgba(255,255,255,0.15)',
-            borderBottom: '1px solid rgba(255,255,255,0.15)',
+            background: '#5a4108',
+            borderTop: '1px solid rgba(255,215,90,0.3)',
+            borderBottom: '1px solid rgba(255,215,90,0.3)',
             transform: 'rotate(45deg)',
-            fontSize: '9px', color: 'rgba(255,255,255,0.4)',
+            fontSize: '9px', color: 'rgba(255,215,90,0.6)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             letterSpacing: '1px',
-          }}>▪ ▪ ▪</div>
+          }}>✦ ✦ ✦</div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', position: 'relative', zIndex: 1 }}>
 
           {/* Top ornament */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', justifyContent: 'center' }}>
-            <div style={{ height: '1px', flex: 1, background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.2))' }}/>
-            <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)', animation: 'fadeBreath 3s ease-in-out infinite' }}>✦</span>
-            <div style={{ height: '1px', flex: 1, background: 'linear-gradient(to left, transparent, rgba(255,255,255,0.2))' }}/>
+            <div style={{ height: '1px', flex: 1, background: 'linear-gradient(to right, transparent, rgba(255,215,90,0.4))' }}/>
+            <span style={{ fontSize: '14px', color: 'rgba(255,215,90,0.7)', animation: 'fadeBreath 3s ease-in-out infinite' }}>✦</span>
+            <div style={{ height: '1px', flex: 1, background: 'linear-gradient(to left, transparent, rgba(255,215,90,0.4))' }}/>
           </div>
 
           {/* Portrait */}
@@ -98,30 +98,29 @@ export default function SplashPage({ onEnter }) {
             {/* Outer frame */}
             <div style={{
               position: 'absolute', inset: '-8px',
-              border: '1px solid rgba(255,255,255,0.18)',
+              border: '1px solid rgba(255,215,90,0.4)',
               borderRadius: '2px',
             }}/>
             <div style={{
               position: 'relative',
               width: '180px', height: '220px',
-              background: '#222',
-              border: '2px solid rgba(255,255,255,0.25)',
+              background: '#2a1e04',
+              border: '2px solid rgba(255,215,90,0.5)',
               overflow: 'hidden',
               margin: '0 auto',
             }}>
               <img
-                src={PRINCESS_IMAGE}
-                alt="พระองค์หญิง"
+                src={KING_IMAGE}
+                alt="พระบาทสมเด็จพระเจ้าอยู่หัว"
                 style={{
                   width: '100%', height: '100%',
                   objectFit: 'cover', objectPosition: 'center center',
-                  filter: 'grayscale(100%) contrast(0.9) brightness(0.85)',
                 }}
               />
-              {/* Subtle dark vignette over image */}
+              {/* Subtle gold vignette over image */}
               <div style={{
                 position: 'absolute', inset: 0,
-                background: 'linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.4) 100%)',
+                background: 'linear-gradient(to bottom, transparent 60%, rgba(40,28,0,0.4) 100%)',
               }}/>
             </div>
           </div>
@@ -130,23 +129,23 @@ export default function SplashPage({ onEnter }) {
           <div style={{ textAlign: 'center', width: '100%' }}>
 
             <div style={{
-              fontSize: '20px', fontWeight: 700,
-              color: 'rgba(255,255,255,0.92)',
-              letterSpacing: '2px', lineHeight: 1.5,
+              fontSize: '18px', fontWeight: 700,
+              color: 'rgba(255,225,140,0.95)',
+              letterSpacing: '1px', lineHeight: 1.5,
               marginBottom: '4px',
             }}>
-              น้อมส่งเสด็จสู่สวรรคาลัย
+              เนื่องในโอกาสวันเฉลิมพระชนมพรรษา<br/>74 พรรษา
             </div>
 
             <div style={{
               height: '1px',
-              background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent)',
+              background: 'linear-gradient(to right, transparent, rgba(255,215,90,0.35), transparent)',
               margin: '10px auto',
               width: '80%',
             }}/>
 
             <p style={{
-              fontSize: '12px', color: 'rgba(255,255,255,0.55)',
+              fontSize: '12px', color: 'rgba(255,235,190,0.7)',
               lineHeight: 1.9, marginBottom: '6px',
             }}>
               ข้าพระพุทธเจ้า ผู้บริหาร ข้าราชการ<br/>
@@ -155,10 +154,10 @@ export default function SplashPage({ onEnter }) {
             </p>
 
             <p style={{
-              fontSize: '11px', color: 'rgba(255,255,255,0.3)',
+              fontSize: '11px', color: 'rgba(255,215,90,0.5)',
               letterSpacing: '1px', marginBottom: '18px',
             }}>
-              ขอน้อมรำลึกในพระกรุณาธิคุณ
+              ขอพระองค์ทรงพระเจริญ
             </p>
 
             {/* Enter button */}
@@ -167,8 +166,8 @@ export default function SplashPage({ onEnter }) {
               className="spl-enter-btn"
               style={{
                 background: 'transparent',
-                border: '1px solid rgba(255,255,255,0.3)',
-                color: 'rgba(255,255,255,0.65)',
+                border: '1px solid rgba(255,215,90,0.45)',
+                color: 'rgba(255,225,140,0.85)',
                 padding: '9px 28px',
                 borderRadius: '3px',
                 fontSize: '13px', fontWeight: 600,
@@ -183,9 +182,9 @@ export default function SplashPage({ onEnter }) {
 
           {/* Bottom ornament */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', justifyContent: 'center' }}>
-            <div style={{ height: '1px', flex: 1, background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.2))' }}/>
-            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)' }}>✦</span>
-            <div style={{ height: '1px', flex: 1, background: 'linear-gradient(to left, transparent, rgba(255,255,255,0.2))' }}/>
+            <div style={{ height: '1px', flex: 1, background: 'linear-gradient(to right, transparent, rgba(255,215,90,0.3))' }}/>
+            <span style={{ fontSize: '10px', color: 'rgba(255,215,90,0.45)' }}>✦</span>
+            <div style={{ height: '1px', flex: 1, background: 'linear-gradient(to left, transparent, rgba(255,215,90,0.3))' }}/>
           </div>
 
         </div>
