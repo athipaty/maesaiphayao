@@ -221,8 +221,10 @@ const MAIN_TABS = [
 ]
 
 export default function ProcurementPage() {
+  // Defaults to the e-GP (realtime) tab — the "local" tab is admin-managed and currently
+  // has no entries, so defaulting to it left direct/bookmarked visits looking empty too.
   const [searchParams] = useSearchParams()
-  const initialTab = MAIN_TABS.some(t => t.key === searchParams.get('tab')) ? searchParams.get('tab') : 'local'
+  const initialTab = MAIN_TABS.some(t => t.key === searchParams.get('tab')) ? searchParams.get('tab') : 'egp'
   const [tab, setTab] = useState(initialTab)
 
   return (
