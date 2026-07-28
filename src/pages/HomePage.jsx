@@ -397,7 +397,7 @@ export default function HomePage() {
             <span>📦</span>
             <span className="text-sm font-semibold text-primary">ระบบ e-GP (เรียลไทม์)</span>
           </div>
-          <Link to="/procurement" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
+          <Link to="/procurement?tab=egp" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
         </div>
 
         <div className="overflow-y-auto flex-1" style={{ maxHeight: '460px' }}>

@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import { getProcurement, getEgpRss } from '../services/api'
 
@@ -220,7 +221,9 @@ const MAIN_TABS = [
 ]
 
 export default function ProcurementPage() {
-  const [tab, setTab] = useState('local')
+  const [searchParams] = useSearchParams()
+  const initialTab = MAIN_TABS.some(t => t.key === searchParams.get('tab')) ? searchParams.get('tab') : 'local'
+  const [tab, setTab] = useState(initialTab)
 
   return (
     <div>
