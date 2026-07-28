@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
+import PdfPreviewPanel from '../components/PdfPreviewPanel'
 import { getProcurement, getEgpRss } from '../services/api'
 
 // anounceType codes from CGD e-GP RSS manual
@@ -72,7 +73,7 @@ function LocalTab() {
 }
 
 function EgpTab() {
-  const [anounceType, setAnounceType] = useState('D0')
+  const [anounceType, setAnounceType] = useState('W0')
   const [items, setItems]             = useState([])
   const [loading, setLoading]         = useState(true)
   const [error, setError]             = useState('')
@@ -80,6 +81,11 @@ function EgpTab() {
   const [staleAt, setStaleAt]         = useState(null)
   const [fetchedAt, setFetchedAt]     = useState(null)
   const [tick, setTick]               = useState(0)  // bump to force re-fetch
+  const [pdfOpen, setPdfOpen]         = useState({})
+
+  function togglePdf(id) {
+    setPdfOpen(s => ({ ...s, [id]: !s[id] }))
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -173,42 +179,50 @@ function EgpTab() {
         <div className="p-10 text-center text-gray-400 text-sm">ไม่พบข้อมูลในขณะนี้</div>
       ) : items.length === 0 ? null : (
         <div className="divide-y divide-gray-50">
-          {items.map((item, i) => (
-            <div key={i} className="px-4 py-3 hover:bg-pink-50/30 transition-colors">
-
-              {/* Line 1: number + title (1 line) + date */}
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                  {i + 1}
-                </span>
-                {item.link
-                  ? <a href={item.link} target="_blank" rel="noreferrer"
-                      className="flex-1 min-w-0 text-sm text-primary hover:text-secondary font-medium truncate">
-                      {item.title}
-                    </a>
-                  : <span className="flex-1 min-w-0 text-sm text-gray-800 font-medium truncate">{item.title}</span>
-                }
-                <span className="text-[11px] text-gray-400 whitespace-nowrap flex-shrink-0">
-                  {item.date ? new Date(item.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }) : ''}
-                </span>
-              </div>
-
-              {/* Line 2: winner (left, truncated) + amount (right edge) */}
-              {(item.winner || item.amount != null) && (
-                <div className="flex items-center gap-2 mt-1.5 pl-7">
-                  <span className="flex-1 min-w-0 text-xs text-green-700 truncate">
-                    {item.winner ? `🏆 ${item.winner}` : ''}
-                  </span>
-                  {item.amount != null && (
-                    <span className="text-xs font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
-                      {Number(item.amount).toLocaleString('th-TH')} บาท
+          {items.map((item, i) => {
+            const id = item._id || i
+            const open = pdfOpen[id]
+            return (
+              <div key={id} className="hover:bg-pink-50/30 transition-colors">
+                <div
+                  className={`px-4 py-3 ${item.link ? 'cursor-pointer' : ''}`}
+                  onClick={() => item.link && togglePdf(id)}
+                >
+                  {/* Line 1: number + title (1 line) + date */}
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                      {i + 1}
                     </span>
+                    <span className={`flex-1 min-w-0 text-sm font-medium truncate ${item.link ? 'text-primary' : 'text-gray-800'}`}>
+                      {item.title}
+                    </span>
+                    <span className="text-[11px] text-gray-400 whitespace-nowrap flex-shrink-0">
+                      {item.date ? new Date(item.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }) : ''}
+                    </span>
+                    {item.link && (
+                      <span className={`text-xs flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}>▾</span>
+                    )}
+                  </div>
+
+                  {/* Line 2: winner (left, truncated) + amount (right edge) */}
+                  {(item.winner || item.amount != null) && (
+                    <div className="flex items-center gap-2 mt-1.5 pl-7">
+                      <span className="flex-1 min-w-0 text-xs text-green-700 truncate">
+                        {item.winner ? `🏆 ${item.winner}` : ''}
+                      </span>
+                      {item.amount != null && (
+                        <span className="text-xs font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
+                          {Number(item.amount).toLocaleString('th-TH')} บาท
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
 
-            </div>
-          ))}
+                {open && <PdfPreviewPanel fileUrl={item.link} title={item.title} />}
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
