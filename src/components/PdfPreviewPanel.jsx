@@ -1,12 +1,16 @@
+const API_BASE = import.meta.env.VITE_API_URL || '/api/abt'
+
 function iframeSrc(url) {
   if (!url) return ''
   const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/)
   if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`
   if (url.includes('backblazeb2.com')) return url
-  // gprocurement.go.th (e-GP) announcement links are session/cookie-gated HTML pages, not
-  // plain PDFs — Google Docs Viewer fetches server-side with no cookies/JS and renders blank
-  // (the Thai wording never loads). The page itself renders fine directly in a real browser.
-  if (url.includes('gprocurement.go.th')) return url
+  // gprocurement.go.th (e-GP) announcement links are session/JS-gated HTML pages, not plain
+  // PDFs — embedding the live URL directly (or via Google Docs Viewer) comes back blank, since
+  // neither Docs Viewer's server-side fetch nor a cross-origin iframe can complete the page's
+  // own onload redirect. Route through our backend proxy instead, which fetches server-side
+  // and strips the broken script, leaving the actual announcement text renderable.
+  if (url.includes('gprocurement.go.th')) return `${API_BASE}/egp-proxy?url=${encodeURIComponent(url)}`
   return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
 }
 
