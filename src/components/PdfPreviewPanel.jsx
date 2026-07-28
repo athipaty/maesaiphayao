@@ -3,6 +3,10 @@ function iframeSrc(url) {
   const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/)
   if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`
   if (url.includes('backblazeb2.com')) return url
+  // gprocurement.go.th (e-GP) announcement links are session/cookie-gated HTML pages, not
+  // plain PDFs — Google Docs Viewer fetches server-side with no cookies/JS and renders blank
+  // (the Thai wording never loads). The page itself renders fine directly in a real browser.
+  if (url.includes('gprocurement.go.th')) return url
   return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
 }
 
