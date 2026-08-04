@@ -10,6 +10,7 @@ const MENU = [
 { path: '/admin/staff',         label: 'บุคลากร',             icon: '👥' },
   { path: '/admin/travel',        label: 'สถานที่ท่องเที่ยว',   icon: '🗺️' },
   { path: '/admin/products',      label: 'สินค้า OTOP',         icon: '🛍️' },
+  { path: '/admin/videos',        label: 'วิดีโอ YouTube',      icon: '▶️' },
   { section: 'บริการสาธารณะ' },
   { path: '/admin/eservice',      label: 'คำร้อง e-Service',    icon: '🌐' },
   { path: '/admin/complaints',    label: 'เรื่องร้องเรียน',      icon: '📮' },

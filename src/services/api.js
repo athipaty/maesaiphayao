@@ -51,6 +51,12 @@ export const createTravel  = (data)      => api.post('/travel', data)
 export const updateTravel  = (id, data)  => api.put(`/travel/${id}`, data)
 export const deleteTravel  = (id)        => api.delete(`/travel/${id}`)
 
+// ── Videos (YouTube) ────────────────────────────────────────────────────────────
+export const getVideos    = (params)    => api.get('/videos', { params })
+export const createVideo  = (data)      => api.post('/videos', data)
+export const updateVideo  = (id, data)  => api.put(`/videos/${id}`, data)
+export const deleteVideo  = (id)        => api.delete(`/videos/${id}`)
+
 // ── Products ──────────────────────────────────────────────────────────────────
 export const getProducts    = (params)    => api.get('/products', { params })
 export const getProductById = (id)        => api.get(`/products/${id}`)

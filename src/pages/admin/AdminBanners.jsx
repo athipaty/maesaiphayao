@@ -242,7 +242,7 @@ export default function AdminBanners() {
                     <span className="text-gray-500">ขั้นต่ำ</span><span className="text-gray-700 font-medium">240 × 140 px</span>
                   </div>
                   <div className="grid grid-cols-2 px-3 py-1.5 border-b border-gray-50 bg-blue-50">
-                    <span className="text-blue-600 font-semibold">แนะนำ</span><span className="text-blue-700 font-semibold">400 × 200 px</span>
+                    <span className="text-blue-600 font-semibold">แนะนำ</span><span className="text-blue-700 font-semibold">400 × 170 px</span>
                   </div>
                   <div className="grid grid-cols-2 px-3 py-1.5">
                     <span className="text-gray-500">ฟอร์แมต</span><span className="text-gray-700 font-medium">JPG หรือ PNG</span>

@@ -58,6 +58,7 @@ const AdminProcurement    = lazy(() => import("./pages/admin/AdminProcurement"))
 const AdminProcurementPlan = lazy(() => import("./pages/admin/AdminProcurementPlan"));
 const AdminStaff          = lazy(() => import("./pages/admin/AdminStaff"));
 const AdminTravel         = lazy(() => import("./pages/admin/AdminTravel"));
+const AdminVideos         = lazy(() => import("./pages/admin/AdminVideos"));
 const AdminProducts       = lazy(() => import("./pages/admin/AdminProducts"));
 const AdminIta            = lazy(() => import("./pages/admin/AdminIta"));
 const AdminEService       = lazy(() => import("./pages/admin/AdminEService"));
@@ -155,6 +156,7 @@ export default function App() {
           <Route path="procurement-plans" element={<ChunkErrorBoundary><Suspense fallback={null}><AdminProcurementPlan /></Suspense></ChunkErrorBoundary>} />
           <Route path="staff"            element={<ChunkErrorBoundary><Suspense fallback={null}><AdminStaff /></Suspense></ChunkErrorBoundary>} />
           <Route path="travel"           element={<ChunkErrorBoundary><Suspense fallback={null}><AdminTravel /></Suspense></ChunkErrorBoundary>} />
+          <Route path="videos"           element={<ChunkErrorBoundary><Suspense fallback={null}><AdminVideos /></Suspense></ChunkErrorBoundary>} />
           <Route path="products"         element={<ChunkErrorBoundary><Suspense fallback={null}><AdminProducts /></Suspense></ChunkErrorBoundary>} />
           <Route path="ita"              element={<ChunkErrorBoundary><Suspense fallback={null}><AdminIta /></Suspense></ChunkErrorBoundary>} />
           <Route path="eservice"         element={<ChunkErrorBoundary><Suspense fallback={null}><AdminEService /></Suspense></ChunkErrorBoundary>} />

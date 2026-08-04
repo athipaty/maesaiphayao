@@ -69,9 +69,9 @@ export default function Sidebar({ onNavigate, mobile = false }) {
             <div className="flex items-center gap-3 min-w-0">
               {settings.logoImage ? (
                 <img src={settings.logoImage} alt="logo"
-                  className="w-11 h-11 rounded-full object-cover ring-2 ring-white/40 flex-shrink-0" />
+                  className="w-16 h-16 rounded-full object-cover ring-2 ring-white/40 flex-shrink-0" />
               ) : (
-                <div className="w-11 h-11 rounded-full bg-white/20 ring-2 ring-white/40 flex items-center justify-center text-[10px] font-bold text-center leading-tight flex-shrink-0">
+                <div className="w-16 h-16 rounded-full bg-white/20 ring-2 ring-white/40 flex items-center justify-center text-xs font-bold text-center leading-tight flex-shrink-0">
                   อบต.<br/>แม่ใส
                 </div>
               )}

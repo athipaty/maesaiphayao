@@ -1,9 +1,15 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { getNews, getAnnouncements, getProcurement, getTravel, getFacebookPage, getEgpRss, getNotices } from '../services/api'
+import { getNews, getAnnouncements, getProcurement, getTravel, getProducts, getVideos, getFacebookPage, getEgpRss, getNotices } from '../services/api'
 import { NewsSection, DEPT_LABELS, DEPT_ICONS } from '../components/NewsSection'
 
 const DEPARTMENTS = ['council', 'office', 'disaster', 'health', 'engineering', 'finance']
+
+function getYoutubeId(url) {
+  if (!url) return ''
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/)
+  return m ? m[1] : ''
+}
 
 function SectionBanner({ icon, label }) {
   return (
@@ -28,6 +34,8 @@ export default function HomePage() {
   const [procNews, setProcNews]     = useState([])
   const [loading, setLoading]       = useState(true)
   const [travel, setTravel]         = useState([])
+  const [products, setProducts]     = useState([])
+  const [videos, setVideos]         = useState([])
   const [prTab, setPrTab]           = useState('announcement')
   const [procTab, setProcTab]       = useState('egp')
   const [egpOpen, setEgpOpen]       = useState({})
@@ -74,11 +82,13 @@ export default function HomePage() {
         setAllNews(flat)
         setDeptNews(map)
 
-        const [ann, nl, pn, tv] = await Promise.all([
+        const [ann, nl, pn, tv, pd, vd] = await Promise.all([
           getAnnouncements({ type: 'announcement' }),
           getAnnouncements({ type: 'newsletter' }),
           getProcurement({ type: 'news' }),
           getTravel({ limit: 6 }),
+          getProducts({ limit: 6 }),
+          getVideos(),
         ])
         getFacebookPage().then(r => setFbPage(r?.data)).catch(() => {})
         getNotices().then(r => setNotices(Array.isArray(r?.data) ? r.data : [])).catch(() => {})
@@ -103,6 +113,8 @@ export default function HomePage() {
           setTimeout(() => fetchEgp(), 6000)
         })
         setTravel((tv?.data || []).slice(0, 6))
+        setProducts((pd?.data || []).slice(0, 6))
+        setVideos((vd?.data || []).slice(0, 6))
       } catch (err) {
         console.error(err)
       } finally {
@@ -498,6 +510,76 @@ export default function HomePage() {
                 )
               })}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── สินค้า OTOP ───────────────────────────────────────────────── */}
+      {products.length > 0 && <SectionBanner icon="🛍️" label="สินค้า OTOP" />}
+
+      {products.length > 0 && (
+        <div className="card">
+          <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <span>🛍️</span>
+              <span className="text-sm font-semibold text-primary">สินค้าผลิตภัณฑ์ตำบลแม่ใส (OTOP)</span>
+            </div>
+            <Link to="/products" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4">
+            {products.map((item, i) => {
+              const mainImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
+              return (
+                <div key={i} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
+                  <div className="relative overflow-hidden bg-green-50 aspect-[4/3]">
+                    {mainImg
+                      ? <img src={mainImg} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🛍️</div>
+                    }
+                    {item.price != null && (
+                      <div className="absolute top-2 right-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                        ฿{Number(item.price).toLocaleString()}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs font-medium text-gray-700 px-2 py-1.5 leading-snug line-clamp-2">{item.title}</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── วิดีโอ YouTube ────────────────────────────────────────────── */}
+      {videos.length > 0 && <SectionBanner icon="▶️" label="วิดีโอแนะนำ" />}
+
+      {videos.length > 0 && (
+        <div className="card">
+          <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-gray-100">
+            <span>▶️</span>
+            <span className="text-sm font-semibold text-primary">วิดีโอแนะนำตำบลแม่ใส</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4">
+            {videos.map((item, i) => {
+              const id = getYoutubeId(item.youtubeUrl)
+              if (!id) return null
+              return (
+                <div key={i} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm bg-white">
+                  <div className="aspect-video">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${id}`}
+                      className="w-full h-full"
+                      title={item.title}
+                      allowFullScreen
+                      loading="lazy"
+                    />
+                  </div>
+                  <p className="text-xs font-medium text-gray-700 px-2 py-1.5 leading-snug line-clamp-2">{item.title}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
       )}
