@@ -17,10 +17,14 @@ const GRADIENT_PRESETS = [
 ]
 
 const ANIMATION_OPTIONS = [
-  { value: 'none',    label: 'ไม่มี',        desc: 'นิ่ง ไม่มีเอฟเฟกต์' },
-  { value: 'glow',    label: 'เรืองแสง',     desc: 'สว่าง-หรี่เบาๆ' },
-  { value: 'shimmer', label: 'แสงวิ่งผ่าน',  desc: 'แสงสไลด์ผ่านตัวการ์ด' },
-  { value: 'both',    label: 'ทั้งสองแบบ',   desc: 'เรืองแสง + แสงวิ่งผ่าน' },
+  { value: 'none',       label: 'ไม่มี',        desc: 'นิ่ง ไม่มีเอฟเฟกต์' },
+  { value: 'glow',       label: 'เรืองแสง',     desc: 'สว่าง-หรี่เบาๆ' },
+  { value: 'shimmer',    label: 'แสงวิ่งผ่าน',  desc: 'แสงสไลด์ผ่านตัวการ์ด' },
+  { value: 'both',       label: 'ทั้งสองแบบ',   desc: 'เรืองแสง + แสงวิ่งผ่าน' },
+  { value: 'pulse',      label: 'เต้นเบาๆ',     desc: 'ขยาย-หดตัวช้าๆ' },
+  { value: 'float',      label: 'ลอยขึ้นลง',    desc: 'เลื่อนขึ้น-ลงเบาๆ' },
+  { value: 'shake',      label: 'สั่นเบาๆ',     desc: 'เอียงซ้าย-ขวาเป็นจังหวะ' },
+  { value: 'borderGlow', label: 'ขอบเรืองแสง',  desc: 'แสงเรืองที่ขอบการ์ด' },
 ]
 
 const EMPTY = { label: '', sub: '', href: 'https://', bg: GRADIENT_PRESETS[0].value, imageUrl: '', order: 0, active: true, animation: 'both' }
@@ -28,6 +32,16 @@ const EMPTY = { label: '', sub: '', href: 'https://', bg: GRADIENT_PRESETS[0].va
 function bannerStyle(item) {
   if (item.imageUrl) return { backgroundImage: `url(${item.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
   return { background: item.bg }
+}
+
+// Maps a banner's `animation` field to the preview element's CSS class(es).
+const PREVIEW_ANIM_CLASS = {
+  glow: 'preview-glow', both: 'preview-glow',
+  pulse: 'preview-pulse', float: 'preview-float',
+  shake: 'preview-shake', borderGlow: 'preview-border-glow',
+}
+function previewAnimClass(anim) {
+  return PREVIEW_ANIM_CLASS[anim] || ''
 }
 
 export default function AdminBanners() {
@@ -241,7 +255,30 @@ export default function AdminBanners() {
                   0%,100% { filter: brightness(1); }
                   50%     { filter: brightness(1.18); }
                 }
-                .preview-glow { animation: preview-glow 2.4s ease-in-out infinite; }
+                @keyframes preview-pulse {
+                  0%,100% { transform: scale(1); }
+                  50%     { transform: scale(1.06); }
+                }
+                @keyframes preview-float {
+                  0%,100% { transform: translateY(0); }
+                  50%     { transform: translateY(-8px); }
+                }
+                @keyframes preview-shake {
+                  0%, 85%, 100% { transform: rotate(0deg); }
+                  88%  { transform: rotate(-4deg); }
+                  91%  { transform: rotate(4deg); }
+                  94%  { transform: rotate(-3deg); }
+                  97%  { transform: rotate(3deg); }
+                }
+                @keyframes preview-border-glow {
+                  0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
+                  50%     { box-shadow: 0 0 0 6px rgba(255,255,255,0); }
+                }
+                .preview-glow        { animation: preview-glow 2.4s ease-in-out infinite; }
+                .preview-pulse       { animation: preview-pulse 2s ease-in-out infinite; }
+                .preview-float       { animation: preview-float 2.4s ease-in-out infinite; }
+                .preview-shake       { animation: preview-shake 3.5s ease-in-out infinite; }
+                .preview-border-glow { animation: preview-border-glow 2s ease-in-out infinite; }
                 .preview-shimmer-el {
                   position: absolute; top: 0; left: 0; width: 40%; height: 100%;
                   background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.35) 50%, transparent 80%);
@@ -358,7 +395,7 @@ export default function AdminBanners() {
 
               {/* Preview */}
               <div className="flex justify-center">
-                <div className={`flex flex-col items-center justify-start gap-0.5 rounded-xl pt-3 pb-5 px-8 min-w-[160px] min-h-[80px] relative overflow-hidden ${(form.animation === 'glow' || form.animation === 'both') ? 'preview-glow' : ''}`}
+                <div className={`flex flex-col items-center justify-start gap-0.5 rounded-xl pt-3 pb-5 px-8 min-w-[160px] min-h-[80px] relative overflow-hidden ${previewAnimClass(form.animation)}`}
                   style={bannerStyle(form)}>
                   {(form.animation === 'shimmer' || form.animation === 'both') && (
                     <span className="preview-shimmer-el" />

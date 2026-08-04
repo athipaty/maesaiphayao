@@ -35,6 +35,25 @@ export default function Footer() {
           0%,100% { filter: brightness(1); }
           50%     { filter: brightness(1.18); }
         }
+        @keyframes banner-pulse {
+          0%,100% { transform: scale(1); }
+          50%     { transform: scale(1.05); }
+        }
+        @keyframes banner-float {
+          0%,100% { transform: translateY(0); }
+          50%     { transform: translateY(-6px); }
+        }
+        @keyframes banner-shake {
+          0%, 85%, 100% { transform: rotate(0deg); }
+          88%  { transform: rotate(-4deg); }
+          91%  { transform: rotate(4deg); }
+          94%  { transform: rotate(-3deg); }
+          97%  { transform: rotate(3deg); }
+        }
+        @keyframes banner-border-glow {
+          0%,100% { box-shadow: 0 2px 10px rgba(0,0,0,0.3), 0 0 0 0 rgba(255,255,255,0.7); }
+          50%     { box-shadow: 0 2px 10px rgba(0,0,0,0.3), 0 0 0 5px rgba(255,255,255,0); }
+        }
         .footer-banner { position: relative; overflow: hidden; }
         .footer-shimmer {
           position: absolute; top: 0; left: 0; width: 40%; height: 100%;
@@ -50,6 +69,18 @@ export default function Footer() {
           }
           if (anim === 'shimmer' || anim === 'both') {
             rules.push(`.footer-banner:nth-child(${i + 1}) .footer-shimmer { display: block; background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.3) 50%, transparent 80%); animation: banner-shimmer 3s ease-in-out infinite; animation-delay: ${delay}; }`)
+          }
+          if (anim === 'pulse') {
+            rules.push(`.footer-banner:nth-child(${i + 1}) { animation: banner-pulse 2s ease-in-out infinite; animation-delay: ${delay}; }`)
+          }
+          if (anim === 'float') {
+            rules.push(`.footer-banner:nth-child(${i + 1}) { animation: banner-float 2.4s ease-in-out infinite; animation-delay: ${delay}; }`)
+          }
+          if (anim === 'shake') {
+            rules.push(`.footer-banner:nth-child(${i + 1}) { animation: banner-shake 3.5s ease-in-out infinite; animation-delay: ${delay}; }`)
+          }
+          if (anim === 'borderGlow') {
+            rules.push(`.footer-banner:nth-child(${i + 1}) { animation: banner-border-glow 2s ease-in-out infinite; animation-delay: ${delay}; }`)
           }
           return rules.join('\n        ')
         }).join('\n        ')}
