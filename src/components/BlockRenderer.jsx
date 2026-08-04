@@ -517,7 +517,7 @@ function WordFileIcon({ size = 44 }) {
       <path d="M30 0L44 15H32C30.895 15 30 14.105 30 13V0Z" fill="#93c5fd"/>
       <rect x="0" y="34" width="44" height="16" fill="#1d4ed8"/>
       <rect x="0" y="34" width="44" height="16" fill="white" fillOpacity="0.08"/>
-      <text x="22" y="46" textAnchor="middle" fill="white" fontSize="9" fontWeight="800" fontFamily="Arial Black, Arial, sans-serif" letterSpacing="0.5">DOC</text>
+      <text x="22" y="47" textAnchor="middle" fill="white" fontSize="15" fontWeight="800" fontFamily="Arial Black, Arial, sans-serif">W</text>
       <rect x="7" y="20" width="20" height="2" rx="1" fill="white" fillOpacity="0.4"/>
       <rect x="7" y="26" width="30" height="2" rx="1" fill="white" fillOpacity="0.25"/>
     </svg>

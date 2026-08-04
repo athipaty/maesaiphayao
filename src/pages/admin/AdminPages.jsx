@@ -124,7 +124,7 @@ const BLOCK_TYPES = [
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M4 2h10l6 6v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#2563eb"/>
         <path d="M14 2l6 6h-4a2 2 0 0 1-2-2V2z" fill="#93c5fd"/>
-        <text x="12" y="17" textAnchor="middle" fill="white" fontSize="5.5" fontWeight="bold" fontFamily="Arial,sans-serif" letterSpacing="0.3">DOC</text>
+        <text x="12" y="17.5" textAnchor="middle" fill="white" fontSize="9" fontWeight="800" fontFamily="Arial,sans-serif">W</text>
       </svg>
     ), label: 'Word',      desc: 'อัปโหลดและแสดงไฟล์ Word', color: 'bg-blue-50 border-blue-200 hover:border-blue-400', accent: 'bg-blue-500' },
 ]
