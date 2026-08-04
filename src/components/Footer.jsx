@@ -35,15 +35,24 @@ export default function Footer() {
           0%,100% { filter: brightness(1); }
           50%     { filter: brightness(1.18); }
         }
-        .footer-banner { animation: banner-glow 2.4s ease-in-out infinite; position: relative; overflow: hidden; }
-        ${links.map((_, i) => `.footer-banner:nth-child(${i + 1}) { animation-delay: ${(i * 0.3).toFixed(1)}s; }`).join('\n        ')}
+        .footer-banner { position: relative; overflow: hidden; }
         .footer-shimmer {
           position: absolute; top: 0; left: 0; width: 40%; height: 100%;
-          background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.3) 50%, transparent 80%);
-          animation: banner-shimmer 3s ease-in-out infinite;
           pointer-events: none;
+          display: none;
         }
-        ${links.map((_, i) => `.footer-banner:nth-child(${i + 1}) .footer-shimmer { animation-delay: ${(i * 0.3).toFixed(1)}s; }`).join('\n        ')}
+        ${links.map((l, i) => {
+          const anim = l.animation || 'both'
+          const delay = `${(i * 0.3).toFixed(1)}s`
+          const rules = []
+          if (anim === 'glow' || anim === 'both') {
+            rules.push(`.footer-banner:nth-child(${i + 1}) { animation: banner-glow 2.4s ease-in-out infinite; animation-delay: ${delay}; }`)
+          }
+          if (anim === 'shimmer' || anim === 'both') {
+            rules.push(`.footer-banner:nth-child(${i + 1}) .footer-shimmer { display: block; background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.3) 50%, transparent 80%); animation: banner-shimmer 3s ease-in-out infinite; animation-delay: ${delay}; }`)
+          }
+          return rules.join('\n        ')
+        }).join('\n        ')}
       `}</style>
 
       {/* Related links banner row */}

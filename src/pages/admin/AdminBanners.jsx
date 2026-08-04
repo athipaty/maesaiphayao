@@ -16,7 +16,14 @@ const GRADIENT_PRESETS = [
   { label: 'ชมพู',       value: 'linear-gradient(135deg,#831843,#ec4899)' },
 ]
 
-const EMPTY = { label: '', sub: '', href: 'https://', bg: GRADIENT_PRESETS[0].value, imageUrl: '', order: 0, active: true }
+const ANIMATION_OPTIONS = [
+  { value: 'none',    label: 'ไม่มี',        desc: 'นิ่ง ไม่มีเอฟเฟกต์' },
+  { value: 'glow',    label: 'เรืองแสง',     desc: 'สว่าง-หรี่เบาๆ' },
+  { value: 'shimmer', label: 'แสงวิ่งผ่าน',  desc: 'แสงสไลด์ผ่านตัวการ์ด' },
+  { value: 'both',    label: 'ทั้งสองแบบ',   desc: 'เรืองแสง + แสงวิ่งผ่าน' },
+]
+
+const EMPTY = { label: '', sub: '', href: 'https://', bg: GRADIENT_PRESETS[0].value, imageUrl: '', order: 0, active: true, animation: 'both' }
 
 function bannerStyle(item) {
   if (item.imageUrl) return { backgroundImage: `url(${item.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
@@ -55,6 +62,7 @@ export default function AdminBanners() {
       label: item.label, sub: item.sub || '', href: item.href || '#',
       bg: item.bg || GRADIENT_PRESETS[0].value, imageUrl: item.imageUrl || '',
       order: item.order || 0, active: item.active !== false,
+      animation: item.animation || 'both',
     })
     setEditing(item._id)
   }
@@ -316,6 +324,21 @@ export default function AdminBanners() {
                       className="w-4 h-4 rounded accent-green-500" />
                     <span className="text-sm text-gray-700">เปิดใช้งาน</span>
                   </label>
+                </div>
+              </div>
+
+              {/* Animation */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-2">เอฟเฟกต์เคลื่อนไหว</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {ANIMATION_OPTIONS.map(opt => (
+                    <button key={opt.value} type="button"
+                      onClick={() => setForm(f => ({ ...f, animation: opt.value }))}
+                      className={`text-left rounded-lg border px-3 py-2 transition-colors ${form.animation === opt.value ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                      <span className={`block text-xs font-semibold ${form.animation === opt.value ? 'text-blue-700' : 'text-gray-700'}`}>{opt.label}</span>
+                      <span className="block text-[10px] text-gray-400 mt-0.5">{opt.desc}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
