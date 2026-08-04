@@ -509,6 +509,91 @@ function ExcelFileIcon({ size = 44 }) {
   )
 }
 
+function WordFileIcon({ size = 44 }) {
+  const w = size, h = size * 1.3
+  return (
+    <svg width={w} height={h} viewBox="0 0 44 57" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+      <path d="M0 5C0 2.239 2.239 0 5 0H30L44 15V52C44 54.761 41.761 57 39 57H5C2.239 57 0 54.761 0 52V5Z" fill="#2563eb"/>
+      <path d="M30 0L44 15H32C30.895 15 30 14.105 30 13V0Z" fill="#93c5fd"/>
+      <rect x="0" y="34" width="44" height="16" fill="#1d4ed8"/>
+      <rect x="0" y="34" width="44" height="16" fill="white" fillOpacity="0.08"/>
+      <text x="22" y="46" textAnchor="middle" fill="white" fontSize="9" fontWeight="800" fontFamily="Arial Black, Arial, sans-serif" letterSpacing="0.5">DOC</text>
+      <rect x="7" y="20" width="20" height="2" rx="1" fill="white" fillOpacity="0.4"/>
+      <rect x="7" y="26" width="30" height="2" rx="1" fill="white" fillOpacity="0.25"/>
+    </svg>
+  )
+}
+
+function WordBlock({ data, preview }) {
+  const [open, setOpen] = useState(false)
+  const [loadErr, setLoadErr] = useState(false)
+  if (!data.url) return null
+  const absUrl  = resolveFileUrl(data.url)
+  const viewUrl = getEmbedUrl(absUrl)
+
+  function handleOpen() { setOpen(v => !v); setLoadErr(false) }
+
+  return (
+    <div className="card mb-2 overflow-hidden">
+      <div className="p-4">
+        {data.description && <p className="text-xs text-gray-500 mb-3 leading-relaxed">{data.description}</p>}
+
+        {preview ? (
+          <div className="w-full rounded-lg border border-dashed border-blue-200 bg-blue-50 flex items-center justify-center gap-3 mb-3" style={{ height: 100 }}>
+            <WordFileIcon size={36} />
+            <div>
+              <p className="text-sm font-medium text-blue-700">{data.title || 'ไฟล์ Word'}</p>
+              <p className="text-xs text-blue-400 mt-0.5">จะแสดง Word viewer ในหน้าจริง</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <button onClick={handleOpen}
+              className="mb-3 w-full flex items-center gap-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl px-4 py-3 transition-colors group">
+              <div className="group-hover:scale-105 transition-transform">
+                <WordFileIcon size={36} />
+              </div>
+              <p className="text-sm font-semibold text-blue-700 flex-1 text-left">{data.title || 'ไฟล์ Word'}</p>
+              <p className="text-xs text-blue-400 flex-shrink-0">
+                {open ? '▲ ซ่อน' : 'กดเพื่อแสดง ▼'}
+              </p>
+            </button>
+
+            {open && (
+              <div className="mb-3">
+                <div className="w-full rounded-lg overflow-hidden border border-gray-200" style={{ height: '520px' }}>
+                  <iframe
+                    key={viewUrl}
+                    src={viewUrl}
+                    className="w-full h-full"
+                    title={data.title || 'Word'}
+                    onError={() => setLoadErr(true)}
+                  />
+                </div>
+                {loadErr && (
+                  <p className="text-xs text-amber-600 mt-1.5 text-center">
+                    ไม่สามารถแสดงตัวอย่างได้ —{' '}
+                    <a href={absUrl} target="_blank" rel="noreferrer" className="underline font-medium">เปิดในแท็บใหม่</a>
+                  </p>
+                )}
+                <p className="text-[10px] text-gray-300 mt-1 text-center">
+                  ถ้าหน้าว่างหรือโหลดไม่ได้ →{' '}
+                  <a href={absUrl} target="_blank" rel="noreferrer" className="underline text-gray-400">เปิดโดยตรง</a>
+                </p>
+              </div>
+            )}
+          </>
+        )}
+
+        <a href={absUrl} target="_blank" rel="noreferrer"
+          className="inline-flex items-center gap-2 text-xs bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors font-medium">
+          📥 ดาวน์โหลด Word
+        </a>
+      </div>
+    </div>
+  )
+}
+
 function ExcelBlock({ data, preview }) {
   const [open, setOpen] = useState(false)
   const [loadErr, setLoadErr] = useState(false)
@@ -613,6 +698,7 @@ export default function BlockRenderer({ block, preview = false }) {
     case 'alert':    return <AlertBlock    data={block.data} />
     case 'timeline': return <TimelineBlock data={block.data} />
     case 'excel':    return <ExcelBlock    data={block.data} preview={preview} />
+    case 'word':     return <WordBlock     data={block.data} preview={preview} />
     case 'html':     return <HtmlBlock     data={block.data} preview={preview} />
     default:         return null
   }

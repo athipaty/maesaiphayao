@@ -150,3 +150,9 @@ export const uploadExcel = (file) => {
   form.append('excel', file)
   return api.post('/upload-excel', form, { headers: { 'Content-Type': 'multipart/form-data' } })
 }
+
+export const uploadWord = (file) => {
+  const form = new FormData()
+  form.append('word', file)
+  return api.post('/upload-word', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+}

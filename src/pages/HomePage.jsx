@@ -419,27 +419,27 @@ export default function HomePage() {
                   <div key={i} className="transition-colors">
                     <div className="flex items-center gap-2 px-3 py-2 hover:bg-pink-50/40 cursor-pointer"
                       onClick={() => setEgpOpen(s => ({ ...s, [i]: !s[i] }))}>
-                      <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                      <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[11px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
                       {p.link
                         ? <a href={p.link} target="_blank" rel="noreferrer"
                             onClick={e => e.stopPropagation()}
-                            className="flex-1 min-w-0 text-xs text-primary hover:text-secondary font-medium truncate">{p.title}</a>
-                        : <span className="flex-1 min-w-0 text-xs text-gray-700 font-medium truncate">{p.title}</span>
+                            className="flex-1 min-w-0 text-sm text-primary hover:text-secondary font-medium truncate">{p.title}</a>
+                        : <span className="flex-1 min-w-0 text-sm text-gray-700 font-medium truncate">{p.title}</span>
                       }
                       {p.amount != null && (
-                        <span className="text-[10px] font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
+                        <span className="text-xs font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
                           {Number(p.amount).toLocaleString('th-TH')} บาท
                         </span>
                       )}
-                      <span className={`text-gray-400 text-[10px] flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
+                      <span className={`text-gray-400 text-xs flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
                     </div>
                     {open && (
                       <div className="flex items-center gap-3 px-3 pb-2 pl-9 bg-pink-50/30">
                         {p.winner && (
-                          <span className="flex-1 min-w-0 text-[10px] text-green-700 truncate">🏆 {p.winner}</span>
+                          <span className="flex-1 min-w-0 text-xs text-green-700 truncate">🏆 {p.winner}</span>
                         )}
                         {p.date && (
-                          <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
+                          <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
                             📅 {new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
                           </span>
                         )}

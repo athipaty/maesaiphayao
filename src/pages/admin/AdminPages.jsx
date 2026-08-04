@@ -3,6 +3,7 @@ import { getPages, createPage, updatePage, deletePage, uploadImage } from '../..
 import ImageUpload from '../../components/ImageUpload'
 import PdfUpload from '../../components/PdfUpload'
 import ExcelUpload from '../../components/ExcelUpload'
+import WordUpload from '../../components/WordUpload'
 import BlockRenderer from '../../components/BlockRenderer'
 
 const ICONS = ['📄','🏛️','📰','📊','💰','📋','👥','🌐','📮','🚨','📝','📚','⚖️','📞','🎭','🌿','🗺️','🛍️','🏠','ℹ️','📌','🔔','✉️','🎓','🏥','🌾','🔨','🤝','⚡','🔗']
@@ -119,6 +120,13 @@ const BLOCK_TYPES = [
         <text x="12" y="17" textAnchor="middle" fill="white" fontSize="5.5" fontWeight="bold" fontFamily="Arial,sans-serif" letterSpacing="0.3">XLS</text>
       </svg>
     ), label: 'Excel',     desc: 'อัปโหลดและแสดงไฟล์ Excel', color: 'bg-green-50 border-green-200 hover:border-green-400', accent: 'bg-green-500' },
+  { type: 'word',     icon: (
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 2h10l6 6v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#2563eb"/>
+        <path d="M14 2l6 6h-4a2 2 0 0 1-2-2V2z" fill="#93c5fd"/>
+        <text x="12" y="17" textAnchor="middle" fill="white" fontSize="5.5" fontWeight="bold" fontFamily="Arial,sans-serif" letterSpacing="0.3">DOC</text>
+      </svg>
+    ), label: 'Word',      desc: 'อัปโหลดและแสดงไฟล์ Word', color: 'bg-blue-50 border-blue-200 hover:border-blue-400', accent: 'bg-blue-500' },
 ]
 const BLOCK_META = Object.fromEntries(BLOCK_TYPES.map(b => [b.type, b]))
 
@@ -136,6 +144,7 @@ const ACCENT_BORDER = {
   timeline: 'border-l-violet-400',
   html:     'border-l-slate-400',
   excel:    'border-l-green-400',
+  word:     'border-l-blue-400',
 }
 
 // ── Shared field helpers ──────────────────────────────────────────────────────
@@ -169,6 +178,7 @@ function emptyBlock(type) {
   if (type === 'timeline') return { type, data: { title: '', items: [{ icon: '📌', year: '', title: '', desc: '', color: 'primary' }] } }
   if (type === 'html')     return { type, data: { html: '' } }
   if (type === 'excel')    return { type, data: { url: '', label: '', title: '', description: '' } }
+  if (type === 'word')     return { type, data: { url: '', label: '', title: '', description: '' } }
   return { type, data: {} }
 }
 
@@ -1010,6 +1020,22 @@ function ExcelBlockEdit({ data, onChange }) {
   )
 }
 
+function WordBlockEdit({ data, onChange }) {
+  return (
+    <div className="space-y-4">
+      <Field label="หัวข้อ" hint="ไม่บังคับ">
+        <input className={inp} placeholder="เช่น หนังสือแจ้งเวียน" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
+      </Field>
+      <Field label="คำอธิบาย" hint="ไม่บังคับ">
+        <input className={inp} placeholder="คำอธิบายสั้น ๆ" value={data.description || ''} onChange={e => onChange({ ...data, description: e.target.value })} />
+      </Field>
+      <Field label="ไฟล์ Word (.docx / .doc)">
+        <WordUpload value={data.url} label={data.label} onChange={(url, name) => onChange({ ...data, url, label: name })} />
+      </Field>
+    </div>
+  )
+}
+
 function HtmlBlockEdit({ data, onChange }) {
   return (
     <div className="space-y-4">
@@ -1044,6 +1070,7 @@ function BlockEdit({ block, onChange }) {
     case 'alert':    return <AlertBlockEdit    data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'timeline': return <TimelineBlockEdit data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'excel':    return <ExcelBlockEdit    data={block.data} onChange={d => onChange({ ...block, data: d })} />
+    case 'word':     return <WordBlockEdit     data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'html':     return <HtmlBlockEdit     data={block.data} onChange={d => onChange({ ...block, data: d })} />
     default:         return null
   }
@@ -1509,10 +1536,18 @@ function MenuManagerView({ pages, loading, onReload, onEditContent }) {
           </button>
           {!page.isBuiltin && (
             <>
-              <button onClick={() => onEditContent(page)}
-                className="text-xs font-medium text-white bg-primary hover:opacity-90 px-2.5 py-1 rounded-lg transition-colors flex-shrink-0">
-                เนื้อหา
-              </button>
+              {hasChildren ? (
+                <span
+                  title="เมนูนี้มีเมนูย่อย — แก้ไขเนื้อหาที่หน้าเมนูย่อยแทน"
+                  className="text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-lg flex-shrink-0 cursor-not-allowed select-none">
+                  เนื้อหา
+                </span>
+              ) : (
+                <button onClick={() => onEditContent(page)}
+                  className="text-xs font-medium text-white bg-primary hover:opacity-90 px-2.5 py-1 rounded-lg transition-colors flex-shrink-0">
+                  เนื้อหา
+                </button>
+              )}
               <button onClick={() => remove(page)}
                 className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all text-sm flex-shrink-0">
                 🗑️
