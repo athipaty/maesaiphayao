@@ -82,16 +82,16 @@ export default function HomePage() {
         setAllNews(flat)
         setDeptNews(map)
 
-        const [ann, nl, pn, tv, pd, vd] = await Promise.all([
+        const [ann, nl, pn, tv, pd] = await Promise.all([
           getAnnouncements({ type: 'announcement' }),
           getAnnouncements({ type: 'newsletter' }),
           getProcurement({ type: 'news' }),
           getTravel({ limit: 6 }),
           getProducts({ limit: 6 }),
-          getVideos(),
         ])
         getFacebookPage().then(r => setFbPage(r?.data)).catch(() => {})
         getNotices().then(r => setNotices(Array.isArray(r?.data) ? r.data : [])).catch(() => {})
+        getVideos().then(r => setVideos((r?.data || []).slice(0, 6))).catch(() => {})
         setAnnounce(ann?.data || [])
         setNewsletter(nl?.data || [])
         setProcNews(pn?.data || [])
@@ -114,7 +114,6 @@ export default function HomePage() {
         })
         setTravel((tv?.data || []).slice(0, 6))
         setProducts((pd?.data || []).slice(0, 6))
-        setVideos((vd?.data || []).slice(0, 6))
       } catch (err) {
         console.error(err)
       } finally {
