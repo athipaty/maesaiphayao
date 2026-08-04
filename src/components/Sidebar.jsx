@@ -92,9 +92,9 @@ export default function Sidebar({ onNavigate, mobile = false }) {
         <div className="flex-shrink-0 bg-white border-b border-gray-100 flex items-center gap-3 px-5 py-3">
           {settings.mayorImage ? (
             <img src={settings.mayorImage} alt={settings.mayorName}
-              className="w-12 h-16 rounded object-cover object-top border-2 border-yellow-300 flex-shrink-0" />
+              className="w-16 h-20 rounded object-cover object-top border-2 border-yellow-300 flex-shrink-0" />
           ) : (
-            <div className="w-12 h-16 rounded bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-2xl flex-shrink-0 border-2 border-yellow-300">👤</div>
+            <div className="w-16 h-20 rounded bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl flex-shrink-0 border-2 border-yellow-300">👤</div>
           )}
           <div className="min-w-0">
             <p className="text-sm font-semibold text-primary leading-snug">{settings.mayorName}</p>
@@ -231,10 +231,10 @@ export default function Sidebar({ onNavigate, mobile = false }) {
         {settings.mayorImage ? (
           <img src={settings.mayorImage} alt={settings.mayorName}
             className="object-cover mx-auto mb-2 border-2 border-yellow-400 rounded"
-            style={{ width: '100px', height: '150px', objectFit: 'cover', objectPosition: 'top center' }} />
+            style={{ width: '130px', height: '195px', objectFit: 'cover', objectPosition: 'top center' }} />
         ) : (
-          <div className="bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl mx-auto mb-2 rounded border-2 border-yellow-400"
-            style={{ width: '100px', height: '150px' }}>👤</div>
+          <div className="bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-4xl mx-auto mb-2 rounded border-2 border-yellow-400"
+            style={{ width: '130px', height: '195px' }}>👤</div>
         )}
         <h4 className="text-sm font-semibold text-primary">{settings.mayorName}</h4>
         <p className="text-xs text-gray-500 mt-1">{settings.mayorPosition}</p>
