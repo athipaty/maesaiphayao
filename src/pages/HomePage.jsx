@@ -552,13 +552,13 @@ export default function HomePage() {
       )}
 
       {/* ── วิดีโอ YouTube ────────────────────────────────────────────── */}
-      {videos.length > 0 && <SectionBanner icon="▶️" label="วิดีโอแนะนำ" />}
+      {videos.length > 0 && <SectionBanner icon="▶️" label="วีดีทัศน์การดำเนินงานของหน่วยงาน" />}
 
       {videos.length > 0 && (
         <div className="card">
           <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-gray-100">
             <span>▶️</span>
-            <span className="text-sm font-semibold text-primary">วิดีโอแนะนำตำบลแม่ใส</span>
+            <span className="text-sm font-semibold text-primary">วีดีทัศน์การดำเนินงานของหน่วยงาน</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4">
