@@ -232,7 +232,6 @@ export default function AdminBanners() {
             </div>
 
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
-              {/* Preview */}
               <style>{`
                 @keyframes preview-shimmer {
                   0%   { transform: translateX(-120%) skewX(-20deg); }
@@ -250,20 +249,6 @@ export default function AdminBanners() {
                   pointer-events: none;
                 }
               `}</style>
-              <div className="flex justify-center">
-                <div className={`flex flex-col items-center justify-start gap-0.5 rounded-xl pt-3 pb-5 px-8 min-w-[160px] min-h-[80px] relative overflow-hidden ${(form.animation === 'glow' || form.animation === 'both') ? 'preview-glow' : ''}`}
-                  style={bannerStyle(form)}>
-                  {(form.animation === 'shimmer' || form.animation === 'both') && (
-                    <span className="preview-shimmer-el" />
-                  )}
-                  {!form.imageUrl && (
-                    <>
-                      <span className="text-[10px] font-bold text-white/70 tracking-widest relative z-10">{form.sub || 'SUB'}</span>
-                      <span className="text-sm font-bold text-white text-center leading-snug relative z-10">{form.label || 'ชื่อแบนเนอร์'}</span>
-                    </>
-                  )}
-                </div>
-              </div>
 
               {/* Image upload */}
               <div>
@@ -368,6 +353,22 @@ export default function AdminBanners() {
                       <span className="block text-[10px] text-gray-400 mt-0.5">{opt.desc}</span>
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Preview */}
+              <div className="flex justify-center">
+                <div className={`flex flex-col items-center justify-start gap-0.5 rounded-xl pt-3 pb-5 px-8 min-w-[160px] min-h-[80px] relative overflow-hidden ${(form.animation === 'glow' || form.animation === 'both') ? 'preview-glow' : ''}`}
+                  style={bannerStyle(form)}>
+                  {(form.animation === 'shimmer' || form.animation === 'both') && (
+                    <span className="preview-shimmer-el" />
+                  )}
+                  {!form.imageUrl && (
+                    <>
+                      <span className="text-[10px] font-bold text-white/70 tracking-widest relative z-10">{form.sub || 'SUB'}</span>
+                      <span className="text-sm font-bold text-white text-center leading-snug relative z-10">{form.label || 'ชื่อแบนเนอร์'}</span>
+                    </>
+                  )}
                 </div>
               </div>
 
