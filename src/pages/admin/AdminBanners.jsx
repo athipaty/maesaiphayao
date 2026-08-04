@@ -227,9 +227,29 @@ export default function AdminBanners() {
 
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
               {/* Preview */}
+              <style>{`
+                @keyframes preview-shimmer {
+                  0%   { transform: translateX(-120%) skewX(-20deg); }
+                  100% { transform: translateX(350%)  skewX(-20deg); }
+                }
+                @keyframes preview-glow {
+                  0%,100% { filter: brightness(1); }
+                  50%     { filter: brightness(1.18); }
+                }
+                .preview-glow { animation: preview-glow 2.4s ease-in-out infinite; }
+                .preview-shimmer-el {
+                  position: absolute; top: 0; left: 0; width: 40%; height: 100%;
+                  background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.35) 50%, transparent 80%);
+                  animation: preview-shimmer 3s ease-in-out infinite;
+                  pointer-events: none;
+                }
+              `}</style>
               <div className="flex justify-center">
-                <div className="flex flex-col items-center justify-start gap-0.5 rounded-xl pt-3 pb-5 px-8 min-w-[160px] min-h-[80px] relative overflow-hidden"
+                <div className={`flex flex-col items-center justify-start gap-0.5 rounded-xl pt-3 pb-5 px-8 min-w-[160px] min-h-[80px] relative overflow-hidden ${(form.animation === 'glow' || form.animation === 'both') ? 'preview-glow' : ''}`}
                   style={bannerStyle(form)}>
+                  {(form.animation === 'shimmer' || form.animation === 'both') && (
+                    <span className="preview-shimmer-el" />
+                  )}
                   {!form.imageUrl && (
                     <>
                       <span className="text-[10px] font-bold text-white/70 tracking-widest relative z-10">{form.sub || 'SUB'}</span>
