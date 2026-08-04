@@ -37,6 +37,7 @@ export default function AdminBanners() {
   const [form, setForm]       = useState(EMPTY)
   const [saving, setSaving]   = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [uploadErr, setUploadErr] = useState('')
   const [deleting, setDeleting]   = useState(null)
   const fileRef = useRef()
 
@@ -54,6 +55,7 @@ export default function AdminBanners() {
   function openNew() {
     const maxOrder = items.length > 0 ? Math.max(...items.map(i => i.order || 0)) + 10 : 10
     setForm({ ...EMPTY, order: maxOrder })
+    setUploadErr('')
     setEditing('new')
   }
 
@@ -64,6 +66,7 @@ export default function AdminBanners() {
       order: item.order || 0, active: item.active !== false,
       animation: item.animation || 'both',
     })
+    setUploadErr('')
     setEditing(item._id)
   }
 
@@ -73,10 +76,13 @@ export default function AdminBanners() {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
+    setUploadErr('')
     try {
       const r = await uploadImage(file)
       setForm(f => ({ ...f, imageUrl: r.data.url || r.data.secure_url || '' }))
-    } catch { }
+    } catch (err) {
+      setUploadErr(err?.response?.data?.error || err?.message || 'อัปโหลดไม่สำเร็จ กรุณาลองใหม่')
+    }
     setUploading(false)
   }
 
@@ -305,6 +311,9 @@ export default function AdminBanners() {
                   </button>
                 )}
                 <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                {uploadErr && (
+                  <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mt-2">⚠️ {uploadErr}</p>
+                )}
                 {form.imageUrl && (
                   <p className="text-[10px] text-gray-400 mt-1">เมื่อมีรูปภาพ สีพื้นหลัง Gradient จะถูกซ่อน</p>
                 )}
