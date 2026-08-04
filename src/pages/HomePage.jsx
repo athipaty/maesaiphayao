@@ -11,6 +11,30 @@ function getYoutubeId(url) {
   return m ? m[1] : ''
 }
 
+function Reveal({ children, className = '' }) {
+  const ref = useRef(null)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setVisible(true)
+        io.unobserve(el)
+      }
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  return (
+    <div ref={ref} className={`reveal-section ${visible ? 'is-visible' : ''} ${className}`}>
+      {children}
+    </div>
+  )
+}
+
 function SectionBanner({ icon, label }) {
   return (
     <div className="flex items-center gap-3 mt-5 mb-2 px-1">
@@ -138,12 +162,15 @@ export default function HomePage() {
     <div>
 
       {/* ── ข่าวสารกิจกรรม ───────────────────────────────────────────── */}
-      <SectionBanner icon="📰" label="ข่าวสารกิจกรรม" />
-      {DEPARTMENTS.map(dept => (
-        <NewsSection key={dept} dept={dept} items={deptNews[dept] || []} loading={loading} />
-      ))}
+      <Reveal>
+        <SectionBanner icon="📰" label="ข่าวสารกิจกรรม" />
+        {DEPARTMENTS.map(dept => (
+          <NewsSection key={dept} dept={dept} items={deptNews[dept] || []} loading={loading} />
+        ))}
+      </Reveal>
 
       {/* ── ประชาสัมพันธ์ ─────────────────────────────────────────────── */}
+      <Reveal>
       <SectionBanner icon="📢" label="ประชาสัมพันธ์" />
 
       {/* ── Announcement marquee — mobile only (desktop shows in Facebook right panel) ── */}
@@ -234,8 +261,10 @@ export default function HomePage() {
           </div>
         )
       })()}
+      </Reveal>
 
       {/* ── Facebook ─────────────────────────────────────────────────── */}
+      <Reveal>
       <div className="card p-0 overflow-hidden">
         <div className="flex flex-col lg:flex-row">
           {/* Left: Facebook iframe — full width on mobile, half on desktop */}
@@ -337,8 +366,10 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      </Reveal>
 
       {/* ── ประกาศและจัดซื้อจัดจ้าง ──────────────────────────────────── */}
+      <Reveal>
       <SectionBanner icon="📋" label="ประกาศและจัดซื้อจัดจ้าง" />
 
       {/* ── Notices (หัวข้อประกาศ) ───────────────────────────────────── */}
@@ -463,12 +494,13 @@ export default function HomePage() {
           )}
         </div>
       </div>
+      </Reveal>
 
       {/* ── สถานที่ท่องเที่ยว ─────────────────────────────────────────── */}
-      {travel.length > 0 && <SectionBanner icon="🗺️" label="สถานที่ท่องเที่ยว" />}
-
-      {/* ── Travel marquee ────────────────────────────────────────────── */}
       {travel.length > 0 && (
+      <Reveal>
+        <SectionBanner icon="🗺️" label="สถานที่ท่องเที่ยว" />
+
         <div className="card">
           <style>{`
             @keyframes marquee {
@@ -511,12 +543,14 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+      </Reveal>
       )}
 
       {/* ── สินค้า OTOP ───────────────────────────────────────────────── */}
-      {products.length > 0 && <SectionBanner icon="🛍️" label="สินค้า OTOP" />}
-
       {products.length > 0 && (
+      <Reveal>
+        <SectionBanner icon="🛍️" label="สินค้า OTOP" />
+
         <div className="card">
           <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
             <div className="flex items-center gap-2">
@@ -548,12 +582,14 @@ export default function HomePage() {
             })}
           </div>
         </div>
+      </Reveal>
       )}
 
       {/* ── วิดีโอ YouTube ────────────────────────────────────────────── */}
-      {videos.length > 0 && <SectionBanner icon="▶️" label="วีดีทัศน์การดำเนินงานของหน่วยงาน" />}
-
       {videos.length > 0 && (
+      <Reveal>
+        <SectionBanner icon="▶️" label="วีดีทัศน์การดำเนินงานของหน่วยงาน" />
+
         <div className="card">
           <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-gray-100">
             <span>▶️</span>
@@ -581,6 +617,7 @@ export default function HomePage() {
             })}
           </div>
         </div>
+      </Reveal>
       )}
 
       {/* ── Lightbox ─────────────────────────────────────────────────── */}
