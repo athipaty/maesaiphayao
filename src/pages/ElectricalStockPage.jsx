@@ -3,6 +3,7 @@ import PageHeader from '../components/PageHeader'
 import {
   getStockItems, createStockItem, deleteStockItem,
   getStockTransactions, createStockTransaction, deleteStockTransaction,
+  loginAdmin, verifyAdmin, logoutAdmin,
 } from '../services/api'
 
 const EMPTY_ITEM = { code: '', name: '', unit: '', unitPrice: '', balance: '' }
@@ -13,7 +14,44 @@ function todayStr() {
 }
 
 export default function ElectricalStockPage() {
-  const isAdmin = !!sessionStorage.getItem('abt_token')
+  const [isAdmin, setIsAdmin]   = useState(false)
+  const [checkingAuth, setCheckingAuth] = useState(true)
+  const [pw, setPw]             = useState('')
+  const [showPw, setShowPw]     = useState(false)
+  const [loginErr, setLoginErr] = useState('')
+  const [loggingIn, setLoggingIn] = useState(false)
+
+  useEffect(() => {
+    const token = sessionStorage.getItem('abt_token')
+    if (!token) { setCheckingAuth(false); return }
+    verifyAdmin(token)
+      .then(r => { if (r.data.valid) setIsAdmin(true) })
+      .catch(() => {})
+      .finally(() => setCheckingAuth(false))
+  }, [])
+
+  async function handleLogin(e) {
+    e.preventDefault()
+    setLoginErr('')
+    setLoggingIn(true)
+    try {
+      const r = await loginAdmin(pw)
+      sessionStorage.setItem('abt_token', r.data.token)
+      setIsAdmin(true)
+      setPw('')
+    } catch (err) {
+      setLoginErr(err?.response?.status === 401 ? 'รหัสผ่านไม่ถูกต้อง' : 'ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่')
+    } finally {
+      setLoggingIn(false)
+    }
+  }
+
+  function handleLogout() {
+    const token = sessionStorage.getItem('abt_token')
+    if (token) logoutAdmin(token).catch(() => {})
+    sessionStorage.removeItem('abt_token')
+    setIsAdmin(false)
+  }
 
   const [items, setItems]   = useState([])
   const [txns, setTxns]     = useState([])
@@ -282,10 +320,40 @@ export default function ElectricalStockPage() {
         </div>
       </div>
 
-      {!isAdmin && (
-        <p className="text-center text-[11px] text-gray-400 mt-2">
-          เจ้าหน้าที่กองช่าง: เข้าสู่ระบบผู้ดูแลเพื่อเพิ่มวัสดุ บันทึกรับเข้า/เบิกจ่าย
-        </p>
+      {!checkingAuth && !isAdmin && (
+        <div className="card">
+          <div className="section-head">
+            <h2 className="text-sm font-semibold">🔐 เข้าสู่ระบบเจ้าหน้าที่กองช่าง</h2>
+          </div>
+          <form onSubmit={handleLogin} className="p-4 space-y-3 max-w-sm">
+            <p className="text-xs text-gray-400">เข้าสู่ระบบเพื่อเพิ่ม/ลบวัสดุ และบันทึกรับเข้า-เบิกจ่าย (ใช้รหัสผ่านเดียวกับผู้ดูแลระบบ)</p>
+            <div className="relative">
+              <input
+                type={showPw ? 'text' : 'password'}
+                className="input pr-12"
+                placeholder="รหัสผ่าน"
+                value={pw}
+                onChange={e => { setPw(e.target.value); setLoginErr('') }}
+              />
+              <button type="button" onClick={() => setShowPw(v => !v)} tabIndex={-1}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600">
+                {showPw ? 'ซ่อน' : 'แสดง'}
+              </button>
+            </div>
+            {loginErr && <p className="text-xs text-red-500">⚠️ {loginErr}</p>}
+            <button type="submit" disabled={loggingIn || !pw} className="btn-primary w-full disabled:opacity-50">
+              {loggingIn ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {isAdmin && (
+        <div className="flex justify-end mb-2">
+          <button onClick={handleLogout} className="text-[11px] text-gray-400 hover:text-red-500 transition-colors">
+            ออกจากระบบ
+          </button>
+        </div>
       )}
 
       {/* ── Add item modal ── */}
