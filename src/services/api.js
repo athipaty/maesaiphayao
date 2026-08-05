@@ -70,6 +70,15 @@ export const createProcurementPlan  = (data)      => api.post('/procurement-plan
 export const updateProcurementPlan  = (id, data)  => api.put(`/procurement-plans/${id}`, data)
 export const deleteProcurementPlan  = (id)        => api.delete(`/procurement-plans/${id}`)
 
+// ── Stock (วัสดุไฟฟ้า กองช่าง) ───────────────────────────────────────────────────
+export const getStockItems         = (params)    => api.get('/stock-items', { params })
+export const createStockItem       = (data)      => api.post('/stock-items', data)
+export const updateStockItem       = (id, data)  => api.put(`/stock-items/${id}`, data)
+export const deleteStockItem       = (id)        => api.delete(`/stock-items/${id}`)
+export const getStockTransactions  = (params)    => api.get('/stock-transactions', { params })
+export const createStockTransaction = (data)     => api.post('/stock-transactions', data)
+export const deleteStockTransaction = (id)       => api.delete(`/stock-transactions/${id}`)
+
 // ── Settings ──────────────────────────────────────────────────────────────────
 export const getSettings   = ()           => api.get('/settings')
 export const updateSetting = (key, value) => api.put(`/settings/${key}`, { value })

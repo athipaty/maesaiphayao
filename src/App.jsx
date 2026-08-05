@@ -40,6 +40,7 @@ import StaffPage from "./pages/StaffPage";
 import PublicServicePage from "./pages/PublicServicePage";
 import TravelPage from "./pages/TravelPage";
 import ProductsPage from "./pages/ProductsPage";
+import ElectricalStockPage from "./pages/ElectricalStockPage";
 import EServicePage from "./pages/EServicePage";
 import ComplaintPage from "./pages/ComplaintPage";
 import CorruptionPage from "./pages/CorruptionPage";
@@ -118,6 +119,7 @@ export default function App() {
           <Route path="/public-service" element={<PublicServicePage />} />
           <Route path="/travel" element={<TravelPage />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/stock/electrical" element={<ElectricalStockPage />} />
 
           {/* 9. e-Service */}
           <Route path="/eservice" element={<EServicePage />} />
