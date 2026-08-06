@@ -67,6 +67,16 @@ export default function ElectricalStockPage() {
   const [txnSaving, setTxnSaving] = useState(false)
   const [txnError, setTxnError]   = useState('')
 
+  const [confirmState, setConfirmState] = useState(null) // { title, message, confirmLabel, onConfirm }
+  const [confirmBusy, setConfirmBusy]   = useState(false)
+
+  async function runConfirm() {
+    if (!confirmState) return
+    setConfirmBusy(true)
+    try { await confirmState.onConfirm() }
+    finally { setConfirmBusy(false); setConfirmState(null) }
+  }
+
   async function load() {
     setLoading(true)
     try {
@@ -115,14 +125,20 @@ export default function ElectricalStockPage() {
     }
   }
 
-  async function handleDeleteItem(item) {
-    if (!confirm(`ลบวัสดุ "${item.name}" ออกจากระบบ? ประวัติการรับ-จ่ายของรายการนี้จะถูกลบไปด้วย`)) return
-    try {
-      await deleteStockItem(item._id)
-      await load()
-    } catch (err) {
-      alert(err?.response?.data?.error || 'ลบไม่สำเร็จ')
-    }
+  function handleDeleteItem(item) {
+    setConfirmState({
+      title: 'ลบวัสดุ',
+      message: `ลบวัสดุ "${item.name}" ออกจากระบบ? ประวัติการรับ-จ่ายของรายการนี้จะถูกลบไปด้วย`,
+      confirmLabel: 'ลบวัสดุ',
+      onConfirm: async () => {
+        try {
+          await deleteStockItem(item._id)
+          await load()
+        } catch (err) {
+          alert(err?.response?.data?.error || 'ลบไม่สำเร็จ')
+        }
+      },
+    })
   }
 
   // ── Receive / withdraw transaction ──────────────────────────────────────
@@ -155,14 +171,20 @@ export default function ElectricalStockPage() {
     }
   }
 
-  async function handleDeleteTxn(txn) {
-    if (!confirm(`ยกเลิกรายการ "${txn.type}" ${txn.itemName} จำนวน ${txn.qty} ${txn.unit}? ยอดคงเหลือจะถูกปรับคืน`)) return
-    try {
-      await deleteStockTransaction(txn._id)
-      await load()
-    } catch (err) {
-      alert(err?.response?.data?.error || 'ยกเลิกไม่สำเร็จ')
-    }
+  function handleDeleteTxn(txn) {
+    setConfirmState({
+      title: 'ยกเลิกรายการ',
+      message: `ยกเลิกรายการ "${txn.type}" ${txn.itemName} จำนวน ${txn.qty} ${txn.unit}? ยอดคงเหลือจะถูกปรับคืน`,
+      confirmLabel: 'ยกเลิกรายการ',
+      onConfirm: async () => {
+        try {
+          await deleteStockTransaction(txn._id)
+          await load()
+        } catch (err) {
+          alert(err?.response?.data?.error || 'ยกเลิกไม่สำเร็จ')
+        }
+      },
+    })
   }
 
   const txnItem = items.find(i => i._id === txnForm.itemId)
@@ -471,6 +493,28 @@ export default function ElectricalStockPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Confirm modal ── */}
+      {confirmState && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.45)' }}
+          onMouseDown={e => { if (e.target === e.currentTarget && !confirmBusy) setConfirmState(null) }}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div className="px-6 pt-6 pb-2 flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center text-2xl mb-3">🗑️</div>
+              <h3 className="text-sm font-bold text-gray-800">{confirmState.title}</h3>
+              <p className="text-xs text-gray-500 mt-2 leading-relaxed">{confirmState.message}</p>
+            </div>
+            <div className="flex gap-2 p-4 pt-3">
+              <button type="button" onClick={() => setConfirmState(null)} disabled={confirmBusy} className="flex-1 btn-ghost disabled:opacity-50">
+                ยกเลิก
+              </button>
+              <button type="button" onClick={runConfirm} disabled={confirmBusy} className="flex-1 btn-danger disabled:opacity-50">
+                {confirmBusy ? 'กำลังดำเนินการ...' : confirmState.confirmLabel}
+              </button>
+            </div>
           </div>
         </div>
       )}
