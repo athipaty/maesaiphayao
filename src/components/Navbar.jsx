@@ -72,19 +72,20 @@ export default function Navbar({ onMenuClick }) {
         style={headerBgImage ? {
           backgroundImage: `linear-gradient(to right, rgba(190,24,93,0.55), rgba(236,72,153,0.50), rgba(249,168,212,0.40)), url(${headerBgImage})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center 20%',
+          backgroundPosition: scrolled ? 'center 60%' : 'center 20%',
           backgroundRepeat: 'no-repeat',
+          transition: 'background-position 0.3s ease-in-out',
         } : undefined}>
         <div className={`max-w-[1200px] mx-auto px-3 w-full flex items-center justify-between gap-3 transition-all duration-300 ease-in-out ${scrolled ? 'py-1.5' : 'py-2 lg:py-3'}`}>
 
           {/* Logo + title */}
           <Link to="/" className={`flex items-center min-w-0 flex-1 transition-all duration-300 ease-in-out ${scrolled ? 'gap-0 ml-0' : 'gap-3 lg:gap-4 lg:ml-10'}`}>
-            <div className={`overflow-hidden flex-shrink-0 transition-all duration-300 ease-in-out ${scrolled ? 'w-0 h-0 opacity-0' : 'w-12 h-12 lg:w-32 lg:h-32 opacity-100'}`}>
+            <div className={`overflow-hidden flex-shrink-0 flex items-center justify-center transition-all duration-300 ease-in-out ${scrolled ? 'w-0 h-0 opacity-0' : 'w-14 h-14 lg:w-36 lg:h-36 opacity-100'}`}>
               {logoImage ? (
                 <img src={logoImage} alt="logo"
-                  className="w-12 h-12 lg:w-32 lg:h-32 rounded-full object-cover ring-2 lg:ring-4 ring-white/40 shadow" />
+                  className="w-12 h-12 lg:w-32 lg:h-32 rounded-full object-cover ring-2 lg:ring-4 ring-white/40 shadow flex-shrink-0" />
               ) : (
-                <div className="w-12 h-12 lg:w-32 lg:h-32 rounded-full bg-white/20 ring-2 lg:ring-4 ring-white/40 flex items-center justify-center text-white font-bold text-[11px] lg:text-lg text-center leading-tight p-1 backdrop-blur-sm">
+                <div className="w-12 h-12 lg:w-32 lg:h-32 rounded-full bg-white/20 ring-2 lg:ring-4 ring-white/40 flex items-center justify-center text-white font-bold text-[11px] lg:text-lg text-center leading-tight p-1 backdrop-blur-sm flex-shrink-0">
                   อบต.<br />แม่ใส
                 </div>
               )}
