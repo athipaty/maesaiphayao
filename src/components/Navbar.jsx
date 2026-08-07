@@ -68,7 +68,7 @@ export default function Navbar({ onMenuClick }) {
         <div className="max-w-[1200px] mx-auto px-3 py-2 lg:py-3 w-full flex items-center justify-between gap-3">
 
           {/* Logo + title */}
-          <Link to="/" className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1">
+          <Link to="/" className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1 lg:ml-10">
             {logoImage ? (
               <img src={logoImage} alt="logo"
                 className="w-12 h-12 lg:w-32 lg:h-32 rounded-full object-cover flex-shrink-0 ring-2 lg:ring-4 ring-white/40 shadow" />
