@@ -75,7 +75,7 @@ function Field({ label, hint, children }) {
 const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all bg-gray-50 focus:bg-white focus:scale-[1.01]'
 
 export default function AdminSettings() {
-  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '', headerBgImage: '', egpDeptSubId: '', egpDeptId: '' })
+  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '', headerBgImage: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving]   = useState(false)
   const [saved, setSaved]     = useState(false)
@@ -196,29 +196,27 @@ export default function AdminSettings() {
             </div>
           </Section>
 
-          {/* Sidebar preview */}
+          {/* Sidebar preview — mirrors the real Mayor card markup in Sidebar.jsx */}
           <Section delay={120} icon="👁" title="ตัวอย่าง Sidebar Card" subtitle="แสดงผลจริงในเว็บไซต์">
             <div className="flex items-center justify-center py-2">
-              <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 flex items-center gap-4 w-full max-w-xs transition-all duration-500">
+              <div className="bg-white rounded-md shadow-sm border border-gray-100 p-4 text-center w-full max-w-[180px] transition-all duration-500">
                 {form.mayorImage ? (
                   <img src={form.mayorImage} alt="preview"
-                    className="flex-shrink-0 rounded-lg border-2 border-yellow-400 object-cover object-top transition-all duration-500"
-                    style={{ width: 72, height: 108 }} />
+                    className="object-cover mx-auto mb-2 border-2 border-yellow-400 rounded transition-all duration-500"
+                    style={{ width: '130px', height: '195px', objectFit: 'cover', objectPosition: 'top center' }} />
                 ) : (
-                  <div className="flex-shrink-0 rounded-lg border-2 border-yellow-400 bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl"
-                    style={{ width: 72, height: 108 }}>👤</div>
+                  <div className="bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-4xl mx-auto mb-2 rounded border-2 border-yellow-400"
+                    style={{ width: '130px', height: '195px' }}>👤</div>
                 )}
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-primary leading-snug truncate transition-all duration-300">
-                    {form.mayorName || <span className="text-gray-300">ชื่อ-นามสกุล</span>}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1 leading-snug line-clamp-2 transition-all duration-300">
-                    {form.mayorPosition || <span className="text-gray-300">ตำแหน่ง</span>}
-                  </p>
-                  <p className="text-xs text-secondary mt-1.5 font-medium transition-all duration-300">
-                    {form.mayorPhone || <span className="text-gray-300">เบอร์โทร</span>}
-                  </p>
-                </div>
+                <h4 className="text-sm font-semibold text-primary transition-all duration-300">
+                  {form.mayorName || <span className="text-gray-300">ชื่อ-นามสกุล</span>}
+                </h4>
+                <p className="text-xs text-gray-500 mt-1 transition-all duration-300">
+                  {form.mayorPosition || <span className="text-gray-300">ตำแหน่ง</span>}
+                </p>
+                <p className="text-xs text-secondary mt-1 transition-all duration-300">
+                  {form.mayorPhone || <span className="text-gray-300">เบอร์โทร</span>}
+                </p>
               </div>
             </div>
           </Section>
@@ -263,34 +261,6 @@ export default function AdminSettings() {
               </div>
             </div>
           )}
-        </Section>
-
-        {/* e-GP */}
-        <Section delay={220} icon="📋" title="ระบบ e-GP (จัดซื้อจัดจ้าง)" subtitle="รหัสหน่วยงานสำหรับดึงข้อมูลจาก e-GP RSS — ต้องกรอกอย่างใดอย่างหนึ่ง">
-          <div className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-800 space-y-1">
-              <p className="font-semibold">วิธีหารหัส:</p>
-              <p>1. ไปที่ <a href="https://www.gprocurement.go.th" target="_blank" rel="noreferrer" className="underline">www.gprocurement.go.th</a></p>
-              <p>2. คลิก "ลงทะเบียนได้ที่นี่" → "การลงทะเบียนหน่วยงานภาครัฐ"</p>
-              <p>3. ค้นหาชื่อหน่วยงาน → ดู <strong>รหัสหน่วยงาน (4 หลัก)</strong></p>
-              <p>4. ค้นหาชื่อหน่วยจัดซื้อย่อย → ดู <strong>รหัสหน่วยจัดซื้อย่อย (10 หลัก)</strong></p>
-            </div>
-            <Field label="รหัสหน่วยจัดซื้อย่อย — deptsubId (10 หลัก) แนะนำ" hint="เช่น 0300400070 — ใช้กรองเฉพาะหน่วยงานของท่าน (แม่นยำกว่า)">
-              <div className="flex gap-2">
-                <input className={inputCls} value={form.egpDeptSubId || ''} onChange={e => set('egpDeptSubId', e.target.value.trim())} placeholder="0300400070" />
-                {form.egpDeptSubId && (
-                  <a href={`https://process3.gprocurement.go.th/EPROCRssFeedWeb/egpannouncerss.xml?deptsubId=${form.egpDeptSubId}&anounceType=W0`}
-                    target="_blank" rel="noreferrer"
-                    className="flex-shrink-0 flex items-center gap-1 text-xs bg-blue-50 border border-blue-200 text-blue-700 px-3 rounded-xl hover:bg-blue-100 transition-colors">
-                    ทดสอบ →
-                  </a>
-                )}
-              </div>
-            </Field>
-            <Field label="รหัสหน่วยงานหลัก — deptId (4 หลัก) สำรอง" hint="เช่น 0304 — ใช้ถ้าไม่มี deptsubId">
-              <input className={inputCls} value={form.egpDeptId || ''} onChange={e => set('egpDeptId', e.target.value.trim())} placeholder="0304" />
-            </Field>
-          </div>
         </Section>
 
       </div>
