@@ -164,10 +164,12 @@ export default function HomePage() {
       {/* ── ข่าวสารกิจกรรม ───────────────────────────────────────────── */}
       <Reveal>
         <SectionBanner icon="📰" label="ข่าวสารกิจกรรม" />
-        {DEPARTMENTS.map(dept => (
-          <NewsSection key={dept} dept={dept} items={deptNews[dept] || []} loading={loading} />
-        ))}
       </Reveal>
+      {DEPARTMENTS.map(dept => (
+        <Reveal key={dept}>
+          <NewsSection dept={dept} items={deptNews[dept] || []} loading={loading} />
+        </Reveal>
+      ))}
 
       {/* ── ประชาสัมพันธ์ ─────────────────────────────────────────────── */}
       <Reveal>
