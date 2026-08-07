@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { loginAdmin, verifyAdmin, logoutAdmin } from '../../services/api'
+import { loginAdmin, verifyAdmin, logoutAdmin, getEServices, getComplaints, getFeedback } from '../../services/api'
 
 const MENU = [
   { path: '/admin/pages',         label: 'จัดการเมนู/หน้า',    icon: '🗂️' },
@@ -12,9 +12,9 @@ const MENU = [
   { path: '/admin/products',      label: 'สินค้า OTOP',         icon: '🛍️' },
   { path: '/admin/videos',        label: 'วิดีโอ YouTube',      icon: '▶️' },
   { section: 'บริการสาธารณะ' },
-  { path: '/admin/eservice',      label: 'คำร้อง e-Service',    icon: '🌐' },
-  { path: '/admin/complaints',    label: 'เรื่องร้องเรียน',      icon: '📮' },
-  { path: '/admin/feedback',      label: 'ความคิดเห็น',         icon: '💭' },
+  { path: '/admin/eservice',      label: 'คำร้อง e-Service',    icon: '🌐', badgeKey: 'eservice' },
+  { path: '/admin/complaints',    label: 'เรื่องร้องเรียน',      icon: '📮', badgeKey: 'complaints' },
+  { path: '/admin/feedback',      label: 'ความคิดเห็น',         icon: '💭', badgeKey: 'feedback' },
   { path: '/admin/survey',        label: 'สำรวจความพึงพอใจ',    icon: '📊' },
   { path: '/admin/banners',       label: 'แบนเนอร์ Footer',     icon: '🎨' },
   { path: '/admin/settings',      label: 'ตั้งค่าเว็บไซต์',    icon: '⚙️' },
@@ -41,6 +41,7 @@ export default function AdminLayout() {
   const [showPw, setShowPw]       = useState(false)
   const [err, setErr]             = useState('')
   const [collapsed, setCollapsed] = useState(false)
+  const [counts, setCounts]       = useState({})
   const navigate                  = useNavigate()
   const location                  = useLocation()
   const mainRef                   = useRef(null)
@@ -48,6 +49,24 @@ export default function AdminLayout() {
   useEffect(() => {
     mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }, [location.pathname])
+
+  useEffect(() => {
+    if (!authed) return
+    let cancelled = false
+    Promise.all([
+      getEServices({ status: 'received' }),
+      getComplaints({ status: 'received' }),
+      getFeedback({ status: 'new' }),
+    ]).then(([eservice, complaints, feedback]) => {
+      if (cancelled) return
+      setCounts({
+        eservice:   eservice?.data?.length   || 0,
+        complaints: complaints?.data?.length || 0,
+        feedback:   feedback?.data?.length   || 0,
+      })
+    }).catch(() => {})
+    return () => { cancelled = true }
+  }, [authed, location.pathname])
 
   useEffect(() => {
     const token = sessionStorage.getItem('abt_token')
@@ -175,7 +194,14 @@ export default function AdminLayout() {
                       : 'text-white/70 hover:bg-white/10 hover:text-white'
                   }`
                 }>
-                <span className="text-base flex-shrink-0 w-5 text-center">{m.icon}</span>
+                <span className="relative flex-shrink-0 w-5 text-center">
+                  <span className="text-base">{m.icon}</span>
+                  {m.badgeKey && counts[m.badgeKey] > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center leading-none shadow">
+                      {counts[m.badgeKey] > 99 ? '99+' : counts[m.badgeKey]}
+                    </span>
+                  )}
+                </span>
                 <span style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}>
                   {m.label}
                 </span>
