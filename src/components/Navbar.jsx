@@ -67,12 +67,12 @@ export default function Navbar({ onMenuClick }) {
 
       {/* ── Main header row ─────────────────────────────────────────── */}
       <div className={`bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md flex items-center transition-all duration-300 ease-in-out ${
-          scrolled ? 'min-h-[48px]' : (headerBgImage ? 'min-h-[110px] lg:min-h-[170px]' : '')
+          scrolled ? 'min-h-[72px]' : (headerBgImage ? 'min-h-[110px] lg:min-h-[170px]' : '')
         }`}
         style={headerBgImage ? {
           backgroundImage: `linear-gradient(to right, rgba(190,24,93,0.55), rgba(236,72,153,0.50), rgba(249,168,212,0.40)), url(${headerBgImage})`,
           backgroundSize: 'cover',
-          backgroundPosition: scrolled ? 'center 60%' : 'center 20%',
+          backgroundPosition: scrolled ? 'center 17%' : 'center 20%',
           backgroundRepeat: 'no-repeat',
           transition: 'background-position 0.3s ease-in-out',
         } : undefined}>
