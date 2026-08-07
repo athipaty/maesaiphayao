@@ -4,12 +4,14 @@ import Navbar from './Navbar'
 import Sidebar from './Sidebar'
 import Footer from './Footer'
 import MessengerButton from './MessengerButton'
+import TopUtilityBar from './TopUtilityBar'
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
     <div className="min-h-screen flex flex-col">
+      <TopUtilityBar />
       <Navbar onMenuClick={() => setSidebarOpen(v => !v)} />
 
       {/* Mobile sidebar overlay — always mounted, toggled with CSS for smooth animation */}

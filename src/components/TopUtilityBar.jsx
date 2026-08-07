@@ -1,0 +1,57 @@
+import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+
+const FONT_SIZES = [16, 18, 20] // px, applied to <html>
+const STORAGE_KEY = 'abt_font_scale'
+
+const QUICK_LINKS = [
+  { icon: '📞', label: 'ติดต่อเรา', to: '/contact' },
+  { icon: '📮', label: 'ร้องเรียน/ร้องทุกข์', to: '/complaint' },
+  { icon: '📋', label: 'ITA/OIT', to: '/ita' },
+]
+
+export default function TopUtilityBar() {
+  const [scaleIdx, setScaleIdx] = useState(() => {
+    const saved = Number(localStorage.getItem(STORAGE_KEY))
+    return Number.isInteger(saved) && saved >= 0 && saved < FONT_SIZES.length ? saved : 0
+  })
+
+  useEffect(() => {
+    document.documentElement.style.fontSize = `${FONT_SIZES[scaleIdx]}px`
+    localStorage.setItem(STORAGE_KEY, String(scaleIdx))
+  }, [scaleIdx])
+
+  const today = new Date().toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+
+  return (
+    <div className="hidden sm:block bg-gray-800 text-white/80 text-[11px]">
+      <div className="max-w-[1200px] mx-auto px-3 py-1 flex items-center justify-between gap-3">
+        <span className="truncate">📅 {today}</span>
+
+        <div className="flex items-center gap-4 flex-shrink-0">
+          <nav className="hidden md:flex items-center gap-3">
+            {QUICK_LINKS.map(l => (
+              <Link key={l.to} to={l.to} className="hover:text-white transition-colors whitespace-nowrap">
+                {l.icon} {l.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-1" role="group" aria-label="ปรับขนาดตัวอักษร">
+            <span className="text-white/50 mr-0.5">ขนาดอักษร</span>
+            {FONT_SIZES.map((_, i) => (
+              <button key={i} onClick={() => setScaleIdx(i)}
+                aria-label={`ขนาดตัวอักษร ${i === 0 ? 'ปกติ' : i === 1 ? 'ใหญ่' : 'ใหญ่มาก'}`}
+                className={`w-5 h-5 flex items-center justify-center rounded transition-colors leading-none ${
+                  scaleIdx === i ? 'bg-white/25 text-white font-bold' : 'text-white/60 hover:bg-white/10 hover:text-white'
+                }`}
+                style={{ fontSize: 9 + i * 2 }}>
+                ก
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
