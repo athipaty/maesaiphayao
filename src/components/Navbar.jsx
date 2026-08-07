@@ -60,7 +60,7 @@ export default function Navbar({ onMenuClick }) {
       {/* ── Main header row ─────────────────────────────────────────── */}
       <div className={`bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md ${headerBgImage ? 'min-h-[110px] lg:min-h-[170px]' : ''}`}
         style={headerBgImage ? {
-          backgroundImage: `linear-gradient(to right, rgba(190,24,93,0.90), rgba(236,72,153,0.85), rgba(249,168,212,0.75)), url(${headerBgImage})`,
+          backgroundImage: `linear-gradient(to right, rgba(190,24,93,0.55), rgba(236,72,153,0.50), rgba(249,168,212,0.40)), url(${headerBgImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center 20%',
           backgroundRepeat: 'no-repeat',
