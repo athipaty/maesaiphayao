@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import ImageUpload from '../../components/ImageUpload'
 import { getSettings, updateSetting, uploadImage } from '../../services/api'
 
-function LogoUpload({ value, onChange }) {
+function LogoUpload({ value, onChange, icon = '🏛️', emptyLabel = 'ยังไม่มีโลโก้', uploadLabel = 'อัปโหลดโลโก้' }) {
   const [uploading, setUploading] = useState(false)
   const inputRef = useRef(null)
 
@@ -20,16 +20,16 @@ function LogoUpload({ value, onChange }) {
   return (
     <div className="border-2 border-dashed border-gray-200 rounded-xl overflow-hidden hover:border-primary/40 transition-all duration-300 bg-gray-50 hover:bg-primary/5">
       {value ? (
-        <img src={value} alt="logo preview" className="w-full h-auto block" />
+        <img src={value} alt="preview" className="w-full h-auto block" />
       ) : (
         <div className="flex flex-col items-center justify-center py-10 text-gray-300">
-          <span className="text-4xl mb-2">🏛️</span>
-          <p className="text-xs">ยังไม่มีโลโก้</p>
+          <span className="text-4xl mb-2">{icon}</span>
+          <p className="text-xs">{emptyLabel}</p>
         </div>
       )}
       <div className="border-t border-gray-100 bg-white px-4 py-2.5 flex items-center gap-3">
         <label className={`btn-ghost text-xs cursor-pointer inline-flex items-center gap-1.5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
-          {uploading ? '⏳ กำลังอัปโหลด...' : value ? '🔄 เปลี่ยนรูป' : '📷 อัปโหลดโลโก้'}
+          {uploading ? '⏳ กำลังอัปโหลด...' : value ? '🔄 เปลี่ยนรูป' : `📷 ${uploadLabel}`}
           <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} disabled={uploading} />
         </label>
         {value && (
@@ -75,7 +75,7 @@ function Field({ label, hint, children }) {
 const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all bg-gray-50 focus:bg-white focus:scale-[1.01]'
 
 export default function AdminSettings() {
-  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '', egpDeptSubId: '', egpDeptId: '' })
+  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '', headerBgImage: '', egpDeptSubId: '', egpDeptId: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving]   = useState(false)
   const [saved, setSaved]     = useState(false)
@@ -237,6 +237,28 @@ export default function AdminSettings() {
                 <div>
                   <p className="text-white text-xs font-bold leading-tight">อบต.แม่ใส</p>
                   <p className="text-white/60 text-[10px]">แม่ใส · พะเยา</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </Section>
+
+        {/* Header background */}
+        <Section delay={190} icon="🖼️" title="ภาพพื้นหลัง Header" subtitle="แสดงเป็นพื้นหลังแถบ Header ด้านบน (มีเลเยอร์สีทับให้ตัวอักษรอ่านง่าย)">
+          <p className="text-xs text-gray-400 mb-3">แนะนำภาพแนวนอน เช่น วิวกว๊านพะเยา ทุ่งนา หรือกิจกรรมงานประเพณีในพื้นที่ ขนาดอย่างน้อย 1200×300 px</p>
+          <LogoUpload value={form.headerBgImage} onChange={url => set('headerBgImage', url)}
+            icon="🖼️" emptyLabel="ยังไม่มีภาพพื้นหลัง" uploadLabel="อัปโหลดภาพพื้นหลัง" />
+          {form.headerBgImage && (
+            <div className="mt-4" style={{ animation: 'scaleIn 0.3s ease both' }}>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">ตัวอย่างใน Header</p>
+              <div className="rounded-xl p-4 flex items-center gap-3 relative overflow-hidden" style={{
+                backgroundImage: `linear-gradient(to right, rgba(190,24,93,0.88), rgba(236,72,153,0.85), rgba(249,168,212,0.75)), url(${form.headerBgImage})`,
+                backgroundSize: 'cover', backgroundPosition: 'center',
+              }}>
+                <div className="w-10 h-10 rounded-full bg-white/20 ring-2 ring-white/40 flex-shrink-0" />
+                <div>
+                  <p className="text-white text-xs font-bold leading-tight">องค์การบริหารส่วนตำบลแม่ใส</p>
+                  <p className="text-white/70 text-[10px]">อ.เมืองพะเยา จ.พะเยา</p>
                 </div>
               </div>
             </div>

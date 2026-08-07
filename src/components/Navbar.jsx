@@ -22,6 +22,7 @@ const ChevronDown = ({ open }) => (
 
 export default function Navbar({ onMenuClick }) {
   const [logoImage, setLogoImage]           = useState('')
+  const [headerBgImage, setHeaderBgImage]   = useState('')
   const [pages, setPages]                   = useState([])
   const [depts, setDepts]                   = useState(DEFAULT_DEPTS)
   const [openSlug, setOpenSlug] = useState(null)
@@ -30,6 +31,7 @@ export default function Navbar({ onMenuClick }) {
   useEffect(() => {
     getSettings().then(r => {
       if (r?.data?.logoImage) setLogoImage(r.data.logoImage)
+      if (r?.data?.headerBgImage) setHeaderBgImage(r.data.headerBgImage)
       if (r?.data?.departments?.length) setDepts(r.data.departments)
     }).catch(() => {})
     getPages().then(r => setPages((r?.data || []).filter(p => p.isActive))).catch(() => {})
@@ -56,24 +58,27 @@ export default function Navbar({ onMenuClick }) {
     <header className="sticky top-0 z-50">
 
       {/* ── Main header row ─────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md">
-        <div className="max-w-[1200px] mx-auto px-3 py-2 flex items-center justify-between gap-3">
+      <div className="bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md bg-cover bg-center"
+        style={headerBgImage ? {
+          backgroundImage: `linear-gradient(to right, rgba(190,24,93,0.90), rgba(236,72,153,0.85), rgba(249,168,212,0.75)), url(${headerBgImage})`,
+        } : undefined}>
+        <div className="max-w-[1200px] mx-auto px-3 py-2 lg:py-3 flex items-center justify-between gap-3">
 
           {/* Logo + title */}
-          <Link to="/" className="flex items-center gap-3 min-w-0 flex-1">
+          <Link to="/" className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1">
             {logoImage ? (
               <img src={logoImage} alt="logo"
-                className="w-12 h-12 rounded-full object-cover flex-shrink-0 ring-2 ring-white/40 shadow" />
+                className="w-12 h-12 lg:w-20 lg:h-20 rounded-full object-cover flex-shrink-0 ring-2 lg:ring-4 ring-white/40 shadow" />
             ) : (
-              <div className="w-12 h-12 rounded-full bg-white/20 ring-2 ring-white/40 flex items-center justify-center text-white font-bold text-[11px] text-center leading-tight p-1 flex-shrink-0 backdrop-blur-sm">
+              <div className="w-12 h-12 lg:w-20 lg:h-20 rounded-full bg-white/20 ring-2 lg:ring-4 ring-white/40 flex items-center justify-center text-white font-bold text-[11px] lg:text-base text-center leading-tight p-1 flex-shrink-0 backdrop-blur-sm">
                 อบต.<br />แม่ใส
               </div>
             )}
             <div className="min-w-0">
-              <h1 className="text-base font-bold leading-tight tracking-wide drop-shadow-sm">
+              <h1 className="text-base lg:text-2xl font-bold leading-tight tracking-wide drop-shadow-sm">
                 องค์การบริหารส่วนตำบลแม่ใส
               </h1>
-              <p className="text-[11px] text-white/70 hidden sm:block truncate">
+              <p className="text-[11px] lg:text-sm text-white/70 hidden sm:block truncate">
                 อ.เมืองพะเยา จ.พะเยา · โทร 0-5488-9909
               </p>
             </div>
