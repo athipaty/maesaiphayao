@@ -108,6 +108,17 @@ export const trackComplaint   = (no)        => api.get(`/complaints/track/${no}`
 export const submitComplaint  = (data)      => api.post('/complaints', data)
 export const updateComplaint  = (id, data)  => api.put(`/complaints/${id}`, data)
 
+// ── Feedback (ช่องทางรับฟังความคิดเห็น) ─────────────────────────────────────
+export const getFeedback    = (params)    => api.get('/feedback', { params })
+export const submitFeedback = (data)      => api.post('/feedback', data)
+export const updateFeedback = (id, data)  => api.put(`/feedback/${id}`, data)
+export const deleteFeedback = (id)        => api.delete(`/feedback/${id}`)
+
+// ── Satisfaction Survey (แบบสำรวจความพึงพอใจ) ───────────────────────────────
+export const getSurveyResponses    = ()      => api.get('/survey-responses')
+export const submitSurveyResponse  = (data)  => api.post('/survey-responses', data)
+export const deleteSurveyResponse  = (id)    => api.delete(`/survey-responses/${id}`)
+
 // ── Documents ─────────────────────────────────────────────────────────────────
 export const getDocuments     = (params)    => api.get('/documents', { params })
 export const createDocument   = (data)      => api.post('/documents', data)

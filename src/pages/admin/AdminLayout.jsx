@@ -14,6 +14,8 @@ const MENU = [
   { section: 'บริการสาธารณะ' },
   { path: '/admin/eservice',      label: 'คำร้อง e-Service',    icon: '🌐' },
   { path: '/admin/complaints',    label: 'เรื่องร้องเรียน',      icon: '📮' },
+  { path: '/admin/feedback',      label: 'ความคิดเห็น',         icon: '💭' },
+  { path: '/admin/survey',        label: 'สำรวจความพึงพอใจ',    icon: '📊' },
   { path: '/admin/banners',       label: 'แบนเนอร์ Footer',     icon: '🎨' },
   { path: '/admin/settings',      label: 'ตั้งค่าเว็บไซต์',    icon: '⚙️' },
   { section: 'ผู้ดูแลระบบ' },

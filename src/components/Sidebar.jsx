@@ -6,8 +6,8 @@ const ESERVICES = [
   { icon: '💬', label: 'แชท Messenger',                         href: 'https://m.me/MaesaiSAOPhayao' },
   { icon: '📘', label: 'Facebook Page',                          href: 'https://www.facebook.com/MaesaiSAOPhayao' },
   { icon: '📍', label: 'Traffy Fondue',                          href: 'https://liff.line.me/1645278921-kWRPP32q/?accountId=traffyfondue' },
-  { icon: '💭', label: 'ช่องทางรับฟังความคิดเห็น',             href: 'https://docs.google.com/forms/d/e/1FAIpQLSc9j_NSPrflDIV17OqlsPpy4P7efwYzEmVYZz1W4idy0Eg5ig/viewform' },
-  { icon: '📊', label: 'แบบสำรวจความพึงพอใจ',                   href: 'https://docs.google.com/forms/d/e/1FAIpQLSeoxWq5gYJ4XWgmThe4PoKBdyNB5yVKNDPrvSdu87Jl_YmlTg/viewform' },
+  { icon: '💭', label: 'ช่องทางรับฟังความคิดเห็น',             to: '/feedback' },
+  { icon: '📊', label: 'แบบสำรวจความพึงพอใจ',                   to: '/survey' },
 ]
 
 const DEFAULT_SETTINGS = {
@@ -185,7 +185,17 @@ export default function Sidebar({ onNavigate, mobile = false }) {
                   </NavLink>
                 ))}
               </div>
-              {ESERVICES.map(e => (
+              {ESERVICES.map(e => e.to ? (
+                <NavLink key={e.label} to={e.to} onClick={onNavigate}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-5 py-3.5 border-b border-gray-100 text-sm transition-colors ${
+                      isActive ? 'bg-pink-50 text-primary' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
+                    }`
+                  }>
+                  <span className="w-6 text-center text-base flex-shrink-0">{e.icon}</span>
+                  <span className="flex-1">{e.label}</span>
+                </NavLink>
+              ) : (
                 <a key={e.label} href={e.href} target="_blank" rel="noreferrer"
                   className="flex items-center gap-3 px-5 py-3.5 border-b border-gray-100 text-sm text-gray-700 hover:bg-pink-50 hover:text-primary transition-colors">
                   <span className="w-6 text-center text-base flex-shrink-0">{e.icon}</span>
@@ -327,11 +337,23 @@ export default function Sidebar({ onNavigate, mobile = false }) {
         <ul>
           {ESERVICES.map(e => (
             <li key={e.label}>
-              <a href={e.href} target="_blank" rel="noreferrer"
-                className="flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors text-gray-700 hover:bg-pink-50 hover:text-primary">
-                <span className="text-sm w-5 text-center">{e.icon}</span>
-                <span className="flex-1">{e.label}</span>
-              </a>
+              {e.to ? (
+                <NavLink to={e.to} onClick={onNavigate}
+                  className={({ isActive }) =>
+                    `flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors ${
+                      isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
+                    }`
+                  }>
+                  <span className="text-sm w-5 text-center">{e.icon}</span>
+                  <span className="flex-1">{e.label}</span>
+                </NavLink>
+              ) : (
+                <a href={e.href} target="_blank" rel="noreferrer"
+                  className="flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors text-gray-700 hover:bg-pink-50 hover:text-primary">
+                  <span className="text-sm w-5 text-center">{e.icon}</span>
+                  <span className="flex-1">{e.label}</span>
+                </a>
+              )}
             </li>
           ))}
         </ul>

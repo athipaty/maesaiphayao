@@ -43,6 +43,8 @@ import ProductsPage from "./pages/ProductsPage";
 import ElectricalStockPage from "./pages/ElectricalStockPage";
 import EServicePage from "./pages/EServicePage";
 import ComplaintPage from "./pages/ComplaintPage";
+import FeedbackPage from "./pages/FeedbackPage";
+import SurveyPage from "./pages/SurveyPage";
 import CorruptionPage from "./pages/CorruptionPage";
 import ItaPage from "./pages/ItaPage";
 import InfoCenterPage from "./pages/InfoCenterPage";
@@ -70,6 +72,8 @@ const AdminPages          = lazy(() => import("./pages/admin/AdminPages"));
 const AdminBanners           = lazy(() => import("./pages/admin/AdminBanners"));
 const AdminNotice            = lazy(() => import("./pages/admin/AdminNotice"));
 const AdminContactMessages   = lazy(() => import("./pages/admin/AdminContactMessages"));
+const AdminFeedback          = lazy(() => import("./pages/admin/AdminFeedback"));
+const AdminSurvey            = lazy(() => import("./pages/admin/AdminSurvey"));
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(
@@ -127,6 +131,10 @@ export default function App() {
           {/* 10. ร้องเรียน/ร้องทุกข์ */}
           <Route path="/complaint" element={<ComplaintPage />} />
 
+          {/* ช่องทางรับฟังความคิดเห็น / แบบสำรวจความพึงพอใจ */}
+          <Route path="/feedback" element={<FeedbackPage />} />
+          <Route path="/survey" element={<SurveyPage />} />
+
           {/* 11. ร้องเรียนทุจริต */}
           <Route path="/corruption" element={<CorruptionPage />} />
 
@@ -163,6 +171,8 @@ export default function App() {
           <Route path="ita"              element={<ChunkErrorBoundary><Suspense fallback={null}><AdminIta /></Suspense></ChunkErrorBoundary>} />
           <Route path="eservice"         element={<ChunkErrorBoundary><Suspense fallback={null}><AdminEService /></Suspense></ChunkErrorBoundary>} />
           <Route path="complaints"       element={<ChunkErrorBoundary><Suspense fallback={null}><AdminComplaint /></Suspense></ChunkErrorBoundary>} />
+          <Route path="feedback"         element={<ChunkErrorBoundary><Suspense fallback={null}><AdminFeedback /></Suspense></ChunkErrorBoundary>} />
+          <Route path="survey"           element={<ChunkErrorBoundary><Suspense fallback={null}><AdminSurvey /></Suspense></ChunkErrorBoundary>} />
           <Route path="documents"        element={<ChunkErrorBoundary><Suspense fallback={null}><AdminDocument /></Suspense></ChunkErrorBoundary>} />
           <Route path="banners"          element={<ChunkErrorBoundary><Suspense fallback={null}><AdminBanners /></Suspense></ChunkErrorBoundary>} />
           <Route path="settings"         element={<ChunkErrorBoundary><Suspense fallback={null}><AdminSettings /></Suspense></ChunkErrorBoundary>} />
