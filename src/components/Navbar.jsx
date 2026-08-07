@@ -58,11 +58,14 @@ export default function Navbar({ onMenuClick }) {
     <header className="sticky top-0 z-50">
 
       {/* ── Main header row ─────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md bg-cover bg-center"
+      <div className={`bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md ${headerBgImage ? 'min-h-[110px] lg:min-h-[170px]' : ''}`}
         style={headerBgImage ? {
           backgroundImage: `linear-gradient(to right, rgba(190,24,93,0.90), rgba(236,72,153,0.85), rgba(249,168,212,0.75)), url(${headerBgImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 25%',
+          backgroundRepeat: 'no-repeat',
         } : undefined}>
-        <div className="max-w-[1200px] mx-auto px-3 py-2 lg:py-3 flex items-center justify-between gap-3">
+        <div className="max-w-[1200px] mx-auto px-3 py-2 lg:py-3 h-full flex items-center justify-between gap-3">
 
           {/* Logo + title */}
           <Link to="/" className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1">
