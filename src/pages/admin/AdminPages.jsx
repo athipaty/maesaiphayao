@@ -1400,11 +1400,10 @@ function PageFormModal({ pages, editPage, onClose, onSaved }) {
 
 // ── Menu manager view ─────────────────────────────────────────────────────────
 
-function MenuManagerView({ pages, loading, onReload, onEditContent }) {
+function MenuManagerView({ pages, loading, onReload, onEditContent, expandedSlugs, setExpandedSlugs }) {
   const [showForm, setShowForm] = useState(false)
   const [editPage, setEditPage] = useState(null)
   const [saving, setSaving]     = useState(false)
-  const [expandedSlugs, setExpandedSlugs] = useState(new Set())
   const dragRef                 = useRef({ id: null, group: null })
   const [dragOverId, setDragOverId] = useState(null)
 
@@ -1620,6 +1619,7 @@ export default function AdminPages() {
   const [pages, setPages]           = useState([])
   const [loading, setLoading]       = useState(true)
   const [editingPage, setEditingPage] = useState(null)
+  const [expandedSlugs, setExpandedSlugs] = useState(new Set())
 
   async function load() {
     setLoading(true)
@@ -1638,5 +1638,6 @@ export default function AdminPages() {
     return <BlockEditorView page={editingPage} onBack={() => { setEditingPage(null); load() }} onPageSaved={handlePageSaved} />
   }
 
-  return <MenuManagerView pages={pages} loading={loading} onReload={load} onEditContent={setEditingPage} />
+  return <MenuManagerView pages={pages} loading={loading} onReload={load} onEditContent={setEditingPage}
+    expandedSlugs={expandedSlugs} setExpandedSlugs={setExpandedSlugs} />
 }
