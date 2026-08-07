@@ -1,14 +1,7 @@
-import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 
 const FONT_SIZES = [16, 18, 20] // px, applied to <html>
 const STORAGE_KEY = 'abt_font_scale'
-
-const QUICK_LINKS = [
-  { icon: '📞', label: 'ติดต่อเรา', to: '/contact' },
-  { icon: '📮', label: 'ร้องเรียน/ร้องทุกข์', to: '/complaint' },
-  { icon: '📋', label: 'ITA/OIT', to: '/ita' },
-]
 
 export default function TopUtilityBar() {
   const [scaleIdx, setScaleIdx] = useState(() => {
@@ -26,17 +19,9 @@ export default function TopUtilityBar() {
   return (
     <div className="hidden sm:block bg-gray-800 text-white/80 text-[11px]">
       <div className="max-w-[1200px] mx-auto px-3 py-1 flex items-center justify-between gap-3">
-        <span className="truncate">📅 {today}</span>
+        <span className="truncate">{today}</span>
 
         <div className="flex items-center gap-4 flex-shrink-0">
-          <nav className="hidden md:flex items-center gap-3">
-            {QUICK_LINKS.map(l => (
-              <Link key={l.to} to={l.to} className="hover:text-white transition-colors whitespace-nowrap">
-                {l.icon} {l.label}
-              </Link>
-            ))}
-          </nav>
-
           <div className="flex items-center gap-1" role="group" aria-label="ปรับขนาดตัวอักษร">
             <span className="text-white/50 mr-0.5">ขนาดอักษร</span>
             {FONT_SIZES.map((_, i) => (
