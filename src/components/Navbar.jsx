@@ -62,7 +62,7 @@ export default function Navbar({ onMenuClick }) {
         style={headerBgImage ? {
           backgroundImage: `linear-gradient(to right, rgba(190,24,93,0.90), rgba(236,72,153,0.85), rgba(249,168,212,0.75)), url(${headerBgImage})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center 0%',
+          backgroundPosition: 'center 10%',
           backgroundRepeat: 'no-repeat',
         } : undefined}>
         <div className="max-w-[1200px] mx-auto px-3 py-2 lg:py-3 h-full flex items-center justify-between gap-3">
