@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import PageHeader from '../components/PageHeader'
 import {
-  getStockItems, createStockItem, deleteStockItem,
+  getStockItems, createStockItem, updateStockItem, deleteStockItem,
   getStockTransactions, createStockTransaction, deleteStockTransaction,
   loginAdmin, verifyAdmin, logoutAdmin,
 } from '../services/api'
@@ -9,8 +9,50 @@ import {
 const EMPTY_ITEM = { code: '', name: '', unit: '', unitPrice: '', balance: '' }
 const EMPTY_TXN  = { itemId: '', type: 'จ่าย', qty: '', party: '', docNo: '', date: '', note: '' }
 
+const TABS = [
+  { key: 'registry', label: '📋 ทะเบียนวัสดุ' },
+  { key: 'history',  label: '🧾 ประวัติรับ-จ่าย' },
+  { key: 'summary',  label: '📊 สรุปคงเหลือประจำปี' },
+]
+
 function todayStr() {
   return new Date().toISOString().slice(0, 10)
+}
+
+// Thai fiscal year (Buddhist): Oct 1 - Sep 30. Oct-Dec belongs to the *next* fiscal year.
+function fiscalYearOf(dateInput) {
+  const d = new Date(dateInput)
+  const buddhist = d.getFullYear() + 543
+  return d.getMonth() >= 9 ? buddhist + 1 : buddhist
+}
+function fiscalYearEnd(fy) {
+  return new Date(fy - 543, 8, 30, 23, 59, 59, 999) // Sep 30, end of day
+}
+
+// For a given item, reconstruct opening balance / received / withdrawn / closing balance
+// for a fiscal year, purely from that item's transaction history (sorted by date).
+function computeItemYear(item, itemTxns, fy) {
+  const prevEnd = fiscalYearEnd(fy - 1)
+  const yearEnd = fiscalYearEnd(fy)
+  const sorted = itemTxns.slice().sort((a, b) => new Date(a.date) - new Date(b.date))
+  const beforeYear = sorted.filter(t => new Date(t.date) <= prevEnd)
+  const withinYear = sorted.filter(t => { const dt = new Date(t.date); return dt > prevEnd && dt <= yearEnd })
+
+  let opening
+  if (beforeYear.length) {
+    opening = beforeYear[beforeYear.length - 1].balanceAfter
+  } else if (sorted.length) {
+    const first = sorted[0]
+    opening = first.balanceAfter - (first.type === 'รับ' ? first.qty : -first.qty)
+  } else {
+    opening = item.balance || 0
+  }
+
+  const received  = withinYear.filter(t => t.type === 'รับ').reduce((s, t) => s + t.qty, 0)
+  const withdrawn = withinYear.filter(t => t.type === 'จ่าย').reduce((s, t) => s + t.qty, 0)
+  const closing = opening + received - withdrawn
+
+  return { opening, received, withdrawn, closing }
 }
 
 export default function ElectricalStockPage() {
@@ -53,14 +95,17 @@ export default function ElectricalStockPage() {
     setIsAdmin(false)
   }
 
+  const [tab, setTab] = useState('registry')
+
   const [items, setItems]   = useState([])
   const [txns, setTxns]     = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
-  const [itemModal, setItemModal] = useState(false)
-  const [itemForm, setItemForm]   = useState(EMPTY_ITEM)
-  const [itemSaving, setItemSaving] = useState(false)
+  const [itemModal, setItemModal]     = useState(false)
+  const [editingItemId, setEditingItemId] = useState(null)
+  const [itemForm, setItemForm]       = useState(EMPTY_ITEM)
+  const [itemSaving, setItemSaving]   = useState(false)
 
   const [txnModal, setTxnModal]   = useState(false)
   const [txnForm, setTxnForm]     = useState(EMPTY_TXN)
@@ -69,6 +114,10 @@ export default function ElectricalStockPage() {
 
   const [confirmState, setConfirmState] = useState(null) // { title, message, confirmLabel, onConfirm }
   const [confirmBusy, setConfirmBusy]   = useState(false)
+
+  const currentFY = fiscalYearOf(new Date())
+  const [historyYear, setHistoryYear] = useState(currentFY)
+  const [summaryYear, setSummaryYear] = useState(2568)
 
   async function runConfirm() {
     if (!confirmState) return
@@ -82,7 +131,7 @@ export default function ElectricalStockPage() {
     try {
       const [ri, rt] = await Promise.all([
         getStockItems({ all: 1 }),
-        getStockTransactions({ limit: 50 }),
+        getStockTransactions({ limit: 2000 }),
       ])
       setItems(ri?.data || [])
       setTxns(rt?.data || [])
@@ -102,20 +151,69 @@ export default function ElectricalStockPage() {
   const totalValue = useMemo(() => items.reduce((s, i) => s + (i.balance || 0) * (i.unitPrice || 0), 0), [items])
   const lowStockCount = useMemo(() => items.filter(i => (i.balance || 0) <= 0).length, [items])
 
-  // ── Item add/delete ─────────────────────────────────────────────────────
-  function openAddItem() { setItemForm(EMPTY_ITEM); setItemModal(true) }
+  // ── Years available for the dropdowns (from transaction dates + current FY, always) ──
+  const availableYears = useMemo(() => {
+    const set = new Set([currentFY])
+    txns.forEach(t => set.add(fiscalYearOf(t.date)))
+    set.add(summaryYear)
+    set.add(historyYear)
+    return Array.from(set).sort((a, b) => b - a)
+  }, [txns, currentFY, summaryYear, historyYear])
 
-  async function handleAddItem(e) {
+  const historyFiltered = useMemo(() => txns.filter(t => fiscalYearOf(t.date) === historyYear), [txns, historyYear])
+
+  const yearSummaryRows = useMemo(() => {
+    return items
+      .map(item => {
+        const itemTxns = txns.filter(t => String(t.item) === String(item._id))
+        const existedThisYear = new Date(item.createdAt || 0) <= fiscalYearEnd(summaryYear)
+        if (!existedThisYear) return null
+        const calc = computeItemYear(item, itemTxns, summaryYear)
+        return { item, ...calc }
+      })
+      .filter(Boolean)
+      .sort((a, b) => (a.item.code || 0) - (b.item.code || 0))
+  }, [items, txns, summaryYear])
+
+  const yearTotals = useMemo(() => yearSummaryRows.reduce((acc, r) => ({
+    opening:  acc.opening + r.opening,
+    received: acc.received + r.received,
+    withdrawn: acc.withdrawn + r.withdrawn,
+    closing:  acc.closing + r.closing,
+    value:    acc.value + r.closing * (r.item.unitPrice || 0),
+  }), { opening: 0, received: 0, withdrawn: 0, closing: 0, value: 0 }), [yearSummaryRows])
+
+  // ── Item add/edit/delete ────────────────────────────────────────────────
+  function openAddItem() { setEditingItemId(null); setItemForm(EMPTY_ITEM); setItemModal(true) }
+  function openEditItem(item) {
+    setEditingItemId(item._id)
+    setItemForm({
+      code: item.code ?? '', name: item.name ?? '', unit: item.unit ?? '',
+      unitPrice: item.unitPrice ?? '', balance: item.balance ?? '',
+    })
+    setItemModal(true)
+  }
+
+  async function handleSaveItem(e) {
     e.preventDefault()
     setItemSaving(true)
     try {
-      await createStockItem({
-        code: Number(itemForm.code) || 0,
-        name: itemForm.name.trim(),
-        unit: itemForm.unit.trim(),
-        unitPrice: Number(itemForm.unitPrice) || 0,
-        balance: Number(itemForm.balance) || 0,
-      })
+      if (editingItemId) {
+        await updateStockItem(editingItemId, {
+          code: Number(itemForm.code) || 0,
+          name: itemForm.name.trim(),
+          unit: itemForm.unit.trim(),
+          unitPrice: Number(itemForm.unitPrice) || 0,
+        })
+      } else {
+        await createStockItem({
+          code: Number(itemForm.code) || 0,
+          name: itemForm.name.trim(),
+          unit: itemForm.unit.trim(),
+          unitPrice: Number(itemForm.unitPrice) || 0,
+          balance: Number(itemForm.balance) || 0,
+        })
+      }
       setItemModal(false)
       await load()
     } catch (err) {
@@ -210,137 +308,232 @@ export default function ElectricalStockPage() {
         </div>
       </div>
 
-      {/* Item list */}
-      <div className="card">
-        <div className="section-head">
-          <h2 className="text-sm font-semibold">📋 ทะเบียนวัสดุคงเหลือ</h2>
-          {isAdmin && (
-            <button onClick={openAddItem} className="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg font-medium transition-colors">
-              + เพิ่มวัสดุใหม่
-            </button>
-          )}
-        </div>
-        <div className="p-3">
-          <input
-            className="input mb-3"
-            placeholder="ค้นหาชื่อวัสดุ หรือรหัสวัสดุ..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-
-          {loading ? (
-            <p className="text-center text-gray-400 text-sm py-8">กำลังโหลด...</p>
-          ) : filtered.length === 0 ? (
-            <p className="text-center text-gray-400 text-sm py-8">ไม่พบข้อมูลวัสดุ</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs border-collapse">
-                <thead>
-                  <tr className="bg-gray-50 text-gray-500">
-                    <th className="text-left p-2 border-b border-gray-100">รหัส</th>
-                    <th className="text-left p-2 border-b border-gray-100">ชื่อวัสดุ</th>
-                    <th className="text-center p-2 border-b border-gray-100">หน่วย</th>
-                    <th className="text-right p-2 border-b border-gray-100">ราคา/หน่วย</th>
-                    <th className="text-right p-2 border-b border-gray-100">คงเหลือ</th>
-                    <th className="text-right p-2 border-b border-gray-100">มูลค่ารวม</th>
-                    {isAdmin && <th className="text-center p-2 border-b border-gray-100">จัดการ</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map(item => (
-                    <tr key={item._id} className="hover:bg-pink-50/40">
-                      <td className="p-2 border-b border-gray-50 text-gray-400">{item.code}</td>
-                      <td className="p-2 border-b border-gray-50 font-medium text-gray-700">{item.name}</td>
-                      <td className="p-2 border-b border-gray-50 text-center text-gray-500">{item.unit}</td>
-                      <td className="p-2 border-b border-gray-50 text-right text-gray-500">{(item.unitPrice || 0).toLocaleString()}</td>
-                      <td className={`p-2 border-b border-gray-50 text-right font-semibold ${item.balance <= 0 ? 'text-red-500' : 'text-gray-700'}`}>
-                        {(item.balance || 0).toLocaleString()}
-                      </td>
-                      <td className="p-2 border-b border-gray-50 text-right text-gray-500">
-                        {((item.balance || 0) * (item.unitPrice || 0)).toLocaleString()}
-                      </td>
-                      {isAdmin && (
-                        <td className="p-2 border-b border-gray-50">
-                          <div className="flex items-center justify-center gap-1">
-                            <button onClick={() => openTxn(item, 'รับ')}
-                              className="text-[11px] px-2 py-1 rounded-md bg-green-50 text-green-600 hover:bg-green-100 font-medium transition-colors">
-                              รับเข้า
-                            </button>
-                            <button onClick={() => openTxn(item, 'จ่าย')}
-                              className="text-[11px] px-2 py-1 rounded-md bg-amber-50 text-amber-600 hover:bg-amber-100 font-medium transition-colors">
-                              เบิกจ่าย
-                            </button>
-                            <button onClick={() => handleDeleteItem(item)}
-                              className="text-[11px] px-2 py-1 rounded-md bg-red-50 text-red-500 hover:bg-red-100 font-medium transition-colors">
-                              ลบ
-                            </button>
-                          </div>
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+      {/* Tabs */}
+      <div className="flex gap-2 mb-3">
+        {TABS.map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)}
+            className={`text-xs px-4 py-2 rounded-full border font-medium transition-colors ${
+              tab === t.key
+                ? 'bg-primary text-white border-primary'
+                : 'border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white'
+            }`}>
+            {t.label}
+          </button>
+        ))}
       </div>
 
-      {/* Transaction history */}
-      <div className="card">
-        <div className="section-head">
-          <h2 className="text-sm font-semibold">🧾 ประวัติการรับ-จ่ายล่าสุด</h2>
+      {/* ── TAB: ทะเบียนวัสดุ ── */}
+      {tab === 'registry' && (
+        <div className="card">
+          <div className="section-head">
+            <h2 className="text-sm font-semibold">📋 ทะเบียนวัสดุคงเหลือ</h2>
+            {isAdmin && (
+              <button onClick={openAddItem} className="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg font-medium transition-colors">
+                + เพิ่มวัสดุใหม่
+              </button>
+            )}
+          </div>
+          <div className="p-3">
+            <input
+              className="input mb-3"
+              placeholder="ค้นหาชื่อวัสดุ หรือรหัสวัสดุ..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+
+            {loading ? (
+              <p className="text-center text-gray-400 text-sm py-8">กำลังโหลด...</p>
+            ) : filtered.length === 0 ? (
+              <p className="text-center text-gray-400 text-sm py-8">ไม่พบข้อมูลวัสดุ</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50 text-gray-500">
+                      <th className="text-left p-2 border-b border-gray-100">รหัส</th>
+                      <th className="text-left p-2 border-b border-gray-100">ชื่อวัสดุ</th>
+                      <th className="text-center p-2 border-b border-gray-100">หน่วย</th>
+                      <th className="text-right p-2 border-b border-gray-100">ราคา/หน่วย</th>
+                      <th className="text-right p-2 border-b border-gray-100">คงเหลือ</th>
+                      <th className="text-right p-2 border-b border-gray-100">มูลค่ารวม</th>
+                      {isAdmin && <th className="text-center p-2 border-b border-gray-100">จัดการ</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map(item => (
+                      <tr key={item._id} className="hover:bg-pink-50/40">
+                        <td className="p-2 border-b border-gray-50 text-gray-400">{item.code}</td>
+                        <td className="p-2 border-b border-gray-50 font-medium text-gray-700">{item.name}</td>
+                        <td className="p-2 border-b border-gray-50 text-center text-gray-500">{item.unit}</td>
+                        <td className="p-2 border-b border-gray-50 text-right text-gray-500">{(item.unitPrice || 0).toLocaleString()}</td>
+                        <td className={`p-2 border-b border-gray-50 text-right font-semibold ${item.balance <= 0 ? 'text-red-500' : 'text-gray-700'}`}>
+                          {(item.balance || 0).toLocaleString()}
+                        </td>
+                        <td className="p-2 border-b border-gray-50 text-right text-gray-500">
+                          {((item.balance || 0) * (item.unitPrice || 0)).toLocaleString()}
+                        </td>
+                        {isAdmin && (
+                          <td className="p-2 border-b border-gray-50">
+                            <div className="flex items-center justify-center gap-1">
+                              <button onClick={() => openTxn(item, 'รับ')}
+                                className="text-[11px] px-2 py-1 rounded-md bg-green-50 text-green-600 hover:bg-green-100 font-medium transition-colors">
+                                รับเข้า
+                              </button>
+                              <button onClick={() => openTxn(item, 'จ่าย')}
+                                className="text-[11px] px-2 py-1 rounded-md bg-amber-50 text-amber-600 hover:bg-amber-100 font-medium transition-colors">
+                                เบิกจ่าย
+                              </button>
+                              <button onClick={() => openEditItem(item)}
+                                className="text-[11px] px-2 py-1 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium transition-colors">
+                                แก้ไข
+                              </button>
+                              <button onClick={() => handleDeleteItem(item)}
+                                className="text-[11px] px-2 py-1 rounded-md bg-red-50 text-red-500 hover:bg-red-100 font-medium transition-colors">
+                                ลบ
+                              </button>
+                            </div>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="p-3">
-          {txns.length === 0 ? (
-            <p className="text-center text-gray-400 text-sm py-6">ยังไม่มีรายการเคลื่อนไหว</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs border-collapse">
-                <thead>
-                  <tr className="bg-gray-50 text-gray-500">
-                    <th className="text-left p-2 border-b border-gray-100">วันที่</th>
-                    <th className="text-center p-2 border-b border-gray-100">ประเภท</th>
-                    <th className="text-left p-2 border-b border-gray-100">รายการ</th>
-                    <th className="text-right p-2 border-b border-gray-100">จำนวน</th>
-                    <th className="text-left p-2 border-b border-gray-100">รับจาก/จ่ายให้</th>
-                    <th className="text-left p-2 border-b border-gray-100">เลขที่เอกสาร</th>
-                    <th className="text-right p-2 border-b border-gray-100">คงเหลือ</th>
-                    {isAdmin && <th className="text-center p-2 border-b border-gray-100"></th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {txns.map(t => (
-                    <tr key={t._id} className="hover:bg-pink-50/40">
-                      <td className="p-2 border-b border-gray-50 text-gray-500 whitespace-nowrap">
-                        {new Date(t.date).toLocaleDateString('th-TH')}
-                      </td>
-                      <td className="p-2 border-b border-gray-50 text-center">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${t.type === 'รับ' ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600'}`}>
-                          {t.type}
-                        </span>
-                      </td>
-                      <td className="p-2 border-b border-gray-50 text-gray-700">{t.itemName}</td>
-                      <td className="p-2 border-b border-gray-50 text-right text-gray-600">{t.qty.toLocaleString()} {t.unit}</td>
-                      <td className="p-2 border-b border-gray-50 text-gray-500">{t.party || '-'}</td>
-                      <td className="p-2 border-b border-gray-50 text-gray-500">{t.docNo || '-'}</td>
-                      <td className="p-2 border-b border-gray-50 text-right text-gray-600">{t.balanceAfter.toLocaleString()}</td>
-                      {isAdmin && (
+      )}
+
+      {/* ── TAB: ประวัติรับ-จ่าย ── */}
+      {tab === 'history' && (
+        <div className="card">
+          <div className="section-head">
+            <h2 className="text-sm font-semibold">🧾 ประวัติการรับ-จ่าย</h2>
+            <select value={historyYear} onChange={e => setHistoryYear(Number(e.target.value))}
+              className="text-xs bg-white/20 border border-white/30 rounded-lg px-2 py-1.5 text-white [&>option]:text-gray-800">
+              {availableYears.map(y => <option key={y} value={y}>ปีงบประมาณ {y}</option>)}
+            </select>
+          </div>
+          <div className="p-3">
+            {historyFiltered.length === 0 ? (
+              <p className="text-center text-gray-400 text-sm py-6">ไม่มีรายการเคลื่อนไหวในปีงบประมาณ {historyYear}</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50 text-gray-500">
+                      <th className="text-left p-2 border-b border-gray-100">วันที่</th>
+                      <th className="text-center p-2 border-b border-gray-100">ประเภท</th>
+                      <th className="text-left p-2 border-b border-gray-100">รายการ</th>
+                      <th className="text-right p-2 border-b border-gray-100">จำนวน</th>
+                      <th className="text-left p-2 border-b border-gray-100">รับจาก/จ่ายให้</th>
+                      <th className="text-left p-2 border-b border-gray-100">เลขที่เอกสาร</th>
+                      <th className="text-right p-2 border-b border-gray-100">คงเหลือ</th>
+                      {isAdmin && <th className="text-center p-2 border-b border-gray-100"></th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {historyFiltered.map(t => (
+                      <tr key={t._id} className="hover:bg-pink-50/40">
+                        <td className="p-2 border-b border-gray-50 text-gray-500 whitespace-nowrap">
+                          {new Date(t.date).toLocaleDateString('th-TH')}
+                        </td>
                         <td className="p-2 border-b border-gray-50 text-center">
-                          <button onClick={() => handleDeleteTxn(t)}
-                            className="text-[11px] px-2 py-1 rounded-md bg-red-50 text-red-500 hover:bg-red-100 font-medium transition-colors">
-                            ยกเลิก
-                          </button>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${t.type === 'รับ' ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600'}`}>
+                            {t.type}
+                          </span>
                         </td>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                        <td className="p-2 border-b border-gray-50 text-gray-700">{t.itemName}</td>
+                        <td className="p-2 border-b border-gray-50 text-right text-gray-600">{t.qty.toLocaleString()} {t.unit}</td>
+                        <td className="p-2 border-b border-gray-50 text-gray-500">{t.party || '-'}</td>
+                        <td className="p-2 border-b border-gray-50 text-gray-500">{t.docNo || '-'}</td>
+                        <td className="p-2 border-b border-gray-50 text-right text-gray-600">{t.balanceAfter.toLocaleString()}</td>
+                        {isAdmin && (
+                          <td className="p-2 border-b border-gray-50 text-center">
+                            <button onClick={() => handleDeleteTxn(t)}
+                              className="text-[11px] px-2 py-1 rounded-md bg-red-50 text-red-500 hover:bg-red-100 font-medium transition-colors">
+                              ยกเลิก
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* ── TAB: สรุปคงเหลือประจำปี ── */}
+      {tab === 'summary' && (
+        <div className="card">
+          <div className="section-head">
+            <h2 className="text-sm font-semibold">📊 รายงานวัสดุคงเหลือ</h2>
+            <select value={summaryYear} onChange={e => setSummaryYear(Number(e.target.value))}
+              className="text-xs bg-white/20 border border-white/30 rounded-lg px-2 py-1.5 text-white [&>option]:text-gray-800">
+              {availableYears.map(y => <option key={y} value={y}>ปีงบประมาณ {y}</option>)}
+            </select>
+          </div>
+          <div className="p-3">
+            <p className="text-xs text-gray-400 mb-3">
+              ณ วันที่ 30 กันยายน {summaryYear} · กองช่าง · วัสดุไฟฟ้า
+            </p>
+            {yearSummaryRows.length === 0 ? (
+              <p className="text-center text-gray-400 text-sm py-8">ไม่มีวัสดุในปีงบประมาณ {summaryYear}</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50 text-gray-500">
+                      <th className="text-left p-2 border-b border-gray-100">รหัส</th>
+                      <th className="text-left p-2 border-b border-gray-100">รายการ</th>
+                      <th className="text-center p-2 border-b border-gray-100">หน่วย</th>
+                      <th className="text-right p-2 border-b border-gray-100">ยกมา</th>
+                      <th className="text-right p-2 border-b border-gray-100">รับ</th>
+                      <th className="text-right p-2 border-b border-gray-100">จ่าย</th>
+                      <th className="text-right p-2 border-b border-gray-100">คงเหลือ</th>
+                      <th className="text-right p-2 border-b border-gray-100">ราคา/หน่วย</th>
+                      <th className="text-right p-2 border-b border-gray-100">จำนวนเงิน</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {yearSummaryRows.map(r => (
+                      <tr key={r.item._id} className="hover:bg-pink-50/40">
+                        <td className="p-2 border-b border-gray-50 text-gray-400">{r.item.code}</td>
+                        <td className="p-2 border-b border-gray-50 font-medium text-gray-700">{r.item.name}</td>
+                        <td className="p-2 border-b border-gray-50 text-center text-gray-500">{r.item.unit}</td>
+                        <td className="p-2 border-b border-gray-50 text-right text-gray-500">{r.opening.toLocaleString()}</td>
+                        <td className="p-2 border-b border-gray-50 text-right text-green-600">{r.received.toLocaleString()}</td>
+                        <td className="p-2 border-b border-gray-50 text-right text-amber-600">{r.withdrawn.toLocaleString()}</td>
+                        <td className={`p-2 border-b border-gray-50 text-right font-semibold ${r.closing <= 0 ? 'text-red-500' : 'text-gray-700'}`}>
+                          {r.closing.toLocaleString()}
+                        </td>
+                        <td className="p-2 border-b border-gray-50 text-right text-gray-500">{(r.item.unitPrice || 0).toLocaleString()}</td>
+                        <td className="p-2 border-b border-gray-50 text-right text-gray-500">
+                          {(r.closing * (r.item.unitPrice || 0)).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="bg-gray-50 font-semibold text-gray-700">
+                      <td className="p-2" colSpan={3}>รวม</td>
+                      <td className="p-2 text-right">{yearTotals.opening.toLocaleString()}</td>
+                      <td className="p-2 text-right text-green-600">{yearTotals.received.toLocaleString()}</td>
+                      <td className="p-2 text-right text-amber-600">{yearTotals.withdrawn.toLocaleString()}</td>
+                      <td className="p-2 text-right">{yearTotals.closing.toLocaleString()}</td>
+                      <td className="p-2"></td>
+                      <td className="p-2 text-right">฿{yearTotals.value.toLocaleString()}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {!checkingAuth && !isAdmin && (
         <div className="card">
@@ -378,16 +571,16 @@ export default function ElectricalStockPage() {
         </div>
       )}
 
-      {/* ── Add item modal ── */}
+      {/* ── Add/edit item modal ── */}
       {itemModal && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.45)' }}
           onMouseDown={e => { if (e.target === e.currentTarget) setItemModal(false) }}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
             <div className="section-head">
-              <h3 className="text-sm font-semibold">➕ เพิ่มวัสดุใหม่</h3>
+              <h3 className="text-sm font-semibold">{editingItemId ? '✏️ แก้ไขวัสดุ' : '➕ เพิ่มวัสดุใหม่'}</h3>
               <button onClick={() => setItemModal(false)} className="text-white/80 hover:text-white text-lg">×</button>
             </div>
-            <form onSubmit={handleAddItem} className="p-4 space-y-3">
+            <form onSubmit={handleSaveItem} className="p-4 space-y-3">
               <div>
                 <label className="form-label">รหัสวัสดุ</label>
                 <input type="number" className="input" required value={itemForm.code}
@@ -410,11 +603,17 @@ export default function ElectricalStockPage() {
                     onChange={e => setItemForm({ ...itemForm, unitPrice: e.target.value })} />
                 </div>
               </div>
-              <div>
-                <label className="form-label">จำนวนคงเหลือเริ่มต้น</label>
-                <input type="number" min="0" className="input" value={itemForm.balance}
-                  onChange={e => setItemForm({ ...itemForm, balance: e.target.value })} />
-              </div>
+              {editingItemId ? (
+                <div className="bg-gray-50 rounded-lg px-3 py-2 text-xs text-gray-500">
+                  จำนวนคงเหลือ: <span className="font-semibold text-gray-700">{(itemForm.balance || 0).toLocaleString()}</span> — ปรับผ่านรายการ "รับเข้า" / "เบิกจ่าย" เท่านั้น
+                </div>
+              ) : (
+                <div>
+                  <label className="form-label">จำนวนคงเหลือเริ่มต้น</label>
+                  <input type="number" min="0" className="input" value={itemForm.balance}
+                    onChange={e => setItemForm({ ...itemForm, balance: e.target.value })} />
+                </div>
+              )}
               <div className="flex gap-2 pt-1">
                 <button type="button" onClick={() => setItemModal(false)} className="flex-1 btn-ghost">ยกเลิก</button>
                 <button type="submit" disabled={itemSaving} className="flex-1 btn-primary disabled:opacity-50">
