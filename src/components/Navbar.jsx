@@ -26,6 +26,7 @@ export default function Navbar({ onMenuClick }) {
   const [pages, setPages]                   = useState([])
   const [depts, setDepts]                   = useState(DEFAULT_DEPTS)
   const [openSlug, setOpenSlug] = useState(null)
+  const [scrolled, setScrolled] = useState(false)
   const closeTimer              = useRef(null)
 
   useEffect(() => {
@@ -35,6 +36,13 @@ export default function Navbar({ onMenuClick }) {
       if (r?.data?.departments?.length) setDepts(r.data.departments)
     }).catch(() => {})
     getPages().then(r => setPages((r?.data || []).filter(p => p.isActive))).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    function onScroll() { setScrolled(window.scrollY > 40) }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   const navItems = pages
@@ -58,30 +66,34 @@ export default function Navbar({ onMenuClick }) {
     <header className="sticky top-0 z-50">
 
       {/* ── Main header row ─────────────────────────────────────────── */}
-      <div className={`bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md flex items-center ${headerBgImage ? 'min-h-[110px] lg:min-h-[170px]' : ''}`}
+      <div className={`bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md flex items-center transition-all duration-300 ease-in-out ${
+          scrolled ? 'min-h-[48px]' : (headerBgImage ? 'min-h-[110px] lg:min-h-[170px]' : '')
+        }`}
         style={headerBgImage ? {
           backgroundImage: `linear-gradient(to right, rgba(190,24,93,0.55), rgba(236,72,153,0.50), rgba(249,168,212,0.40)), url(${headerBgImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center 20%',
           backgroundRepeat: 'no-repeat',
         } : undefined}>
-        <div className="max-w-[1200px] mx-auto px-3 py-2 lg:py-3 w-full flex items-center justify-between gap-3">
+        <div className={`max-w-[1200px] mx-auto px-3 w-full flex items-center justify-between gap-3 transition-all duration-300 ease-in-out ${scrolled ? 'py-1.5' : 'py-2 lg:py-3'}`}>
 
           {/* Logo + title */}
-          <Link to="/" className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1 lg:ml-10">
-            {logoImage ? (
-              <img src={logoImage} alt="logo"
-                className="w-12 h-12 lg:w-32 lg:h-32 rounded-full object-cover flex-shrink-0 ring-2 lg:ring-4 ring-white/40 shadow" />
-            ) : (
-              <div className="w-12 h-12 lg:w-32 lg:h-32 rounded-full bg-white/20 ring-2 lg:ring-4 ring-white/40 flex items-center justify-center text-white font-bold text-[11px] lg:text-lg text-center leading-tight p-1 flex-shrink-0 backdrop-blur-sm">
-                อบต.<br />แม่ใส
-              </div>
-            )}
+          <Link to="/" className={`flex items-center min-w-0 flex-1 transition-all duration-300 ease-in-out ${scrolled ? 'gap-0 ml-0' : 'gap-3 lg:gap-4 lg:ml-10'}`}>
+            <div className={`overflow-hidden flex-shrink-0 transition-all duration-300 ease-in-out ${scrolled ? 'w-0 h-0 opacity-0' : 'w-12 h-12 lg:w-32 lg:h-32 opacity-100'}`}>
+              {logoImage ? (
+                <img src={logoImage} alt="logo"
+                  className="w-12 h-12 lg:w-32 lg:h-32 rounded-full object-cover ring-2 lg:ring-4 ring-white/40 shadow" />
+              ) : (
+                <div className="w-12 h-12 lg:w-32 lg:h-32 rounded-full bg-white/20 ring-2 lg:ring-4 ring-white/40 flex items-center justify-center text-white font-bold text-[11px] lg:text-lg text-center leading-tight p-1 backdrop-blur-sm">
+                  อบต.<br />แม่ใส
+                </div>
+              )}
+            </div>
             <div className="min-w-0">
-              <h1 className="text-base lg:text-2xl font-bold leading-tight tracking-wide drop-shadow-sm">
+              <h1 className={`font-bold leading-tight tracking-wide drop-shadow-sm transition-all duration-300 ease-in-out ${scrolled ? 'text-sm lg:text-base' : 'text-base lg:text-2xl'}`}>
                 องค์การบริหารส่วนตำบลแม่ใส
               </h1>
-              <p className="text-[11px] lg:text-sm text-white/70 hidden sm:block truncate">
+              <p className={`text-[11px] lg:text-sm text-white/70 truncate transition-all duration-300 ease-in-out overflow-hidden ${scrolled ? 'max-h-0 opacity-0' : 'max-h-6 opacity-100 hidden sm:block'}`}>
                 อ.เมืองพะเยา จ.พะเยา · โทร 0-5488-9909
               </p>
             </div>
