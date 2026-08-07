@@ -58,22 +58,22 @@ export default function Navbar({ onMenuClick }) {
     <header className="sticky top-0 z-50">
 
       {/* ── Main header row ─────────────────────────────────────────── */}
-      <div className={`bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md ${headerBgImage ? 'min-h-[110px] lg:min-h-[170px]' : ''}`}
+      <div className={`bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md flex items-center ${headerBgImage ? 'min-h-[110px] lg:min-h-[170px]' : ''}`}
         style={headerBgImage ? {
           backgroundImage: `linear-gradient(to right, rgba(190,24,93,0.55), rgba(236,72,153,0.50), rgba(249,168,212,0.40)), url(${headerBgImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center 20%',
           backgroundRepeat: 'no-repeat',
         } : undefined}>
-        <div className="max-w-[1200px] mx-auto px-3 py-2 lg:py-3 h-full flex items-center justify-between gap-3">
+        <div className="max-w-[1200px] mx-auto px-3 py-2 lg:py-3 w-full flex items-center justify-between gap-3">
 
           {/* Logo + title */}
           <Link to="/" className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1">
             {logoImage ? (
               <img src={logoImage} alt="logo"
-                className="w-12 h-12 lg:w-20 lg:h-20 rounded-full object-cover flex-shrink-0 ring-2 lg:ring-4 ring-white/40 shadow" />
+                className="w-12 h-12 lg:w-24 lg:h-24 rounded-full object-cover flex-shrink-0 ring-2 lg:ring-4 ring-white/40 shadow" />
             ) : (
-              <div className="w-12 h-12 lg:w-20 lg:h-20 rounded-full bg-white/20 ring-2 lg:ring-4 ring-white/40 flex items-center justify-center text-white font-bold text-[11px] lg:text-base text-center leading-tight p-1 flex-shrink-0 backdrop-blur-sm">
+              <div className="w-12 h-12 lg:w-24 lg:h-24 rounded-full bg-white/20 ring-2 lg:ring-4 ring-white/40 flex items-center justify-center text-white font-bold text-[11px] lg:text-lg text-center leading-tight p-1 flex-shrink-0 backdrop-blur-sm">
                 อบต.<br />แม่ใส
               </div>
             )}
