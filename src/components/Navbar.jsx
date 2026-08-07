@@ -71,9 +71,9 @@ export default function Navbar({ onMenuClick }) {
           <Link to="/" className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1">
             {logoImage ? (
               <img src={logoImage} alt="logo"
-                className="w-12 h-12 lg:w-24 lg:h-24 rounded-full object-cover flex-shrink-0 ring-2 lg:ring-4 ring-white/40 shadow" />
+                className="w-12 h-12 lg:w-32 lg:h-32 rounded-full object-cover flex-shrink-0 ring-2 lg:ring-4 ring-white/40 shadow" />
             ) : (
-              <div className="w-12 h-12 lg:w-24 lg:h-24 rounded-full bg-white/20 ring-2 lg:ring-4 ring-white/40 flex items-center justify-center text-white font-bold text-[11px] lg:text-lg text-center leading-tight p-1 flex-shrink-0 backdrop-blur-sm">
+              <div className="w-12 h-12 lg:w-32 lg:h-32 rounded-full bg-white/20 ring-2 lg:ring-4 ring-white/40 flex items-center justify-center text-white font-bold text-[11px] lg:text-lg text-center leading-tight p-1 flex-shrink-0 backdrop-blur-sm">
                 อบต.<br />แม่ใส
               </div>
             )}
