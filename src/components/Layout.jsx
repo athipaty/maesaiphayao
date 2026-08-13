@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 import Navbar from './Navbar'
 import Sidebar from './Sidebar'
@@ -9,11 +9,62 @@ import CookieConsent from './CookieConsent'
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const fixedRef = useRef(null)
+  const scrolledRef = useRef(false)
+  // Reserves space in normal document flow for the fixed TopUtilityBar+Navbar block below (fixed
+  // elements don't reserve their own space the way the old `position: sticky` header did) — see
+  // the effect below for why it's frozen at the *expanded* measurement rather than tracking the
+  // live (possibly collapsed) height.
+  const [spacerHeight, setSpacerHeight] = useState(0)
+
+  useEffect(() => {
+    // A single threshold here causes a feedback loop: collapsing the header shrinks its height by
+    // 38-98px, which shifts where content sits relative to a fixed scroll position — so right
+    // around scrollY===40, collapsing could pull the "same" scroll position back under 40,
+    // expanding again, which pushes it back over 40, etc. A dead zone (collapse past 64px, only
+    // re-expand once back under 24px) means scrollY has to move a real, deliberate amount before
+    // it can flip again — a small layout shift alone can't cross that gap and re-trigger itself.
+    function onScroll() {
+      setScrolled(prev => {
+        const next = (window.scrollY > 64) ? true : (window.scrollY < 24) ? false : prev
+        scrolledRef.current = next
+        return next
+      })
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    const el = fixedRef.current
+    if (!el) return
+    const ro = new ResizeObserver(([entry]) => {
+      // Only commit a measurement taken while expanded. This block was previously `position:
+      // sticky` with its own height animating while stuck — Chrome (at least) recomputes/re-sticks
+      // a sticky element's offset whenever its box resizes, and doing that mid-scroll snapped
+      // scrollY back to 0, which then re-triggered the collapse/expand hysteresis above from the
+      // other direction — the residual "shake" a wider dead zone alone couldn't close, since it
+      // was a hard reset to 0, not a proportional nudge. `position: fixed` here removes that
+      // failure mode entirely (fixed elements don't participate in "stuck" recomputation), but it
+      // also means this block no longer reserves its own space in the flow, hence this spacer. If
+      // the spacer tracked the *live* (collapsing) height instead of freezing at expanded, it
+      // would itself be a plain block element resizing above wherever the user has already
+      // scrolled to — inviting the exact same class of anchor-driven jump right back in.
+      if (!scrolledRef.current) setSpacerHeight(entry.contentRect.height)
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   return (
     <div className="min-h-screen flex flex-col">
-      <TopUtilityBar />
-      <Navbar onMenuClick={() => setSidebarOpen(v => !v)} />
+      <div ref={fixedRef} className="fixed top-0 left-0 right-0 z-50 [overflow-anchor:none]">
+        <TopUtilityBar collapsed={scrolled} />
+        <Navbar onMenuClick={() => setSidebarOpen(v => !v)} scrolled={scrolled} />
+      </div>
+      <div style={{ height: spacerHeight }} />
 
       {/* Mobile sidebar overlay — always mounted, toggled with CSS for smooth animation */}
       <div

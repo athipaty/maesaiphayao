@@ -3,7 +3,11 @@ import { useState, useEffect } from 'react'
 const FONT_SIZES = [16, 18, 20] // px, applied to <html>
 const STORAGE_KEY = 'abt_font_scale'
 
-export default function TopUtilityBar() {
+// `collapsed` comes from Layout (the same hysteresis-driven scroll state Navbar collapses on) so
+// this bar disappears in sync with the header shrinking, instead of relying on normal-flow
+// scroll-away behavior — see Layout.jsx for why plain scroll-away no longer works now that both
+// are inside one `fixed` wrapper.
+export default function TopUtilityBar({ collapsed }) {
   const [scaleIdx, setScaleIdx] = useState(() => {
     const saved = Number(localStorage.getItem(STORAGE_KEY))
     return Number.isInteger(saved) && saved >= 0 && saved < FONT_SIZES.length ? saved : 0
@@ -17,7 +21,11 @@ export default function TopUtilityBar() {
   const today = new Date().toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
   return (
-    <div className="hidden sm:block bg-gray-800 text-white/80 text-[11px]">
+    <div
+      className={`hidden sm:block bg-gray-800 text-white/80 text-[11px] overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
+        collapsed ? 'max-h-0 opacity-0' : 'max-h-8 opacity-100'
+      }`}
+    >
       <div className="max-w-[1200px] mx-auto px-3 py-1 flex items-center justify-between gap-3">
         <span className="truncate">{today}</span>
 

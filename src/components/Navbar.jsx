@@ -20,13 +20,17 @@ const ChevronDown = ({ open }) => (
   </svg>
 )
 
-export default function Navbar({ onMenuClick }) {
+// `scrolled` is owned by Layout (shared with TopUtilityBar, which collapses in sync) — see
+// Layout.jsx for why: this header used to track scroll and position itself independently, but
+// that combination (position: sticky + animating this element's own height while stuck) is what
+// caused a browser scroll-position reset bug, fixed by switching to a Layout-level `fixed` wrapper
+// instead. This component just reacts to the prop now.
+export default function Navbar({ onMenuClick, scrolled }) {
   const [logoImage, setLogoImage]           = useState('')
   const [headerBgImage, setHeaderBgImage]   = useState('')
   const [pages, setPages]                   = useState([])
   const [depts, setDepts]                   = useState(DEFAULT_DEPTS)
   const [openSlug, setOpenSlug] = useState(null)
-  const [scrolled, setScrolled] = useState(false)
   const closeTimer              = useRef(null)
 
   useEffect(() => {
@@ -36,27 +40,6 @@ export default function Navbar({ onMenuClick }) {
       if (r?.data?.departments?.length) setDepts(r.data.departments)
     }).catch(() => {})
     getPages().then(r => setPages((r?.data || []).filter(p => p.isActive))).catch(() => {})
-  }, [])
-
-  useEffect(() => {
-    // A single threshold here causes a feedback loop: collapsing the header shrinks its height by
-    // 38-98px (110-170px -> 72px), which shifts where the page content sits under a fixed scroll
-    // position — so right around scrollY===40, collapsing could pull the "same" scroll position
-    // back under 40, expanding again, which pushes it back over 40, etc. Reads as the header
-    // rapidly shaking/flickering rather than committing to open or closed. A dead zone (collapse
-    // past 64px, only re-expand once back under 24px) means once a transition fires, scrollY has
-    // to move a real, deliberate amount before it can flip again — the layout shift alone can't
-    // cross that gap and re-trigger itself.
-    function onScroll() {
-      setScrolled(prev => {
-        if (window.scrollY > 64) return true
-        if (window.scrollY < 24) return false
-        return prev
-      })
-    }
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   const navItems = pages
@@ -77,7 +60,7 @@ export default function Navbar({ onMenuClick }) {
   function closeMenu()     { closeTimer.current = setTimeout(() => setOpenSlug(null), 120) }
 
   return (
-    <header className="sticky top-0 z-50">
+    <header>
 
       {/* ── Main header row ─────────────────────────────────────────── */}
       <div className={`bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md flex items-center transition-[min-height] duration-300 ease-in-out ${
