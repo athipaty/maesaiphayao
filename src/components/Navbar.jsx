@@ -39,7 +39,21 @@ export default function Navbar({ onMenuClick }) {
   }, [])
 
   useEffect(() => {
-    function onScroll() { setScrolled(window.scrollY > 40) }
+    // A single threshold here causes a feedback loop: collapsing the header shrinks its height by
+    // 38-98px (110-170px -> 72px), which shifts where the page content sits under a fixed scroll
+    // position — so right around scrollY===40, collapsing could pull the "same" scroll position
+    // back under 40, expanding again, which pushes it back over 40, etc. Reads as the header
+    // rapidly shaking/flickering rather than committing to open or closed. A dead zone (collapse
+    // past 64px, only re-expand once back under 24px) means once a transition fires, scrollY has
+    // to move a real, deliberate amount before it can flip again — the layout shift alone can't
+    // cross that gap and re-trigger itself.
+    function onScroll() {
+      setScrolled(prev => {
+        if (window.scrollY > 64) return true
+        if (window.scrollY < 24) return false
+        return prev
+      })
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
