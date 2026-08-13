@@ -35,7 +35,7 @@ function Reveal({ children, className = '' }) {
   )
 }
 
-function SectionBanner({ icon, label }) {
+function SectionBanner({ icon, label, to, toLabel = 'ดูทั้งหมด »' }) {
   return (
     <div className="flex items-center gap-3 mt-5 mb-2 px-1">
       <div className="flex items-center gap-2 bg-gradient-to-r from-primary to-secondary text-white px-4 py-1.5 rounded-full shadow-sm">
@@ -43,6 +43,11 @@ function SectionBanner({ icon, label }) {
         <span className="text-xs font-bold tracking-wide">{label}</span>
       </div>
       <div className="flex-1 h-px bg-gradient-to-r from-secondary/30 to-transparent" />
+      {to && (
+        <Link to={to} className="text-xs font-semibold text-secondary hover:text-primary transition-colors whitespace-nowrap">
+          {toLabel}
+        </Link>
+      )}
     </div>
   )
 }
@@ -161,12 +166,10 @@ export default function HomePage() {
   return (
     <div>
 
-      {/* ── ข่าวสารกิจกรรม ───────────────────────────────────────────── */}
-      <Reveal>
-        <SectionBanner icon="📰" label="ข่าวสารกิจกรรม" />
-      </Reveal>
+      {/* ── ข่าวสารกิจกรรม — one section per department, not grouped under a single banner ── */}
       {DEPARTMENTS.map(dept => (
         <Reveal key={dept}>
+          <SectionBanner icon={DEPT_ICONS[dept] || '📰'} label={DEPT_LABELS[dept]} to={`/news/${dept}`} />
           <NewsSection dept={dept} items={deptNews[dept] || []} loading={loading} />
         </Reveal>
       ))}

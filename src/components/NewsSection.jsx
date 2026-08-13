@@ -20,16 +20,12 @@ const DEPT_LABELS = {
   finance:     'กองคลัง',
 }
 
+// Header/title now lives in the SectionBanner rendered above this component (see HomePage.jsx) —
+// each department gets its own SectionBanner instead of all departments sharing one, so this is
+// just the card body (loading/empty state or the grid of news items).
 export function NewsSection({ dept, items = [], loading }) {
   return (
     <div className="card">
-      <div className="section-head flex items-center justify-between">
-        <h3 className="text-sm font-semibold">✨ ข่าวสาร กิจกรรม {DEPT_LABELS[dept]}</h3>
-        <Link to={`/news/${dept}`}
-          className="text-xs bg-white/20 hover:bg-white/35 transition-colors px-3 py-1 rounded-full ml-auto">
-          ดูทั้งหมด »
-        </Link>
-      </div>
       {loading ? (
         <div className="px-3 py-2 text-gray-400 text-sm">กำลังโหลด...</div>
       ) : items.length === 0 ? (
