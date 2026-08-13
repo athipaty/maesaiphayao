@@ -66,7 +66,7 @@ export default function Navbar({ onMenuClick }) {
     <header className="sticky top-0 z-50">
 
       {/* ── Main header row ─────────────────────────────────────────── */}
-      <div className={`bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md flex items-center transition-all duration-300 ease-in-out ${
+      <div className={`bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md flex items-center transition-[min-height] duration-300 ease-in-out ${
           scrolled ? 'min-h-[72px]' : (headerBgImage ? 'min-h-[110px] lg:min-h-[170px]' : '')
         }`}
         style={headerBgImage ? {
@@ -74,13 +74,20 @@ export default function Navbar({ onMenuClick }) {
           backgroundSize: 'cover',
           backgroundPosition: scrolled ? 'center 37%' : 'center 32%',
           backgroundRepeat: 'no-repeat',
-          transition: 'background-position 0.3s ease-in-out',
+          // Must list every animated property here explicitly: this inline `transition`
+          // shorthand overrides (not merges with) the `transition-[min-height]` utility
+          // class above, since inline styles always win over class-based CSS. Previously
+          // this only listed `background-position`, which silently killed the min-height
+          // transition whenever a header background image was set — the header would
+          // snap to its new height instantly while the logo/title kept animating smoothly,
+          // producing a jarring, out-of-sync "jank" on scroll.
+          transition: 'min-height 300ms ease-in-out, background-position 300ms ease-in-out',
         } : undefined}>
-        <div className={`max-w-[1200px] mx-auto px-3 w-full flex items-center justify-between gap-3 transition-all duration-300 ease-in-out ${scrolled ? 'py-1.5' : 'py-2 lg:py-3'}`}>
+        <div className={`max-w-[1200px] mx-auto px-3 w-full flex items-center justify-between gap-3 transition-[padding] duration-300 ease-in-out ${scrolled ? 'py-1.5' : 'py-2 lg:py-3'}`}>
 
           {/* Logo + title */}
-          <Link to="/" className={`flex items-center min-w-0 flex-1 transition-all duration-300 ease-in-out ${scrolled ? 'gap-0 ml-0' : 'gap-3 lg:gap-4 lg:ml-10'}`}>
-            <div className={`overflow-hidden flex-shrink-0 flex items-center justify-center transition-all duration-300 ease-in-out ${scrolled ? 'w-0 h-0 opacity-0' : 'w-14 h-14 lg:w-36 lg:h-36 opacity-100'}`}>
+          <Link to="/" className={`flex items-center min-w-0 flex-1 transition-[gap,margin-left] duration-300 ease-in-out ${scrolled ? 'gap-0 ml-0' : 'gap-3 lg:gap-4 lg:ml-10'}`}>
+            <div className={`overflow-hidden flex-shrink-0 flex items-center justify-center aspect-square transition-[width,opacity] duration-300 ease-in-out ${scrolled ? 'w-0 opacity-0' : 'w-14 lg:w-36 opacity-100'}`}>
               {logoImage ? (
                 <img src={logoImage} alt="logo"
                   className="w-12 h-12 lg:w-32 lg:h-32 rounded-full object-cover ring-2 lg:ring-4 ring-white/40 shadow flex-shrink-0" />
@@ -91,10 +98,10 @@ export default function Navbar({ onMenuClick }) {
               )}
             </div>
             <div className="min-w-0">
-              <h1 className={`font-bold leading-tight tracking-wide drop-shadow-sm transition-all duration-300 ease-in-out ${scrolled ? 'text-sm lg:text-base' : 'text-base lg:text-2xl'}`}>
+              <h1 className={`font-bold leading-tight tracking-wide drop-shadow-sm transition-[font-size] duration-300 ease-in-out ${scrolled ? 'text-sm lg:text-base' : 'text-base lg:text-2xl'}`}>
                 องค์การบริหารส่วนตำบลแม่ใส
               </h1>
-              <p className={`text-[11px] lg:text-sm text-white/70 truncate transition-all duration-300 ease-in-out overflow-hidden ${scrolled ? 'max-h-0 opacity-0' : 'max-h-6 opacity-100 hidden sm:block'}`}>
+              <p className={`text-[11px] lg:text-sm text-white/70 truncate transition-[max-height,opacity] duration-300 ease-in-out overflow-hidden ${scrolled ? 'max-h-0 opacity-0' : 'max-h-6 opacity-100 hidden sm:block'}`}>
                 อ.เมืองพะเยา จ.พะเยา · โทร 0-5488-9909
               </p>
             </div>
