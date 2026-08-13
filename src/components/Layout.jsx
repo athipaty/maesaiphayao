@@ -5,6 +5,7 @@ import Sidebar from './Sidebar'
 import Footer from './Footer'
 import MessengerButton from './MessengerButton'
 import TopUtilityBar from './TopUtilityBar'
+import CookieConsent from './CookieConsent'
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -38,6 +39,7 @@ export default function Layout() {
       </div>
       <Footer />
       <MessengerButton />
+      <CookieConsent />
     </div>
   )
 }
