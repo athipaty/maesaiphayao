@@ -20,7 +20,14 @@ function Reveal({ children, className = '' }) {
     if (!el) return
     const io = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
-        setVisible(true)
+        // Sections already in the initial viewport (e.g. the news sections at the top of the
+        // page, compact enough to all fit above the fold with no content yet) can have this
+        // callback fire before the browser has ever painted the starting opacity:0/translateY
+        // state — flipping straight to "visible" with nothing to transition from, so the fade-in
+        // never actually plays, even though the exact same Reveal wrapper is used everywhere.
+        // Two rAFs guarantee at least one real paint of the hidden state happens first, so the
+        // transition is always visible, not just for sections the user has to scroll to reach.
+        requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)))
         io.unobserve(el)
       }
     }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' })
