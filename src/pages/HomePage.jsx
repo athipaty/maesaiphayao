@@ -385,12 +385,6 @@ export default function HomePage() {
       <Reveal>
       <SectionBanner icon="📋" label="หัวข้อประกาศ" />
         <div className="card p-0 overflow-hidden">
-          <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <span>📋</span>
-              <span className="text-sm font-semibold text-primary">หัวข้อประกาศ</span>
-            </div>
-          </div>
           <div className="divide-y divide-gray-50">
             {notices.slice(0, 5).map((n, i) => {
               const open = !!noticeOpen[n._id]
@@ -445,16 +439,8 @@ export default function HomePage() {
 
       {/* ── Procurement e-GP ─────────────────────────────────────────── */}
       <Reveal>
-      <SectionBanner icon="📦" label="ระบบ e-GP (เรียลไทม์)" />
+      <SectionBanner icon="📦" label="ระบบ e-GP (เรียลไทม์)" to="/procurement?tab=egp" />
       <div className="card p-0 overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-100 flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <span>📦</span>
-            <span className="text-sm font-semibold text-primary">ระบบ e-GP (เรียลไทม์)</span>
-          </div>
-          <Link to="/procurement?tab=egp" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
-        </div>
-
         <div className="overflow-y-auto flex-1" style={{ maxHeight: '460px' }}>
           {egpLoading ? (
             <div className="px-3 py-4 text-center text-gray-400 text-sm animate-pulse">กำลังดึงข้อมูลจากระบบ e-GP...</div>
