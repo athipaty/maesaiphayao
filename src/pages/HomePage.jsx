@@ -498,7 +498,7 @@ export default function HomePage() {
       {/* ── สถานที่ท่องเที่ยว ─────────────────────────────────────────── */}
       {travel.length > 0 && (
       <Reveal>
-        <SectionBanner icon="🗺️" label="สถานที่ท่องเที่ยว" />
+        <SectionBanner icon="🗺️" label="สถานที่ท่องเที่ยว" to="/travel" />
 
         <div className="card">
           <style>{`
@@ -511,14 +511,6 @@ export default function HomePage() {
             }
             .travel-marquee:hover { animation-play-state: paused; }
           `}</style>
-
-          <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <span>🗺️</span>
-              <span className="text-sm font-semibold text-primary">แนะนำสถานที่ท่องเที่ยว</span>
-            </div>
-            <Link to="/travel" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
-          </div>
 
           <div className="overflow-hidden pt-3 pb-4">
             <div className="travel-marquee flex gap-3 w-max">
@@ -548,17 +540,9 @@ export default function HomePage() {
       {/* ── สินค้า OTOP ───────────────────────────────────────────────── */}
       {products.length > 0 && (
       <Reveal>
-        <SectionBanner icon="🛍️" label="สินค้า OTOP" />
+        <SectionBanner icon="🛍️" label="สินค้า OTOP" to="/products" />
 
         <div className="card">
-          <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <span>🛍️</span>
-              <span className="text-sm font-semibold text-primary">สินค้าผลิตภัณฑ์ตำบลแม่ใส (OTOP)</span>
-            </div>
-            <Link to="/products" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
-          </div>
-
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4">
             {products.map((item, i) => {
               const mainImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
@@ -590,11 +574,6 @@ export default function HomePage() {
         <SectionBanner icon="▶️" label="วีดีทัศน์การดำเนินงานของหน่วยงาน" />
 
         <div className="card">
-          <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-gray-100">
-            <span>▶️</span>
-            <span className="text-sm font-semibold text-primary">วีดีทัศน์การดำเนินงานของหน่วยงาน</span>
-          </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4">
             {videos.map((item, i) => {
               const id = getYoutubeId(item.youtubeUrl)
