@@ -698,8 +698,8 @@ function ColorDots({ keys, value, onChange }) {
 
 // ── Banner editor ─────────────────────────────────────────────────────────────
 const BANNER_COLORS = [
-  { key:'primary',   label:'น้ำเงิน', cls:'from-primary to-secondary' },
-  { key:'secondary', label:'ฟ้า',    cls:'from-secondary to-accent' },
+  { key:'primary',   label:'น้ำเงิน', cls:'from-blue-800 to-blue-600' },
+  { key:'secondary', label:'ฟ้า',    cls:'from-sky-600 to-sky-400' },
   { key:'gold',      label:'ทอง',    cls:'from-yellow-700 to-amber-500' },
   { key:'green',     label:'เขียว',  cls:'from-green-700 to-green-500' },
   { key:'red',       label:'แดง',    cls:'from-red-800 to-red-600' },

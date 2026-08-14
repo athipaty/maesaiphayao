@@ -339,8 +339,8 @@ function PdfBlock({ data, preview }) {
 
 // ── Banner ────────────────────────────────────────────────────────────────────
 const BANNER_GRAD = {
-  primary:   'from-primary to-secondary',
-  secondary: 'from-secondary to-accent',
+  primary:   'from-blue-800 to-blue-600',
+  secondary: 'from-sky-600 to-sky-400',
   gold:      'from-yellow-700 to-amber-500',
   green:     'from-green-700 to-green-500',
   red:       'from-red-800 to-red-600',

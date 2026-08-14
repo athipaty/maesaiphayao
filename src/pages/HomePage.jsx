@@ -380,12 +380,10 @@ export default function HomePage() {
       </div>
       </Reveal>
 
-      {/* ── ประกาศและจัดซื้อจัดจ้าง ──────────────────────────────────── */}
-      <Reveal>
-      <SectionBanner icon="📋" label="ประกาศและจัดซื้อจัดจ้าง" />
-
       {/* ── Notices (หัวข้อประกาศ) ───────────────────────────────────── */}
       {notices.length > 0 && (
+      <Reveal>
+      <SectionBanner icon="📋" label="หัวข้อประกาศ" />
         <div className="card p-0 overflow-hidden">
           <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-100">
             <div className="flex items-center gap-2">
@@ -442,9 +440,12 @@ export default function HomePage() {
             })}
           </div>
         </div>
+      </Reveal>
       )}
 
       {/* ── Procurement e-GP ─────────────────────────────────────────── */}
+      <Reveal>
+      <SectionBanner icon="📦" label="ระบบ e-GP (เรียลไทม์)" />
       <div className="card p-0 overflow-hidden flex flex-col">
         <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center gap-2">
