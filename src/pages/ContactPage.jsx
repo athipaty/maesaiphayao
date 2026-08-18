@@ -48,6 +48,8 @@ export default function ContactPage() {
                 <div>
                   <p className="font-medium">อีเมล</p>
                   <a href="mailto:saraban_06560115@dla.go.th" className="text-blue-600 hover:underline active:opacity-70 break-all">saraban_06560115@dla.go.th</a>
+                  <br />
+                  <a href="mailto:maesaiphayao.909@gmail.com" className="text-blue-600 hover:underline active:opacity-70 break-all">maesaiphayao.909@gmail.com</a>
                 </div>
               </div>
               <div className="flex items-start gap-2">

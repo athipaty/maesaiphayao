@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { getNews, getAnnouncements, getProcurement, getTravel, getProducts, getVideos, getFacebookPage, getEgpRss, getNotices } from '../services/api'
-import { NewsSection, DEPT_LABELS, DEPT_ICONS } from '../components/NewsSection'
+import { LatestNewsGrid } from '../components/NewsSection'
 
 const DEPARTMENTS = ['council', 'office', 'disaster', 'health', 'engineering', 'finance']
 
@@ -61,7 +61,6 @@ function SectionBanner({ icon, label, to, toLabel = 'ดูทั้งหมด
 
 export default function HomePage() {
   const [allNews, setAllNews]       = useState([])
-  const [deptNews, setDeptNews]     = useState({})
   const [announce, setAnnounce]     = useState([])
   const [newsletter, setNewsletter] = useState([])
   const [egp, setEgp]               = useState([])
@@ -105,18 +104,15 @@ export default function HomePage() {
     async function load() {
       try {
         const deptResults = await Promise.all(
-          DEPARTMENTS.map(dept => getNews({ dept, limit: 3 }))
+          DEPARTMENTS.map(dept => getNews({ dept, limit: 10 }))
         )
         const flat = []
-        const map = {}
         DEPARTMENTS.forEach((dept, i) => {
           const items = deptResults[i]?.data || []
-          map[dept] = items
           items.forEach(item => flat.push({ ...item, _dept: dept }))
         })
         flat.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
         setAllNews(flat)
-        setDeptNews(map)
 
         const [ann, nl, pn, tv, pd] = await Promise.all([
           getAnnouncements({ type: 'announcement' }),
@@ -173,13 +169,11 @@ export default function HomePage() {
   return (
     <div>
 
-      {/* ── ข่าวสารกิจกรรม — one section per department, not grouped under a single banner ── */}
-      {DEPARTMENTS.map(dept => (
-        <Reveal key={dept}>
-          <SectionBanner icon={DEPT_ICONS[dept] || '📰'} label={DEPT_LABELS[dept]} to={`/news/${dept}`} />
-          <NewsSection dept={dept} items={deptNews[dept] || []} loading={loading} />
-        </Reveal>
-      ))}
+      {/* ── ข่าวสารกิจกรรม — one combined section: latest news as a full-width hero, then a 3x3 grid ── */}
+      <Reveal>
+        <SectionBanner icon="📰" label="ข่าวสารกิจกรรม" to="/news" />
+        <LatestNewsGrid items={allNews} loading={loading} />
+      </Reveal>
 
       {/* ── ประชาสัมพันธ์ ─────────────────────────────────────────────── */}
       <Reveal>
@@ -469,7 +463,7 @@ export default function HomePage() {
                       }
                       {p.amount != null && (
                         <span className="text-xs font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
-                          {Number(p.amount).toLocaleString('th-TH')} บาท
+                          {Number(p.amount).toLocaleString('th-TH', { numberingSystem: 'latn' })} บาท
                         </span>
                       )}
                       <span className={`text-gray-400 text-xs flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
@@ -481,7 +475,7 @@ export default function HomePage() {
                         )}
                         {p.date && (
                           <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
-                            📅 {new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                            📅 {new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', numberingSystem: 'latn' })}
                           </span>
                         )}
                       </div>

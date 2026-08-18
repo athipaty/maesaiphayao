@@ -138,8 +138,8 @@ function EgpTab() {
       {(fetchedAt || staleAt) && (
         <div className="px-4 py-1.5 bg-gray-50 border-b border-gray-100 text-[11px] text-gray-400 flex items-center gap-1.5">
           {staleAt
-            ? <><span className="text-amber-500">⚠️ ข้อมูลแคช</span> · อัปเดตล่าสุด {new Date(staleAt).toLocaleString('th-TH')}</>
-            : <><span className="text-green-600">✓ ข้อมูลล่าสุด</span> · ดึงข้อมูลเมื่อ {new Date(fetchedAt).toLocaleString('th-TH')}</>
+            ? <><span className="text-amber-500">⚠️ ข้อมูลแคช</span> · อัปเดตล่าสุด {new Date(staleAt).toLocaleString('th-TH', { numberingSystem: 'latn' })}</>
+            : <><span className="text-green-600">✓ ข้อมูลล่าสุด</span> · ดึงข้อมูลเมื่อ {new Date(fetchedAt).toLocaleString('th-TH', { numberingSystem: 'latn' })}</>
           }
         </div>
       )}
@@ -160,7 +160,7 @@ function EgpTab() {
             </p>
             {staleAt && (
               <p className="text-[11px] text-amber-500 mt-1">
-                ℹ️ แสดงข้อมูลล่าสุดที่บันทึกไว้ เมื่อ {new Date(staleAt).toLocaleString('th-TH')}
+                ℹ️ แสดงข้อมูลล่าสุดที่บันทึกไว้ เมื่อ {new Date(staleAt).toLocaleString('th-TH', { numberingSystem: 'latn' })}
               </p>
             )}
           </div>
@@ -197,7 +197,7 @@ function EgpTab() {
                       {item.title}
                     </span>
                     <span className="text-[11px] text-gray-400 whitespace-nowrap flex-shrink-0">
-                      {item.date ? new Date(item.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }) : ''}
+                      {item.date ? new Date(item.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', numberingSystem: 'latn' }) : ''}
                     </span>
                     {item.link && (
                       <span className={`text-xs flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}>▾</span>
@@ -212,7 +212,7 @@ function EgpTab() {
                       </span>
                       {item.amount != null && (
                         <span className="text-xs font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
-                          {Number(item.amount).toLocaleString('th-TH')} บาท
+                          {Number(item.amount).toLocaleString('th-TH', { numberingSystem: 'latn' })} บาท
                         </span>
                       )}
                     </div>
