@@ -120,9 +120,9 @@ export function LatestNewsGrid({ items = [], loading }) {
         </div>
       </Link>
 
-      {/* Grid — next 12 news items, 3 columns */}
+      {/* Grid — next 9 news items, always 3 columns (3x3) so mobile doesn't leave a dangling last row */}
       {gridItems.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
           {gridItems.map(item => {
             const img = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
             const dept = item._dept || item.department
@@ -130,20 +130,20 @@ export function LatestNewsGrid({ items = [], loading }) {
             const label = DEPT_LABELS[dept] || ''
             return (
               <Link to={`/news/detail/${item._id}`} key={item._id}
-                className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group">
+                className="bg-white rounded-lg sm:rounded-xl shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group">
                 {img ? (
-                  <img src={img} alt={item.title} className="w-full h-32 sm:h-36 object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+                  <img src={img} alt={item.title} className="w-full h-20 sm:h-36 object-cover group-hover:scale-[1.02] transition-transform duration-300" />
                 ) : (
-                  <div className="w-full h-32 sm:h-36 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-3xl">
+                  <div className="w-full h-20 sm:h-36 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-xl sm:text-3xl">
                     {icon}
                   </div>
                 )}
-                <div className="p-2.5">
-                  <span className="inline-flex items-center gap-1 text-[10px] bg-secondary/10 text-secondary px-2 py-0.5 rounded-full mb-1.5">
+                <div className="p-1.5 sm:p-2.5">
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] bg-secondary/10 text-secondary px-2 py-0.5 rounded-full mb-1.5">
                     {icon} {label}
                   </span>
-                  <h3 className="text-xs font-semibold text-gray-800 line-clamp-2 mb-1.5 leading-snug group-hover:text-primary transition-colors">{item.title}</h3>
-                  <div className="flex items-center justify-between text-[10px] text-gray-400">
+                  <h3 className="text-[11px] sm:text-xs font-semibold text-gray-800 line-clamp-2 mb-1 sm:mb-1.5 leading-snug group-hover:text-primary transition-colors">{item.title}</h3>
+                  <div className="hidden sm:flex items-center justify-between text-[10px] text-gray-400">
                     <span>👁 {item.views}</span>
                     <span>📅 {new Date(item.publishedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}</span>
                   </div>

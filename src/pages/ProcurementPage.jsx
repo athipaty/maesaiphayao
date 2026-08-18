@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import PdfPreviewPanel from '../components/PdfPreviewPanel'
 import { getProcurement, getEgpRss } from '../services/api'
+import { toArabicDigits } from '../utils/thaiNumerals'
 
 // anounceType codes from CGD e-GP RSS manual
 // Empty '' = default returns D0 (เชิญชวน) only — not truly "all"
@@ -45,8 +46,8 @@ function LocalTab() {
               <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0">{idx + 1}</span>
               {href
                 ? <a href={href} target="_blank" rel="noreferrer"
-                    className="flex-1 min-w-0 text-sm text-primary hover:text-secondary font-medium truncate">{item.title}</a>
-                : <span className="flex-1 min-w-0 text-sm text-gray-800 font-medium truncate">{item.title}</span>
+                    className="flex-1 min-w-0 text-sm text-primary hover:text-secondary font-medium truncate">{toArabicDigits(item.title)}</a>
+                : <span className="flex-1 min-w-0 text-sm text-gray-800 font-medium truncate">{toArabicDigits(item.title)}</span>
               }
               <span className="text-[11px] text-gray-400 whitespace-nowrap flex-shrink-0">
                 {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }) : ''}
@@ -56,7 +57,7 @@ function LocalTab() {
             {hasResult && (
               <div className="flex items-center gap-2 mt-1 pl-7">
                 <span className="flex-1 min-w-0 text-xs text-green-700 truncate">
-                  {item.winner ? `🏆 ${item.winner}` : ''}
+                  {item.winner ? `🏆 ${toArabicDigits(item.winner)}` : ''}
                 </span>
                 {item.amount != null && (
                   <span className="text-xs font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
@@ -194,7 +195,7 @@ function EgpTab() {
                       {i + 1}
                     </span>
                     <span className={`flex-1 min-w-0 text-sm font-medium truncate ${item.link ? 'text-primary' : 'text-gray-800'}`}>
-                      {item.title}
+                      {toArabicDigits(item.title)}
                     </span>
                     <span className="text-[11px] text-gray-400 whitespace-nowrap flex-shrink-0">
                       {item.date ? new Date(item.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', numberingSystem: 'latn' }) : ''}
@@ -208,7 +209,7 @@ function EgpTab() {
                   {(item.winner || item.amount != null) && (
                     <div className="flex items-center gap-2 mt-1.5 pl-7">
                       <span className="flex-1 min-w-0 text-xs text-green-700 truncate">
-                        {item.winner ? `🏆 ${item.winner}` : ''}
+                        {item.winner ? `🏆 ${toArabicDigits(item.winner)}` : ''}
                       </span>
                       {item.amount != null && (
                         <span className="text-xs font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">

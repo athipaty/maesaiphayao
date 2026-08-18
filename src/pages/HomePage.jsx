@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom'
 import { getNews, getAnnouncements, getProcurement, getTravel, getProducts, getVideos, getFacebookPage, getEgpRss, getNotices } from '../services/api'
 import { LatestNewsGrid } from '../components/NewsSection'
+import { toArabicDigits } from '../utils/thaiNumerals'
 
 const DEPARTMENTS = ['council', 'office', 'disaster', 'health', 'engineering', 'finance']
 
@@ -458,8 +459,8 @@ export default function HomePage() {
                       {p.link
                         ? <a href={p.link} target="_blank" rel="noreferrer"
                             onClick={e => e.stopPropagation()}
-                            className="flex-1 min-w-0 text-sm text-primary hover:text-secondary font-medium truncate">{p.title}</a>
-                        : <span className="flex-1 min-w-0 text-sm text-gray-700 font-medium truncate">{p.title}</span>
+                            className="flex-1 min-w-0 text-sm text-primary hover:text-secondary font-medium truncate">{toArabicDigits(p.title)}</a>
+                        : <span className="flex-1 min-w-0 text-sm text-gray-700 font-medium truncate">{toArabicDigits(p.title)}</span>
                       }
                       {p.amount != null && (
                         <span className="text-xs font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
@@ -471,7 +472,7 @@ export default function HomePage() {
                     {open && (
                       <div className="flex items-center gap-3 px-3 pb-2 pl-9 bg-pink-50/30">
                         {p.winner && (
-                          <span className="flex-1 min-w-0 text-xs text-green-700 truncate">🏆 {p.winner}</span>
+                          <span className="flex-1 min-w-0 text-xs text-green-700 truncate">🏆 {toArabicDigits(p.winner)}</span>
                         )}
                         {p.date && (
                           <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
