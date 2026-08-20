@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import ImageUpload from '../../components/ImageUpload'
-import { getContactMessages, createContactMessage, updateContactMessage, deleteContactMessage, replyContactMessage } from '../../services/api'
+import { getContactMessages, createContactMessage, updateContactMessage, deleteContactMessage, replyContactMessage, updateContactReply, deleteContactReply } from '../../services/api'
 
 const STATUS_CONFIG = {
   new:  { label: 'ใหม่',           color: 'bg-blue-100 text-blue-700',   dot: 'bg-blue-500' },
@@ -26,6 +26,10 @@ export default function AdminContactMessages() {
   const [replyAuthor, setReplyAuthor] = useState(AUTHOR_OPTIONS[0])
   const [replyText, setReplyText]     = useState('')
   const [sendingReply, setSendingReply] = useState(false)
+  const [editingReplyId, setEditingReplyId] = useState(null)
+  const [editReplyText, setEditReplyText]   = useState('')
+  const [savingReply, setSavingReply]       = useState(false)
+  const [deletingReplyId, setDeletingReplyId] = useState(null)
 
   async function load() {
     setLoading(true)
@@ -56,6 +60,7 @@ export default function AdminContactMessages() {
     setExpanded(item._id)
     setEditStatus(item.status)
     setReplyText('')
+    setEditingReplyId(null)
     if (item.status === 'new') {
       updateContactMessage(item._id, { status: 'read' })
         .then(r => setItems(prev => prev.map(i => i._id === item._id ? r.data : i)))
@@ -84,6 +89,35 @@ export default function AdminContactMessages() {
     } catch (err) {
       alert('ส่งข้อความไม่สำเร็จ: ' + (err?.response?.data?.error || err.message))
     } finally { setSendingReply(false) }
+  }
+
+  function startEditReply(reply) {
+    setEditingReplyId(reply._id)
+    setEditReplyText(reply.message)
+  }
+
+  async function handleSaveReplyEdit(itemId) {
+    if (!editReplyText.trim()) return
+    setSavingReply(true)
+    try {
+      const r = await updateContactReply(itemId, editingReplyId, { message: editReplyText.trim() })
+      setItems(prev => prev.map(i => i._id === itemId ? r.data : i))
+      setEditingReplyId(null)
+    } catch (err) {
+      alert('แก้ไขไม่สำเร็จ: ' + (err?.response?.data?.error || err.message))
+    } finally { setSavingReply(false) }
+  }
+
+  async function handleDeleteReply(itemId, replyId) {
+    if (!window.confirm('ยืนยันการลบข้อความนี้?')) return
+    setDeletingReplyId(replyId)
+    try {
+      const r = await deleteContactReply(itemId, replyId)
+      setItems(prev => prev.map(i => i._id === itemId ? r.data : i))
+      if (editingReplyId === replyId) setEditingReplyId(null)
+    } catch (err) {
+      alert('ลบไม่สำเร็จ: ' + (err?.response?.data?.error || err.message))
+    } finally { setDeletingReplyId(null) }
   }
 
   async function handleDelete(id) {
@@ -275,9 +309,43 @@ export default function AdminContactMessages() {
                                 <span className="text-xs font-semibold text-primary">{r.author || 'ผู้ดูแลระบบ'}</span>
                                 <span className="text-[10px] text-gray-400">
                                   {new Date(r.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                  {r.updatedAt && r.updatedAt !== r.createdAt && ' · แก้ไขแล้ว'}
                                 </span>
                               </div>
-                              <p className="text-sm text-gray-700 whitespace-pre-wrap">{r.message}</p>
+                              {editingReplyId === r._id ? (
+                                <div className="space-y-2">
+                                  <textarea
+                                    rows={3}
+                                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-pink-400 resize-none"
+                                    value={editReplyText}
+                                    onChange={e => setEditReplyText(e.target.value)}
+                                  />
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button onClick={() => setEditingReplyId(null)}
+                                      className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1">
+                                      ยกเลิก
+                                    </button>
+                                    <button onClick={() => handleSaveReplyEdit(item._id)} disabled={savingReply || !editReplyText.trim()}
+                                      className="btn-primary text-xs disabled:opacity-50 px-3 py-1">
+                                      {savingReply ? '...' : '💾 บันทึก'}
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <>
+                                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{r.message}</p>
+                                  <div className="flex items-center justify-end gap-3 mt-1.5">
+                                    <button onClick={() => startEditReply(r)}
+                                      className="text-[11px] text-gray-400 hover:text-primary">
+                                      ✏️ แก้ไข
+                                    </button>
+                                    <button onClick={() => handleDeleteReply(item._id, r._id)} disabled={deletingReplyId === r._id}
+                                      className="text-[11px] text-red-400 hover:text-red-600 disabled:opacity-40">
+                                      {deletingReplyId === r._id ? 'กำลังลบ...' : '🗑️ ลบ'}
+                                    </button>
+                                  </div>
+                                </>
+                              )}
                             </div>
                           ))}
                           {(!item.replies || item.replies.length === 0) && (
