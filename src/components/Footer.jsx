@@ -22,8 +22,6 @@ export default function Footer() {
       .catch(() => {})
   }, [])
 
-  const cols = `grid-cols-2 sm:grid-cols-3 lg:grid-cols-${Math.min(links.length, 9)}`
-
   return (
     <footer className="bg-primary text-white mt-6">
       <style>{`
@@ -93,7 +91,7 @@ export default function Footer() {
             <span className="w-1 h-4 rounded-sm inline-block" style={{ background: '#f59e0b' }} />
             <span className="text-sm font-semibold text-white/90 tracking-wide">ลิงค์ที่เกี่ยวข้อง</span>
           </div>
-          <div className={`grid ${cols} gap-2`}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
             {links.map((l, idx) => (
               <a
                 key={l._id || idx}

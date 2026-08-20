@@ -512,8 +512,8 @@ export default function HomePage() {
               {[...travel, ...travel].map((item, i) => {
                 const mainImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
                 return (
-                  <div key={i} className="w-72 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
-                    <div className="relative overflow-hidden bg-teal-50" style={{ height: '210px' }}>
+                  <div key={i} className="w-96 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
+                    <div className="relative overflow-hidden bg-teal-50" style={{ height: '280px' }}>
                       {mainImg
                         ? <img src={mainImg} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🏞️</div>
