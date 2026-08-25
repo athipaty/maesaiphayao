@@ -178,7 +178,7 @@ export default function HomePage() {
 
       {/* ── ประชาสัมพันธ์ ─────────────────────────────────────────────── */}
       <Reveal>
-      <SectionBanner icon="📢" label="ประชาสัมพันธ์" />
+      <SectionBanner icon="📢" label="ข่าวประชาสัมพันธ์ & จดหมายข่าว" to="/announcements" />
 
       {/* ── Announcement marquee — mobile only (desktop shows in Facebook right panel) ── */}
       {annItems.length > 0 && (() => {
@@ -194,14 +194,6 @@ export default function HomePage() {
               }
               .ann-marquee:hover { animation-play-state: paused; }
             `}</style>
-
-            <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-100">
-              <div className="flex items-center gap-2">
-                <span>📢</span>
-                <span className="text-sm font-semibold text-primary">ข่าวประชาสัมพันธ์ &amp; จดหมายข่าว</span>
-              </div>
-              <Link to="/announcements" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
-            </div>
 
             <div className="overflow-hidden pt-2 pb-3">
               <div className="ann-marquee flex gap-3 w-max px-3">
