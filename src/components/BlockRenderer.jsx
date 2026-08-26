@@ -135,17 +135,20 @@ function ImageBlock({ data }) {
   const layout = data.layout || 'single'
 
   if (layout === 'single') {
-    const img = images[0]
     const sizeMap = { sm: '300px', md: '500px', lg: '700px', full: '100%' }
     const maxW = sizeMap[data.size || 'lg'] || '700px'
     const align = data.align || 'center'
     const marginClass = align === 'left' ? 'mr-auto' : align === 'right' ? 'ml-auto' : 'mx-auto'
     const textAlign = align === 'left' ? 'text-left' : align === 'right' ? 'text-right' : 'text-center'
     return (
-      <div className="mb-2">
-        <img src={img.url} alt={img.caption || ''} className={`block rounded-lg shadow-sm ${marginClass}`}
-          style={{ maxWidth: maxW, width: '100%' }} />
-        {img.caption && <p className={`text-xs text-gray-400 mt-2 ${textAlign}`}>{img.caption}</p>}
+      <div className="mb-2 space-y-4">
+        {images.map((img, i) => (
+          <div key={i}>
+            <img src={img.url} alt={img.caption || ''} className={`block rounded-lg shadow-sm ${marginClass}`}
+              style={{ maxWidth: maxW, width: '100%' }} />
+            {img.caption && <p className={`text-xs text-gray-400 mt-2 ${textAlign}`}>{img.caption}</p>}
+          </div>
+        ))}
       </div>
     )
   }
