@@ -81,19 +81,18 @@ export default function HomePage() {
   const [lightboxItem, setLightboxItem] = useState(null)
   const [annSlide, setAnnSlide]         = useState(0)
   const fbContainerRef = useRef(null)
-  const [fbScale, setFbScale] = useState(1)
+  const [fbWidth, setFbWidth] = useState(500)
   const annTrackRef = useRef(null)
   const [annItemWidth, setAnnItemWidth] = useState(320)
 
   useEffect(() => {
-    function updateScale() {
+    function updateWidth() {
       if (!fbContainerRef.current) return
-      const w = fbContainerRef.current.offsetWidth
-      setFbScale(Math.min(w / 500, 1))
+      setFbWidth(Math.max(Math.round(fbContainerRef.current.offsetWidth), 300))
     }
-    updateScale()
-    window.addEventListener('resize', updateScale)
-    return () => window.removeEventListener('resize', updateScale)
+    updateWidth()
+    window.addEventListener('resize', updateWidth)
+    return () => window.removeEventListener('resize', updateWidth)
   }, [])
 
   useEffect(() => {
@@ -346,19 +345,13 @@ export default function HomePage() {
 
       {/* ── Facebook ─────────────────────────────────────────────────── */}
       <Reveal>
-      <div className="card p-0 overflow-hidden flex justify-center">
-        <div ref={fbContainerRef} className="overflow-hidden w-full max-w-[500px]"
-          style={{ height: `${Math.round(500 * fbScale)}px` }}>
+      <SectionBanner icon="📘" label="Facebook" />
+      <div className="card p-0 overflow-hidden">
+        <div ref={fbContainerRef} className="overflow-hidden w-full" style={{ height: '500px' }}>
           <iframe
-            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false"
-            style={{
-              border: 'none',
-              width: '500px',
-              height: '500px',
-              display: 'block',
-              transform: `scale(${fbScale})`,
-              transformOrigin: 'top left',
-            }}
+            key={fbWidth}
+            src={`https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=${fbWidth}&height=500&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false`}
+            style={{ border: 'none', width: '100%', height: '500px', display: 'block' }}
             frameBorder="0"
             allowFullScreen
             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
