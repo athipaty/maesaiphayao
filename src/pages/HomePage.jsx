@@ -83,6 +83,8 @@ export default function HomePage() {
   const [fbScale, setFbScale] = useState(1)
   const annTrackRef = useRef(null)
   const [annItemWidth, setAnnItemWidth] = useState(320)
+  const annDesktopTrackRef = useRef(null)
+  const [annDesktopItemWidth, setAnnDesktopItemWidth] = useState(300)
 
   useEffect(() => {
     function updateScale() {
@@ -102,6 +104,17 @@ export default function HomePage() {
     updateAnnWidth()
     window.addEventListener('resize', updateAnnWidth)
     return () => window.removeEventListener('resize', updateAnnWidth)
+  }, [])
+
+  useEffect(() => {
+    function updateDesktopAnnWidth() {
+      if (!annDesktopTrackRef.current) return
+      // 3 cards per row: subtract px-5 track padding (40px) and 2 gaps (gap-4 = 16px each)
+      setAnnDesktopItemWidth((annDesktopTrackRef.current.offsetWidth - 40 - 32) / 3)
+    }
+    updateDesktopAnnWidth()
+    window.addEventListener('resize', updateDesktopAnnWidth)
+    return () => window.removeEventListener('resize', updateDesktopAnnWidth)
   }, [])
 
   useEffect(() => {
@@ -273,14 +286,27 @@ export default function HomePage() {
       })()}
       </Reveal>
 
-      {/* ── Announcement slideshow — desktop only, full width ───────────── */}
+      {/* ── Announcement marquee — desktop only, full width, 3 cards visible, slides left ───────────── */}
       {annItems.length > 0 && (
       <Reveal>
-          <div className="hidden lg:grid grid-cols-3 gap-4 card p-5">
-            {annItems.slice(0, 3).map((item, i) => (
+          <div className="hidden lg:block card p-0 overflow-hidden">
+            <style>{`
+              @keyframes ann-marquee-desktop {
+                0%   { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+              }
+              .ann-marquee-desktop {
+                animation: ann-marquee-desktop ${Math.max((annDesktopItemWidth + 16) * annItems.length / 12, 60)}s linear infinite;
+              }
+              .ann-marquee-desktop:hover { animation-play-state: paused; }
+            `}</style>
+            <div className="overflow-hidden py-5" ref={annDesktopTrackRef}>
+              <div className="ann-marquee-desktop flex gap-4 w-max px-5">
+                {[...annItems, ...annItems].map((item, i) => (
               <div key={i}
                 onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
-                className="rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
+                style={{ width: `${annDesktopItemWidth}px` }}
+                className="flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
               >
                 <div className="relative overflow-hidden" style={{
                   height: '340px',
@@ -325,7 +351,9 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-            ))}
+                ))}
+              </div>
+            </div>
           </div>
       </Reveal>
       )}
