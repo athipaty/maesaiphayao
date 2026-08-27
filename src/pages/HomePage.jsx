@@ -82,6 +82,8 @@ export default function HomePage() {
   const [annSlide, setAnnSlide]         = useState(0)
   const fbContainerRef = useRef(null)
   const [fbScale, setFbScale] = useState(1)
+  const annTrackRef = useRef(null)
+  const [annItemWidth, setAnnItemWidth] = useState(320)
 
   useEffect(() => {
     function updateScale() {
@@ -92,6 +94,16 @@ export default function HomePage() {
     updateScale()
     window.addEventListener('resize', updateScale)
     return () => window.removeEventListener('resize', updateScale)
+  }, [])
+
+  useEffect(() => {
+    function updateAnnWidth() {
+      if (!annTrackRef.current) return
+      setAnnItemWidth(annTrackRef.current.offsetWidth - 24) // minus px-3 track padding (12px each side)
+    }
+    updateAnnWidth()
+    window.addEventListener('resize', updateAnnWidth)
+    return () => window.removeEventListener('resize', updateAnnWidth)
   }, [])
 
   useEffect(() => {
@@ -178,7 +190,7 @@ export default function HomePage() {
 
       {/* ── ประชาสัมพันธ์ ─────────────────────────────────────────────── */}
       <Reveal>
-      <SectionBanner icon="📢" label="ประชาสัมพันธ์" />
+      <SectionBanner icon="📢" label="ข่าวประชาสัมพันธ์ & จดหมายข่าว" to="/announcements" />
 
       {/* ── Announcement marquee — mobile only (desktop shows in Facebook right panel) ── */}
       {annItems.length > 0 && (() => {
@@ -190,26 +202,19 @@ export default function HomePage() {
                 100% { transform: translateX(-50%); }
               }
               .ann-marquee {
-                animation: ann-marquee ${Math.max(annItems.length * 8, 50)}s linear infinite;
+                animation: ann-marquee ${Math.max((annItemWidth + 12) * annItems.length / 26, 50)}s linear infinite;
               }
               .ann-marquee:hover { animation-play-state: paused; }
             `}</style>
 
-            <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-gray-100">
-              <div className="flex items-center gap-2">
-                <span>📢</span>
-                <span className="text-sm font-semibold text-primary">ข่าวประชาสัมพันธ์ &amp; จดหมายข่าว</span>
-              </div>
-              <Link to="/announcements" className="text-xs text-secondary hover:underline">ดูทั้งหมด →</Link>
-            </div>
-
-            <div className="overflow-hidden pt-2 pb-3">
+            <div className="overflow-hidden pt-2 pb-3" ref={annTrackRef}>
               <div className="ann-marquee flex gap-3 w-max px-3">
                 {[...annItems, ...annItems].map((item, i) => (
                   <div
                     key={i}
                     onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
-                    className="w-52 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
+                    style={{ width: `${annItemWidth}px` }}
+                    className="flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
                   >
                     {/* Image — tall portrait, object-contain shows full image without cropping */}
                     <div className="relative overflow-hidden" style={{

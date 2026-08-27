@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import ImageUpload from '../../components/ImageUpload'
-import { getContactMessages, createContactMessage, updateContactMessage, deleteContactMessage } from '../../services/api'
+import { getContactMessages, createContactMessage, updateContactMessage, deleteContactMessage, replyContactMessage, updateContactReply, deleteContactReply } from '../../services/api'
 
 const STATUS_CONFIG = {
   new:  { label: 'ใหม่',           color: 'bg-blue-100 text-blue-700',   dot: 'bg-blue-500' },
   read: { label: 'รับทราบแล้ว',    color: 'bg-yellow-100 text-yellow-700', dot: 'bg-yellow-500' },
   done: { label: 'ดำเนินการแล้ว',  color: 'bg-green-100 text-green-700',  dot: 'bg-green-500' },
 }
+
+const AUTHOR_OPTIONS = ['ผู้ดูแลระบบ', 'เจ้าหน้าที่ อบต.']
 
 const EMPTY_FORM = { title: '', message: '', pageUrl: '', images: [] }
 
@@ -17,11 +19,17 @@ export default function AdminContactMessages() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted]   = useState(false)
   const [expanded, setExpanded] = useState(null)
-  const [editNote, setEditNote] = useState('')
   const [editStatus, setEditStatus] = useState('new')
   const [saving, setSaving]     = useState(false)
   const [deleting, setDeleting] = useState(null)
   const [lightbox, setLightbox] = useState(null)
+  const [replyAuthor, setReplyAuthor] = useState(AUTHOR_OPTIONS[0])
+  const [replyText, setReplyText]     = useState('')
+  const [sendingReply, setSendingReply] = useState(false)
+  const [editingReplyId, setEditingReplyId] = useState(null)
+  const [editReplyText, setEditReplyText]   = useState('')
+  const [savingReply, setSavingReply]       = useState(false)
+  const [deletingReplyId, setDeletingReplyId] = useState(null)
 
   async function load() {
     setLoading(true)
@@ -50,8 +58,9 @@ export default function AdminContactMessages() {
 
   function openItem(item) {
     setExpanded(item._id)
-    setEditNote(item.adminNote || '')
     setEditStatus(item.status)
+    setReplyText('')
+    setEditingReplyId(null)
     if (item.status === 'new') {
       updateContactMessage(item._id, { status: 'read' })
         .then(r => setItems(prev => prev.map(i => i._id === item._id ? r.data : i)))
@@ -59,15 +68,56 @@ export default function AdminContactMessages() {
     }
   }
 
-  async function handleSaveNote() {
+  async function handleSaveStatus() {
     setSaving(true)
     try {
-      const r = await updateContactMessage(expanded, { status: editStatus, adminNote: editNote })
+      const r = await updateContactMessage(expanded, { status: editStatus })
       setItems(prev => prev.map(i => i._id === expanded ? r.data : i))
-      setExpanded(null)
     } catch (err) {
       alert('บันทึกไม่สำเร็จ: ' + (err?.response?.data?.error || err.message))
     } finally { setSaving(false) }
+  }
+
+  async function handleSendReply() {
+    if (!replyText.trim()) return
+    setSendingReply(true)
+    try {
+      const r = await replyContactMessage(expanded, { author: replyAuthor, message: replyText.trim() })
+      setItems(prev => prev.map(i => i._id === expanded ? r.data : i))
+      setEditStatus(r.data.status)
+      setReplyText('')
+    } catch (err) {
+      alert('ส่งข้อความไม่สำเร็จ: ' + (err?.response?.data?.error || err.message))
+    } finally { setSendingReply(false) }
+  }
+
+  function startEditReply(reply) {
+    setEditingReplyId(reply._id)
+    setEditReplyText(reply.message)
+  }
+
+  async function handleSaveReplyEdit(itemId) {
+    if (!editReplyText.trim()) return
+    setSavingReply(true)
+    try {
+      const r = await updateContactReply(itemId, editingReplyId, { message: editReplyText.trim() })
+      setItems(prev => prev.map(i => i._id === itemId ? r.data : i))
+      setEditingReplyId(null)
+    } catch (err) {
+      alert('แก้ไขไม่สำเร็จ: ' + (err?.response?.data?.error || err.message))
+    } finally { setSavingReply(false) }
+  }
+
+  async function handleDeleteReply(itemId, replyId) {
+    if (!window.confirm('ยืนยันการลบข้อความนี้?')) return
+    setDeletingReplyId(replyId)
+    try {
+      const r = await deleteContactReply(itemId, replyId)
+      setItems(prev => prev.map(i => i._id === itemId ? r.data : i))
+      if (editingReplyId === replyId) setEditingReplyId(null)
+    } catch (err) {
+      alert('ลบไม่สำเร็จ: ' + (err?.response?.data?.error || err.message))
+    } finally { setDeletingReplyId(null) }
   }
 
   async function handleDelete(id) {
@@ -220,34 +270,118 @@ export default function AdminContactMessages() {
                         </div>
                       )}
 
-                      {/* Admin note + status update */}
-                      <div className="bg-gray-50 rounded-lg p-3 space-y-3">
-                        <p className="text-xs font-semibold text-gray-500">บันทึก / การตอบกลับ</p>
-                        <textarea
-                          rows={3}
-                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-pink-400 resize-none"
-                          placeholder="จดบันทึกสถานะหรือคำตอบ..."
-                          value={editNote}
-                          onChange={e => setEditNote(e.target.value)}
-                        />
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {Object.entries(STATUS_CONFIG).map(([val, cfg]) => (
-                            <label key={val}
-                              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border cursor-pointer transition-colors ${
-                                editStatus === val
-                                  ? `${cfg.color} border-current font-semibold`
-                                  : 'border-gray-200 text-gray-500 hover:border-gray-300'
-                              }`}>
-                              <input type="radio" name="status" value={val} checked={editStatus === val}
-                                onChange={() => setEditStatus(val)} className="hidden" />
-                              <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-                              {cfg.label}
-                            </label>
+                      {/* Status */}
+                      <div className="bg-gray-50 rounded-lg p-3 flex items-center gap-2 flex-wrap">
+                        {Object.entries(STATUS_CONFIG).map(([val, cfg]) => (
+                          <label key={val}
+                            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border cursor-pointer transition-colors ${
+                              editStatus === val
+                                ? `${cfg.color} border-current font-semibold`
+                                : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                            }`}>
+                            <input type="radio" name="status" value={val} checked={editStatus === val}
+                              onChange={() => setEditStatus(val)} className="hidden" />
+                            <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+                            {cfg.label}
+                          </label>
+                        ))}
+                        <button onClick={handleSaveStatus} disabled={saving || editStatus === item.status}
+                          className="ml-auto btn-primary text-xs disabled:opacity-50 px-4 py-1.5">
+                          {saving ? '...' : '💾 บันทึกสถานะ'}
+                        </button>
+                      </div>
+
+                      {/* Legacy single-note (old records only) */}
+                      {item.adminNote && (!item.replies || item.replies.length === 0) && (
+                        <div className="bg-yellow-50 border border-yellow-100 rounded-lg px-3 py-2">
+                          <p className="text-[10px] font-semibold text-yellow-600 mb-1">บันทึกเดิม</p>
+                          <p className="text-xs text-gray-600 whitespace-pre-wrap">{item.adminNote}</p>
+                        </div>
+                      )}
+
+                      {/* Conversation thread */}
+                      <div className="space-y-3">
+                        <p className="text-xs font-semibold text-gray-500">💬 การสนทนา</p>
+                        <div className="space-y-2">
+                          {(item.replies || []).map((r, idx) => (
+                            <div key={r._id || idx} className="bg-white border border-gray-100 rounded-lg px-3 py-2">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs font-semibold text-primary">{r.author || 'ผู้ดูแลระบบ'}</span>
+                                <span className="text-[10px] text-gray-400">
+                                  {new Date(r.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                  {r.updatedAt && r.updatedAt !== r.createdAt && ' · แก้ไขแล้ว'}
+                                </span>
+                              </div>
+                              {editingReplyId === r._id ? (
+                                <div className="space-y-2">
+                                  <textarea
+                                    rows={3}
+                                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-pink-400 resize-none"
+                                    value={editReplyText}
+                                    onChange={e => setEditReplyText(e.target.value)}
+                                  />
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button onClick={() => setEditingReplyId(null)}
+                                      className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1">
+                                      ยกเลิก
+                                    </button>
+                                    <button onClick={() => handleSaveReplyEdit(item._id)} disabled={savingReply || !editReplyText.trim()}
+                                      className="btn-primary text-xs disabled:opacity-50 px-3 py-1">
+                                      {savingReply ? '...' : '💾 บันทึก'}
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <>
+                                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{r.message}</p>
+                                  <div className="flex items-center justify-end gap-3 mt-1.5">
+                                    <button onClick={() => startEditReply(r)}
+                                      className="text-[11px] text-gray-400 hover:text-primary">
+                                      ✏️ แก้ไข
+                                    </button>
+                                    <button onClick={() => handleDeleteReply(item._id, r._id)} disabled={deletingReplyId === r._id}
+                                      className="text-[11px] text-red-400 hover:text-red-600 disabled:opacity-40">
+                                      {deletingReplyId === r._id ? 'กำลังลบ...' : '🗑️ ลบ'}
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
                           ))}
-                          <button onClick={handleSaveNote} disabled={saving}
-                            className="ml-auto btn-primary text-xs disabled:opacity-50 px-4 py-1.5">
-                            {saving ? '...' : '💾 บันทึก'}
-                          </button>
+                          {(!item.replies || item.replies.length === 0) && (
+                            <p className="text-xs text-gray-400 text-center py-3">ยังไม่มีการตอบกลับ</p>
+                          )}
+                        </div>
+
+                        {/* Reply composer */}
+                        <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {AUTHOR_OPTIONS.map(a => (
+                              <label key={a}
+                                className={`text-xs px-2.5 py-1 rounded-full border cursor-pointer transition-colors ${
+                                  replyAuthor === a
+                                    ? 'bg-primary text-white border-primary font-semibold'
+                                    : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white'
+                                }`}>
+                                <input type="radio" name="replyAuthor" value={a} checked={replyAuthor === a}
+                                  onChange={() => setReplyAuthor(a)} className="hidden" />
+                                {a}
+                              </label>
+                            ))}
+                          </div>
+                          <textarea
+                            rows={3}
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-pink-400 resize-none"
+                            placeholder="พิมพ์ข้อความตอบกลับ..."
+                            value={replyText}
+                            onChange={e => setReplyText(e.target.value)}
+                          />
+                          <div className="flex justify-end">
+                            <button onClick={handleSendReply} disabled={sendingReply || !replyText.trim()}
+                              className="btn-primary text-xs disabled:opacity-50 px-4 py-1.5">
+                              {sendingReply ? '⏳ กำลังส่ง...' : '📤 ส่งข้อความ'}
+                            </button>
+                          </div>
                         </div>
                       </div>
 

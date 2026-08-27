@@ -148,6 +148,9 @@ export const getContactMessages    = ()           => api.get('/contact-messages'
 export const createContactMessage  = (data)       => api.post('/contact-messages', data)
 export const updateContactMessage  = (id, data)   => api.put(`/contact-messages/${id}`, data)
 export const deleteContactMessage  = (id)         => api.delete(`/contact-messages/${id}`)
+export const replyContactMessage   = (id, data)   => api.post(`/contact-messages/${id}/replies`, data)
+export const updateContactReply    = (id, replyId, data) => api.put(`/contact-messages/${id}/replies/${replyId}`, data)
+export const deleteContactReply    = (id, replyId)        => api.delete(`/contact-messages/${id}/replies/${replyId}`)
 
 // ── Notices (หัวข้อประกาศ) ────────────────────────────────────────────────────
 export const getNotices    = (params)    => api.get('/notices', { params })
