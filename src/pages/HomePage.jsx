@@ -356,25 +356,63 @@ export default function HomePage() {
       {/* ── Facebook ─────────────────────────────────────────────────── */}
       <Reveal>
       <SectionBanner icon="📘" label="Facebook" />
-      <div className="card p-0 overflow-hidden flex justify-center">
-        <div ref={fbContainerRef} className="overflow-hidden w-full max-w-[500px]"
-          style={{ height: `${Math.round(500 * fbScale)}px` }}>
-          <iframe
-            src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false"
-            style={{
-              border: 'none',
-              width: '500px',
-              height: '500px',
-              display: 'block',
-              transform: `scale(${fbScale})`,
-              transformOrigin: 'top left',
-            }}
-            frameBorder="0"
-            allowFullScreen
-            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-            sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox"
-            title="Facebook Page อบต.แม่ใส"
-          />
+      <div className="flex flex-col lg:flex-row gap-4">
+        {/* Facebook widget — crisp at native size, full width on mobile */}
+        <div className="card p-0 overflow-hidden flex justify-center w-full lg:w-[500px] lg:flex-shrink-0">
+          <div ref={fbContainerRef} className="overflow-hidden w-full max-w-[500px]"
+            style={{ height: `${Math.round(500 * fbScale)}px` }}>
+            <iframe
+              src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false"
+              style={{
+                border: 'none',
+                width: '500px',
+                height: '500px',
+                display: 'block',
+                transform: `scale(${fbScale})`,
+                transformOrigin: 'top left',
+              }}
+              frameBorder="0"
+              allowFullScreen
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox"
+              title="Facebook Page อบต.แม่ใส"
+            />
+          </div>
+        </div>
+
+        {/* Contact info — fills the space beside Facebook on desktop */}
+        <div className="hidden lg:flex flex-col justify-center card p-6 flex-1">
+          <h3 className="text-base font-bold text-primary mb-4">📞 ติดต่อเรา</h3>
+          <div className="space-y-4 text-sm text-gray-700">
+            <div className="flex items-start gap-3">
+              <span className="text-lg">📍</span>
+              <div>
+                <p className="font-medium">ที่อยู่</p>
+                <p className="text-gray-500">198 ม.12 ตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา 56000</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-lg">📞</span>
+              <div>
+                <p className="font-medium">โทรศัพท์</p>
+                <a href="tel:054889909" className="text-blue-600 hover:underline font-medium">0-5488-9909</a>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-lg">📧</span>
+              <div>
+                <p className="font-medium">อีเมล</p>
+                <a href="mailto:saraban_06560115@dla.go.th" className="text-blue-600 hover:underline break-all">saraban_06560115@dla.go.th</a>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-lg">🕐</span>
+              <div>
+                <p className="font-medium">เวลาทำการ</p>
+                <p className="text-gray-500">วันจันทร์ – ศุกร์ เวลา 08:30 – 16:30 น.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       </Reveal>
