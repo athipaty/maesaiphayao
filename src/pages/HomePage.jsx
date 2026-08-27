@@ -380,38 +380,54 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Contact info — fills the space beside Facebook on desktop */}
-        <div className="hidden lg:flex flex-col justify-center card p-6 flex-1">
-          <h3 className="text-base font-bold text-primary mb-4">📞 ติดต่อเรา</h3>
-          <div className="space-y-4 text-sm text-gray-700">
-            <div className="flex items-start gap-3">
-              <span className="text-lg">📍</span>
-              <div>
-                <p className="font-medium">ที่อยู่</p>
-                <p className="text-gray-500">198 ม.12 ตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา 56000</p>
+        {/* Contact info + map — fills the space beside Facebook on desktop, same total height */}
+        <div className="hidden lg:flex flex-col gap-4 flex-1" style={{ height: `${Math.round(500 * fbScale)}px` }}>
+          <div className="card p-5 flex-shrink-0">
+            <h3 className="text-sm font-bold text-primary mb-3">📞 ติดต่อเรา</h3>
+            <div className="space-y-2.5 text-sm text-gray-700">
+              <div className="flex items-start gap-2.5">
+                <span className="text-base">📍</span>
+                <div>
+                  <p className="font-medium">ที่อยู่</p>
+                  <p className="text-gray-500">198 ม.12 ตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา 56000</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="text-base">📞</span>
+                <div>
+                  <p className="font-medium">โทรศัพท์</p>
+                  <a href="tel:054889909" className="text-blue-600 hover:underline font-medium">0-5488-9909</a>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="text-base">📧</span>
+                <div>
+                  <p className="font-medium">อีเมล</p>
+                  <a href="mailto:saraban_06560115@dla.go.th" className="text-blue-600 hover:underline break-all">saraban_06560115@dla.go.th</a>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="text-base">🕐</span>
+                <div>
+                  <p className="font-medium">เวลาทำการ</p>
+                  <p className="text-gray-500">วันจันทร์ – ศุกร์ เวลา 08:30 – 16:30 น.</p>
+                </div>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <span className="text-lg">📞</span>
-              <div>
-                <p className="font-medium">โทรศัพท์</p>
-                <a href="tel:054889909" className="text-blue-600 hover:underline font-medium">0-5488-9909</a>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-lg">📧</span>
-              <div>
-                <p className="font-medium">อีเมล</p>
-                <a href="mailto:saraban_06560115@dla.go.th" className="text-blue-600 hover:underline break-all">saraban_06560115@dla.go.th</a>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-lg">🕐</span>
-              <div>
-                <p className="font-medium">เวลาทำการ</p>
-                <p className="text-gray-500">วันจันทร์ – ศุกร์ เวลา 08:30 – 16:30 น.</p>
-              </div>
-            </div>
+          </div>
+
+          {/* Map — fills whatever height remains */}
+          <div className="card p-0 overflow-hidden flex-1 min-h-0">
+            <iframe
+              title="แผนที่ อบต.แม่ใส"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d968.8!2d99.8763!3d19.1322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30d9d2bf364e9093%3A0x59f89dc1c3f4d41b!2z!5e0!3m2!1sth!2sth!4v1700000000002"
+              width="100%"
+              height="100%"
+              style={{ border: 0, display: 'block' }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
           </div>
         </div>
       </div>
