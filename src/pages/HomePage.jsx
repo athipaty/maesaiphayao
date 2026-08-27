@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom'
 import { getNews, getAnnouncements, getProcurement, getTravel, getProducts, getVideos, getFacebookPage, getEgpRss, getNotices } from '../services/api'
 import { LatestNewsGrid } from '../components/NewsSection'
+import { iframeSrc as pdfIframeSrc } from '../components/PdfPreviewPanel'
 import { toArabicDigits } from '../utils/thaiNumerals'
 
 const DEPARTMENTS = ['council', 'office', 'disaster', 'health', 'engineering', 'finance']
@@ -184,12 +185,6 @@ export default function HomePage() {
     ...newsletter.map(i => ({ ...i, _kind: 'newsletter' })),
   ]
 
-  useEffect(() => {
-    if (annItems.length === 0) return
-    const timer = setInterval(() => setAnnSlide(s => (s + 1) % annItems.length), 4000)
-    return () => clearInterval(timer)
-  }, [annItems.length])
-
   return (
     <div>
 
@@ -223,7 +218,7 @@ export default function HomePage() {
                 {[...annItems, ...annItems].map((item, i) => (
                   <div
                     key={i}
-                    onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
+                    onClick={() => (item.image || item.fileUrl) && setLightboxItem(item)}
                     style={{ width: `${annItemWidth}px` }}
                     className="flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
                   >
@@ -611,16 +606,25 @@ export default function HomePage() {
           {/* Blurred backdrop */}
           <div className="absolute inset-0 bg-black/75 backdrop-blur-md" />
 
-          {/* Image container */}
+          {/* Content container */}
           <div
-            className="relative max-w-3xl w-full max-h-[90vh] flex flex-col items-center"
+            className={`relative w-full max-h-[90vh] flex flex-col items-center ${lightboxItem.fileUrl ? 'max-w-5xl' : 'max-w-3xl'}`}
             onClick={e => e.stopPropagation()}
           >
-            <img
-              src={lightboxItem.image}
-              alt={lightboxItem.title}
-              className="max-h-[80vh] max-w-full w-auto rounded-2xl shadow-2xl object-contain"
-            />
+            {lightboxItem.fileUrl ? (
+              <iframe
+                src={pdfIframeSrc(lightboxItem.fileUrl)}
+                title={lightboxItem.title}
+                className="w-full rounded-2xl shadow-2xl bg-white"
+                style={{ height: '78vh' }}
+              />
+            ) : (
+              <img
+                src={lightboxItem.image}
+                alt={lightboxItem.title}
+                className="max-h-[80vh] max-w-full w-auto rounded-2xl shadow-2xl object-contain"
+              />
+            )}
             <p className="mt-3 text-white text-sm font-semibold text-center drop-shadow line-clamp-2 px-4">
               {lightboxItem.title}
             </p>
