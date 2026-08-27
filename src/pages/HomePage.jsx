@@ -361,8 +361,9 @@ export default function HomePage() {
       {/* ── Facebook ─────────────────────────────────────────────────── */}
       <Reveal>
       <SectionBanner icon="📘" label="Facebook" />
-      <div className="card p-0 overflow-hidden">
-        <div ref={fbContainerRef} className="overflow-hidden w-full" style={{ height: `${Math.round(500 * fbScale)}px` }}>
+      <div className="card p-0 overflow-hidden flex justify-center">
+        <div ref={fbContainerRef} className="overflow-hidden w-full max-w-[500px]"
+          style={{ height: `${Math.round(500 * fbScale)}px` }}>
           <iframe
             src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false"
             style={{
