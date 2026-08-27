@@ -276,14 +276,14 @@ export default function HomePage() {
       {/* ── Announcement slideshow — desktop only, full width ───────────── */}
       {annItems.length > 0 && (
       <Reveal>
-          <div className="hidden lg:grid grid-cols-4 gap-3 card p-4">
-            {annItems.slice(0, 8).map((item, i) => (
+          <div className="hidden lg:grid grid-cols-3 gap-4 card p-5">
+            {annItems.slice(0, 3).map((item, i) => (
               <div key={i}
                 onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
                 className="rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
               >
                 <div className="relative overflow-hidden" style={{
-                  height: '220px',
+                  height: '340px',
                   background: item.image
                     ? '#f1f5f9'
                     : item._kind === 'newsletter'
@@ -295,30 +295,30 @@ export default function HomePage() {
                       className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-300">
+                      <span className="text-8xl opacity-40 group-hover:scale-110 transition-transform duration-300">
                         {item._kind === 'newsletter' ? '📰' : '📄'}
                       </span>
                     </div>
                   )}
-                  <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-black/40 to-transparent" />
-                  <span className="absolute top-2 left-2 text-[10px] font-bold bg-white/90 text-primary px-2 py-0.5 rounded-full z-10">
+                  <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/40 to-transparent" />
+                  <span className="absolute top-3 left-3 text-xs font-bold bg-white/90 text-primary px-2.5 py-1 rounded-full z-10">
                     {item._kind === 'newsletter' ? '📰 จดหมายข่าว' : '📢 ประชาสัมพันธ์'}
                   </span>
                 </div>
-                <div className="px-3 py-2.5">
-                  <p className="text-xs font-semibold text-gray-800 line-clamp-2 leading-snug mb-1.5 group-hover:text-primary transition-colors">
+                <div className="px-4 py-3.5">
+                  <p className="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug mb-2 group-hover:text-primary transition-colors">
                     {item.title}
                   </p>
                   <div className="flex items-center justify-between gap-2">
                     {item.createdAt && (
-                      <p className="text-[10px] text-gray-400">
+                      <p className="text-xs text-gray-400">
                         📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
                       </p>
                     )}
                     {item.fileUrl && (
                       <a href={item.fileUrl} target="_blank" rel="noreferrer"
                         onClick={e => e.stopPropagation()}
-                        className="text-[10px] font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors flex-shrink-0">
+                        className="text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-full transition-colors flex-shrink-0">
                         📄 PDF
                       </a>
                     )}
