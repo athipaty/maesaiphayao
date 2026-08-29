@@ -144,7 +144,7 @@ function ImageBlock({ data }) {
       <div className="mb-2 space-y-4">
         {images.map((img, i) => (
           <div key={i}>
-            <img src={img.url} alt={img.caption || ''} className={`block rounded-lg shadow-sm ${marginClass}`}
+            <img src={img.url} alt={img.caption || ''} loading="lazy" className={`block rounded-lg shadow-sm ${marginClass}`}
               style={{ maxWidth: maxW, width: '100%' }} />
             {img.caption && <p className={`text-xs text-gray-400 mt-2 ${textAlign}`}>{img.caption}</p>}
           </div>
@@ -173,7 +173,7 @@ function ImageBlock({ data }) {
       <div className={gridWrap}>
         {images.map((img, i) => (
           <div key={i} className={singleW}>
-            <img src={img.url} alt={img.caption || ''} className={`rounded-lg shadow-sm ${heightCls}`} />
+            <img src={img.url} alt={img.caption || ''} loading="lazy" className={`rounded-lg shadow-sm ${heightCls}`} />
             {img.caption && <p className="text-xs text-gray-400 mt-1 text-center">{img.caption}</p>}
           </div>
         ))}

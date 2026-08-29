@@ -91,7 +91,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
         {/* Mayor compact card */}
         <div className="flex-shrink-0 bg-white border-b border-gray-100 flex items-center gap-3 px-5 py-3">
           {settings.mayorImage ? (
-            <img src={settings.mayorImage} alt={settings.mayorName}
+            <img src={settings.mayorImage} alt={settings.mayorName} loading="lazy"
               className="w-16 h-20 rounded object-cover object-top border-2 border-yellow-300 flex-shrink-0" />
           ) : (
             <div className="w-16 h-20 rounded bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl flex-shrink-0 border-2 border-yellow-300">👤</div>

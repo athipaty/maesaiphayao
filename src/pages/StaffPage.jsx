@@ -29,7 +29,7 @@ function StaffCard({ s }) {
   return (
     <div className="text-center" style={{ width: 140 }}>
       {s.image ? (
-        <img src={s.image} alt={s.name}
+        <img src={s.image} alt={s.name} loading="lazy"
           className="object-cover mx-auto mb-2 border-2 border-blue-100 rounded"
           style={{ width: 130, height: 180, objectFit: 'cover', objectPosition: 'top center' }} />
       ) : (

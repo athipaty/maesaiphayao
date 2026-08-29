@@ -226,7 +226,7 @@ export default function HomePage() {
                           : 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)'
                     }}>
                       {item.image ? (
-                        <img src={item.image} alt={item.title}
+                        <img src={item.image} alt={item.title} loading="lazy"
                           className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -322,7 +322,7 @@ export default function HomePage() {
                     style={{ cursor: item.image || item.fileUrl ? 'pointer' : 'default' }}
                   >
                     {item.image ? (
-                      <img src={item.image} alt={item.title} className="w-full h-full object-contain" style={{ background: '#111' }} />
+                      <img src={item.image} alt={item.title} loading="lazy" className="w-full h-full object-contain" style={{ background: '#111' }} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center"
                         style={{ background: item._kind === 'newsletter' ? 'linear-gradient(135deg,#065f46,#059669)' : 'linear-gradient(135deg,#1e3a8a,#1d4ed8)' }}>
@@ -520,7 +520,7 @@ export default function HomePage() {
                   <div key={i} className="w-96 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
                     <div className="relative overflow-hidden bg-teal-50" style={{ height: '280px' }}>
                       {mainImg
-                        ? <img src={mainImg} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        ? <img src={mainImg} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🏞️</div>
                       }
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
@@ -550,7 +550,7 @@ export default function HomePage() {
                 <div key={i} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
                   <div className="relative overflow-hidden bg-green-50 aspect-[4/3]">
                     {mainImg
-                      ? <img src={mainImg} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ? <img src={mainImg} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🛍️</div>
                     }
                     {item.price != null && (

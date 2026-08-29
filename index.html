@@ -7,23 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary:   '#be185d',
-              secondary: '#ec4899',
-              accent:    '#f9a8d4',
-            },
-            fontFamily: {
-              thai: ['Sarabun', 'sans-serif'],
-            },
-          }
-        }
-      }
-    </script>
+    <!-- API backend and image/PDF storage — warm the connection early so the first data/image
+         fetch skips DNS + TLS setup -->
+    <link rel="preconnect" href="https://center-kitchen-backend.onrender.com" />
+    <link rel="preconnect" href="https://s3.us-west-004.backblazeb2.com" crossorigin />
   </head>
   <body>
     <div id="root"></div>

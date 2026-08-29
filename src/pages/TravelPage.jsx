@@ -58,7 +58,7 @@ export default function TravelPage() {
                 {/* Hero image with title overlay */}
                 <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-teal-50 to-blue-100">
                   {mainImg
-                    ? <img src={mainImg} alt={item.title}
+                    ? <img src={mainImg} alt={item.title} loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     : <div className="w-full h-full flex items-center justify-center text-5xl opacity-40">🏞️</div>
                   }
@@ -82,7 +82,7 @@ export default function TravelPage() {
                   <div className="flex gap-1 px-3 pt-2">
                     {extraImgs.map((img, idx) => (
                       <div key={idx} className="relative flex-1 aspect-square rounded-lg overflow-hidden bg-gray-100">
-                        <img src={img} alt="" className="w-full h-full object-cover" />
+                        <img src={img} alt="" loading="lazy" className="w-full h-full object-cover" />
                         {idx === 3 && imgs.length > 5 && (
                           <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-xs font-bold">
                             +{imgs.length - 5}

@@ -80,7 +80,7 @@ export default function NewsDetailPage() {
               <p className="text-xs text-gray-400 mb-3">รูปภาพเพิ่มเติม ({restImages.length} รูป)</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {restImages.map((img, idx) => (
-                  <img key={idx} src={img} alt={`${item.title} ${idx + 2}`}
+                  <img key={idx} src={img} alt={`${item.title} ${idx + 2}`} loading="lazy"
                     onClick={() => setLightbox(img)}
                     className="w-full h-60 object-cover rounded-md shadow-sm hover:opacity-90 transition-opacity cursor-pointer" />
                 ))}

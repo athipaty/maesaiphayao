@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { Outlet } from 'react-router-dom'
 import Navbar from './Navbar'
 import Sidebar from './Sidebar'
@@ -6,6 +6,7 @@ import Footer from './Footer'
 import MessengerButton from './MessengerButton'
 import TopUtilityBar from './TopUtilityBar'
 import CookieConsent from './CookieConsent'
+import ChunkErrorBoundary from './ChunkErrorBoundary'
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -85,7 +86,11 @@ export default function Layout() {
       <div className="max-w-[1200px] mx-auto w-full px-3 py-4 flex gap-4 flex-1">
         <Sidebar />
         <main className="flex-1 min-w-0">
-          <Outlet />
+          <ChunkErrorBoundary>
+            <Suspense fallback={<div className="py-16 text-center text-gray-400 text-sm animate-pulse">กำลังโหลด...</div>}>
+              <Outlet />
+            </Suspense>
+          </ChunkErrorBoundary>
         </main>
       </div>
       <Footer />
