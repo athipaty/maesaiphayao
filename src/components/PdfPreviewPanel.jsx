@@ -1,6 +1,6 @@
 const API_BASE = import.meta.env.VITE_API_URL || '/api/abt'
 
-function iframeSrc(url) {
+export function iframeSrc(url) {
   if (!url) return ''
   const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/)
   if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`

@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom'
 import { getNews, getAnnouncements, getProcurement, getTravel, getProducts, getVideos, getFacebookPage, getEgpRss, getNotices } from '../services/api'
 import { LatestNewsGrid } from '../components/NewsSection'
+import { iframeSrc as pdfIframeSrc } from '../components/PdfPreviewPanel'
 import { toArabicDigits } from '../utils/thaiNumerals'
 
 const DEPARTMENTS = ['council', 'office', 'disaster', 'health', 'engineering', 'finance']
@@ -79,17 +80,17 @@ export default function HomePage() {
   const [noticeOpen, setNoticeOpen] = useState({})
   const [fbPage, setFbPage]         = useState(null)
   const [lightboxItem, setLightboxItem] = useState(null)
-  const [annSlide, setAnnSlide]         = useState(0)
   const fbContainerRef = useRef(null)
   const [fbScale, setFbScale] = useState(1)
   const annTrackRef = useRef(null)
   const [annItemWidth, setAnnItemWidth] = useState(320)
+  const annDesktopTrackRef = useRef(null)
+  const [annDesktopItemWidth, setAnnDesktopItemWidth] = useState(300)
 
   useEffect(() => {
     function updateScale() {
       if (!fbContainerRef.current) return
-      const w = fbContainerRef.current.offsetWidth
-      setFbScale(w / 500)
+      setFbScale(fbContainerRef.current.offsetWidth / 500)
     }
     updateScale()
     window.addEventListener('resize', updateScale)
@@ -104,6 +105,17 @@ export default function HomePage() {
     updateAnnWidth()
     window.addEventListener('resize', updateAnnWidth)
     return () => window.removeEventListener('resize', updateAnnWidth)
+  }, [])
+
+  useEffect(() => {
+    function updateDesktopAnnWidth() {
+      if (!annDesktopTrackRef.current) return
+      // 2 cards per row: subtract px-5 track padding (40px) and 1 gap (gap-4 = 16px)
+      setAnnDesktopItemWidth((annDesktopTrackRef.current.offsetWidth - 40 - 16) / 2)
+    }
+    updateDesktopAnnWidth()
+    window.addEventListener('resize', updateDesktopAnnWidth)
+    return () => window.removeEventListener('resize', updateDesktopAnnWidth)
   }, [])
 
   useEffect(() => {
@@ -173,12 +185,6 @@ export default function HomePage() {
     ...newsletter.map(i => ({ ...i, _kind: 'newsletter' })),
   ]
 
-  useEffect(() => {
-    if (annItems.length === 0) return
-    const timer = setInterval(() => setAnnSlide(s => (s + 1) % annItems.length), 4000)
-    return () => clearInterval(timer)
-  }, [annItems.length])
-
   return (
     <div>
 
@@ -212,7 +218,7 @@ export default function HomePage() {
                 {[...annItems, ...annItems].map((item, i) => (
                   <div
                     key={i}
-                    onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
+                    onClick={() => (item.image || item.fileUrl) && setLightboxItem(item)}
                     style={{ width: `${annItemWidth}px` }}
                     className="flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
                   >
@@ -275,12 +281,85 @@ export default function HomePage() {
       })()}
       </Reveal>
 
+      {/* ── Announcement marquee — desktop only, full width, 3 cards visible, slides left ───────────── */}
+      {annItems.length > 0 && (
+      <Reveal>
+          <div className="hidden lg:block card p-0 overflow-hidden">
+            <style>{`
+              @keyframes ann-marquee-desktop {
+                0%   { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+              }
+              .ann-marquee-desktop {
+                animation: ann-marquee-desktop ${Math.max((annDesktopItemWidth + 16) * annItems.length / 12, 60)}s linear infinite;
+              }
+              .ann-marquee-desktop:hover { animation-play-state: paused; }
+            `}</style>
+            <div className="overflow-hidden py-5" ref={annDesktopTrackRef}>
+              <div className="ann-marquee-desktop flex gap-4 w-max px-5">
+                {[...annItems, ...annItems].map((item, i) => (
+              <div key={i}
+                onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
+                style={{ width: `${annDesktopItemWidth}px` }}
+                className="flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
+              >
+                <div className="relative overflow-hidden" style={{
+                  height: '460px',
+                  background: item.image
+                    ? '#f1f5f9'
+                    : item._kind === 'newsletter'
+                      ? 'linear-gradient(135deg,#065f46 0%,#059669 60%,#34d399 100%)'
+                      : 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)'
+                }}>
+                  {item.image ? (
+                    <img src={item.image} alt={item.title}
+                      className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-9xl opacity-40 group-hover:scale-110 transition-transform duration-300">
+                        {item._kind === 'newsletter' ? '📰' : '📄'}
+                      </span>
+                    </div>
+                  )}
+                  <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-black/40 to-transparent" />
+                  <span className="absolute top-3 left-3 text-sm font-bold bg-white/90 text-primary px-3 py-1.5 rounded-full z-10">
+                    {item._kind === 'newsletter' ? '📰 จดหมายข่าว' : '📢 ประชาสัมพันธ์'}
+                  </span>
+                </div>
+                <div className="px-5 py-4">
+                  <p className="text-base font-semibold text-gray-800 line-clamp-2 leading-snug mb-2.5 group-hover:text-primary transition-colors">
+                    {item.title}
+                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    {item.createdAt && (
+                      <p className="text-sm text-gray-400">
+                        📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                      </p>
+                    )}
+                    {item.fileUrl && (
+                      <a href={item.fileUrl} target="_blank" rel="noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="text-sm font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-full transition-colors flex-shrink-0">
+                        📄 PDF
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+                ))}
+              </div>
+            </div>
+          </div>
+      </Reveal>
+      )}
+
       {/* ── Facebook ─────────────────────────────────────────────────── */}
       <Reveal>
-      <div className="card p-0 overflow-hidden">
-        <div className="flex flex-col lg:flex-row">
-          {/* Left: Facebook iframe — full width on mobile, half on desktop */}
-          <div ref={fbContainerRef} className="overflow-hidden lg:w-1/2"
+      <SectionBanner icon="📘" label="Facebook" />
+      <div className="flex flex-col lg:flex-row gap-4">
+        {/* Facebook widget — crisp at native size, full width on mobile */}
+        <div className="card p-0 overflow-hidden flex justify-center w-full lg:w-[500px] lg:flex-shrink-0">
+          <div ref={fbContainerRef} className="overflow-hidden w-full max-w-[500px]"
             style={{ height: `${Math.round(500 * fbScale)}px` }}>
             <iframe
               src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false"
@@ -299,82 +378,58 @@ export default function HomePage() {
               title="Facebook Page อบต.แม่ใส"
             />
           </div>
+        </div>
 
-          {/* Right: Announcement slideshow — desktop only */}
-          <div className="hidden lg:block flex-1 relative overflow-hidden"
-            style={{ height: `${Math.round(500 * fbScale)}px` }}>
-            <style>{`
-              @keyframes dot-bounce {
-                0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-                40%           { transform: translateY(-10px); opacity: 1; }
-              }
-              .ann-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #94a3b8; animation: dot-bounce 1.4s ease-in-out infinite; }
-              .ann-dot:nth-child(2) { animation-delay: 0.2s; }
-              .ann-dot:nth-child(3) { animation-delay: 0.4s; }
-            `}</style>
-
-            {annItems.length > 0 ? (
-              <>
-                {annItems.map((item, i) => (
-                  <div key={i}
-                    className={`absolute inset-0 transition-opacity duration-700 ${i === annSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
-                    onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
-                    style={{ cursor: item.image || item.fileUrl ? 'pointer' : 'default' }}
-                  >
-                    {item.image ? (
-                      <img src={item.image} alt={item.title} loading="lazy" className="w-full h-full object-contain" style={{ background: '#111' }} />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center"
-                        style={{ background: item._kind === 'newsletter' ? 'linear-gradient(135deg,#065f46,#059669)' : 'linear-gradient(135deg,#1e3a8a,#1d4ed8)' }}>
-                        <span className="text-7xl opacity-20">{item._kind === 'newsletter' ? '📰' : '📢'}</span>
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                    <span className="absolute top-3 left-3 text-[10px] font-bold bg-white/90 text-primary px-2 py-0.5 rounded-full z-20">
-                      {item._kind === 'newsletter' ? '📰 จดหมายข่าว' : '📢 ประชาสัมพันธ์'}
-                    </span>
-                    {item.fileUrl && (
-                      <a href={item.fileUrl} target="_blank" rel="noreferrer"
-                        onClick={e => e.stopPropagation()}
-                        className="absolute top-3 right-3 text-[10px] font-bold bg-red-600/80 text-white px-2 py-0.5 rounded-full z-20 hover:bg-red-600 transition-colors">
-                        📄 PDF
-                      </a>
-                    )}
-                    <div className="absolute bottom-0 left-0 right-0 px-4 pb-8 pt-4 z-20">
-                      <p className="text-white text-sm font-semibold leading-snug line-clamp-2 drop-shadow">{item.title}</p>
-                      {item.createdAt && (
-                        <p className="text-white/65 text-xs mt-1">
-                          📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-
-                {/* Slide indicator dots */}
-                <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-30">
-                  {annItems.map((_, i) => (
-                    <button key={i}
-                      onClick={() => setAnnSlide(i)}
-                      className={`rounded-full transition-all duration-300 ${i === annSlide ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/75'}`}
-                    />
-                  ))}
-                </div>
-
-                {/* Header label */}
-                <div className="absolute top-0 left-0 right-0 px-4 pt-3 pb-6 bg-gradient-to-b from-black/50 to-transparent z-20 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-white/90">📢 ข่าวประชาสัมพันธ์ &amp; จดหมายข่าว</span>
-                  <Link to="/announcements" className="text-[10px] text-white/70 hover:text-white transition-colors">ดูทั้งหมด →</Link>
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full gap-4 bg-gradient-to-br from-gray-50 to-slate-100">
-                <p className="text-2xl font-bold text-slate-300 tracking-widest select-none">coming soon</p>
-                <div className="flex items-center gap-2">
-                  <span className="ann-dot" /><span className="ann-dot" /><span className="ann-dot" />
+        {/* Contact info + map — fills the space beside Facebook on desktop, same total height */}
+        <div className="hidden lg:flex flex-col gap-4 flex-1" style={{ height: `${Math.round(500 * fbScale)}px` }}>
+          <div className="card p-4 flex-shrink-0">
+            <h3 className="text-xs font-bold text-primary mb-2">📞 ติดต่อเรา</h3>
+            <div className="space-y-1.5 text-xs text-gray-700">
+              <div className="flex items-start gap-2">
+                <span className="text-sm">📍</span>
+                <div>
+                  <p className="font-medium">ที่อยู่</p>
+                  <p className="text-gray-500">198 ม.12 ตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา 56000</p>
                 </div>
               </div>
-            )}
+              <div className="flex items-start gap-2">
+                <span className="text-sm">📞</span>
+                <div>
+                  <p className="font-medium">โทรศัพท์</p>
+                  <a href="tel:054889909" className="text-blue-600 hover:underline font-medium">0-5488-9909</a>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-sm">📧</span>
+                <div>
+                  <p className="font-medium">อีเมล</p>
+                  <a href="mailto:saraban_06560115@dla.go.th" className="text-blue-600 hover:underline break-all">saraban_06560115@dla.go.th</a>
+                  <br />
+                  <a href="mailto:maesaiphayao.909@gmail.com" className="text-blue-600 hover:underline break-all">maesaiphayao.909@gmail.com</a>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-sm">🕐</span>
+                <div>
+                  <p className="font-medium">เวลาทำการ</p>
+                  <p className="text-gray-500">วันจันทร์ – ศุกร์ เวลา 08:30 – 16:30 น.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Map — fills whatever height remains */}
+          <div className="card p-0 overflow-hidden flex-1 min-h-0">
+            <iframe
+              title="แผนที่ อบต.แม่ใส"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d968.8!2d99.8763!3d19.1322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30d9d2bf364e9093%3A0x59f89dc1c3f4d41b!2z!5e0!3m2!1sth!2sth!4v1700000000002"
+              width="100%"
+              height="100%"
+              style={{ border: 0, display: 'block' }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
           </div>
         </div>
       </div>
@@ -607,16 +662,25 @@ export default function HomePage() {
           {/* Blurred backdrop */}
           <div className="absolute inset-0 bg-black/75 backdrop-blur-md" />
 
-          {/* Image container */}
+          {/* Content container */}
           <div
-            className="relative max-w-3xl w-full max-h-[90vh] flex flex-col items-center"
+            className={`relative w-full max-h-[90vh] flex flex-col items-center ${lightboxItem.fileUrl ? 'max-w-5xl' : 'max-w-3xl'}`}
             onClick={e => e.stopPropagation()}
           >
-            <img
-              src={lightboxItem.image}
-              alt={lightboxItem.title}
-              className="max-h-[80vh] max-w-full w-auto rounded-2xl shadow-2xl object-contain"
-            />
+            {lightboxItem.fileUrl ? (
+              <iframe
+                src={pdfIframeSrc(lightboxItem.fileUrl)}
+                title={lightboxItem.title}
+                className="w-full rounded-2xl shadow-2xl bg-white"
+                style={{ height: '78vh' }}
+              />
+            ) : (
+              <img
+                src={lightboxItem.image}
+                alt={lightboxItem.title}
+                className="max-h-[80vh] max-w-full w-auto rounded-2xl shadow-2xl object-contain"
+              />
+            )}
             <p className="mt-3 text-white text-sm font-semibold text-center drop-shadow line-clamp-2 px-4">
               {lightboxItem.title}
             </p>
