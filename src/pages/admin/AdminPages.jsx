@@ -1113,8 +1113,8 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
     commitDraft()
     const b = emptyBlock(type)
     b._tempKey = 'tmp-' + Date.now()
-    setOpenIdx(0)
-    setBlocks(prev => [b, ...prev])
+    setOpenIdx(blocks.length)
+    setBlocks(prev => [...prev, b])
   }
 
   function updateBlock(i, b) { setBlocks(prev => prev.map((x, idx) => idx === i ? b : x)) }
