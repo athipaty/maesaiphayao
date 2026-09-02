@@ -4,6 +4,7 @@ import ImageUpload from '../../components/ImageUpload'
 import PdfUpload from '../../components/PdfUpload'
 import ExcelUpload from '../../components/ExcelUpload'
 import WordUpload from '../../components/WordUpload'
+import ArchiveUpload from '../../components/ArchiveUpload'
 import BlockRenderer from '../../components/BlockRenderer'
 
 const ICONS = ['📄','🏛️','📰','📊','💰','📋','👥','🌐','📮','🚨','📝','📚','⚖️','📞','🎭','🌿','🗺️','🛍️','🏠','ℹ️','📌','🔔','✉️','🎓','🏥','🌾','🔨','🤝','⚡','🔗']
@@ -127,6 +128,13 @@ const BLOCK_TYPES = [
         <text x="12" y="17.5" textAnchor="middle" fill="white" fontSize="9" fontWeight="800" fontFamily="Arial,sans-serif">W</text>
       </svg>
     ), label: 'Word',      desc: 'อัปโหลดและแสดงไฟล์ Word', color: 'bg-blue-50 border-blue-200 hover:border-blue-400', accent: 'bg-blue-500' },
+  { type: 'archive',  icon: (
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 2h10l6 6v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#0d9488"/>
+        <path d="M14 2l6 6h-4a2 2 0 0 1-2-2V2z" fill="#5eead4"/>
+        <text x="12" y="17" textAnchor="middle" fill="white" fontSize="6" fontWeight="bold" fontFamily="Arial,sans-serif" letterSpacing="0.3">ZIP</text>
+      </svg>
+    ), label: 'RAR/ZIP',   desc: 'แนบไฟล์บีบอัดให้ดาวน์โหลด', color: 'bg-teal-50 border-teal-200 hover:border-teal-400', accent: 'bg-teal-500' },
 ]
 const BLOCK_META = Object.fromEntries(BLOCK_TYPES.map(b => [b.type, b]))
 
@@ -145,6 +153,7 @@ const ACCENT_BORDER = {
   html:     'border-l-slate-400',
   excel:    'border-l-green-400',
   word:     'border-l-blue-400',
+  archive:  'border-l-teal-400',
 }
 
 // ── Shared field helpers ──────────────────────────────────────────────────────
@@ -179,6 +188,7 @@ function emptyBlock(type) {
   if (type === 'html')     return { type, data: { html: '' } }
   if (type === 'excel')    return { type, data: { url: '', label: '', title: '', description: '' } }
   if (type === 'word')     return { type, data: { url: '', label: '', title: '', description: '' } }
+  if (type === 'archive')  return { type, data: { url: '', label: '', title: '', description: '' } }
   return { type, data: {} }
 }
 
@@ -1036,6 +1046,22 @@ function WordBlockEdit({ data, onChange }) {
   )
 }
 
+function ArchiveBlockEdit({ data, onChange }) {
+  return (
+    <div className="space-y-4">
+      <Field label="หัวข้อ" hint="ไม่บังคับ">
+        <input className={inp} placeholder="เช่น เอกสารประกอบการประชุม (ไฟล์ทั้งหมด)" value={data.title || ''} onChange={e => onChange({ ...data, title: e.target.value })} />
+      </Field>
+      <Field label="คำอธิบาย" hint="ไม่บังคับ">
+        <input className={inp} placeholder="คำอธิบายสั้น ๆ" value={data.description || ''} onChange={e => onChange({ ...data, description: e.target.value })} />
+      </Field>
+      <Field label="ไฟล์บีบอัด (.zip / .rar)" hint="ดาวน์โหลดเท่านั้น ไม่มีตัวอย่างในหน้าเว็บ">
+        <ArchiveUpload value={data.url} label={data.label} onChange={(url, name) => onChange({ ...data, url, label: name })} />
+      </Field>
+    </div>
+  )
+}
+
 function HtmlBlockEdit({ data, onChange }) {
   return (
     <div className="space-y-4">
@@ -1071,6 +1097,7 @@ function BlockEdit({ block, onChange }) {
     case 'timeline': return <TimelineBlockEdit data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'excel':    return <ExcelBlockEdit    data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'word':     return <WordBlockEdit     data={block.data} onChange={d => onChange({ ...block, data: d })} />
+    case 'archive':  return <ArchiveBlockEdit  data={block.data} onChange={d => onChange({ ...block, data: d })} />
     case 'html':     return <HtmlBlockEdit     data={block.data} onChange={d => onChange({ ...block, data: d })} />
     default:         return null
   }

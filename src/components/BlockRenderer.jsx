@@ -497,6 +497,22 @@ function TimelineBlock({ data }) {
   )
 }
 
+function ArchiveFileIcon({ size = 44 }) {
+  const w = size, h = size * 1.3
+  return (
+    <svg width={w} height={h} viewBox="0 0 44 57" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+      <path d="M0 5C0 2.239 2.239 0 5 0H30L44 15V52C44 54.761 41.761 57 39 57H5C2.239 57 0 54.761 0 52V5Z" fill="#0d9488"/>
+      <path d="M30 0L44 15H32C30.895 15 30 14.105 30 13V0Z" fill="#5eead4"/>
+      <rect x="0" y="34" width="44" height="16" fill="#0f766e"/>
+      <rect x="0" y="34" width="44" height="16" fill="white" fillOpacity="0.08"/>
+      <text x="22" y="45.5" textAnchor="middle" fill="white" fontSize="7.5" fontWeight="800" fontFamily="Arial Black, Arial, sans-serif" letterSpacing="0.3">ZIP</text>
+      {/* Zipper teeth down the middle of the document body, like a compressed-file icon */}
+      <rect x="20" y="18" width="4" height="4" fill="white" fillOpacity="0.35"/>
+      <rect x="20" y="24" width="4" height="4" fill="white" fillOpacity="0.35"/>
+    </svg>
+  )
+}
+
 function ExcelFileIcon({ size = 44 }) {
   const w = size, h = size * 1.3
   return (
@@ -667,6 +683,35 @@ function ExcelBlock({ data, preview }) {
   )
 }
 
+// Archives (.zip/.rar) can't be previewed in a browser the way PDF/Word/Excel
+// can via an embed viewer — there's nothing to render without extracting the
+// file locally, so this block only ever offers a direct download, no toggle.
+function ArchiveBlock({ data }) {
+  if (!data.url) return null
+  const absUrl = resolveFileUrl(data.url)
+  const ext = (data.label || data.url).match(/\.(zip|rar)$/i)?.[1]?.toUpperCase()
+
+  return (
+    <div className="card mb-2 overflow-hidden">
+      <div className="p-4">
+        {data.description && <p className="text-xs text-gray-500 mb-3 leading-relaxed">{data.description}</p>}
+
+        <a href={absUrl} target="_blank" rel="noreferrer"
+          className="flex items-center gap-3 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-xl px-4 py-3 transition-colors group">
+          <div className="group-hover:scale-105 transition-transform">
+            <ArchiveFileIcon size={36} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-teal-700 truncate">{data.title || 'ไฟล์บีบอัด'}</p>
+            {ext && <p className="text-xs text-teal-400 mt-0.5">ไฟล์ {ext}</p>}
+          </div>
+          <span className="text-xs bg-teal-600 text-white px-3 py-1.5 rounded-lg font-medium flex-shrink-0">📥 ดาวน์โหลด</span>
+        </a>
+      </div>
+    </div>
+  )
+}
+
 // Renders admin-authored HTML (embeds, custom markup). Deliberately does NOT
 // execute <script> tags inside it -- dangerouslySetInnerHTML already inserts
 // them inert, and that's load-bearing here: this block is reachable by anyone
@@ -702,6 +747,7 @@ export default function BlockRenderer({ block, preview = false }) {
     case 'timeline': return <TimelineBlock data={block.data} />
     case 'excel':    return <ExcelBlock    data={block.data} preview={preview} />
     case 'word':     return <WordBlock     data={block.data} preview={preview} />
+    case 'archive':  return <ArchiveBlock  data={block.data} />
     case 'html':     return <HtmlBlock     data={block.data} preview={preview} />
     default:         return null
   }

@@ -185,3 +185,9 @@ export const uploadWord = (file) => {
   form.append('word', file)
   return api.post('/upload-word', form, { headers: { 'Content-Type': 'multipart/form-data' } })
 }
+
+export const uploadArchive = (file) => {
+  const form = new FormData()
+  form.append('archive', file)
+  return api.post('/upload-archive', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+}
