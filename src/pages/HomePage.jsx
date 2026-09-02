@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { getNews, getAnnouncements, getProcurement, getTravel, getProducts, getVideos, getFacebookPage, getEgpRss, getNotices } from '../services/api'
+import { getNews, getAnnouncements, getProcurement, getTravel, getProducts, getVideos, getFacebookPage, getEgpRss, getNotices, getSettings } from '../services/api'
 import { LatestNewsGrid } from '../components/NewsSection'
 import { iframeSrc as pdfIframeSrc } from '../components/PdfPreviewPanel'
 import { toArabicDigits } from '../utils/thaiNumerals'
@@ -79,6 +79,7 @@ export default function HomePage() {
   const [notices, setNotices]       = useState([])
   const [noticeOpen, setNoticeOpen] = useState({})
   const [fbPage, setFbPage]         = useState(null)
+  const [landingPhoto, setLandingPhoto] = useState('')
   const [lightboxItem, setLightboxItem] = useState(null)
   const fbContainerRef = useRef(null)
   const [fbScale, setFbScale] = useState(1)
@@ -148,6 +149,7 @@ export default function HomePage() {
         ])
         getFacebookPage().then(r => setFbPage(r?.data)).catch(() => {})
         getNotices().then(r => setNotices(Array.isArray(r?.data) ? r.data : [])).catch(() => {})
+        getSettings().then(r => setLandingPhoto(r?.data?.landingPhoto || '')).catch(() => {})
         getVideos().then(r => setVideos((r?.data || []).slice(0, 6))).catch(() => {})
         setAnnounce(ann?.data || [])
         setNewsletter(nl?.data || [])
@@ -418,18 +420,15 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Map — fills whatever height remains */}
-          <div className="card p-0 overflow-hidden flex-1 min-h-0">
-            <iframe
-              title="แผนที่ อบต.แม่ใส"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d968.8!2d99.8763!3d19.1322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30d9d2bf364e9093%3A0x59f89dc1c3f4d41b!2z!5e0!3m2!1sth!2sth!4v1700000000002"
-              width="100%"
-              height="100%"
-              style={{ border: 0, display: 'block' }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
+          {/* Photo — fills whatever height remains, uploaded by admin in ตั้งค่าเว็บไซต์ */}
+          <div className="card p-0 overflow-hidden flex-1 min-h-0 bg-gray-50">
+            {landingPhoto ? (
+              <img src={landingPhoto} alt="อบต.แม่ใส" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">
+                ยังไม่มีรูปภาพ
+              </div>
+            )}
           </div>
         </div>
       </div>
