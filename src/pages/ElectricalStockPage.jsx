@@ -489,12 +489,12 @@ export default function ElectricalStockPage() {
       {/* ── Sidebar (desktop) ── */}
       <aside className="hidden lg:flex w-56 flex-shrink-0 bg-slate-900 text-slate-300 flex-col">
         <div className="px-5 py-5 border-b border-slate-800">
-          <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุ<br />กองช่าง อบต.แม่ใส</p>
+          <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุ<br />กองช่าง</p>
         </div>
-        <div className="px-3 py-3 border-b border-slate-800 flex gap-1.5">
+        <div className="px-3 py-3 border-b border-slate-800 flex flex-col gap-1.5">
           {CATEGORIES.map(c => (
             <button key={c.key} onClick={() => setActiveCategory(c.key)}
-              className={`flex-1 text-[11px] font-semibold py-2 rounded-lg transition-colors ${
+              className={`text-left text-[11px] font-semibold px-3 py-2 rounded-lg transition-colors ${
                 activeCategory === c.key ? 'bg-amber-400 text-slate-900' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
               }`}>
               {c.icon} {c.label}
@@ -529,13 +529,13 @@ export default function ElectricalStockPage() {
             sidebarOpen ? 'translate-x-0' : 'translate-x-full'
           }`}>
           <div className="px-5 py-5 border-b border-slate-800 flex items-center justify-between gap-2">
-            <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุ<br />กองช่าง อบต.แม่ใส</p>
+            <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุ<br />กองช่าง</p>
             <button onClick={() => setSidebarOpen(false)} className="text-slate-400 hover:text-white text-xl flex-shrink-0" aria-label="ปิดเมนู">×</button>
           </div>
-          <div className="px-3 py-3 border-b border-slate-800 flex gap-1.5">
+          <div className="px-3 py-3 border-b border-slate-800 flex flex-col gap-1.5">
             {CATEGORIES.map(c => (
               <button key={c.key} onClick={() => setActiveCategory(c.key)}
-                className={`flex-1 text-xs font-semibold py-2.5 rounded-lg transition-colors ${
+                className={`text-left text-xs font-semibold px-3 py-2.5 rounded-lg transition-colors ${
                   activeCategory === c.key ? 'bg-amber-400 text-slate-900' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
                 }`}>
                 {c.icon} {c.label}
