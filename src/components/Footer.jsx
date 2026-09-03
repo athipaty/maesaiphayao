@@ -100,14 +100,20 @@ export default function Footer() {
                 rel="noreferrer"
                 className="footer-banner group flex flex-col items-center justify-start gap-0.5 rounded-xl pt-3 pb-4 px-2 hover:scale-105 transition-transform relative overflow-hidden"
                 style={{
-                  ...(l.imageUrl
-                    ? { backgroundImage: `url(${l.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-                    : { background: l.bg }),
+                  ...(l.imageUrl ? {} : { background: l.bg }),
                   textDecoration: 'none',
                   boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
                   minHeight: '80px',
                 }}
               >
+                {/* An <img> with object-fit downscales far more crisply than a CSS
+                    background-image at the same box size, which is what was making
+                    uploaded photos look soft/blurry here. */}
+                {l.imageUrl && (
+                  <img src={l.imageUrl} alt={l.label || ''}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    loading="lazy" decoding="async" />
+                )}
                 <span className="footer-shimmer" />
                 {!l.imageUrl && (
                   <>
