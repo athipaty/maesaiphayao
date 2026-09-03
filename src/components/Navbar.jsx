@@ -29,7 +29,7 @@ export default function Navbar({ onMenuClick, scrolled }) {
     <header>
 
       {/* ── Main header row ─────────────────────────────────────────── */}
-      <div className={`bg-gradient-to-r from-primary via-secondary to-accent text-white shadow-md flex items-center transition-[min-height] duration-300 ease-in-out ${
+      <div className={`bg-white border-b border-gray-200 text-gray-800 flex items-center transition-[min-height] duration-300 ease-in-out ${
           scrolled ? 'min-h-[72px]' : (headerBgImage ? 'min-h-[110px] lg:min-h-[170px]' : '')
         }`}
         style={headerBgImage ? {
@@ -53,9 +53,9 @@ export default function Navbar({ onMenuClick, scrolled }) {
             <div className={`overflow-hidden flex-shrink-0 flex items-center justify-center aspect-square transition-[width,opacity] duration-300 ease-in-out ${scrolled ? 'w-0 opacity-0' : 'w-14 lg:w-36 opacity-100'}`}>
               {logoImage ? (
                 <img src={logoImage} alt="logo"
-                  className="w-12 h-12 lg:w-32 lg:h-32 rounded-full object-cover ring-2 lg:ring-4 ring-white/40 shadow flex-shrink-0" />
+                  className="w-12 h-12 lg:w-32 lg:h-32 rounded-full object-cover ring-2 lg:ring-4 ring-gray-100 shadow flex-shrink-0" />
               ) : (
-                <div className="w-12 h-12 lg:w-32 lg:h-32 rounded-full bg-white/20 ring-2 lg:ring-4 ring-white/40 flex items-center justify-center text-white font-bold text-[11px] lg:text-lg text-center leading-tight p-1 backdrop-blur-sm flex-shrink-0">
+                <div className="w-12 h-12 lg:w-32 lg:h-32 rounded-full bg-gradient-to-br from-primary to-secondary ring-2 lg:ring-4 ring-gray-100 flex items-center justify-center text-white font-bold text-[11px] lg:text-lg text-center leading-tight p-1 shadow flex-shrink-0">
                   อบต.<br />แม่ใส
                 </div>
               )}
@@ -66,7 +66,7 @@ export default function Navbar({ onMenuClick, scrolled }) {
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Hamburger — mobile only, right side */}
             <button
-              className="lg:hidden flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/20 active:bg-white/30 transition-colors text-xl"
+              className="lg:hidden flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors text-xl"
               onClick={onMenuClick}
               aria-label="เปิดเมนู"
             >
