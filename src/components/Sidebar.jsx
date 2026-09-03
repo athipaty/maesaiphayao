@@ -91,7 +91,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
         {/* Mayor compact card */}
         <div className="flex-shrink-0 bg-white border-b border-gray-100 flex items-center gap-3 px-5 py-3">
           {settings.mayorImage ? (
-            <img src={settings.mayorImage} alt={settings.mayorName}
+            <img src={settings.mayorImage} alt={settings.mayorName} loading="lazy"
               className="w-16 h-20 rounded object-cover object-top border-2 border-yellow-300 flex-shrink-0" />
           ) : (
             <div className="w-16 h-20 rounded bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl flex-shrink-0 border-2 border-yellow-300">👤</div>
@@ -105,6 +105,44 @@ export default function Sidebar({ onNavigate, mobile = false }) {
 
         {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto">
+
+          {/* E-Service */}
+          <div className="mt-2">
+            <p className="px-5 py-1.5 text-[10px] font-bold tracking-widest text-gray-400 uppercase">E-Service</p>
+            <div className="bg-white">
+              <div className="grid grid-cols-3 border-b border-gray-100">
+                {PUBLIC_SERVICE_ITEMS.map((item, i) => (
+                  <NavLink key={item.to} to={item.to} onClick={onNavigate}
+                    className={({ isActive }) =>
+                      `flex flex-col items-center justify-center gap-1.5 py-4 text-center transition-colors ${
+                        i < 2 ? 'border-r border-gray-100' : ''
+                      } ${isActive ? 'bg-pink-50 text-primary' : 'text-gray-600 hover:bg-pink-50 hover:text-primary'}`
+                    }>
+                    <span className="text-2xl">{item.icon}</span>
+                    <span className="text-[10px] font-medium leading-snug px-1">{item.label}</span>
+                  </NavLink>
+                ))}
+              </div>
+              {ESERVICES.map(e => e.to ? (
+                <NavLink key={e.label} to={e.to} onClick={onNavigate}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-5 py-3.5 border-b border-gray-100 text-sm transition-colors ${
+                      isActive ? 'bg-pink-50 text-primary' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
+                    }`
+                  }>
+                  <span className="w-6 text-center text-base flex-shrink-0">{e.icon}</span>
+                  <span className="flex-1">{e.label}</span>
+                </NavLink>
+              ) : (
+                <a key={e.label} href={e.href} target="_blank" rel="noreferrer"
+                  className="flex items-center gap-3 px-5 py-3.5 border-b border-gray-100 text-sm text-gray-700 hover:bg-pink-50 hover:text-primary transition-colors">
+                  <span className="w-6 text-center text-base flex-shrink-0">{e.icon}</span>
+                  <span className="flex-1">{e.label}</span>
+                  <span className="text-gray-300 text-sm flex-shrink-0">↗</span>
+                </a>
+              ))}
+            </div>
+          </div>
 
           {/* Navigation */}
           <div className="mt-2">
@@ -168,44 +206,6 @@ export default function Sidebar({ onNavigate, mobile = false }) {
             </div>
           </div>
 
-          {/* E-Service */}
-          <div className="mt-2">
-            <p className="px-5 py-1.5 text-[10px] font-bold tracking-widest text-gray-400 uppercase">E-Service</p>
-            <div className="bg-white">
-              <div className="grid grid-cols-3 border-b border-gray-100">
-                {PUBLIC_SERVICE_ITEMS.map((item, i) => (
-                  <NavLink key={item.to} to={item.to} onClick={onNavigate}
-                    className={({ isActive }) =>
-                      `flex flex-col items-center justify-center gap-1.5 py-4 text-center transition-colors ${
-                        i < 2 ? 'border-r border-gray-100' : ''
-                      } ${isActive ? 'bg-pink-50 text-primary' : 'text-gray-600 hover:bg-pink-50 hover:text-primary'}`
-                    }>
-                    <span className="text-2xl">{item.icon}</span>
-                    <span className="text-[10px] font-medium leading-snug px-1">{item.label}</span>
-                  </NavLink>
-                ))}
-              </div>
-              {ESERVICES.map(e => e.to ? (
-                <NavLink key={e.label} to={e.to} onClick={onNavigate}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-5 py-3.5 border-b border-gray-100 text-sm transition-colors ${
-                      isActive ? 'bg-pink-50 text-primary' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
-                    }`
-                  }>
-                  <span className="w-6 text-center text-base flex-shrink-0">{e.icon}</span>
-                  <span className="flex-1">{e.label}</span>
-                </NavLink>
-              ) : (
-                <a key={e.label} href={e.href} target="_blank" rel="noreferrer"
-                  className="flex items-center gap-3 px-5 py-3.5 border-b border-gray-100 text-sm text-gray-700 hover:bg-pink-50 hover:text-primary transition-colors">
-                  <span className="w-6 text-center text-base flex-shrink-0">{e.icon}</span>
-                  <span className="flex-1">{e.label}</span>
-                  <span className="text-gray-300 text-sm flex-shrink-0">↗</span>
-                </a>
-              ))}
-            </div>
-          </div>
-
           {/* Visitor counter */}
           <div className="mt-2 mb-8">
             <p className="px-5 py-1.5 text-[10px] font-bold tracking-widest text-gray-400 uppercase">ผู้เข้าชมเว็บ</p>
@@ -249,6 +249,58 @@ export default function Sidebar({ onNavigate, mobile = false }) {
         <h4 className="text-sm font-semibold text-primary">{settings.mayorName}</h4>
         <p className="text-xs text-gray-500 mt-1">{settings.mayorPosition}</p>
         <p className="text-xs text-secondary mt-1">{settings.mayorPhone}</p>
+      </div>
+
+      {/* บริการสาธารณะ + E-Service (combined) */}
+      <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
+        <div style={{
+          background: 'linear-gradient(135deg, #be185d 0%, #ec4899 60%, #f9a8d4 100%)',
+          padding: '14px 16px 10px',
+        }}>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xl">🌐</span>
+            <span className="text-white font-bold text-sm">E-Service</span>
+          </div>
+          <p className="text-white/70 text-xs">บริการออนไลน์สำหรับประชาชน</p>
+        </div>
+        <ul className="border-b border-gray-100">
+          {PUBLIC_SERVICE_ITEMS.map(item => (
+            <li key={item.to}>
+              <NavLink to={item.to} onClick={onNavigate}
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors ${
+                    isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
+                  }`
+                }>
+                <span className="text-sm w-5 text-center">{item.icon}</span>
+                <span className="flex-1">{item.label}</span>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+        <ul>
+          {ESERVICES.map(e => (
+            <li key={e.label}>
+              {e.to ? (
+                <NavLink to={e.to} onClick={onNavigate}
+                  className={({ isActive }) =>
+                    `flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors ${
+                      isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
+                    }`
+                  }>
+                  <span className="text-sm w-5 text-center">{e.icon}</span>
+                  <span className="flex-1">{e.label}</span>
+                </NavLink>
+              ) : (
+                <a href={e.href} target="_blank" rel="noreferrer"
+                  className="flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors text-gray-700 hover:bg-pink-50 hover:text-primary">
+                  <span className="text-sm w-5 text-center">{e.icon}</span>
+                  <span className="flex-1">{e.label}</span>
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
       </div>
 
       {/* Main menu */}
@@ -304,58 +356,6 @@ export default function Sidebar({ onNavigate, mobile = false }) {
               </li>
             )
           })}
-        </ul>
-      </div>
-
-      {/* บริการสาธารณะ + E-Service (combined) */}
-      <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
-        <div style={{
-          background: 'linear-gradient(135deg, #be185d 0%, #ec4899 60%, #f9a8d4 100%)',
-          padding: '14px 16px 10px',
-        }}>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xl">🌐</span>
-            <span className="text-white font-bold text-sm">E-Service</span>
-          </div>
-          <p className="text-white/70 text-xs">บริการออนไลน์สำหรับประชาชน</p>
-        </div>
-        <ul className="border-b border-gray-100">
-          {PUBLIC_SERVICE_ITEMS.map(item => (
-            <li key={item.to}>
-              <NavLink to={item.to} onClick={onNavigate}
-                className={({ isActive }) =>
-                  `flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors ${
-                    isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
-                  }`
-                }>
-                <span className="text-sm w-5 text-center">{item.icon}</span>
-                <span className="flex-1">{item.label}</span>
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-        <ul>
-          {ESERVICES.map(e => (
-            <li key={e.label}>
-              {e.to ? (
-                <NavLink to={e.to} onClick={onNavigate}
-                  className={({ isActive }) =>
-                    `flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors ${
-                      isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
-                    }`
-                  }>
-                  <span className="text-sm w-5 text-center">{e.icon}</span>
-                  <span className="flex-1">{e.label}</span>
-                </NavLink>
-              ) : (
-                <a href={e.href} target="_blank" rel="noreferrer"
-                  className="flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors text-gray-700 hover:bg-pink-50 hover:text-primary">
-                  <span className="text-sm w-5 text-center">{e.icon}</span>
-                  <span className="flex-1">{e.label}</span>
-                </a>
-              )}
-            </li>
-          ))}
         </ul>
       </div>
 

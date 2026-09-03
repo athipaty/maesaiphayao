@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react'
-import PageHeader from '../components/PageHeader'
 import {
   getStockItems, createStockItem, updateStockItem, deleteStockItem,
   getStockTransactions, createStockTransaction, deleteStockTransaction,
@@ -7,7 +6,7 @@ import {
 } from '../services/api'
 
 const EMPTY_ITEM = { code: '', name: '', unit: '', unitPrice: '', balance: '' }
-const EMPTY_TXN  = { itemId: '', type: 'จ่าย', qty: '', party: '', docNo: '', date: '', note: '' }
+const EMPTY_TXN  = { itemId: '', type: 'จ่าย', qty: '', party: '', docNo: '', date: '', note: '', unitPrice: '' }
 
 // Signers shown on the printed "รายงานวัสดุคงเหลือ" report
 const REPORT_SIGNERS = [
@@ -24,10 +23,11 @@ function thaiDateShort(dateInput) {
   return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear() + 543}`
 }
 
-const TABS = [
-  { key: 'registry', label: '📋 ทะเบียนวัสดุ' },
-  { key: 'history',  label: '🧾 ประวัติรับ-จ่าย' },
-  { key: 'summary',  label: '📊 สรุปคงเหลือประจำปี' },
+const NAV = [
+  { key: 'dashboard', icon: '🏠', label: 'แดชบอร์ด' },
+  { key: 'registry',  icon: '📋', label: 'ทะเบียนวัสดุ' },
+  { key: 'history',   icon: '🧾', label: 'ประวัติรับ-จ่าย' },
+  { key: 'summary',   icon: '📈', label: 'รายงานประจำปี' },
 ]
 
 function todayStr() {
@@ -110,7 +110,14 @@ export default function ElectricalStockPage() {
     setIsAdmin(false)
   }
 
-  const [tab, setTab] = useState('registry')
+  const [tab, setTab] = useState('dashboard')
+
+  // Live clock in the top bar — reinforces this is a live operational screen, not a static page
+  const [now, setNow] = useState(new Date())
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(t)
+  }, [])
 
   const [items, setItems]   = useState([])
   const [txns, setTxns]     = useState([])
@@ -132,7 +139,7 @@ export default function ElectricalStockPage() {
 
   const currentFY = fiscalYearOf(new Date())
   const [historyYear, setHistoryYear] = useState(currentFY)
-  const [summaryYear, setSummaryYear] = useState(2568)
+  const [summaryYear, setSummaryYear] = useState(currentFY)
   const [hideZeroStock, setHideZeroStock] = useState(true)
 
   const [printMode, setPrintMode] = useState(null) // null | 'report' | 'withdraw'
@@ -187,7 +194,14 @@ export default function ElectricalStockPage() {
   }, [items, search])
 
   const totalValue = useMemo(() => items.reduce((s, i) => s + (i.balance || 0) * (i.unitPrice || 0), 0), [items])
-  const lowStockCount = useMemo(() => items.filter(i => (i.balance || 0) <= 0).length, [items])
+  const lowStockItems = useMemo(() => items.filter(i => (i.balance || 0) <= 0), [items])
+  const lowStockCount = lowStockItems.length
+
+  // ── Dashboard-only derived data ─────────────────────────────────────────
+  const recentTxns = useMemo(() =>
+    txns.slice().sort((a, b) => new Date(b.date) - new Date(a.date) || new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 8),
+    [txns])
+  const todayTxnCount = useMemo(() => txns.filter(t => (t.date || '').slice(0, 10) === todayStr()).length, [txns])
 
   // ── Years available for the dropdowns (from transaction dates + current FY, always) ──
   const availableYears = useMemo(() => {
@@ -290,8 +304,10 @@ export default function ElectricalStockPage() {
   }
 
   // ── Receive / withdraw transaction ──────────────────────────────────────
+  // `item` is optional — the dashboard's quick-entry buttons open this blank, with the item
+  // picked from a dropdown inside the modal, instead of always starting from a registry row.
   function openTxn(item, type) {
-    setTxnForm({ ...EMPTY_TXN, itemId: item._id, type, date: todayStr() })
+    setTxnForm({ ...EMPTY_TXN, itemId: item?._id || '', type, date: todayStr(), unitPrice: item ? String(item.unitPrice ?? '') : '' })
     setTxnError('')
     setTxnModal(true)
   }
@@ -309,6 +325,9 @@ export default function ElectricalStockPage() {
         party: txnForm.party.trim(),
         docNo: txnForm.docNo.trim(),
         note: txnForm.note.trim(),
+        // Only meaningful for a receive — the backend ignores it for a withdrawal, which
+        // always values out at the item's current cost.
+        unitPrice: txnForm.type === 'รับ' && txnForm.unitPrice !== '' ? Number(txnForm.unitPrice) : undefined,
       })
       setTxnModal(false)
       await load()
@@ -337,51 +356,199 @@ export default function ElectricalStockPage() {
 
   const txnItem = items.find(i => i._id === txnForm.itemId)
 
+  // Standalone page (no site header/sidebar — see App.jsx) with its own login wall: the whole
+  // page requires the admin password to view at all, not just to edit.
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-400 text-sm">
+        กำลังตรวจสอบสิทธิ์...
+      </div>
+    )
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="card w-full max-w-sm">
+          <div className="section-head">
+            <h2 className="text-sm font-semibold">🔐 เข้าสู่ระบบเจ้าหน้าที่กองช่าง</h2>
+          </div>
+          <form onSubmit={handleLogin} className="p-4 space-y-3">
+            <p className="text-xs text-gray-400">บัญชีวัสดุไฟฟ้า กองช่าง — ใช้รหัสผ่านเดียวกับผู้ดูแลระบบ</p>
+            <div className="relative">
+              <input
+                type={showPw ? 'text' : 'password'}
+                className="input pr-12"
+                placeholder="รหัสผ่าน"
+                autoFocus
+                value={pw}
+                onChange={e => { setPw(e.target.value); setLoginErr('') }}
+              />
+              <button type="button" onClick={() => setShowPw(v => !v)} tabIndex={-1}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600">
+                {showPw ? 'ซ่อน' : 'แสดง'}
+              </button>
+            </div>
+            {loginErr && <p className="text-xs text-red-500">⚠️ {loginErr}</p>}
+            <button type="submit" disabled={loggingIn || !pw} className="btn-primary w-full disabled:opacity-50">
+              {loggingIn ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+            </button>
+          </form>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div>
-      <PageHeader icon="⚡" title="บัญชีวัสดุไฟฟ้า กองช่าง"
-        desc="ทะเบียนวัสดุไฟฟ้าคงเหลือ พร้อมประวัติการรับเข้า–เบิกจ่าย ของกองช่าง" />
+    <div className="min-h-screen bg-slate-100 flex" style={{ fontFamily: "'Sarabun', sans-serif" }}>
 
-      {/* Summary */}
-      <div className="grid grid-cols-3 gap-2 mb-3">
-        <div className="card p-3 text-center">
-          <p className="text-lg font-bold text-primary">{items.length}</p>
-          <p className="text-[11px] text-gray-500">รายการวัสดุ</p>
+      {/* ── Sidebar ── */}
+      <aside className="w-56 flex-shrink-0 bg-slate-900 text-slate-300 flex flex-col">
+        <div className="px-5 py-5 border-b border-slate-800">
+          <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุไฟฟ้า<br />กองช่าง อบต.แม่ใส</p>
         </div>
-        <div className="card p-3 text-center">
-          <p className="text-lg font-bold text-secondary">฿{totalValue.toLocaleString()}</p>
-          <p className="text-[11px] text-gray-500">มูลค่าคงเหลือรวม</p>
-        </div>
-        <div className="card p-3 text-center">
-          <p className="text-lg font-bold text-red-500">{lowStockCount}</p>
-          <p className="text-[11px] text-gray-500">รายการหมดสต๊อก</p>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-2 mb-3">
-        {TABS.map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
-            className={`text-xs px-4 py-2 rounded-full border font-medium transition-colors ${
-              tab === t.key
-                ? 'bg-primary text-white border-primary'
-                : 'border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white'
-            }`}>
-            {t.label}
+        <nav className="flex-1 py-3">
+          {NAV.map(n => (
+            <button key={n.key} onClick={() => setTab(n.key)}
+              className={`w-full flex items-center gap-3 px-5 py-2.5 text-xs font-medium transition-colors border-l-2 ${
+                tab === n.key
+                  ? 'bg-slate-800 text-white border-amber-400'
+                  : 'text-slate-400 border-transparent hover:bg-slate-800/60 hover:text-white'
+              }`}>
+              <span className="text-base">{n.icon}</span>{n.label}
+            </button>
+          ))}
+        </nav>
+        <div className="px-5 py-4 border-t border-slate-800">
+          <button onClick={handleLogout}
+            className="w-full flex items-center gap-2 text-[11px] text-slate-400 hover:text-red-400 transition-colors">
+            🚪 ออกจากระบบ
           </button>
-        ))}
-      </div>
+        </div>
+      </aside>
+
+      {/* ── Main ── */}
+      <div className="flex-1 min-w-0 flex flex-col">
+
+        {/* Top bar */}
+        <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-wrap gap-2">
+          <h1 className="text-sm font-bold text-gray-800">{NAV.find(n => n.key === tab)?.icon} {NAV.find(n => n.key === tab)?.label}</h1>
+          <div className="flex items-center gap-4 text-xs text-gray-500">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-green-500 inline-block animate-pulse" />
+              ออนไลน์
+            </span>
+            <span className="hidden sm:inline">{now.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Bangkok' })}</span>
+            <span className="font-mono font-semibold text-gray-700 tabular-nums">{now.toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok' })}</span>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+
+      {/* ── TAB: แดชบอร์ด ── */}
+      {tab === 'dashboard' && (
+        <div className="space-y-4">
+          {/* KPI cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+              <p className="text-2xl font-bold text-slate-800">{items.length}</p>
+              <p className="text-xs text-gray-400 mt-1">รายการวัสดุทั้งหมด</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+              <p className="text-2xl font-bold text-blue-600">฿{totalValue.toLocaleString()}</p>
+              <p className="text-xs text-gray-400 mt-1">มูลค่าคงเหลือรวม</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+              <p className="text-2xl font-bold text-amber-500">{todayTxnCount}</p>
+              <p className="text-xs text-gray-400 mt-1">รายการเคลื่อนไหววันนี้</p>
+            </div>
+            <div className={`bg-white rounded-xl shadow-sm border p-4 ${lowStockCount > 0 ? 'border-red-200' : 'border-gray-100'}`}>
+              <p className={`text-2xl font-bold ${lowStockCount > 0 ? 'text-red-500' : 'text-slate-800'}`}>{lowStockCount}</p>
+              <p className="text-xs text-gray-400 mt-1">รายการหมดสต๊อก</p>
+            </div>
+          </div>
+
+          {/* Quick entry */}
+          <div className="grid grid-cols-2 gap-3">
+            <button onClick={() => openTxn(null, 'รับ')}
+              className="bg-white rounded-xl shadow-sm border border-gray-100 hover:border-green-300 hover:shadow-md transition-all p-4 flex items-center gap-3 text-left">
+              <span className="w-11 h-11 rounded-full bg-green-50 flex items-center justify-center text-xl flex-shrink-0">📥</span>
+              <div>
+                <p className="text-sm font-semibold text-gray-700">รับวัสดุเข้า</p>
+                <p className="text-[11px] text-gray-400">บันทึกรายการรับวัสดุใหม่</p>
+              </div>
+            </button>
+            <button onClick={() => openTxn(null, 'จ่าย')}
+              className="bg-white rounded-xl shadow-sm border border-gray-100 hover:border-amber-300 hover:shadow-md transition-all p-4 flex items-center gap-3 text-left">
+              <span className="w-11 h-11 rounded-full bg-amber-50 flex items-center justify-center text-xl flex-shrink-0">📤</span>
+              <div>
+                <p className="text-sm font-semibold text-gray-700">เบิกจ่ายวัสดุ</p>
+                <p className="text-[11px] text-gray-400">บันทึกรายการเบิกจ่าย</p>
+              </div>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Recent activity */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <h2 className="text-xs font-bold text-gray-700">🕐 ความเคลื่อนไหวล่าสุด</h2>
+                <button onClick={() => setTab('history')} className="text-[11px] text-blue-600 hover:underline">ดูทั้งหมด →</button>
+              </div>
+              {recentTxns.length === 0 ? (
+                <p className="text-center text-gray-400 text-xs py-8">ยังไม่มีรายการเคลื่อนไหว</p>
+              ) : (
+                <ul className="divide-y divide-gray-50">
+                  {recentTxns.map(t => (
+                    <li key={t._id} className="px-4 py-2.5 flex items-center gap-2.5 text-xs">
+                      <span className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold ${t.type === 'รับ' ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600'}`}>
+                        {t.type === 'รับ' ? '↓' : '↑'}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-gray-700 truncate">{t.itemName}</p>
+                        <p className="text-[10px] text-gray-400">{new Date(t.date).toLocaleDateString('th-TH')} · {t.party || 'ไม่ระบุ'}</p>
+                      </div>
+                      <span className="text-gray-500 font-medium flex-shrink-0">{t.type === 'รับ' ? '+' : '-'}{t.qty.toLocaleString()} {t.unit}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Low stock alert */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <h2 className="text-xs font-bold text-gray-700">⚠️ วัสดุหมดสต๊อก</h2>
+                <button onClick={() => setTab('registry')} className="text-[11px] text-blue-600 hover:underline">ดูทั้งหมด →</button>
+              </div>
+              {lowStockItems.length === 0 ? (
+                <p className="text-center text-gray-400 text-xs py-8">ไม่มีวัสดุหมดสต๊อกในขณะนี้ 🎉</p>
+              ) : (
+                <ul className="divide-y divide-gray-50">
+                  {lowStockItems.slice(0, 8).map(item => (
+                    <li key={item._id} className="px-4 py-2.5 flex items-center justify-between gap-2.5 text-xs">
+                      <span className="text-gray-700 truncate">{item.name}</span>
+                      <button onClick={() => openTxn(item, 'รับ')}
+                        className="text-[10px] px-2 py-1 rounded-md bg-green-50 text-green-600 hover:bg-green-100 font-medium transition-colors flex-shrink-0">
+                        รับเข้า
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── TAB: ทะเบียนวัสดุ ── */}
       {tab === 'registry' && (
-        <div className="card">
-          <div className="section-head">
-            <h2 className="text-sm font-semibold">📋 ทะเบียนวัสดุคงเหลือ</h2>
-            {isAdmin && (
-              <button onClick={openAddItem} className="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg font-medium transition-colors">
-                + เพิ่มวัสดุใหม่
-              </button>
-            )}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
+            <h2 className="text-xs font-bold text-gray-700">📋 ทะเบียนวัสดุคงเหลือ</h2>
+            <button onClick={openAddItem} className="text-xs bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
+              + เพิ่มวัสดุใหม่
+            </button>
           </div>
           <div className="p-3">
             <input
@@ -411,7 +578,7 @@ export default function ElectricalStockPage() {
                   </thead>
                   <tbody>
                     {filtered.map(item => (
-                      <tr key={item._id} className="hover:bg-pink-50/40">
+                      <tr key={item._id} className="hover:bg-slate-50">
                         <td className="p-2 border-b border-gray-50 text-gray-400">{item.code}</td>
                         <td className="p-2 border-b border-gray-50 font-medium text-gray-700">{item.name}</td>
                         <td className="p-2 border-b border-gray-50 text-center text-gray-500">{item.unit}</td>
@@ -456,11 +623,11 @@ export default function ElectricalStockPage() {
 
       {/* ── TAB: ประวัติรับ-จ่าย ── */}
       {tab === 'history' && (
-        <div className="card">
-          <div className="section-head">
-            <h2 className="text-sm font-semibold">🧾 ประวัติการรับ-จ่าย</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
+            <h2 className="text-xs font-bold text-gray-700">🧾 ประวัติการรับ-จ่าย</h2>
             <select value={historyYear} onChange={e => setHistoryYear(Number(e.target.value))}
-              className="text-xs bg-white/20 border border-white/30 rounded-lg px-2 py-1.5 text-white [&>option]:text-gray-800">
+              className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-gray-700 bg-white">
               {availableYears.map(y => <option key={y} value={y}>ปีงบประมาณ {y}</option>)}
             </select>
           </div>
@@ -502,7 +669,7 @@ export default function ElectricalStockPage() {
                   </thead>
                   <tbody>
                     {historyFiltered.map(t => (
-                      <tr key={t._id} className="hover:bg-pink-50/40">
+                      <tr key={t._id} className="hover:bg-slate-50">
                         <td className="p-2 border-b border-gray-50 text-center">
                           {t.type === 'จ่าย' && (
                             <input type="checkbox" checked={withdrawSelection.has(t._id)}
@@ -542,11 +709,11 @@ export default function ElectricalStockPage() {
 
       {/* ── TAB: สรุปคงเหลือประจำปี ── */}
       {tab === 'summary' && (
-        <div className="card">
-          <div className="section-head">
-            <h2 className="text-sm font-semibold">📊 รายงานวัสดุคงเหลือ</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
+            <h2 className="text-xs font-bold text-gray-700">📈 รายงานวัสดุคงเหลือ</h2>
             <select value={summaryYear} onChange={e => setSummaryYear(Number(e.target.value))}
-              className="text-xs bg-white/20 border border-white/30 rounded-lg px-2 py-1.5 text-white [&>option]:text-gray-800">
+              className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-gray-700 bg-white">
               {availableYears.map(y => <option key={y} value={y}>ปีงบประมาณ {y}</option>)}
             </select>
           </div>
@@ -592,7 +759,7 @@ export default function ElectricalStockPage() {
                   </thead>
                   <tbody>
                     {yearSummaryRowsDisplayed.map(r => (
-                      <tr key={r.item._id} className="hover:bg-pink-50/40">
+                      <tr key={r.item._id} className="hover:bg-slate-50">
                         <td className="p-2 border-b border-gray-50 text-gray-400">{r.item.code}</td>
                         <td className="p-2 border-b border-gray-50 font-medium text-gray-700">{r.item.name}</td>
                         <td className="p-2 border-b border-gray-50 text-center text-gray-500">{r.item.unit}</td>
@@ -726,50 +893,17 @@ export default function ElectricalStockPage() {
       </div>
       )}
 
-      {!checkingAuth && !isAdmin && (
-        <div className="card">
-          <div className="section-head">
-            <h2 className="text-sm font-semibold">🔐 เข้าสู่ระบบเจ้าหน้าที่กองช่าง</h2>
-          </div>
-          <form onSubmit={handleLogin} className="p-4 space-y-3 max-w-sm">
-            <p className="text-xs text-gray-400">เข้าสู่ระบบเพื่อเพิ่ม/ลบวัสดุ และบันทึกรับเข้า-เบิกจ่าย (ใช้รหัสผ่านเดียวกับผู้ดูแลระบบ)</p>
-            <div className="relative">
-              <input
-                type={showPw ? 'text' : 'password'}
-                className="input pr-12"
-                placeholder="รหัสผ่าน"
-                value={pw}
-                onChange={e => { setPw(e.target.value); setLoginErr('') }}
-              />
-              <button type="button" onClick={() => setShowPw(v => !v)} tabIndex={-1}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600">
-                {showPw ? 'ซ่อน' : 'แสดง'}
-              </button>
-            </div>
-            {loginErr && <p className="text-xs text-red-500">⚠️ {loginErr}</p>}
-            <button type="submit" disabled={loggingIn || !pw} className="btn-primary w-full disabled:opacity-50">
-              {loggingIn ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
-            </button>
-          </form>
         </div>
-      )}
-
-      {isAdmin && (
-        <div className="flex justify-end mb-2">
-          <button onClick={handleLogout} className="text-[11px] text-gray-400 hover:text-red-500 transition-colors">
-            ออกจากระบบ
-          </button>
-        </div>
-      )}
+      </div>
 
       {/* ── Add/edit item modal ── */}
       {itemModal && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.45)' }}
           onMouseDown={e => { if (e.target === e.currentTarget) setItemModal(false) }}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-            <div className="section-head">
+            <div className="bg-slate-800 text-white px-4 py-3 flex items-center justify-between">
               <h3 className="text-sm font-semibold">{editingItemId ? '✏️ แก้ไขวัสดุ' : '➕ เพิ่มวัสดุใหม่'}</h3>
-              <button onClick={() => setItemModal(false)} className="text-white/80 hover:text-white text-lg">×</button>
+              <button onClick={() => setItemModal(false)} className="text-white/70 hover:text-white text-lg">×</button>
             </div>
             <form onSubmit={handleSaveItem} className="p-4 space-y-3">
               <div>
@@ -821,17 +955,31 @@ export default function ElectricalStockPage() {
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.45)' }}
           onMouseDown={e => { if (e.target === e.currentTarget) setTxnModal(false) }}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-            <div className="section-head">
+            <div className="bg-slate-800 text-white px-4 py-3 flex items-center justify-between">
               <h3 className="text-sm font-semibold">
                 {txnForm.type === 'รับ' ? '📥 บันทึกรับวัสดุเข้า' : '📤 บันทึกเบิกจ่ายวัสดุ'}
               </h3>
-              <button onClick={() => setTxnModal(false)} className="text-white/80 hover:text-white text-lg">×</button>
+              <button onClick={() => setTxnModal(false)} className="text-white/70 hover:text-white text-lg">×</button>
             </div>
             <form onSubmit={handleSubmitTxn} className="p-4 space-y-3">
-              <div className="bg-gray-50 rounded-lg px-3 py-2 text-xs">
-                <p className="font-semibold text-gray-700">{txnItem?.name}</p>
-                <p className="text-gray-400">คงเหลือปัจจุบัน: {(txnItem?.balance || 0).toLocaleString()} {txnItem?.unit}</p>
+              <div>
+                <label className="form-label">รายการวัสดุ</label>
+                <select className="input" required value={txnForm.itemId}
+                  onChange={e => {
+                    const picked = items.find(i => i._id === e.target.value)
+                    setTxnForm({ ...txnForm, itemId: e.target.value, unitPrice: picked ? String(picked.unitPrice ?? '') : '' })
+                  }}>
+                  <option value="" disabled>เลือกวัสดุ...</option>
+                  {items.map(i => (
+                    <option key={i._id} value={i._id}>{i.code ? `[${i.code}] ` : ''}{i.name}</option>
+                  ))}
+                </select>
               </div>
+              {txnItem && (
+                <div className="bg-gray-50 rounded-lg px-3 py-2 text-xs">
+                  <p className="text-gray-400">คงเหลือปัจจุบัน: <span className="font-semibold text-gray-700">{(txnItem.balance || 0).toLocaleString()} {txnItem.unit}</span> · ราคาล่าสุด: <span className="font-semibold text-gray-700">฿{(txnItem.unitPrice || 0).toLocaleString()}</span>/{txnItem.unit}</p>
+                </div>
+              )}
 
               <div className="flex rounded-lg overflow-hidden border border-gray-200">
                 {[['รับ', 'รับเข้า'], ['จ่าย', 'เบิกจ่าย']].map(([v, l]) => (
@@ -854,6 +1002,20 @@ export default function ElectricalStockPage() {
                     onChange={e => setTxnForm({ ...txnForm, date: e.target.value })} />
                 </div>
               </div>
+
+              {txnForm.type === 'รับ' && (
+                <div>
+                  <label className="form-label">ราคา/หน่วยที่รับ (฿)</label>
+                  <input type="number" min="0" step="0.01" className="input" value={txnForm.unitPrice}
+                    onChange={e => setTxnForm({ ...txnForm, unitPrice: e.target.value })}
+                    placeholder="เว้นว่างไว้ = ใช้ราคาเดิมของวัสดุ" />
+                  {txnItem && txnForm.unitPrice !== '' && Number(txnForm.unitPrice) !== txnItem.unitPrice && (
+                    <p className="text-[11px] text-amber-600 mt-1">
+                      ⚠️ ราคาต่างจากเดิม (฿{(txnItem.unitPrice || 0).toLocaleString()}) — ระบบจะอัปเดตราคาวัสดุเป็นราคานี้หลังบันทึก
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div>
                 <label className="form-label">{txnForm.type === 'รับ' ? 'รับจาก' : 'จ่ายให้ / ผู้เบิก'}</label>

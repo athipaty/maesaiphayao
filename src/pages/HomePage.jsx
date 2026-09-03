@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { getNews, getAnnouncements, getProcurement, getTravel, getProducts, getVideos, getFacebookPage, getEgpRss, getNotices } from '../services/api'
+import { getNews, getAnnouncements, getProcurement, getTravel, getProducts, getVideos, getFacebookPage, getEgpRss, getNotices, getSettings } from '../services/api'
 import { LatestNewsGrid } from '../components/NewsSection'
 import { iframeSrc as pdfIframeSrc } from '../components/PdfPreviewPanel'
 import { toArabicDigits } from '../utils/thaiNumerals'
@@ -79,6 +79,7 @@ export default function HomePage() {
   const [notices, setNotices]       = useState([])
   const [noticeOpen, setNoticeOpen] = useState({})
   const [fbPage, setFbPage]         = useState(null)
+  const [landingPhoto, setLandingPhoto] = useState('')
   const [lightboxItem, setLightboxItem] = useState(null)
   const fbContainerRef = useRef(null)
   const [fbScale, setFbScale] = useState(1)
@@ -148,6 +149,7 @@ export default function HomePage() {
         ])
         getFacebookPage().then(r => setFbPage(r?.data)).catch(() => {})
         getNotices().then(r => setNotices(Array.isArray(r?.data) ? r.data : [])).catch(() => {})
+        getSettings().then(r => setLandingPhoto(r?.data?.landingPhoto || '')).catch(() => {})
         getVideos().then(r => setVideos((r?.data || []).slice(0, 6))).catch(() => {})
         setAnnounce(ann?.data || [])
         setNewsletter(nl?.data || [])
@@ -232,7 +234,7 @@ export default function HomePage() {
                           : 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)'
                     }}>
                       {item.image ? (
-                        <img src={item.image} alt={item.title}
+                        <img src={item.image} alt={item.title} loading="lazy"
                           className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -380,57 +382,15 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Contact info + map — fills the space beside Facebook on desktop, same total height */}
-        <div className="hidden lg:flex flex-col gap-4 flex-1" style={{ height: `${Math.round(500 * fbScale)}px` }}>
-          <div className="card p-4 flex-shrink-0">
-            <h3 className="text-xs font-bold text-primary mb-2">📞 ติดต่อเรา</h3>
-            <div className="space-y-1.5 text-xs text-gray-700">
-              <div className="flex items-start gap-2">
-                <span className="text-sm">📍</span>
-                <div>
-                  <p className="font-medium">ที่อยู่</p>
-                  <p className="text-gray-500">198 ม.12 ตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา 56000</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-sm">📞</span>
-                <div>
-                  <p className="font-medium">โทรศัพท์</p>
-                  <a href="tel:054889909" className="text-blue-600 hover:underline font-medium">0-5488-9909</a>
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-sm">📧</span>
-                <div>
-                  <p className="font-medium">อีเมล</p>
-                  <a href="mailto:saraban_06560115@dla.go.th" className="text-blue-600 hover:underline break-all">saraban_06560115@dla.go.th</a>
-                  <br />
-                  <a href="mailto:maesaiphayao.909@gmail.com" className="text-blue-600 hover:underline break-all">maesaiphayao.909@gmail.com</a>
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-sm">🕐</span>
-                <div>
-                  <p className="font-medium">เวลาทำการ</p>
-                  <p className="text-gray-500">วันจันทร์ – ศุกร์ เวลา 08:30 – 16:30 น.</p>
-                </div>
-              </div>
+        {/* Photo — fills the space beside Facebook on desktop, same total height, uploaded by admin in ตั้งค่าเว็บไซต์ */}
+        <div className="hidden lg:block card p-0 overflow-hidden flex-1 bg-gray-50" style={{ height: `${Math.round(500 * fbScale)}px` }}>
+          {landingPhoto ? (
+            <img src={landingPhoto} alt="อบต.แม่ใส" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">
+              ยังไม่มีรูปภาพ
             </div>
-          </div>
-
-          {/* Map — fills whatever height remains */}
-          <div className="card p-0 overflow-hidden flex-1 min-h-0">
-            <iframe
-              title="แผนที่ อบต.แม่ใส"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d968.8!2d99.8763!3d19.1322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30d9d2bf364e9093%3A0x59f89dc1c3f4d41b!2z!5e0!3m2!1sth!2sth!4v1700000000002"
-              width="100%"
-              height="100%"
-              style={{ border: 0, display: 'block' }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
+          )}
         </div>
       </div>
       </Reveal>
@@ -575,7 +535,7 @@ export default function HomePage() {
                   <div key={i} className="w-96 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
                     <div className="relative overflow-hidden bg-teal-50" style={{ height: '280px' }}>
                       {mainImg
-                        ? <img src={mainImg} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        ? <img src={mainImg} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🏞️</div>
                       }
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
@@ -605,7 +565,7 @@ export default function HomePage() {
                 <div key={i} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
                   <div className="relative overflow-hidden bg-green-50 aspect-[4/3]">
                     {mainImg
-                      ? <img src={mainImg} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ? <img src={mainImg} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🛍️</div>
                     }
                     {item.price != null && (

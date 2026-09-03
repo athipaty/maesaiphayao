@@ -1,19 +1,5 @@
-import { useState, lazy, Suspense, useEffect, Component } from "react";
-
-class ChunkErrorBoundary extends Component {
-  constructor(props) { super(props); this.state = { err: null } }
-  static getDerivedStateFromError(err) { return { err } }
-  render() {
-    if (this.state.err) return (
-      <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
-        <span className="text-3xl">⚠️</span>
-        <p className="text-sm text-gray-500">โหลดหน้าไม่สำเร็จ กรุณาลองใหม่</p>
-        <button onClick={() => this.setState({ err: null })} className="btn-primary text-xs">🔄 ลองใหม่</button>
-      </div>
-    )
-    return this.props.children
-  }
-}
+import { useState, lazy, Suspense, useEffect } from "react";
+import ChunkErrorBoundary from "./components/ChunkErrorBoundary";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 function ScrollToTop() {
@@ -24,34 +10,38 @@ function ScrollToTop() {
 import Layout from "./components/Layout";
 import SplashPage from "./pages/SplashPage";
 
-// Public pages
+// Public pages — HomePage is the most common landing route, kept eager so "/" has
+// no extra chunk round-trip. Every other public page is lazy loaded, same as admin
+// below, so a visitor only downloads code for the page they're actually viewing
+// (this is also what keeps heavy libs like leaflet, only used by 3 form pages,
+// out of the bundle everyone pays for on first load).
 import HomePage from "./pages/HomePage";
-import AboutPage from "./pages/AboutPage";
-import NewsListPage from "./pages/NewsListPage";
-import NewsDetailPage from "./pages/NewsDetailPage";
-import AnnouncePage from "./pages/AnnouncePage";
-import ActionPlanPage from "./pages/ActionPlanPage";
-import BudgetPage from "./pages/BudgetPage";
-import ParticipationPage from "./pages/ParticipationPage";
-import FinancePage from "./pages/FinancePage";
-import ProcurementPage from "./pages/ProcurementPage";
-import ProcurementPlanPage from "./pages/ProcurementPlanPage";
-import StaffPage from "./pages/StaffPage";
-import PublicServicePage from "./pages/PublicServicePage";
-import TravelPage from "./pages/TravelPage";
-import ProductsPage from "./pages/ProductsPage";
-import ElectricalStockPage from "./pages/ElectricalStockPage";
-import EServicePage from "./pages/EServicePage";
-import ComplaintPage from "./pages/ComplaintPage";
-import FeedbackPage from "./pages/FeedbackPage";
-import SurveyPage from "./pages/SurveyPage";
-import CorruptionPage from "./pages/CorruptionPage";
-import ItaPage from "./pages/ItaPage";
-import InfoCenterPage from "./pages/InfoCenterPage";
-import LawPage from "./pages/LawPage";
-import DocumentPage from "./pages/DocumentPage";
-import ContactPage from "./pages/ContactPage";
-import DynamicPage from "./pages/DynamicPage";
+const AboutPage            = lazy(() => import("./pages/AboutPage"));
+const NewsListPage         = lazy(() => import("./pages/NewsListPage"));
+const NewsDetailPage       = lazy(() => import("./pages/NewsDetailPage"));
+const AnnouncePage         = lazy(() => import("./pages/AnnouncePage"));
+const ActionPlanPage       = lazy(() => import("./pages/ActionPlanPage"));
+const BudgetPage           = lazy(() => import("./pages/BudgetPage"));
+const ParticipationPage    = lazy(() => import("./pages/ParticipationPage"));
+const FinancePage          = lazy(() => import("./pages/FinancePage"));
+const ProcurementPage      = lazy(() => import("./pages/ProcurementPage"));
+const ProcurementPlanPage  = lazy(() => import("./pages/ProcurementPlanPage"));
+const StaffPage            = lazy(() => import("./pages/StaffPage"));
+const PublicServicePage    = lazy(() => import("./pages/PublicServicePage"));
+const TravelPage           = lazy(() => import("./pages/TravelPage"));
+const ProductsPage         = lazy(() => import("./pages/ProductsPage"));
+const ElectricalStockPage  = lazy(() => import("./pages/ElectricalStockPage"));
+const EServicePage         = lazy(() => import("./pages/EServicePage"));
+const ComplaintPage        = lazy(() => import("./pages/ComplaintPage"));
+const FeedbackPage         = lazy(() => import("./pages/FeedbackPage"));
+const SurveyPage           = lazy(() => import("./pages/SurveyPage"));
+const CorruptionPage       = lazy(() => import("./pages/CorruptionPage"));
+const ItaPage               = lazy(() => import("./pages/ItaPage"));
+const InfoCenterPage       = lazy(() => import("./pages/InfoCenterPage"));
+const LawPage               = lazy(() => import("./pages/LawPage"));
+const DocumentPage         = lazy(() => import("./pages/DocumentPage"));
+const ContactPage          = lazy(() => import("./pages/ContactPage"));
+const DynamicPage          = lazy(() => import("./pages/DynamicPage"));
 
 // Admin pages — lazy loaded so each page is its own chunk
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -123,7 +113,6 @@ export default function App() {
           <Route path="/public-service" element={<PublicServicePage />} />
           <Route path="/travel" element={<TravelPage />} />
           <Route path="/products" element={<ProductsPage />} />
-          <Route path="/stock/electrical" element={<ElectricalStockPage />} />
 
           {/* 9. e-Service */}
           <Route path="/eservice" element={<EServicePage />} />
@@ -156,6 +145,16 @@ export default function App() {
           {/* หน้าแบบ dynamic (สร้างจาก admin) */}
           <Route path="/page/:slug" element={<DynamicPage />} />
         </Route>
+
+        {/* บัญชีวัสดุไฟฟ้า กองช่าง — standalone page (no site header/sidebar), own login wall
+            gating the whole page, not just editing (see ElectricalStockPage.jsx) */}
+        <Route path="/stock/electrical" element={
+          <ChunkErrorBoundary>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-400 text-sm">กำลังโหลด...</div>}>
+              <ElectricalStockPage />
+            </Suspense>
+          </ChunkErrorBoundary>
+        } />
 
         {/* Admin panel */}
         <Route path="/admin" element={<AdminLayout />}>

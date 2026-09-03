@@ -75,7 +75,7 @@ function Field({ label, hint, children }) {
 const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all bg-gray-50 focus:bg-white focus:scale-[1.01]'
 
 export default function AdminSettings() {
-  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '', headerBgImage: '' })
+  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '', headerBgImage: '', landingPhoto: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving]   = useState(false)
   const [saved, setSaved]     = useState(false)
@@ -261,6 +261,13 @@ export default function AdminSettings() {
               </div>
             </div>
           )}
+        </Section>
+
+        {/* Landing page photo — beside Facebook on desktop */}
+        <Section delay={220} icon="📷" title="รูปภาพหน้าแรก (ข้าง Facebook)" subtitle="แสดงข้างวิดเจ็ต Facebook บนหน้าแรก เฉพาะจอเดสก์ท็อป">
+          <p className="text-xs text-gray-400 mb-3">แนะนำภาพแนวตั้งหรือสี่เหลี่ยมจัตุรัส เช่น ภาพกิจกรรม อบต. หรือทัศนียภาพในพื้นที่</p>
+          <LogoUpload value={form.landingPhoto} onChange={url => set('landingPhoto', url)}
+            icon="📷" emptyLabel="ยังไม่มีรูปภาพ" uploadLabel="อัปโหลดรูปภาพ" />
         </Section>
 
       </div>
