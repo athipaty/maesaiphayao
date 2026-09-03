@@ -6,8 +6,17 @@ import {
   getSettings, updateSetting,
 } from '../services/api'
 
-const EMPTY_ITEM = { code: '', name: '', unit: '', unitPrice: '', balance: '' }
+const EMPTY_ITEM = { code: '', name: '', unit: '', unitPrice: '', balance: '', category: '' }
 const EMPTY_TXN  = { itemId: '', type: 'จ่าย', qty: '', party: '', docNo: '', date: '', note: '', unitPrice: '' }
+
+// Two independently-tracked material categories sharing the same dashboard/registry/history/
+// summary tabs — the active one filters which items and transactions show everywhere.
+const CATEGORIES = [
+  { key: 'วัสดุไฟฟ้า',   icon: '⚡', label: 'ไฟฟ้า' },
+  { key: 'วัสดุก่อสร้าง', icon: '🏗️', label: 'ก่อสร้าง' },
+]
+const DEFAULT_CATEGORY = CATEGORIES[0].key
+function categoryOf(item) { return item?.category || DEFAULT_CATEGORY }
 
 // Default signers shown on the printed "รายงานวัสดุคงเหลือ" report — editable
 // by admins, saved server-side under the "stockReportSigners" setting since
@@ -116,6 +125,7 @@ export default function ElectricalStockPage() {
 
   const [tab, setTab] = useState('dashboard')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [activeCategory, setActiveCategory] = useState(DEFAULT_CATEGORY)
 
   // Live clock in the top bar — reinforces this is a live operational screen, not a static page
   const [now, setNow] = useState(new Date())
@@ -221,36 +231,41 @@ export default function ElectricalStockPage() {
 
   useEffect(() => { load() }, [])
 
+  // ── Everything below is scoped to the active category (⚡ ไฟฟ้า / 🏗️ ก่อสร้าง) ──────
+  const categoryItems = useMemo(() => items.filter(i => categoryOf(i) === activeCategory), [items, activeCategory])
+  const categoryItemIds = useMemo(() => new Set(categoryItems.map(i => String(i._id))), [categoryItems])
+  const categoryTxns = useMemo(() => txns.filter(t => categoryItemIds.has(String(t.item))), [txns, categoryItemIds])
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
-    let list = items
+    let list = categoryItems
     if (q) list = list.filter(i => i.name.toLowerCase().includes(q) || String(i.code).includes(q))
     if (hideZeroRegistry) list = list.filter(i => (i.balance || 0) !== 0)
     return list
-  }, [items, search, hideZeroRegistry])
+  }, [categoryItems, search, hideZeroRegistry])
 
-  const totalValue = useMemo(() => items.reduce((s, i) => s + (i.balance || 0) * (i.unitPrice || 0), 0), [items])
-  const lowStockItems = useMemo(() => items.filter(i => (i.balance || 0) <= 0), [items])
+  const totalValue = useMemo(() => categoryItems.reduce((s, i) => s + (i.balance || 0) * (i.unitPrice || 0), 0), [categoryItems])
+  const lowStockItems = useMemo(() => categoryItems.filter(i => (i.balance || 0) <= 0), [categoryItems])
   const lowStockCount = lowStockItems.length
 
   // ── Dashboard-only derived data ─────────────────────────────────────────
   const recentTxns = useMemo(() =>
-    txns.slice().sort((a, b) => new Date(b.date) - new Date(a.date) || new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 8),
-    [txns])
-  const todayTxnCount = useMemo(() => txns.filter(t => (t.date || '').slice(0, 10) === todayStr()).length, [txns])
+    categoryTxns.slice().sort((a, b) => new Date(b.date) - new Date(a.date) || new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 8),
+    [categoryTxns])
+  const todayTxnCount = useMemo(() => categoryTxns.filter(t => (t.date || '').slice(0, 10) === todayStr()).length, [categoryTxns])
 
   // ── Years available for the dropdowns (from transaction dates + current FY, always) ──
   const availableYears = useMemo(() => {
     const set = new Set([currentFY])
-    txns.forEach(t => set.add(fiscalYearOf(t.date)))
+    categoryTxns.forEach(t => set.add(fiscalYearOf(t.date)))
     set.add(summaryYear)
     set.add(historyYear)
     return Array.from(set).sort((a, b) => b - a)
-  }, [txns, currentFY, summaryYear, historyYear])
+  }, [categoryTxns, currentFY, summaryYear, historyYear])
 
-  const historyFiltered = useMemo(() => txns.filter(t => fiscalYearOf(t.date) === historyYear), [txns, historyYear])
+  const historyFiltered = useMemo(() => categoryTxns.filter(t => fiscalYearOf(t.date) === historyYear), [categoryTxns, historyYear])
 
-  useEffect(() => { setWithdrawSelection(new Set()) }, [historyYear])
+  useEffect(() => { setWithdrawSelection(new Set()) }, [historyYear, activeCategory])
 
   const selectedWithdrawRows = useMemo(
     () => historyFiltered.filter(t => t.type === 'จ่าย' && withdrawSelection.has(t._id)),
@@ -267,7 +282,7 @@ export default function ElectricalStockPage() {
   }, [txns, ledgerItem])
 
   const yearSummaryRows = useMemo(() => {
-    return items
+    return categoryItems
       .map(item => {
         const itemTxns = txns.filter(t => String(t.item) === String(item._id))
         const existedThisYear = new Date(item.createdAt || 0) <= fiscalYearEnd(summaryYear)
@@ -277,7 +292,7 @@ export default function ElectricalStockPage() {
       })
       .filter(Boolean)
       .sort((a, b) => (a.item.code || 0) - (b.item.code || 0))
-  }, [items, txns, summaryYear])
+  }, [categoryItems, txns, summaryYear])
 
   const yearSummaryRowsDisplayed = useMemo(
     () => hideZeroStock ? yearSummaryRows.filter(r => r.closing !== 0) : yearSummaryRows,
@@ -293,12 +308,12 @@ export default function ElectricalStockPage() {
   }), { opening: 0, received: 0, withdrawn: 0, closing: 0, value: 0 }), [yearSummaryRows])
 
   // ── Item add/edit/delete ────────────────────────────────────────────────
-  function openAddItem() { setEditingItemId(null); setItemForm(EMPTY_ITEM); setItemModal(true) }
+  function openAddItem() { setEditingItemId(null); setItemForm({ ...EMPTY_ITEM, category: activeCategory }); setItemModal(true) }
   function openEditItem(item) {
     setEditingItemId(item._id)
     setItemForm({
       code: item.code ?? '', name: item.name ?? '', unit: item.unit ?? '',
-      unitPrice: item.unitPrice ?? '', balance: item.balance ?? '',
+      unitPrice: item.unitPrice ?? '', balance: item.balance ?? '', category: categoryOf(item),
     })
     setItemModal(true)
   }
@@ -313,6 +328,7 @@ export default function ElectricalStockPage() {
           name: itemForm.name.trim(),
           unit: itemForm.unit.trim(),
           unitPrice: Number(itemForm.unitPrice) || 0,
+          category: itemForm.category || DEFAULT_CATEGORY,
         })
       } else {
         await createStockItem({
@@ -321,6 +337,7 @@ export default function ElectricalStockPage() {
           unit: itemForm.unit.trim(),
           unitPrice: Number(itemForm.unitPrice) || 0,
           balance: Number(itemForm.balance) || 0,
+          category: itemForm.category || DEFAULT_CATEGORY,
         })
       }
       setItemModal(false)
@@ -419,7 +436,7 @@ export default function ElectricalStockPage() {
             <h2 className="text-sm font-semibold">🔐 เข้าสู่ระบบเจ้าหน้าที่กองช่าง</h2>
           </div>
           <form onSubmit={handleLogin} className="p-4 space-y-3">
-            <p className="text-xs text-gray-400">บัญชีวัสดุไฟฟ้า กองช่าง — ใช้รหัสผ่านเดียวกับผู้ดูแลระบบ</p>
+            <p className="text-xs text-gray-400">บัญชีวัสดุ กองช่าง — ใช้รหัสผ่านเดียวกับผู้ดูแลระบบ</p>
             <div className="relative">
               <input
                 type={showPw ? 'text' : 'password'}
@@ -450,7 +467,17 @@ export default function ElectricalStockPage() {
       {/* ── Sidebar (desktop) ── */}
       <aside className="hidden lg:flex w-56 flex-shrink-0 bg-slate-900 text-slate-300 flex-col">
         <div className="px-5 py-5 border-b border-slate-800">
-          <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุไฟฟ้า<br />กองช่าง อบต.แม่ใส</p>
+          <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุ<br />กองช่าง อบต.แม่ใส</p>
+        </div>
+        <div className="px-3 py-3 border-b border-slate-800 flex gap-1.5">
+          {CATEGORIES.map(c => (
+            <button key={c.key} onClick={() => setActiveCategory(c.key)}
+              className={`flex-1 text-[11px] font-semibold py-2 rounded-lg transition-colors ${
+                activeCategory === c.key ? 'bg-amber-400 text-slate-900' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+              }`}>
+              {c.icon} {c.label}
+            </button>
+          ))}
         </div>
         <nav className="flex-1 py-3">
           {NAV.map(n => (
@@ -480,8 +507,18 @@ export default function ElectricalStockPage() {
             sidebarOpen ? 'translate-x-0' : 'translate-x-full'
           }`}>
           <div className="px-5 py-5 border-b border-slate-800 flex items-center justify-between gap-2">
-            <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุไฟฟ้า<br />กองช่าง อบต.แม่ใส</p>
+            <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุ<br />กองช่าง อบต.แม่ใส</p>
             <button onClick={() => setSidebarOpen(false)} className="text-slate-400 hover:text-white text-xl flex-shrink-0" aria-label="ปิดเมนู">×</button>
+          </div>
+          <div className="px-3 py-3 border-b border-slate-800 flex gap-1.5">
+            {CATEGORIES.map(c => (
+              <button key={c.key} onClick={() => setActiveCategory(c.key)}
+                className={`flex-1 text-xs font-semibold py-2.5 rounded-lg transition-colors ${
+                  activeCategory === c.key ? 'bg-amber-400 text-slate-900' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                }`}>
+                {c.icon} {c.label}
+              </button>
+            ))}
           </div>
           <nav className="flex-1 py-3 overflow-y-auto">
             {NAV.map(n => (
@@ -509,7 +546,12 @@ export default function ElectricalStockPage() {
 
         {/* Top bar */}
         <div className="bg-white border-b border-gray-200 px-3 sm:px-6 py-3 flex items-center justify-between flex-wrap gap-2">
-          <h1 className="text-sm font-bold text-gray-800 truncate">{NAV.find(n => n.key === tab)?.icon} {NAV.find(n => n.key === tab)?.label}</h1>
+          <div className="flex items-center gap-2 min-w-0">
+            <h1 className="text-sm font-bold text-gray-800 truncate">{NAV.find(n => n.key === tab)?.icon} {NAV.find(n => n.key === tab)?.label}</h1>
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
+              {CATEGORIES.find(c => c.key === activeCategory)?.icon} {CATEGORIES.find(c => c.key === activeCategory)?.label}
+            </span>
+          </div>
           <div className="flex items-center gap-3 sm:gap-4 text-xs text-gray-500">
             <span className="hidden sm:flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-green-500 inline-block animate-pulse" />
@@ -816,7 +858,7 @@ export default function ElectricalStockPage() {
           <div className="p-3">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs text-gray-400">
-                ณ วันที่ 30 กันยายน {summaryYear} · กองช่าง · วัสดุไฟฟ้า
+                ณ วันที่ 30 กันยายน {summaryYear} · กองช่าง · {activeCategory}
               </p>
               <div className="flex gap-2">
                 <button onClick={() => setHideZeroStock(v => !v)}
@@ -899,7 +941,7 @@ export default function ElectricalStockPage() {
       <div className="print-only p-6 text-black text-xs">
         <h1 className="text-center text-lg font-bold mb-1">รายงานวัสดุคงเหลือ</h1>
         <p className="text-center mb-1">ณ วันที่ 30 กันยายน {summaryYear}</p>
-        <p className="text-center mb-3">กองช่าง · วัสดุไฟฟ้า</p>
+        <p className="text-center mb-3">กองช่าง · {activeCategory}</p>
         <table className="w-full border-collapse text-[11px]">
           <thead>
             <tr>
@@ -956,7 +998,7 @@ export default function ElectricalStockPage() {
         <p className="mb-1">
           ข้าพเจ้า {signers[0].name} ตำแหน่ง {signers[0].position}
         </p>
-        <p className="mb-1">ขอเบิกวัสดุ ประเภท วัสดุไฟฟ้า เพื่อใช้ในงาน .....................................</p>
+        <p className="mb-1">ขอเบิกวัสดุ ประเภท {activeCategory} เพื่อใช้ในงาน .....................................</p>
         <p className="mb-3">ดังรายการต่อไปนี้</p>
 
         <table className="w-full border-collapse text-[11px]">
@@ -1010,6 +1052,13 @@ export default function ElectricalStockPage() {
                 <label className="form-label">รหัสวัสดุ</label>
                 <input type="number" className="input" required value={itemForm.code}
                   onChange={e => setItemForm({ ...itemForm, code: e.target.value })} />
+              </div>
+              <div>
+                <label className="form-label">ประเภทวัสดุ</label>
+                <select className="input" value={itemForm.category}
+                  onChange={e => setItemForm({ ...itemForm, category: e.target.value })}>
+                  {CATEGORIES.map(c => <option key={c.key} value={c.key}>{c.icon} {c.label}</option>)}
+                </select>
               </div>
               <div>
                 <label className="form-label">ชื่อวัสดุ</label>
@@ -1070,7 +1119,7 @@ export default function ElectricalStockPage() {
                     setTxnForm({ ...txnForm, itemId: e.target.value, unitPrice: picked ? String(picked.unitPrice ?? '') : '' })
                   }}>
                   <option value="" disabled>เลือกวัสดุ...</option>
-                  {items.map(i => (
+                  {categoryItems.map(i => (
                     <option key={i._id} value={i._id}>{i.code ? `[${i.code}] ` : ''}{i.name}</option>
                   ))}
                 </select>
@@ -1164,7 +1213,7 @@ export default function ElectricalStockPage() {
             <div className="p-4 overflow-y-auto">
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-600 mb-3 bg-gray-50 rounded-lg p-3">
                 <p>รหัสวัสดุ : <span className="font-semibold text-gray-800">{ledgerItem.code}</span></p>
-                <p>ประเภทวัสดุ : <span className="font-semibold text-gray-800">วัสดุไฟฟ้า</span></p>
+                <p>ประเภทวัสดุ : <span className="font-semibold text-gray-800">{categoryOf(ledgerItem)}</span></p>
                 <p>ชื่อวัสดุ : <span className="font-semibold text-gray-800">{ledgerItem.name}</span></p>
                 <p>หน่วยนับ : <span className="font-semibold text-gray-800">{ledgerItem.unit}</span></p>
               </div>
@@ -1222,7 +1271,7 @@ export default function ElectricalStockPage() {
       <div className="print-only p-6 text-black text-xs">
         <h1 className="text-center text-lg font-bold mb-3">บัญชีวัสดุ</h1>
         <div className="flex justify-between mb-1">
-          <p>ประเภทวัสดุ : วัสดุไฟฟ้า</p>
+          <p>ประเภทวัสดุ : {categoryOf(ledgerItem)}</p>
           <p>รหัสวัสดุ : {ledgerItem.code}</p>
         </div>
         <div className="flex justify-between mb-3">
