@@ -9,17 +9,18 @@ import {
 const EMPTY_ITEM = { code: '', name: '', unit: '', unitPrice: '', balance: '', category: '' }
 const EMPTY_TXN  = { itemId: '', type: 'จ่าย', qty: '', party: '', docNo: '', date: '', note: '', unitPrice: '' }
 
-// Two independently-tracked material categories sharing the same dashboard/registry/history/
+// Independently-tracked material categories sharing the same dashboard/registry/history/
 // summary tabs — the active one filters which items and transactions show everywhere.
 const CATEGORIES = [
   { key: 'วัสดุไฟฟ้า',   icon: '⚡', label: 'ไฟฟ้า' },
   { key: 'วัสดุก่อสร้าง', icon: '🏗️', label: 'ก่อสร้าง' },
+  { key: 'วัสดุสำนักงาน', icon: '🗄️', label: 'สำนักงาน' },
 ]
 const DEFAULT_CATEGORY = CATEGORIES[0].key
 function categoryOf(item) { return item?.category || DEFAULT_CATEGORY }
 
 // Default signers shown on the printed "รายงานวัสดุคงเหลือ" report — editable by admins,
-// saved server-side per category (staff in these positions differ ไฟฟ้า vs ก่อสร้าง, and
+// saved server-side per category (staff in these positions differ per category, and
 // change over time regardless).
 const REPORT_SIGNERS_SETTING_PREFIX = 'stockReportSigners_'
 function signersSettingKey(category) { return REPORT_SIGNERS_SETTING_PREFIX + category }
@@ -30,6 +31,11 @@ const DEFAULT_REPORT_SIGNERS_BY_CATEGORY = {
   ],
   'วัสดุก่อสร้าง': [
     { name: 'นายปกรณ์  อินปั๋น', position: 'ผู้ช่วยนายช่างโยธา' },
+    { name: 'นายประวิทย์  อาจหาญ', position: 'ผู้อำนวยการกองช่าง' },
+  ],
+  // Signer 1 left blank — no name given yet, fill in via ✏️ แก้ไขชื่อผู้ลงนาม.
+  'วัสดุสำนักงาน': [
+    { name: '', position: '' },
     { name: 'นายประวิทย์  อาจหาญ', position: 'ผู้อำนวยการกองช่าง' },
   ],
 }
