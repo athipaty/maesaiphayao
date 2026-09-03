@@ -48,7 +48,7 @@ export default function Navbar({ onMenuClick, scrolled }) {
         } : undefined}>
         <div className={`max-w-[1200px] mx-auto px-3 w-full flex items-center justify-between gap-3 transition-[padding] duration-300 ease-in-out ${scrolled ? 'py-1.5' : 'py-2 lg:py-3'}`}>
 
-          {/* Logo + title */}
+          {/* Logo */}
           <Link to="/" className={`flex items-center min-w-0 flex-1 transition-[gap,margin-left] duration-300 ease-in-out ${scrolled ? 'gap-0 ml-0' : 'gap-3 lg:gap-4 lg:ml-10'}`}>
             <div className={`overflow-hidden flex-shrink-0 flex items-center justify-center aspect-square transition-[width,opacity] duration-300 ease-in-out ${scrolled ? 'w-0 opacity-0' : 'w-14 lg:w-36 opacity-100'}`}>
               {logoImage ? (
@@ -60,26 +60,10 @@ export default function Navbar({ onMenuClick, scrolled }) {
                 </div>
               )}
             </div>
-            <div className="min-w-0">
-              <h1 className={`font-bold leading-tight tracking-wide drop-shadow-sm transition-[font-size] duration-300 ease-in-out ${scrolled ? 'text-sm lg:text-base' : 'text-base lg:text-2xl'}`}>
-                องค์การบริหารส่วนตำบลแม่ใส
-              </h1>
-              <p className={`text-[11px] lg:text-sm text-white/70 truncate transition-[max-height,opacity] duration-300 ease-in-out overflow-hidden ${scrolled ? 'max-h-0 opacity-0' : 'max-h-6 opacity-100 hidden sm:block'}`}>
-                อ.เมืองพะเยา จ.พะเยา · โทร 0-5488-9909
-              </p>
-            </div>
           </Link>
 
           {/* Right side */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="text-right text-[11px] text-white/80 hidden md:block leading-relaxed">
-              <div>📞 0-5488-9909</div>
-              <div>📧 saraban_06560115@dla.go.th</div>
-            </div>
-            <Link to="/admin" target="_blank" rel="noopener noreferrer"
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/30 rounded-lg transition-colors whitespace-nowrap backdrop-blur-sm">
-              🔐 เข้าสู่ระบบ
-            </Link>
             {/* Hamburger — mobile only, right side */}
             <button
               className="lg:hidden flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/20 active:bg-white/30 transition-colors text-xl"
