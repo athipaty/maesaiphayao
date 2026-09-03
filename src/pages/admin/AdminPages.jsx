@@ -683,7 +683,7 @@ function PdfBlockEdit({ data, onChange }) {
         <input className={inp} placeholder="อธิบายสั้นๆ เกี่ยวกับเอกสาร" value={data.description || ''} onChange={e => onChange({ ...data, description: e.target.value })} />
       </Field>
       <Field label="ไฟล์ PDF">
-        <PdfUpload value={data.url} label={data.label} onChange={(url, label) => onChange({ ...data, url, label })} />
+        <PdfUpload value={data.url} label={data.label} onChange={(url, label) => onChange({ ...data, url, label })} allowUrl={false} />
       </Field>
     </div>
   )

@@ -1,7 +1,7 @@
 ﻿import { useState } from 'react'
 import { uploadPdf } from '../services/api'
 
-export default function PdfUpload({ value, label, onChange }) {
+export default function PdfUpload({ value, label, onChange, allowUrl = true }) {
   const [tab, setTab]           = useState('upload')
   const [uploading, setUploading] = useState(false)
   const [err, setErr]           = useState('')
@@ -40,24 +40,28 @@ export default function PdfUpload({ value, label, onChange }) {
           <a href={value} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex-1 truncate">
             {label || value}
           </a>
-          <button type="button" onClick={() => setTab('url')} className="text-gray-400 hover:text-blue-500 text-xs flex-shrink-0">🔗</button>
+          {allowUrl && (
+            <button type="button" onClick={() => setTab('url')} className="text-gray-400 hover:text-blue-500 text-xs flex-shrink-0">🔗</button>
+          )}
           <button type="button" onClick={() => onChange('', '')} className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0">✕</button>
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex border border-gray-200 rounded-lg overflow-hidden text-xs mb-3">
-        <button type="button" onClick={() => { setTab('upload'); setErr('') }}
-          className={`flex-1 py-2 font-medium transition-colors ${tab === 'upload' ? 'bg-secondary text-white' : 'text-gray-500 hover:bg-gray-50'}`}>
-          📎 อัปโหลดไฟล์
-        </button>
-        <button type="button" onClick={() => { setTab('url'); setErr('') }}
-          className={`flex-1 py-2 font-medium transition-colors ${tab === 'url' ? 'bg-secondary text-white' : 'text-gray-500 hover:bg-gray-50'}`}>
-          🔗 วางลิงค์
-        </button>
-      </div>
+      {allowUrl && (
+        <div className="flex border border-gray-200 rounded-lg overflow-hidden text-xs mb-3">
+          <button type="button" onClick={() => { setTab('upload'); setErr('') }}
+            className={`flex-1 py-2 font-medium transition-colors ${tab === 'upload' ? 'bg-secondary text-white' : 'text-gray-500 hover:bg-gray-50'}`}>
+            📎 อัปโหลดไฟล์
+          </button>
+          <button type="button" onClick={() => { setTab('url'); setErr('') }}
+            className={`flex-1 py-2 font-medium transition-colors ${tab === 'url' ? 'bg-secondary text-white' : 'text-gray-500 hover:bg-gray-50'}`}>
+            🔗 วางลิงค์
+          </button>
+        </div>
+      )}
 
-      {tab === 'upload' && (
+      {(tab === 'upload' || !allowUrl) && (
         <div>
           <label className="block">
             <span className={`btn-ghost text-xs cursor-pointer inline-flex items-center gap-1.5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -69,7 +73,7 @@ export default function PdfUpload({ value, label, onChange }) {
         </div>
       )}
 
-      {tab === 'url' && (
+      {tab === 'url' && allowUrl && (
         <div className="space-y-2">
           <input
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
