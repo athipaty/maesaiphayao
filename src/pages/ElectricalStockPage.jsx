@@ -124,7 +124,7 @@ export default function ElectricalStockPage() {
 
   const currentFY = fiscalYearOf(new Date())
   const [historyYear, setHistoryYear] = useState(currentFY)
-  const [summaryYear, setSummaryYear] = useState(2568)
+  const [summaryYear, setSummaryYear] = useState(currentFY)
 
   async function runConfirm() {
     if (!confirmState) return
