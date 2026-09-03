@@ -82,3 +82,17 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .reveal-section { opacity: 1; transform: none; transition: none; }
 }
+
+/* Print-only report sections: hidden on screen, shown full-page when printing */
+.print-only { display: none; }
+@media print {
+  body * { visibility: hidden; }
+  .print-only, .print-only * { visibility: visible; }
+  .print-only {
+    display: block;
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+  }
+  .no-print { display: none !important; }
+}

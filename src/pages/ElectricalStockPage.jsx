@@ -9,6 +9,21 @@ import {
 const EMPTY_ITEM = { code: '', name: '', unit: '', unitPrice: '', balance: '' }
 const EMPTY_TXN  = { itemId: '', type: 'จ่าย', qty: '', party: '', docNo: '', date: '', note: '' }
 
+// Signers shown on the printed "รายงานวัสดุคงเหลือ" report
+const REPORT_SIGNERS = [
+  { name: 'นายจิตรกร  แปงมูล', position: 'นายช่างไฟฟ้าชำนาญงาน' },
+  { name: 'นายประวิทย์  อาจหาญ', position: 'ผู้อำนวยการกองช่าง' },
+]
+
+function money2(n) {
+  return (n || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+function thaiDateShort(dateInput) {
+  const d = new Date(dateInput)
+  return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear() + 543}`
+}
+
 const TABS = [
   { key: 'registry', label: '📋 ทะเบียนวัสดุ' },
   { key: 'history',  label: '🧾 ประวัติรับ-จ่าย' },
@@ -118,6 +133,29 @@ export default function ElectricalStockPage() {
   const currentFY = fiscalYearOf(new Date())
   const [historyYear, setHistoryYear] = useState(currentFY)
   const [summaryYear, setSummaryYear] = useState(2568)
+  const [hideZeroStock, setHideZeroStock] = useState(true)
+
+  const [printMode, setPrintMode] = useState(null) // null | 'report' | 'withdraw'
+  const [withdrawSelection, setWithdrawSelection] = useState(new Set())
+
+  useEffect(() => {
+    const onAfterPrint = () => setPrintMode(null)
+    window.addEventListener('afterprint', onAfterPrint)
+    return () => window.removeEventListener('afterprint', onAfterPrint)
+  }, [])
+
+  function triggerPrint(mode) {
+    setPrintMode(mode)
+    setTimeout(() => window.print(), 50)
+  }
+
+  function toggleWithdrawSelect(id) {
+    setWithdrawSelection(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
 
   async function runConfirm() {
     if (!confirmState) return
@@ -162,6 +200,13 @@ export default function ElectricalStockPage() {
 
   const historyFiltered = useMemo(() => txns.filter(t => fiscalYearOf(t.date) === historyYear), [txns, historyYear])
 
+  useEffect(() => { setWithdrawSelection(new Set()) }, [historyYear])
+
+  const selectedWithdrawRows = useMemo(
+    () => historyFiltered.filter(t => t.type === 'จ่าย' && withdrawSelection.has(t._id)),
+    [historyFiltered, withdrawSelection]
+  )
+
   const yearSummaryRows = useMemo(() => {
     return items
       .map(item => {
@@ -174,6 +219,11 @@ export default function ElectricalStockPage() {
       .filter(Boolean)
       .sort((a, b) => (a.item.code || 0) - (b.item.code || 0))
   }, [items, txns, summaryYear])
+
+  const yearSummaryRowsDisplayed = useMemo(
+    () => hideZeroStock ? yearSummaryRows.filter(r => r.closing !== 0) : yearSummaryRows,
+    [yearSummaryRows, hideZeroStock]
+  )
 
   const yearTotals = useMemo(() => yearSummaryRows.reduce((acc, r) => ({
     opening:  acc.opening + r.opening,
@@ -415,6 +465,23 @@ export default function ElectricalStockPage() {
             </select>
           </div>
           <div className="p-3">
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <p className="text-xs text-gray-400">
+                ✅ เลือกรายการ "จ่าย" เพื่อรวมเป็นใบเบิกวัสดุ — เลือกแล้ว {selectedWithdrawRows.length} รายการ
+              </p>
+              <div className="flex gap-2">
+                {withdrawSelection.size > 0 && (
+                  <button onClick={() => setWithdrawSelection(new Set())}
+                    className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-red-400 hover:text-red-500 bg-white font-medium transition-colors">
+                    ล้างการเลือก
+                  </button>
+                )}
+                <button onClick={() => triggerPrint('withdraw')} disabled={selectedWithdrawRows.length === 0}
+                  className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white font-medium transition-colors disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-500">
+                  🖨️ พิมพ์ใบเบิกวัสดุ
+                </button>
+              </div>
+            </div>
             {historyFiltered.length === 0 ? (
               <p className="text-center text-gray-400 text-sm py-6">ไม่มีรายการเคลื่อนไหวในปีงบประมาณ {historyYear}</p>
             ) : (
@@ -422,6 +489,7 @@ export default function ElectricalStockPage() {
                 <table className="w-full text-xs border-collapse">
                   <thead>
                     <tr className="bg-gray-50 text-gray-500">
+                      <th className="text-center p-2 border-b border-gray-100"></th>
                       <th className="text-left p-2 border-b border-gray-100">วันที่</th>
                       <th className="text-center p-2 border-b border-gray-100">ประเภท</th>
                       <th className="text-left p-2 border-b border-gray-100">รายการ</th>
@@ -435,6 +503,12 @@ export default function ElectricalStockPage() {
                   <tbody>
                     {historyFiltered.map(t => (
                       <tr key={t._id} className="hover:bg-pink-50/40">
+                        <td className="p-2 border-b border-gray-50 text-center">
+                          {t.type === 'จ่าย' && (
+                            <input type="checkbox" checked={withdrawSelection.has(t._id)}
+                              onChange={() => toggleWithdrawSelect(t._id)} />
+                          )}
+                        </td>
                         <td className="p-2 border-b border-gray-50 text-gray-500 whitespace-nowrap">
                           {new Date(t.date).toLocaleDateString('th-TH')}
                         </td>
@@ -477,11 +551,29 @@ export default function ElectricalStockPage() {
             </select>
           </div>
           <div className="p-3">
-            <p className="text-xs text-gray-400 mb-3">
-              ณ วันที่ 30 กันยายน {summaryYear} · กองช่าง · วัสดุไฟฟ้า
-            </p>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs text-gray-400">
+                ณ วันที่ 30 กันยายน {summaryYear} · กองช่าง · วัสดุไฟฟ้า
+              </p>
+              <div className="flex gap-2">
+                <button onClick={() => setHideZeroStock(v => !v)}
+                  className={`text-[11px] px-3 py-1.5 rounded-full border font-medium transition-colors ${
+                    hideZeroStock
+                      ? 'bg-primary text-white border-primary'
+                      : 'border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white'
+                  }`}>
+                  {hideZeroStock ? '🙈 ซ่อนรายการหมดสต๊อก' : '👁️ แสดงรายการหมดสต๊อก'}
+                </button>
+                <button onClick={() => triggerPrint('report')}
+                  className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white font-medium transition-colors">
+                  🖨️ พิมพ์รายงาน
+                </button>
+              </div>
+            </div>
             {yearSummaryRows.length === 0 ? (
               <p className="text-center text-gray-400 text-sm py-8">ไม่มีวัสดุในปีงบประมาณ {summaryYear}</p>
+            ) : yearSummaryRowsDisplayed.length === 0 ? (
+              <p className="text-center text-gray-400 text-sm py-8">ไม่มีวัสดุคงเหลือ (ทุกรายการหมดสต๊อก)</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-xs border-collapse">
@@ -499,7 +591,7 @@ export default function ElectricalStockPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {yearSummaryRows.map(r => (
+                    {yearSummaryRowsDisplayed.map(r => (
                       <tr key={r.item._id} className="hover:bg-pink-50/40">
                         <td className="p-2 border-b border-gray-50 text-gray-400">{r.item.code}</td>
                         <td className="p-2 border-b border-gray-50 font-medium text-gray-700">{r.item.name}</td>
@@ -533,6 +625,105 @@ export default function ElectricalStockPage() {
             )}
           </div>
         </div>
+      )}
+
+      {/* ── Print-only: รายงานวัสดุคงเหลือ (with signature slots) ── */}
+      {printMode === 'report' && (
+      <div className="print-only p-6 text-black text-xs">
+        <h1 className="text-center text-lg font-bold mb-1">รายงานวัสดุคงเหลือ</h1>
+        <p className="text-center mb-1">ณ วันที่ 30 กันยายน {summaryYear}</p>
+        <p className="text-center mb-3">กองช่าง · วัสดุไฟฟ้า</p>
+        <table className="w-full border-collapse text-[11px]">
+          <thead>
+            <tr>
+              <th className="border border-black p-1">ลำดับ</th>
+              <th className="border border-black p-1">รายการ</th>
+              <th className="border border-black p-1">ปริมาณ</th>
+              <th className="border border-black p-1">หน่วยนับ</th>
+              <th className="border border-black p-1">ราคาต่อหน่วย<br />(บาท)</th>
+              <th className="border border-black p-1">จำนวนเงิน<br />(บาท)</th>
+              <th className="border border-black p-1">หมายเหตุ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {yearSummaryRows.map((r, idx) => (
+              <tr key={r.item._id}>
+                <td className="border border-black p-1 text-center">{idx + 1}</td>
+                <td className="border border-black p-1">{r.item.name}</td>
+                <td className="border border-black p-1 text-right">{r.closing ? money2(r.closing) : '-'}</td>
+                <td className="border border-black p-1 text-center">{r.item.unit}</td>
+                <td className="border border-black p-1 text-right">{money2(r.item.unitPrice)}</td>
+                <td className="border border-black p-1 text-right">{r.closing ? money2(r.closing * (r.item.unitPrice || 0)) : '-'}</td>
+                <td className="border border-black p-1"></td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td className="border border-black p-1 text-center font-semibold" colSpan={5}>รวมรายการ</td>
+              <td className="border border-black p-1 text-right font-semibold">{money2(yearTotals.value)}</td>
+              <td className="border border-black p-1"></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div className="flex justify-around mt-12 text-center">
+          {REPORT_SIGNERS.map((s, i) => (
+            <div key={i}>
+              <p>ลงชื่อ ....................................................... ผู้จัดทำ</p>
+              <p className="mt-1">( {s.name} )</p>
+              <p>ตำแหน่ง {s.position}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+      )}
+
+      {/* ── Print-only: ใบเบิกวัสดุ (withdraw slip, built from selected history rows) ── */}
+      {printMode === 'withdraw' && (
+      <div className="print-only p-6 text-black text-xs">
+        <h1 className="text-center text-lg font-bold mb-3">ใบเบิกวัสดุ</h1>
+        <p className="mb-1">วันที่ {selectedWithdrawRows.length && new Set(selectedWithdrawRows.map(t => new Date(t.date).toDateString())).size === 1
+          ? thaiDateShort(selectedWithdrawRows[0].date)
+          : '.......................'}</p>
+        <p className="mb-1">
+          ข้าพเจ้า {REPORT_SIGNERS[0].name} ตำแหน่ง {REPORT_SIGNERS[0].position}
+        </p>
+        <p className="mb-1">ขอเบิกวัสดุ ประเภท วัสดุไฟฟ้า เพื่อใช้ในงาน .....................................</p>
+        <p className="mb-3">ดังรายการต่อไปนี้</p>
+
+        <table className="w-full border-collapse text-[11px]">
+          <thead>
+            <tr>
+              <th className="border border-black p-1 w-12">ลำดับ</th>
+              <th className="border border-black p-1">รายการ</th>
+              <th className="border border-black p-1 w-32">จำนวนที่เบิก</th>
+            </tr>
+          </thead>
+          <tbody>
+            {selectedWithdrawRows.map((t, idx) => (
+              <tr key={t._id}>
+                <td className="border border-black p-1 text-center">{idx + 1}</td>
+                <td className="border border-black p-1">{t.itemName}</td>
+                <td className="border border-black p-1 text-center">{t.qty.toLocaleString()} {t.unit}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="flex justify-around mt-12 text-center">
+          <div>
+            <p>ลงชื่อ ....................................................... ผู้เบิก</p>
+            <p className="mt-1">( {REPORT_SIGNERS[0].name} )</p>
+            <p>ตำแหน่ง {REPORT_SIGNERS[0].position}</p>
+          </div>
+          <div>
+            <p>ลงชื่อ ....................................................... ผู้จ่าย</p>
+            <p className="mt-1">( {REPORT_SIGNERS[1].name} )</p>
+            <p>ตำแหน่ง {REPORT_SIGNERS[1].position}</p>
+          </div>
+        </div>
+      </div>
       )}
 
       {!checkingAuth && !isAdmin && (
