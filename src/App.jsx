@@ -113,7 +113,6 @@ export default function App() {
           <Route path="/public-service" element={<PublicServicePage />} />
           <Route path="/travel" element={<TravelPage />} />
           <Route path="/products" element={<ProductsPage />} />
-          <Route path="/stock/electrical" element={<ElectricalStockPage />} />
 
           {/* 9. e-Service */}
           <Route path="/eservice" element={<EServicePage />} />
@@ -146,6 +145,16 @@ export default function App() {
           {/* หน้าแบบ dynamic (สร้างจาก admin) */}
           <Route path="/page/:slug" element={<DynamicPage />} />
         </Route>
+
+        {/* บัญชีวัสดุไฟฟ้า กองช่าง — standalone page (no site header/sidebar), own login wall
+            gating the whole page, not just editing (see ElectricalStockPage.jsx) */}
+        <Route path="/stock/electrical" element={
+          <ChunkErrorBoundary>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-400 text-sm">กำลังโหลด...</div>}>
+              <ElectricalStockPage />
+            </Suspense>
+          </ChunkErrorBoundary>
+        } />
 
         {/* Admin panel */}
         <Route path="/admin" element={<AdminLayout />}>

@@ -287,8 +287,52 @@ export default function ElectricalStockPage() {
 
   const txnItem = items.find(i => i._id === txnForm.itemId)
 
+  // Standalone page (no site header/sidebar — see App.jsx) with its own login wall: the whole
+  // page requires the admin password to view at all, not just to edit.
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-400 text-sm">
+        กำลังตรวจสอบสิทธิ์...
+      </div>
+    )
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="card w-full max-w-sm">
+          <div className="section-head">
+            <h2 className="text-sm font-semibold">🔐 เข้าสู่ระบบเจ้าหน้าที่กองช่าง</h2>
+          </div>
+          <form onSubmit={handleLogin} className="p-4 space-y-3">
+            <p className="text-xs text-gray-400">บัญชีวัสดุไฟฟ้า กองช่าง — ใช้รหัสผ่านเดียวกับผู้ดูแลระบบ</p>
+            <div className="relative">
+              <input
+                type={showPw ? 'text' : 'password'}
+                className="input pr-12"
+                placeholder="รหัสผ่าน"
+                autoFocus
+                value={pw}
+                onChange={e => { setPw(e.target.value); setLoginErr('') }}
+              />
+              <button type="button" onClick={() => setShowPw(v => !v)} tabIndex={-1}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600">
+                {showPw ? 'ซ่อน' : 'แสดง'}
+              </button>
+            </div>
+            {loginErr && <p className="text-xs text-red-500">⚠️ {loginErr}</p>}
+            <button type="submit" disabled={loggingIn || !pw} className="btn-primary w-full disabled:opacity-50">
+              {loggingIn ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+            </button>
+          </form>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50">
+    <div className="max-w-[1200px] mx-auto w-full px-3 py-4">
       <PageHeader icon="⚡" title="บัญชีวัสดุไฟฟ้า กองช่าง"
         desc="ทะเบียนวัสดุไฟฟ้าคงเหลือ พร้อมประวัติการรับเข้า–เบิกจ่าย ของกองช่าง" />
 
@@ -535,41 +579,11 @@ export default function ElectricalStockPage() {
         </div>
       )}
 
-      {!checkingAuth && !isAdmin && (
-        <div className="card">
-          <div className="section-head">
-            <h2 className="text-sm font-semibold">🔐 เข้าสู่ระบบเจ้าหน้าที่กองช่าง</h2>
-          </div>
-          <form onSubmit={handleLogin} className="p-4 space-y-3 max-w-sm">
-            <p className="text-xs text-gray-400">เข้าสู่ระบบเพื่อเพิ่ม/ลบวัสดุ และบันทึกรับเข้า-เบิกจ่าย (ใช้รหัสผ่านเดียวกับผู้ดูแลระบบ)</p>
-            <div className="relative">
-              <input
-                type={showPw ? 'text' : 'password'}
-                className="input pr-12"
-                placeholder="รหัสผ่าน"
-                value={pw}
-                onChange={e => { setPw(e.target.value); setLoginErr('') }}
-              />
-              <button type="button" onClick={() => setShowPw(v => !v)} tabIndex={-1}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600">
-                {showPw ? 'ซ่อน' : 'แสดง'}
-              </button>
-            </div>
-            {loginErr && <p className="text-xs text-red-500">⚠️ {loginErr}</p>}
-            <button type="submit" disabled={loggingIn || !pw} className="btn-primary w-full disabled:opacity-50">
-              {loggingIn ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
-            </button>
-          </form>
-        </div>
-      )}
-
-      {isAdmin && (
-        <div className="flex justify-end mb-2">
-          <button onClick={handleLogout} className="text-[11px] text-gray-400 hover:text-red-500 transition-colors">
-            ออกจากระบบ
-          </button>
-        </div>
-      )}
+      <div className="flex justify-end mb-2">
+        <button onClick={handleLogout} className="text-[11px] text-gray-400 hover:text-red-500 transition-colors">
+          ออกจากระบบ
+        </button>
+      </div>
 
       {/* ── Add/edit item modal ── */}
       {itemModal && (
@@ -717,6 +731,7 @@ export default function ElectricalStockPage() {
           </div>
         </div>
       )}
+    </div>
     </div>
   )
 }
