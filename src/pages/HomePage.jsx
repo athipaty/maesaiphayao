@@ -382,54 +382,15 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Contact info + map — fills the space beside Facebook on desktop, same total height */}
-        <div className="hidden lg:flex flex-col gap-4 flex-1" style={{ height: `${Math.round(500 * fbScale)}px` }}>
-          <div className="card p-4 flex-shrink-0">
-            <h3 className="text-xs font-bold text-primary mb-2">📞 ติดต่อเรา</h3>
-            <div className="space-y-1.5 text-xs text-gray-700">
-              <div className="flex items-start gap-2">
-                <span className="text-sm">📍</span>
-                <div>
-                  <p className="font-medium">ที่อยู่</p>
-                  <p className="text-gray-500">198 ม.12 ตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา 56000</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-sm">📞</span>
-                <div>
-                  <p className="font-medium">โทรศัพท์</p>
-                  <a href="tel:054889909" className="text-blue-600 hover:underline font-medium">0-5488-9909</a>
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-sm">📧</span>
-                <div>
-                  <p className="font-medium">อีเมล</p>
-                  <a href="mailto:saraban_06560115@dla.go.th" className="text-blue-600 hover:underline break-all">saraban_06560115@dla.go.th</a>
-                  <br />
-                  <a href="mailto:maesaiphayao.909@gmail.com" className="text-blue-600 hover:underline break-all">maesaiphayao.909@gmail.com</a>
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-sm">🕐</span>
-                <div>
-                  <p className="font-medium">เวลาทำการ</p>
-                  <p className="text-gray-500">วันจันทร์ – ศุกร์ เวลา 08:30 – 16:30 น.</p>
-                </div>
-              </div>
+        {/* Photo — fills the space beside Facebook on desktop, same total height, uploaded by admin in ตั้งค่าเว็บไซต์ */}
+        <div className="hidden lg:block card p-0 overflow-hidden flex-1 bg-gray-50" style={{ height: `${Math.round(500 * fbScale)}px` }}>
+          {landingPhoto ? (
+            <img src={landingPhoto} alt="อบต.แม่ใส" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">
+              ยังไม่มีรูปภาพ
             </div>
-          </div>
-
-          {/* Photo — fills whatever height remains, uploaded by admin in ตั้งค่าเว็บไซต์ */}
-          <div className="card p-0 overflow-hidden flex-1 min-h-0 bg-gray-50">
-            {landingPhoto ? (
-              <img src={landingPhoto} alt="อบต.แม่ใส" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">
-                ยังไม่มีรูปภาพ
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
       </Reveal>
