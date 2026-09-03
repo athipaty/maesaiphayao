@@ -466,9 +466,8 @@ export default function ElectricalStockPage() {
       <div className={`fixed inset-0 z-[70] lg:hidden transition-opacity duration-300 ${
           sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}>
-        <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-        <div className={`absolute left-0 top-0 bottom-0 w-64 max-w-[80vw] bg-slate-900 text-slate-300 flex flex-col shadow-xl transition-transform duration-300 ease-out ${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        <div className={`absolute inset-0 bg-slate-900 text-slate-300 flex flex-col transition-transform duration-300 ease-out ${
+            sidebarOpen ? 'translate-x-0' : 'translate-x-full'
           }`}>
           <div className="px-5 py-5 border-b border-slate-800 flex items-center justify-between gap-2">
             <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุไฟฟ้า<br />กองช่าง อบต.แม่ใส</p>
@@ -500,14 +499,7 @@ export default function ElectricalStockPage() {
 
         {/* Top bar */}
         <div className="bg-white border-b border-gray-200 px-3 sm:px-6 py-3 flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <button onClick={() => setSidebarOpen(true)}
-              className="lg:hidden flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors text-lg"
-              aria-label="เปิดเมนู">
-              ☰
-            </button>
-            <h1 className="text-sm font-bold text-gray-800 truncate">{NAV.find(n => n.key === tab)?.icon} {NAV.find(n => n.key === tab)?.label}</h1>
-          </div>
+          <h1 className="text-sm font-bold text-gray-800 truncate">{NAV.find(n => n.key === tab)?.icon} {NAV.find(n => n.key === tab)?.label}</h1>
           <div className="flex items-center gap-3 sm:gap-4 text-xs text-gray-500">
             <span className="hidden sm:flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-green-500 inline-block animate-pulse" />
@@ -515,6 +507,11 @@ export default function ElectricalStockPage() {
             </span>
             <span className="hidden md:inline">{now.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Bangkok' })}</span>
             <span className="font-mono font-semibold text-gray-700 tabular-nums">{now.toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok' })}</span>
+            <button onClick={() => setSidebarOpen(true)}
+              className="lg:hidden flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors text-lg"
+              aria-label="เปิดเมนู">
+              ☰
+            </button>
           </div>
         </div>
 
