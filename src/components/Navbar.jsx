@@ -64,6 +64,14 @@ export default function Navbar({ onMenuClick, scrolled }) {
 
           {/* Right side */}
           <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="text-right text-[11px] text-gray-500 hidden md:block leading-relaxed">
+              <div>📞 0-5488-9909</div>
+              <div>📧 saraban_06560115@dla.go.th</div>
+            </div>
+            <Link to="/admin" target="_blank" rel="noopener noreferrer"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-lg transition-colors whitespace-nowrap">
+              🔐 เข้าสู่ระบบ
+            </Link>
             {/* Hamburger — mobile only, right side */}
             <button
               className="lg:hidden flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors text-xl"

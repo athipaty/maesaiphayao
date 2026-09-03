@@ -385,7 +385,7 @@ export default function HomePage() {
         {/* Photo — fills the space beside Facebook on desktop, same total height, uploaded by admin in ตั้งค่าเว็บไซต์ */}
         <div className="hidden lg:block card p-0 overflow-hidden flex-1 bg-gray-50" style={{ height: `${Math.round(500 * fbScale)}px` }}>
           {landingPhoto ? (
-            <img src={landingPhoto} alt="อบต.แม่ใส" className="w-full h-full object-cover" />
+            <img src={landingPhoto} alt="อบต.แม่ใส" className="w-full h-full object-contain" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">
               ยังไม่มีรูปภาพ

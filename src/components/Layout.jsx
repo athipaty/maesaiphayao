@@ -16,7 +16,6 @@ export default function Layout() {
   const fixedRef = useRef(null)
   const desktopNavRef = useRef(null)
   const scrolledRef = useRef(false)
-  const lastScrollYRef = useRef(0)
   // Reserves space in normal document flow for the fixed TopUtilityBar+Navbar block below (fixed
   // elements don't reserve their own space the way the old `position: sticky` header did) — see
   // the effect below for why it's frozen at the *expanded* measurement rather than tracking the
@@ -46,14 +45,9 @@ export default function Layout() {
         return next
       })
 
-      // Hide the header on a deliberate scroll down, bring it back on a deliberate scroll up
-      // (or once we're back near the top) — an 8px dead zone keeps trivial jitter from flipping
-      // it, the same idea as the collapse hysteresis above.
-      const delta = y - lastScrollYRef.current
-      if (y < 80) setHeaderHidden(false)
-      else if (delta > 8) setHeaderHidden(true)
-      else if (delta < -8) setHeaderHidden(false)
-      lastScrollYRef.current = y
+      // Only show the header when actually back near the top — scrolling up in the middle of
+      // the page should NOT bring it back, only reaching the top again does.
+      setHeaderHidden(y >= 80)
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
