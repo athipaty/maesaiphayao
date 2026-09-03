@@ -25,6 +25,10 @@ const PUBLIC_SERVICE_ITEMS = [
 ]
 const PUBLIC_SERVICE_PATHS = PUBLIC_SERVICE_ITEMS.map(i => i.to)
 
+// Menu items that should open in a new tab instead of navigating the current one — currently
+// just the standalone stock system, since it's a separate login-gated app outside this Layout.
+const NEW_TAB_PATHS = ['/stock/electrical']
+
 export default function Sidebar({ onNavigate, mobile = false }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
   const [menuPages, setMenuPages] = useState([])
@@ -166,6 +170,13 @@ export default function Sidebar({ onNavigate, mobile = false }) {
                           <polyline points="2 4 6 8 10 4"/>
                         </svg>
                       </button>
+                    ) : NEW_TAB_PATHS.includes(linkPath) ? (
+                      <a href={linkPath} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-3 px-5 py-3.5 border-b border-gray-100 text-sm transition-colors text-gray-700 hover:bg-blue-50/60 hover:text-primary">
+                        <span className="w-6 text-center text-base flex-shrink-0">{m.icon || '📄'}</span>
+                        <span className="flex-1 font-medium">{m.title}</span>
+                        <span className="text-gray-300 text-sm flex-shrink-0">↗</span>
+                      </a>
                     ) : (
                       <NavLink to={linkPath} onClick={onNavigate}
                         className={({ isActive }) =>
@@ -327,6 +338,13 @@ export default function Sidebar({ onNavigate, mobile = false }) {
                       <polyline points="2 4 6 8 10 4"/>
                     </svg>
                   </button>
+                ) : NEW_TAB_PATHS.includes(linkPath) ? (
+                  <a href={linkPath} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors text-gray-700 hover:bg-pink-50 hover:text-primary">
+                    <span className="text-sm w-5 text-center">{m.icon}</span>
+                    <span className="flex-1">{m.title}</span>
+                    <span className="text-gray-300 text-xs">↗</span>
+                  </a>
                 ) : (
                   <NavLink to={linkPath} onClick={onNavigate}
                     className={({ isActive }) =>

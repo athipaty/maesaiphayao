@@ -2,6 +2,10 @@ import { Link, NavLink } from 'react-router-dom'
 import { useState, useEffect, useRef, forwardRef } from 'react'
 import { getSettings, getPages } from '../services/api'
 
+// Menu items that should open in a new tab instead of navigating the current one — currently
+// just the standalone stock system, since it's a separate login-gated app outside this Layout.
+const NEW_TAB_PATHS = ['/stock/electrical']
+
 const DEFAULT_DEPTS = [
   { value: 'executive',   label: 'ผู้บริหาร' },
   { value: 'council',     label: 'สมาชิกสภา อบต.' },
@@ -80,6 +84,13 @@ const DesktopNav = forwardRef(function DesktopNav({ top }, ref) {
                   {m.title}
                   <ChevronDown open={isOpen} />
                 </button>
+              ) : NEW_TAB_PATHS.includes(linkPath) ? (
+                <a href={linkPath} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-4 py-3 text-[13px] font-medium transition-all whitespace-nowrap border-b-[3px] text-gray-600 border-transparent hover:text-primary hover:bg-gray-50 hover:border-gray-200">
+                  {m.icon && <span className="text-sm">{m.icon}</span>}
+                  {m.title}
+                  <span className="text-gray-300 text-xs">↗</span>
+                </a>
               ) : (
                 <NavLink to={linkPath}
                   className={({ isActive }) =>
