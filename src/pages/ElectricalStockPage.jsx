@@ -18,14 +18,21 @@ const CATEGORIES = [
 const DEFAULT_CATEGORY = CATEGORIES[0].key
 function categoryOf(item) { return item?.category || DEFAULT_CATEGORY }
 
-// Default signers shown on the printed "รายงานวัสดุคงเหลือ" report — editable
-// by admins, saved server-side under the "stockReportSigners" setting since
-// staff in these positions change over time.
-const REPORT_SIGNERS_SETTING_KEY = 'stockReportSigners'
-const DEFAULT_REPORT_SIGNERS = [
-  { name: 'นายจิตรกร  แปงมูล', position: 'นายช่างไฟฟ้าชำนาญงาน' },
-  { name: 'นายประวิทย์  อาจหาญ', position: 'ผู้อำนวยการกองช่าง' },
-]
+// Default signers shown on the printed "รายงานวัสดุคงเหลือ" report — editable by admins,
+// saved server-side per category (staff in these positions differ ไฟฟ้า vs ก่อสร้าง, and
+// change over time regardless).
+const REPORT_SIGNERS_SETTING_PREFIX = 'stockReportSigners_'
+function signersSettingKey(category) { return REPORT_SIGNERS_SETTING_PREFIX + category }
+const DEFAULT_REPORT_SIGNERS_BY_CATEGORY = {
+  'วัสดุไฟฟ้า': [
+    { name: 'นายจิตรกร  แปงมูล', position: 'นายช่างไฟฟ้าชำนาญงาน' },
+    { name: 'นายประวิทย์  อาจหาญ', position: 'ผู้อำนวยการกองช่าง' },
+  ],
+  'วัสดุก่อสร้าง': [
+    { name: 'นายปกรณ์  อินปั๋น', position: 'ผู้ช่วยนายช่างโยธา' },
+    { name: 'นายประวิทย์  อาจหาญ', position: 'ผู้อำนวยการกองช่าง' },
+  ],
+}
 
 function money2(n) {
   return (n || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -162,10 +169,10 @@ export default function ElectricalStockPage() {
   const [withdrawSelection, setWithdrawSelection] = useState(new Set())
   const [ledgerItem, setLedgerItem] = useState(null) // item whose full in/out history (บัญชีวัสดุ) is open
 
-  const [signers, setSigners]           = useState(DEFAULT_REPORT_SIGNERS)
-  const [signerModal, setSignerModal]   = useState(false)
-  const [signerForm, setSignerForm]     = useState(DEFAULT_REPORT_SIGNERS)
-  const [signerSaving, setSignerSaving] = useState(false)
+  const [signerSettings, setSignerSettings] = useState({}) // { [category]: [signer1, signer2] }, loaded from server
+  const [signerModal, setSignerModal]       = useState(false)
+  const [signerForm, setSignerForm]         = useState(DEFAULT_REPORT_SIGNERS_BY_CATEGORY[DEFAULT_CATEGORY])
+  const [signerSaving, setSignerSaving]     = useState(false)
 
   useEffect(() => {
     const onAfterPrint = () => setPrintMode(null)
@@ -186,7 +193,11 @@ export default function ElectricalStockPage() {
     })
   }
 
-  // ── Editable report signers (who signs the printed report / withdraw slip) ──
+  // ── Editable report signers (who signs the printed report / withdraw slip) — per category ──
+  const signers = signerSettings[activeCategory]
+    || DEFAULT_REPORT_SIGNERS_BY_CATEGORY[activeCategory]
+    || DEFAULT_REPORT_SIGNERS_BY_CATEGORY[DEFAULT_CATEGORY]
+
   function openSignerModal() { setSignerForm(signers); setSignerModal(true) }
   function updateSignerField(idx, field, value) {
     setSignerForm(prev => prev.map((s, i) => i === idx ? { ...s, [field]: value } : s))
@@ -195,8 +206,8 @@ export default function ElectricalStockPage() {
     e.preventDefault()
     setSignerSaving(true)
     try {
-      await updateSetting(REPORT_SIGNERS_SETTING_KEY, signerForm)
-      setSigners(signerForm)
+      await updateSetting(signersSettingKey(activeCategory), signerForm)
+      setSignerSettings(prev => ({ ...prev, [activeCategory]: signerForm }))
       setSignerModal(false)
     } catch (err) {
       alert(err?.response?.data?.error || 'บันทึกไม่สำเร็จ')
@@ -222,8 +233,13 @@ export default function ElectricalStockPage() {
       ])
       setItems(ri?.data || [])
       setTxns(rt?.data || [])
-      const savedSigners = rs?.data?.[REPORT_SIGNERS_SETTING_KEY]
-      if (Array.isArray(savedSigners) && savedSigners.length === 2) setSigners(savedSigners)
+      const settingsData = rs?.data || {}
+      const loadedSigners = {}
+      CATEGORIES.forEach(c => {
+        const saved = settingsData[signersSettingKey(c.key)]
+        if (Array.isArray(saved) && saved.length === 2) loadedSigners[c.key] = saved
+      })
+      setSignerSettings(loadedSigners)
     } finally {
       setLoading(false)
     }
@@ -1325,12 +1341,12 @@ export default function ElectricalStockPage() {
           onMouseDown={e => { if (e.target === e.currentTarget) setSignerModal(false) }}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
             <div className="bg-slate-800 text-white px-4 py-3 flex items-center justify-between">
-              <h3 className="text-sm font-semibold">✏️ แก้ไขชื่อผู้ลงนาม</h3>
+              <h3 className="text-sm font-semibold">✏️ แก้ไขชื่อผู้ลงนาม — {CATEGORIES.find(c => c.key === activeCategory)?.icon} {CATEGORIES.find(c => c.key === activeCategory)?.label}</h3>
               <button onClick={() => setSignerModal(false)} className="text-white/70 hover:text-white text-lg">×</button>
             </div>
             <form onSubmit={handleSaveSigners} className="p-4 space-y-4">
               <p className="text-xs text-gray-400">
-                ชื่อ-ตำแหน่งผู้ลงนามที่แสดงบนรายงานวัสดุคงเหลือและใบเบิกวัสดุที่พิมพ์
+                ชื่อ-ตำแหน่งผู้ลงนามที่แสดงบนรายงานวัสดุคงเหลือและใบเบิกวัสดุที่พิมพ์ (เฉพาะประเภท {activeCategory})
               </p>
               {signerForm.map((s, idx) => (
                 <div key={idx} className="space-y-2 border border-gray-100 rounded-lg p-3">
