@@ -569,7 +569,7 @@ export default function HomePage() {
                         : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🏞️</div>
                       }
                       <div className="absolute inset-0 pointer-events-none"
-                        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.65) 20%, transparent 50%)' }} />
+                        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.65) 10%, transparent 25%)' }} />
                       <div className="absolute bottom-0 left-0 right-0 px-3 py-2">
                         <p className="text-white text-xs font-semibold leading-snug drop-shadow line-clamp-2">{item.title}</p>
                       </div>

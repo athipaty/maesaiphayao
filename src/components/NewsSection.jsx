@@ -107,7 +107,7 @@ export function LatestNewsGrid({ items = [], loading }) {
           {/* Dark strip confined to the bottom text area — the rest of the photo stays at full
               brightness instead of being tinted by a gradient that runs the whole image height. */}
           <div className="absolute inset-0 pointer-events-none"
-            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.75) 18%, transparent 45%)' }} />
+            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.75) 10%, transparent 25%)' }} />
           <span className="absolute top-3 left-3 inline-flex items-center gap-1 text-xs font-semibold bg-white/90 text-primary px-2.5 py-1 rounded-full">
             {heroIcon} {heroLabel}
           </span>
