@@ -6,7 +6,7 @@ import {
 } from '../services/api'
 
 const EMPTY_ITEM = { code: '', name: '', unit: '', unitPrice: '', balance: '' }
-const EMPTY_TXN  = { itemId: '', type: 'จ่าย', qty: '', party: '', docNo: '', date: '', note: '' }
+const EMPTY_TXN  = { itemId: '', type: 'จ่าย', qty: '', party: '', docNo: '', date: '', note: '', unitPrice: '' }
 
 const NAV = [
   { key: 'dashboard', icon: '🏠', label: 'แดชบอร์ด' },
@@ -257,7 +257,7 @@ export default function ElectricalStockPage() {
   // `item` is optional — the dashboard's quick-entry buttons open this blank, with the item
   // picked from a dropdown inside the modal, instead of always starting from a registry row.
   function openTxn(item, type) {
-    setTxnForm({ ...EMPTY_TXN, itemId: item?._id || '', type, date: todayStr() })
+    setTxnForm({ ...EMPTY_TXN, itemId: item?._id || '', type, date: todayStr(), unitPrice: item ? String(item.unitPrice ?? '') : '' })
     setTxnError('')
     setTxnModal(true)
   }
@@ -275,6 +275,9 @@ export default function ElectricalStockPage() {
         party: txnForm.party.trim(),
         docNo: txnForm.docNo.trim(),
         note: txnForm.note.trim(),
+        // Only meaningful for a receive — the backend ignores it for a withdrawal, which
+        // always values out at the item's current cost.
+        unitPrice: txnForm.type === 'รับ' && txnForm.unitPrice !== '' ? Number(txnForm.unitPrice) : undefined,
       })
       setTxnModal(false)
       await load()
@@ -778,7 +781,10 @@ export default function ElectricalStockPage() {
               <div>
                 <label className="form-label">รายการวัสดุ</label>
                 <select className="input" required value={txnForm.itemId}
-                  onChange={e => setTxnForm({ ...txnForm, itemId: e.target.value })}>
+                  onChange={e => {
+                    const picked = items.find(i => i._id === e.target.value)
+                    setTxnForm({ ...txnForm, itemId: e.target.value, unitPrice: picked ? String(picked.unitPrice ?? '') : '' })
+                  }}>
                   <option value="" disabled>เลือกวัสดุ...</option>
                   {items.map(i => (
                     <option key={i._id} value={i._id}>{i.code ? `[${i.code}] ` : ''}{i.name}</option>
@@ -787,7 +793,7 @@ export default function ElectricalStockPage() {
               </div>
               {txnItem && (
                 <div className="bg-gray-50 rounded-lg px-3 py-2 text-xs">
-                  <p className="text-gray-400">คงเหลือปัจจุบัน: <span className="font-semibold text-gray-700">{(txnItem.balance || 0).toLocaleString()} {txnItem.unit}</span></p>
+                  <p className="text-gray-400">คงเหลือปัจจุบัน: <span className="font-semibold text-gray-700">{(txnItem.balance || 0).toLocaleString()} {txnItem.unit}</span> · ราคาล่าสุด: <span className="font-semibold text-gray-700">฿{(txnItem.unitPrice || 0).toLocaleString()}</span>/{txnItem.unit}</p>
                 </div>
               )}
 
@@ -812,6 +818,20 @@ export default function ElectricalStockPage() {
                     onChange={e => setTxnForm({ ...txnForm, date: e.target.value })} />
                 </div>
               </div>
+
+              {txnForm.type === 'รับ' && (
+                <div>
+                  <label className="form-label">ราคา/หน่วยที่รับ (฿)</label>
+                  <input type="number" min="0" step="0.01" className="input" value={txnForm.unitPrice}
+                    onChange={e => setTxnForm({ ...txnForm, unitPrice: e.target.value })}
+                    placeholder="เว้นว่างไว้ = ใช้ราคาเดิมของวัสดุ" />
+                  {txnItem && txnForm.unitPrice !== '' && Number(txnForm.unitPrice) !== txnItem.unitPrice && (
+                    <p className="text-[11px] text-amber-600 mt-1">
+                      ⚠️ ราคาต่างจากเดิม (฿{(txnItem.unitPrice || 0).toLocaleString()}) — ระบบจะอัปเดตราคาวัสดุเป็นราคานี้หลังบันทึก
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div>
                 <label className="form-label">{txnForm.type === 'รับ' ? 'รับจาก' : 'จ่ายให้ / ผู้เบิก'}</label>
