@@ -64,7 +64,7 @@ export default function Navbar({ onMenuClick, scrolled }) {
 
           {/* Right side */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="text-right text-[11px] text-gray-700 hidden md:block leading-relaxed bg-white/85 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-sm">
+            <div className="text-right text-[11px] text-white hidden md:block leading-relaxed">
               <div>📞 0-5488-9909</div>
               <div>📧 saraban_06560115@dla.go.th</div>
             </div>
