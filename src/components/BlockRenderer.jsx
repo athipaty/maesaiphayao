@@ -244,6 +244,14 @@ function getEmbedUrl(url) {
   if (!url) return ''
   const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/)
   if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`
+  // Office documents (Word/Excel/PowerPoint) have no native browser viewer — unlike PDFs, which
+  // Chrome/Edge render directly inside an <iframe>, so these need routing through Microsoft's
+  // Office Online viewer regardless of host. Previously any backblazeb2.com URL (including
+  // .docx/.xlsx files) was returned as-is, which just downloaded or showed a blank frame instead
+  // of an actual preview.
+  if (/\.(docx?|xlsx?|pptx?)(\?|#|$)/i.test(url)) {
+    return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`
+  }
   if (url.includes('backblazeb2.com')) return url
   return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
 }
