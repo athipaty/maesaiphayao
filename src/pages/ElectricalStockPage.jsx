@@ -355,8 +355,7 @@ export default function ElectricalStockPage() {
       {/* ── Sidebar ── */}
       <aside className="w-56 flex-shrink-0 bg-slate-900 text-slate-300 flex flex-col">
         <div className="px-5 py-5 border-b border-slate-800">
-          <p className="text-white font-bold text-sm flex items-center gap-2">⚡ STOCK-ES</p>
-          <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">ระบบคลังวัสดุไฟฟ้า<br />กองช่าง อบต.แม่ใส</p>
+          <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุไฟฟ้า<br />กองช่าง อบต.แม่ใส</p>
         </div>
         <nav className="flex-1 py-3">
           {NAV.map(n => (
