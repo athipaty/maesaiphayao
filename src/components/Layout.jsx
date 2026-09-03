@@ -11,8 +11,10 @@ import ChunkErrorBoundary from './ChunkErrorBoundary'
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [headerHidden, setHeaderHidden] = useState(false)
   const fixedRef = useRef(null)
   const scrolledRef = useRef(false)
+  const lastScrollYRef = useRef(0)
   // Reserves space in normal document flow for the fixed TopUtilityBar+Navbar block below (fixed
   // elements don't reserve their own space the way the old `position: sticky` header did) — see
   // the effect below for why it's frozen at the *expanded* measurement rather than tracking the
@@ -27,11 +29,21 @@ export default function Layout() {
     // re-expand once back under 24px) means scrollY has to move a real, deliberate amount before
     // it can flip again — a small layout shift alone can't cross that gap and re-trigger itself.
     function onScroll() {
+      const y = window.scrollY
       setScrolled(prev => {
-        const next = (window.scrollY > 64) ? true : (window.scrollY < 24) ? false : prev
+        const next = (y > 64) ? true : (y < 24) ? false : prev
         scrolledRef.current = next
         return next
       })
+
+      // Hide the header on a deliberate scroll down, bring it back on a deliberate scroll up
+      // (or once we're back near the top) — an 8px dead zone keeps trivial jitter from flipping
+      // it, the same idea as the collapse hysteresis above.
+      const delta = y - lastScrollYRef.current
+      if (y < 80) setHeaderHidden(false)
+      else if (delta > 8) setHeaderHidden(true)
+      else if (delta < -8) setHeaderHidden(false)
+      lastScrollYRef.current = y
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -61,7 +73,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div ref={fixedRef} className="fixed top-0 left-0 right-0 z-50 [overflow-anchor:none]">
+      <div ref={fixedRef} className={`fixed top-0 left-0 right-0 z-50 [overflow-anchor:none] transition-transform duration-300 ease-in-out ${headerHidden ? '-translate-y-full' : 'translate-y-0'}`}>
         <TopUtilityBar collapsed={scrolled} />
         <Navbar onMenuClick={() => setSidebarOpen(v => !v)} scrolled={scrolled} />
       </div>
