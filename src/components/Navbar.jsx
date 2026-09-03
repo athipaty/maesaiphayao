@@ -60,6 +60,14 @@ export default function Navbar({ onMenuClick, scrolled }) {
                 </div>
               )}
             </div>
+            <div className="min-w-0">
+              <h1 className={`font-bold leading-tight tracking-wide text-gray-800 transition-[font-size] duration-300 ease-in-out ${scrolled ? 'text-sm lg:text-base' : 'text-base lg:text-2xl'}`}>
+                องค์การบริหารส่วนตำบลแม่ใส
+              </h1>
+              <p className={`text-[11px] lg:text-sm text-gray-500 truncate transition-[max-height,opacity] duration-300 ease-in-out overflow-hidden ${scrolled ? 'max-h-0 opacity-0' : 'max-h-6 opacity-100 hidden sm:block'}`}>
+                อ.เมืองพะเยา จ.พะเยา · โทร 0-5488-9909
+              </p>
+            </div>
           </Link>
 
           {/* Right side */}
