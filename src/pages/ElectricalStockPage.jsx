@@ -489,7 +489,7 @@ export default function ElectricalStockPage() {
       {/* ── Sidebar (desktop) ── */}
       <aside className="hidden lg:flex w-56 flex-shrink-0 bg-slate-900 text-slate-300 flex-col">
         <div className="px-5 py-5 border-b border-slate-800">
-          <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุ<br />กองช่าง</p>
+          <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุ<br />อบต.แม่ใส</p>
         </div>
         <div className="px-3 py-3 border-b border-slate-800 flex flex-col gap-1.5">
           {CATEGORIES.map(c => (
@@ -529,7 +529,7 @@ export default function ElectricalStockPage() {
             sidebarOpen ? 'translate-x-0' : 'translate-x-full'
           }`}>
           <div className="px-5 py-5 border-b border-slate-800 flex items-center justify-between gap-2">
-            <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุ<br />กองช่าง</p>
+            <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุ<br />อบต.แม่ใส</p>
             <button onClick={() => setSidebarOpen(false)} className="text-slate-400 hover:text-white text-xl flex-shrink-0" aria-label="ปิดเมนู">×</button>
           </div>
           <div className="px-3 py-3 border-b border-slate-800 flex flex-col gap-1.5">
