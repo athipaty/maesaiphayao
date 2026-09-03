@@ -25,7 +25,7 @@ const PUBLIC_SERVICE_ITEMS = [
 ]
 const PUBLIC_SERVICE_PATHS = PUBLIC_SERVICE_ITEMS.map(i => i.to)
 
-export default function Sidebar({ onNavigate, mobile = false }) {
+export default function Sidebar({ onNavigate, mobile = false, headerOffset = 0 }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
   const [menuPages, setMenuPages] = useState([])
   const [openSlug, setOpenSlug] = useState(null)
@@ -251,9 +251,11 @@ export default function Sidebar({ onNavigate, mobile = false }) {
         <p className="text-xs text-secondary mt-1">{settings.mayorPhone}</p>
       </div>
 
-      {/* Main menu */}
-      <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
-        <div className="bg-secondary text-white px-3.5 py-2.5 text-sm font-semibold flex items-center gap-2">
+      {/* Main menu — sticks below the header once it would otherwise scroll past it, so it
+          stays reachable while the page content underneath keeps scrolling */}
+      <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden sticky transition-[top] duration-300 ease-in-out"
+        style={{ top: headerOffset + 12, maxHeight: `calc(100vh - ${headerOffset + 24}px)`, overflowY: 'auto' }}>
+        <div className="bg-secondary text-white px-3.5 py-2.5 text-sm font-semibold flex items-center gap-2 sticky top-0 z-10">
           <span className="w-1 h-3.5 bg-accent rounded-sm inline-block"></span>
           เมนูหลัก
         </div>

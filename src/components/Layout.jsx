@@ -20,6 +20,10 @@ export default function Layout() {
   // the effect below for why it's frozen at the *expanded* measurement rather than tracking the
   // live (possibly collapsed) height.
   const [spacerHeight, setSpacerHeight] = useState(0)
+  // Live (non-frozen) header height, used only to offset the sticky sidebar menu below the
+  // header — unlike spacerHeight above, tracking the real-time height here is fine because it
+  // doesn't feed back into anything that affects this element's own box or scroll position.
+  const [liveHeaderHeight, setLiveHeaderHeight] = useState(0)
 
   useEffect(() => {
     // A single threshold here causes a feedback loop: collapsing the header shrinks its height by
@@ -66,6 +70,7 @@ export default function Layout() {
       // would itself be a plain block element resizing above wherever the user has already
       // scrolled to — inviting the exact same class of anchor-driven jump right back in.
       if (!scrolledRef.current) setSpacerHeight(entry.contentRect.height)
+      setLiveHeaderHeight(entry.contentRect.height)
     })
     ro.observe(el)
     return () => ro.disconnect()
@@ -96,7 +101,7 @@ export default function Layout() {
       </div>
 
       <div className="max-w-[1200px] mx-auto w-full px-3 py-4 flex gap-4 flex-1">
-        <Sidebar />
+        <Sidebar headerOffset={headerHidden ? 0 : liveHeaderHeight} />
         <main className="flex-1 min-w-0">
           <ChunkErrorBoundary>
             <Suspense fallback={<div className="py-16 text-center text-gray-400 text-sm animate-pulse">กำลังโหลด...</div>}>
