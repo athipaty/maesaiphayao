@@ -148,8 +148,9 @@ export default function ElectricalStockPage() {
   const [hideZeroStock, setHideZeroStock] = useState(true)
   const [hideZeroRegistry, setHideZeroRegistry] = useState(true)
 
-  const [printMode, setPrintMode] = useState(null) // null | 'report' | 'withdraw'
+  const [printMode, setPrintMode] = useState(null) // null | 'report' | 'withdraw' | 'ledger'
   const [withdrawSelection, setWithdrawSelection] = useState(new Set())
+  const [ledgerItem, setLedgerItem] = useState(null) // item whose full in/out history (บัญชีวัสดุ) is open
 
   const [signers, setSigners]           = useState(DEFAULT_REPORT_SIGNERS)
   const [signerModal, setSignerModal]   = useState(false)
@@ -255,6 +256,15 @@ export default function ElectricalStockPage() {
     () => historyFiltered.filter(t => t.type === 'จ่าย' && withdrawSelection.has(t._id)),
     [historyFiltered, withdrawSelection]
   )
+
+  // Full in/out history for one item (บัญชีวัสดุ) — oldest first, running balance from each txn
+  const ledgerTxns = useMemo(() => {
+    if (!ledgerItem) return []
+    return txns
+      .filter(t => String(t.item) === String(ledgerItem._id))
+      .slice()
+      .sort((a, b) => new Date(a.date) - new Date(b.date) || new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
+  }, [txns, ledgerItem])
 
   const yearSummaryRows = useMemo(() => {
     return items
@@ -674,6 +684,10 @@ export default function ElectricalStockPage() {
                         {isAdmin && (
                           <td className="p-2 border-b border-gray-50">
                             <div className="flex items-center justify-center gap-1">
+                              <button onClick={() => setLedgerItem(item)}
+                                className="text-[11px] px-2 py-1 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium transition-colors">
+                                📇 บัญชี
+                              </button>
                               <button onClick={() => openTxn(item, 'รับ')}
                                 className="text-[11px] px-2 py-1 rounded-md bg-green-50 text-green-600 hover:bg-green-100 font-medium transition-colors">
                                 รับเข้า
@@ -1133,6 +1147,127 @@ export default function ElectricalStockPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* ── Item ledger modal (บัญชีวัสดุ — full in/out history for one item) ── */}
+      {ledgerItem && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.45)' }}
+          onMouseDown={e => { if (e.target === e.currentTarget) setLedgerItem(null) }}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="bg-slate-800 text-white px-4 py-3 flex items-center justify-between flex-shrink-0">
+              <h3 className="text-sm font-semibold">📇 บัญชีวัสดุ — {ledgerItem.name}</h3>
+              <div className="flex items-center gap-3">
+                <button onClick={() => triggerPrint('ledger')} className="text-white/80 hover:text-white text-xs font-medium">🖨️ พิมพ์</button>
+                <button onClick={() => setLedgerItem(null)} className="text-white/70 hover:text-white text-lg">×</button>
+              </div>
+            </div>
+            <div className="p-4 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-600 mb-3 bg-gray-50 rounded-lg p-3">
+                <p>รหัสวัสดุ : <span className="font-semibold text-gray-800">{ledgerItem.code}</span></p>
+                <p>ประเภทวัสดุ : <span className="font-semibold text-gray-800">วัสดุไฟฟ้า</span></p>
+                <p>ชื่อวัสดุ : <span className="font-semibold text-gray-800">{ledgerItem.name}</span></p>
+                <p>หน่วยนับ : <span className="font-semibold text-gray-800">{ledgerItem.unit}</span></p>
+              </div>
+              {ledgerTxns.length === 0 ? (
+                <p className="text-center text-gray-400 text-sm py-8">ยังไม่มีประวัติรับ-จ่ายของวัสดุนี้</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50 text-gray-500">
+                        <th className="text-left p-2 border-b border-gray-100">วันที่</th>
+                        <th className="text-center p-2 border-b border-gray-100">รับ/จ่าย</th>
+                        <th className="text-left p-2 border-b border-gray-100">รับจาก/จ่ายให้</th>
+                        <th className="text-left p-2 border-b border-gray-100">เลขที่เอกสาร</th>
+                        <th className="text-right p-2 border-b border-gray-100">จำนวน</th>
+                        <th className="text-center p-2 border-b border-gray-100">หน่วย</th>
+                        <th className="text-right p-2 border-b border-gray-100">ราคาต่อหน่วย</th>
+                        <th className="text-right p-2 border-b border-gray-100">รวมเงิน</th>
+                        <th className="text-right p-2 border-b border-gray-100">คงเหลือ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ledgerTxns.map(t => (
+                        <tr key={t._id} className="hover:bg-slate-50">
+                          <td className="p-2 border-b border-gray-50 text-gray-500 whitespace-nowrap">{new Date(t.date).toLocaleDateString('th-TH')}</td>
+                          <td className="p-2 border-b border-gray-50 text-center">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${t.type === 'รับ' ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600'}`}>{t.type}</span>
+                          </td>
+                          <td className="p-2 border-b border-gray-50 text-gray-500">{t.party || '-'}</td>
+                          <td className="p-2 border-b border-gray-50 text-gray-500">{t.docNo || '-'}</td>
+                          <td className="p-2 border-b border-gray-50 text-right text-gray-600">{t.qty.toLocaleString()}</td>
+                          <td className="p-2 border-b border-gray-50 text-center text-gray-500">{t.unit}</td>
+                          <td className="p-2 border-b border-gray-50 text-right text-gray-500">{money2(t.unitPrice)}</td>
+                          <td className="p-2 border-b border-gray-50 text-right text-gray-500">{money2(t.amount ?? t.qty * (t.unitPrice || 0))}</td>
+                          <td className="p-2 border-b border-gray-50 text-right font-semibold text-gray-700">{t.balanceAfter.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-gray-50 font-semibold text-gray-700">
+                        <td className="p-2" colSpan={8}>คงเหลือปัจจุบัน</td>
+                        <td className="p-2 text-right">{(ledgerItem.balance || 0).toLocaleString()}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Print-only: บัญชีวัสดุ (item ledger) ── */}
+      {printMode === 'ledger' && ledgerItem && (
+      <div className="print-only p-6 text-black text-xs">
+        <h1 className="text-center text-lg font-bold mb-3">บัญชีวัสดุ</h1>
+        <div className="flex justify-between mb-1">
+          <p>ประเภทวัสดุ : วัสดุไฟฟ้า</p>
+          <p>รหัสวัสดุ : {ledgerItem.code}</p>
+        </div>
+        <div className="flex justify-between mb-3">
+          <p>ชื่อวัสดุ : {ledgerItem.name}</p>
+          <p>หน่วยนับ : {ledgerItem.unit}</p>
+        </div>
+        <table className="w-full border-collapse text-[11px]">
+          <thead>
+            <tr>
+              <th className="border border-black p-1">วันที่</th>
+              <th className="border border-black p-1">รับ/จ่าย</th>
+              <th className="border border-black p-1">รับจาก/จ่ายให้</th>
+              <th className="border border-black p-1">เลขที่เอกสาร</th>
+              <th className="border border-black p-1">ชื่อวัสดุ</th>
+              <th className="border border-black p-1">จำนวน</th>
+              <th className="border border-black p-1">หน่วย</th>
+              <th className="border border-black p-1">ราคาต่อหน่วย</th>
+              <th className="border border-black p-1">รวมเงิน</th>
+              <th className="border border-black p-1">คงเหลือ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ledgerTxns.map(t => (
+              <tr key={t._id}>
+                <td className="border border-black p-1 text-center">{thaiDateShort(t.date)}</td>
+                <td className="border border-black p-1 text-center">{t.type}</td>
+                <td className="border border-black p-1">{t.party || '-'}</td>
+                <td className="border border-black p-1">{t.docNo || '-'}</td>
+                <td className="border border-black p-1">{t.itemName}</td>
+                <td className="border border-black p-1 text-right">{t.qty.toLocaleString()}</td>
+                <td className="border border-black p-1 text-center">{t.unit}</td>
+                <td className="border border-black p-1 text-right">{money2(t.unitPrice)}</td>
+                <td className="border border-black p-1 text-right">{money2(t.amount ?? t.qty * (t.unitPrice || 0))}</td>
+                <td className="border border-black p-1 text-right">{t.balanceAfter.toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td className="border border-black p-1 text-center" colSpan={9}>-</td>
+              <td className="border border-black p-1 text-right font-semibold">{(ledgerItem.balance || 0).toLocaleString()}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
       )}
 
       {/* ── Edit report signers modal ── */}
