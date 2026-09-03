@@ -3,13 +3,17 @@ import {
   getStockItems, createStockItem, updateStockItem, deleteStockItem,
   getStockTransactions, createStockTransaction, deleteStockTransaction,
   loginAdmin, verifyAdmin, logoutAdmin,
+  getSettings, updateSetting,
 } from '../services/api'
 
 const EMPTY_ITEM = { code: '', name: '', unit: '', unitPrice: '', balance: '' }
 const EMPTY_TXN  = { itemId: '', type: 'จ่าย', qty: '', party: '', docNo: '', date: '', note: '', unitPrice: '' }
 
-// Signers shown on the printed "รายงานวัสดุคงเหลือ" report
-const REPORT_SIGNERS = [
+// Default signers shown on the printed "รายงานวัสดุคงเหลือ" report — editable
+// by admins, saved server-side under the "stockReportSigners" setting since
+// staff in these positions change over time.
+const REPORT_SIGNERS_SETTING_KEY = 'stockReportSigners'
+const DEFAULT_REPORT_SIGNERS = [
   { name: 'นายจิตรกร  แปงมูล', position: 'นายช่างไฟฟ้าชำนาญงาน' },
   { name: 'นายประวิทย์  อาจหาญ', position: 'ผู้อำนวยการกองช่าง' },
 ]
@@ -111,6 +115,7 @@ export default function ElectricalStockPage() {
   }
 
   const [tab, setTab] = useState('dashboard')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Live clock in the top bar — reinforces this is a live operational screen, not a static page
   const [now, setNow] = useState(new Date())
@@ -146,6 +151,11 @@ export default function ElectricalStockPage() {
   const [printMode, setPrintMode] = useState(null) // null | 'report' | 'withdraw'
   const [withdrawSelection, setWithdrawSelection] = useState(new Set())
 
+  const [signers, setSigners]           = useState(DEFAULT_REPORT_SIGNERS)
+  const [signerModal, setSignerModal]   = useState(false)
+  const [signerForm, setSignerForm]     = useState(DEFAULT_REPORT_SIGNERS)
+  const [signerSaving, setSignerSaving] = useState(false)
+
   useEffect(() => {
     const onAfterPrint = () => setPrintMode(null)
     window.addEventListener('afterprint', onAfterPrint)
@@ -165,6 +175,25 @@ export default function ElectricalStockPage() {
     })
   }
 
+  // ── Editable report signers (who signs the printed report / withdraw slip) ──
+  function openSignerModal() { setSignerForm(signers); setSignerModal(true) }
+  function updateSignerField(idx, field, value) {
+    setSignerForm(prev => prev.map((s, i) => i === idx ? { ...s, [field]: value } : s))
+  }
+  async function handleSaveSigners(e) {
+    e.preventDefault()
+    setSignerSaving(true)
+    try {
+      await updateSetting(REPORT_SIGNERS_SETTING_KEY, signerForm)
+      setSigners(signerForm)
+      setSignerModal(false)
+    } catch (err) {
+      alert(err?.response?.data?.error || 'บันทึกไม่สำเร็จ')
+    } finally {
+      setSignerSaving(false)
+    }
+  }
+
   async function runConfirm() {
     if (!confirmState) return
     setConfirmBusy(true)
@@ -175,12 +204,15 @@ export default function ElectricalStockPage() {
   async function load() {
     setLoading(true)
     try {
-      const [ri, rt] = await Promise.all([
+      const [ri, rt, rs] = await Promise.all([
         getStockItems({ all: 1 }),
         getStockTransactions({ limit: 2000 }),
+        getSettings().catch(() => null),
       ])
       setItems(ri?.data || [])
       setTxns(rt?.data || [])
+      const savedSigners = rs?.data?.[REPORT_SIGNERS_SETTING_KEY]
+      if (Array.isArray(savedSigners) && savedSigners.length === 2) setSigners(savedSigners)
     } finally {
       setLoading(false)
     }
@@ -405,8 +437,8 @@ export default function ElectricalStockPage() {
   return (
     <div className="min-h-screen bg-slate-100 flex" style={{ fontFamily: "'Sarabun', sans-serif" }}>
 
-      {/* ── Sidebar ── */}
-      <aside className="w-56 flex-shrink-0 bg-slate-900 text-slate-300 flex flex-col">
+      {/* ── Sidebar (desktop) ── */}
+      <aside className="hidden lg:flex w-56 flex-shrink-0 bg-slate-900 text-slate-300 flex-col">
         <div className="px-5 py-5 border-b border-slate-800">
           <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุไฟฟ้า<br />กองช่าง อบต.แม่ใส</p>
         </div>
@@ -430,18 +462,58 @@ export default function ElectricalStockPage() {
         </div>
       </aside>
 
+      {/* ── Sidebar (mobile) — slide-over drawer, toggled by the hamburger in the top bar ── */}
+      <div className={`fixed inset-0 z-[70] lg:hidden transition-opacity duration-300 ${
+          sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}>
+        <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
+        <div className={`absolute left-0 top-0 bottom-0 w-64 max-w-[80vw] bg-slate-900 text-slate-300 flex flex-col shadow-xl transition-transform duration-300 ease-out ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}>
+          <div className="px-5 py-5 border-b border-slate-800 flex items-center justify-between gap-2">
+            <p className="text-white font-bold text-base leading-snug">ระบบคลังวัสดุไฟฟ้า<br />กองช่าง อบต.แม่ใส</p>
+            <button onClick={() => setSidebarOpen(false)} className="text-slate-400 hover:text-white text-xl flex-shrink-0" aria-label="ปิดเมนู">×</button>
+          </div>
+          <nav className="flex-1 py-3 overflow-y-auto">
+            {NAV.map(n => (
+              <button key={n.key} onClick={() => { setTab(n.key); setSidebarOpen(false) }}
+                className={`w-full flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors border-l-2 ${
+                  tab === n.key
+                    ? 'bg-slate-800 text-white border-amber-400'
+                    : 'text-slate-400 border-transparent hover:bg-slate-800/60 hover:text-white'
+                }`}>
+                <span className="text-base">{n.icon}</span>{n.label}
+              </button>
+            ))}
+          </nav>
+          <div className="px-5 py-4 border-t border-slate-800">
+            <button onClick={handleLogout}
+              className="w-full flex items-center gap-2 text-[11px] text-slate-400 hover:text-red-400 transition-colors">
+              🚪 ออกจากระบบ
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* ── Main ── */}
       <div className="flex-1 min-w-0 flex flex-col">
 
         {/* Top bar */}
-        <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-wrap gap-2">
-          <h1 className="text-sm font-bold text-gray-800">{NAV.find(n => n.key === tab)?.icon} {NAV.find(n => n.key === tab)?.label}</h1>
-          <div className="flex items-center gap-4 text-xs text-gray-500">
-            <span className="flex items-center gap-1.5">
+        <div className="bg-white border-b border-gray-200 px-3 sm:px-6 py-3 flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <button onClick={() => setSidebarOpen(true)}
+              className="lg:hidden flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors text-lg"
+              aria-label="เปิดเมนู">
+              ☰
+            </button>
+            <h1 className="text-sm font-bold text-gray-800 truncate">{NAV.find(n => n.key === tab)?.icon} {NAV.find(n => n.key === tab)?.label}</h1>
+          </div>
+          <div className="flex items-center gap-3 sm:gap-4 text-xs text-gray-500">
+            <span className="hidden sm:flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-green-500 inline-block animate-pulse" />
               ออนไลน์
             </span>
-            <span className="hidden sm:inline">{now.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Bangkok' })}</span>
+            <span className="hidden md:inline">{now.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Bangkok' })}</span>
             <span className="font-mono font-semibold text-gray-700 tabular-nums">{now.toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok' })}</span>
           </div>
         </div>
@@ -748,6 +820,10 @@ export default function ElectricalStockPage() {
                   className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white font-medium transition-colors">
                   🖨️ พิมพ์รายงาน
                 </button>
+                <button onClick={openSignerModal}
+                  className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white font-medium transition-colors">
+                  ✏️ แก้ไขชื่อผู้ลงนาม
+                </button>
               </div>
             </div>
             {yearSummaryRows.length === 0 ? (
@@ -848,7 +924,7 @@ export default function ElectricalStockPage() {
         </table>
 
         <div className="flex justify-around mt-12 text-center">
-          {REPORT_SIGNERS.map((s, i) => (
+          {signers.map((s, i) => (
             <div key={i}>
               <p>ลงชื่อ ....................................................... ผู้จัดทำ</p>
               <p className="mt-1">( {s.name} )</p>
@@ -867,7 +943,7 @@ export default function ElectricalStockPage() {
           ? thaiDateShort(selectedWithdrawRows[0].date)
           : '.......................'}</p>
         <p className="mb-1">
-          ข้าพเจ้า {REPORT_SIGNERS[0].name} ตำแหน่ง {REPORT_SIGNERS[0].position}
+          ข้าพเจ้า {signers[0].name} ตำแหน่ง {signers[0].position}
         </p>
         <p className="mb-1">ขอเบิกวัสดุ ประเภท วัสดุไฟฟ้า เพื่อใช้ในงาน .....................................</p>
         <p className="mb-3">ดังรายการต่อไปนี้</p>
@@ -894,13 +970,13 @@ export default function ElectricalStockPage() {
         <div className="flex justify-around mt-12 text-center">
           <div>
             <p>ลงชื่อ ....................................................... ผู้เบิก</p>
-            <p className="mt-1">( {REPORT_SIGNERS[0].name} )</p>
-            <p>ตำแหน่ง {REPORT_SIGNERS[0].position}</p>
+            <p className="mt-1">( {signers[0].name} )</p>
+            <p>ตำแหน่ง {signers[0].position}</p>
           </div>
           <div>
             <p>ลงชื่อ ....................................................... ผู้จ่าย</p>
-            <p className="mt-1">( {REPORT_SIGNERS[1].name} )</p>
-            <p>ตำแหน่ง {REPORT_SIGNERS[1].position}</p>
+            <p className="mt-1">( {signers[1].name} )</p>
+            <p>ตำแหน่ง {signers[1].position}</p>
           </div>
         </div>
       </div>
@@ -1055,6 +1131,47 @@ export default function ElectricalStockPage() {
                 <button type="button" onClick={() => setTxnModal(false)} className="flex-1 btn-ghost">ยกเลิก</button>
                 <button type="submit" disabled={txnSaving} className="flex-1 btn-primary disabled:opacity-50">
                   {txnSaving ? 'กำลังบันทึก...' : 'บันทึก'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit report signers modal ── */}
+      {signerModal && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.45)' }}
+          onMouseDown={e => { if (e.target === e.currentTarget) setSignerModal(false) }}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div className="bg-slate-800 text-white px-4 py-3 flex items-center justify-between">
+              <h3 className="text-sm font-semibold">✏️ แก้ไขชื่อผู้ลงนาม</h3>
+              <button onClick={() => setSignerModal(false)} className="text-white/70 hover:text-white text-lg">×</button>
+            </div>
+            <form onSubmit={handleSaveSigners} className="p-4 space-y-4">
+              <p className="text-xs text-gray-400">
+                ชื่อ-ตำแหน่งผู้ลงนามที่แสดงบนรายงานวัสดุคงเหลือและใบเบิกวัสดุที่พิมพ์
+              </p>
+              {signerForm.map((s, idx) => (
+                <div key={idx} className="space-y-2 border border-gray-100 rounded-lg p-3">
+                  <p className="text-[11px] font-semibold text-gray-500">
+                    {idx === 0 ? 'ผู้ลงนามที่ 1 (ผู้จัดทำ / ผู้เบิก)' : 'ผู้ลงนามที่ 2 (ผู้จัดทำ / ผู้จ่าย)'}
+                  </p>
+                  <div>
+                    <label className="form-label">ชื่อ-สกุล</label>
+                    <input className="input" required value={s.name}
+                      onChange={e => updateSignerField(idx, 'name', e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="form-label">ตำแหน่ง</label>
+                    <input className="input" required value={s.position}
+                      onChange={e => updateSignerField(idx, 'position', e.target.value)} />
+                  </div>
+                </div>
+              ))}
+              <div className="flex gap-2 pt-1">
+                <button type="button" onClick={() => setSignerModal(false)} className="flex-1 btn-ghost">ยกเลิก</button>
+                <button type="submit" disabled={signerSaving} className="flex-1 btn-primary disabled:opacity-50">
+                  {signerSaving ? 'กำลังบันทึก...' : 'บันทึก'}
                 </button>
               </div>
             </form>
