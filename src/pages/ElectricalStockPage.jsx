@@ -597,7 +597,7 @@ export default function ElectricalStockPage() {
           {/* KPI cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-              <p className="text-2xl font-bold text-slate-800">{items.length}</p>
+              <p className="text-2xl font-bold text-slate-800">{categoryItems.length}</p>
               <p className="text-xs text-gray-400 mt-1">รายการวัสดุทั้งหมด</p>
             </div>
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
