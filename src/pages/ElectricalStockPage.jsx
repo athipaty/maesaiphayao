@@ -386,8 +386,8 @@ export default function ElectricalStockPage() {
               <span className="w-2 h-2 rounded-full bg-green-500 inline-block animate-pulse" />
               ออนไลน์
             </span>
-            <span className="hidden sm:inline">{now.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</span>
-            <span className="font-mono font-semibold text-gray-700 tabular-nums">{now.toLocaleTimeString('th-TH')}</span>
+            <span className="hidden sm:inline">{now.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Bangkok' })}</span>
+            <span className="font-mono font-semibold text-gray-700 tabular-nums">{now.toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok' })}</span>
           </div>
         </div>
 
