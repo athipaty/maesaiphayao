@@ -141,6 +141,7 @@ export default function ElectricalStockPage() {
   const [historyYear, setHistoryYear] = useState(currentFY)
   const [summaryYear, setSummaryYear] = useState(currentFY)
   const [hideZeroStock, setHideZeroStock] = useState(true)
+  const [hideZeroRegistry, setHideZeroRegistry] = useState(true)
 
   const [printMode, setPrintMode] = useState(null) // null | 'report' | 'withdraw'
   const [withdrawSelection, setWithdrawSelection] = useState(new Set())
@@ -189,9 +190,11 @@ export default function ElectricalStockPage() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
-    if (!q) return items
-    return items.filter(i => i.name.toLowerCase().includes(q) || String(i.code).includes(q))
-  }, [items, search])
+    let list = items
+    if (q) list = list.filter(i => i.name.toLowerCase().includes(q) || String(i.code).includes(q))
+    if (hideZeroRegistry) list = list.filter(i => (i.balance || 0) !== 0)
+    return list
+  }, [items, search, hideZeroRegistry])
 
   const totalValue = useMemo(() => items.reduce((s, i) => s + (i.balance || 0) * (i.unitPrice || 0), 0), [items])
   const lowStockItems = useMemo(() => items.filter(i => (i.balance || 0) <= 0), [items])
@@ -546,9 +549,19 @@ export default function ElectricalStockPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
             <h2 className="text-xs font-bold text-gray-700">📋 ทะเบียนวัสดุคงเหลือ</h2>
-            <button onClick={openAddItem} className="text-xs bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
-              + เพิ่มวัสดุใหม่
-            </button>
+            <div className="flex gap-2">
+              <button onClick={() => setHideZeroRegistry(v => !v)}
+                className={`text-[11px] px-3 py-1.5 rounded-full border font-medium transition-colors ${
+                  hideZeroRegistry
+                    ? 'bg-slate-800 text-white border-slate-800'
+                    : 'border-gray-200 text-gray-500 hover:border-slate-800 hover:text-slate-800 bg-white'
+                }`}>
+                {hideZeroRegistry ? '🙈 ซ่อนรายการหมดสต๊อก' : '👁️ แสดงรายการหมดสต๊อก'}
+              </button>
+              <button onClick={openAddItem} className="text-xs bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
+                + เพิ่มวัสดุใหม่
+              </button>
+            </div>
           </div>
           <div className="p-3">
             <input
@@ -813,7 +826,7 @@ export default function ElectricalStockPage() {
             </tr>
           </thead>
           <tbody>
-            {yearSummaryRows.map((r, idx) => (
+            {yearSummaryRowsDisplayed.map((r, idx) => (
               <tr key={r.item._id}>
                 <td className="border border-black p-1 text-center">{idx + 1}</td>
                 <td className="border border-black p-1">{r.item.name}</td>
