@@ -62,8 +62,9 @@ export default function TravelPage() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     : <div className="w-full h-full flex items-center justify-center text-5xl opacity-40">🏞️</div>
                   }
-                  {/* gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  {/* gradient overlay — confined to the bottom text strip, rest of the photo stays bright */}
+                  <div className="absolute inset-0 pointer-events-none"
+                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.65) 25%, transparent 55%)' }} />
                   {/* title on image */}
                   <div className="absolute bottom-0 left-0 right-0 px-4 py-3">
                     <h3 className="text-white font-bold text-sm leading-snug drop-shadow">{item.title}</h3>

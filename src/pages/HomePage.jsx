@@ -13,6 +13,36 @@ function getYoutubeId(url) {
   return m ? m[1] : ''
 }
 
+// Click-to-play facade — shows just the thumbnail until clicked, so the homepage doesn't load
+// YouTube's full (heavy) embed player JS for every video up front. Loading several live YouTube
+// iframes at once is a well-known cause of slow page loads; this defers that cost per-video.
+function LiteYoutube({ id, title }) {
+  const [playing, setPlaying] = useState(false)
+  if (playing) {
+    return (
+      <iframe
+        src={`https://www.youtube.com/embed/${id}?autoplay=1`}
+        className="w-full h-full"
+        title={title}
+        allow="autoplay; encrypted-media"
+        allowFullScreen
+      />
+    )
+  }
+  return (
+    <button type="button" onClick={() => setPlaying(true)}
+      className="relative w-full h-full block group" aria-label={`เล่นวิดีโอ: ${title}`}>
+      <img src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`} alt={title} loading="lazy"
+        className="w-full h-full object-cover" />
+      <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+        <span className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
+        </span>
+      </span>
+    </button>
+  )
+}
+
 function Reveal({ children, className = '' }) {
   const ref = useRef(null)
   const [visible, setVisible] = useState(false)
@@ -538,7 +568,8 @@ export default function HomePage() {
                         ? <img src={mainImg} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🏞️</div>
                       }
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                      <div className="absolute inset-0 pointer-events-none"
+                        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.65) 20%, transparent 50%)' }} />
                       <div className="absolute bottom-0 left-0 right-0 px-3 py-2">
                         <p className="text-white text-xs font-semibold leading-snug drop-shadow line-clamp-2">{item.title}</p>
                       </div>
@@ -596,13 +627,7 @@ export default function HomePage() {
               return (
                 <div key={i} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm bg-white">
                   <div className="aspect-video">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${id}`}
-                      className="w-full h-full"
-                      title={item.title}
-                      allowFullScreen
-                      loading="lazy"
-                    />
+                    <LiteYoutube id={id} title={item.title} />
                   </div>
                   <p className="text-xs font-medium text-gray-700 px-2 py-1.5 leading-snug line-clamp-2">{item.title}</p>
                 </div>
