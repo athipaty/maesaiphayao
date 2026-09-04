@@ -51,6 +51,7 @@ function thaiDateShort(dateInput) {
 
 const NAV = [
   { key: 'dashboard', icon: '🏠', label: 'แดชบอร์ด' },
+  { key: 'entry',     icon: '✍️', label: 'บันทึกรับ-จ่าย' },
   { key: 'registry',  icon: '📋', label: 'ทะเบียนวัสดุ' },
   { key: 'history',   icon: '🧾', label: 'ประวัติรับ-จ่าย' },
   { key: 'summary',   icon: '📈', label: 'รายงานประจำปี' },
@@ -157,10 +158,10 @@ export default function ElectricalStockPage() {
   const [itemForm, setItemForm]       = useState(EMPTY_ITEM)
   const [itemSaving, setItemSaving]   = useState(false)
 
-  const [txnModal, setTxnModal]   = useState(false)
-  const [txnForm, setTxnForm]     = useState(EMPTY_TXN)
-  const [txnSaving, setTxnSaving] = useState(false)
-  const [txnError, setTxnError]   = useState('')
+  const [entryForm, setEntryForm]       = useState({ ...EMPTY_TXN, type: 'รับ', date: todayStr() })
+  const [entrySaving, setEntrySaving]   = useState(false)
+  const [entryError, setEntryError]     = useState('')
+  const [entrySuccess, setEntrySuccess] = useState('')
 
   const [confirmState, setConfirmState] = useState(null) // { title, message, confirmLabel, onConfirm }
   const [confirmBusy, setConfirmBusy]   = useState(false)
@@ -387,38 +388,48 @@ export default function ElectricalStockPage() {
     })
   }
 
-  // ── Receive / withdraw transaction ──────────────────────────────────────
-  // `item` is optional — the dashboard's quick-entry buttons open this blank, with the item
-  // picked from a dropdown inside the modal, instead of always starting from a registry row.
-  function openTxn(item, type) {
-    setTxnForm({ ...EMPTY_TXN, itemId: item?._id || '', type, date: todayStr(), unitPrice: item ? String(item.unitPrice ?? '') : '' })
-    setTxnError('')
-    setTxnModal(true)
+  // ── Dedicated "บันทึกรับ-จ่าย" tab — a full data-entry screen (not a popup), for
+  // fast repeated entries: after each save it clears qty/party/docNo/note/price but
+  // keeps the item + type + date selected, so the next entry is one field away.
+  // `item` is optional — quick-entry buttons elsewhere on the page (dashboard, registry
+  // rows) jump here pre-filled with an item picked already, instead of a blank form.
+  function goEntry(item, type) {
+    setEntryForm({ ...EMPTY_TXN, itemId: item?._id || '', type, date: todayStr(), unitPrice: item ? String(item.unitPrice ?? '') : '' })
+    setEntryError('')
+    setEntrySuccess('')
+    setTab('entry')
   }
 
-  async function handleSubmitTxn(e) {
+  function postTxn(form) {
+    return createStockTransaction({
+      itemId: form.itemId,
+      type: form.type,
+      qty: Number(form.qty),
+      date: form.date || undefined,
+      party: form.party.trim(),
+      docNo: form.docNo.trim(),
+      note: form.note.trim(),
+      // Only meaningful for a receive — the backend ignores it for a withdrawal, which
+      // always values out at the item's current cost.
+      unitPrice: form.type === 'รับ' && form.unitPrice !== '' ? Number(form.unitPrice) : undefined,
+    })
+  }
+
+  async function handleSubmitEntry(e) {
     e.preventDefault()
-    setTxnError('')
-    setTxnSaving(true)
+    setEntryError('')
+    setEntrySuccess('')
+    setEntrySaving(true)
     try {
-      await createStockTransaction({
-        itemId: txnForm.itemId,
-        type: txnForm.type,
-        qty: Number(txnForm.qty),
-        date: txnForm.date || undefined,
-        party: txnForm.party.trim(),
-        docNo: txnForm.docNo.trim(),
-        note: txnForm.note.trim(),
-        // Only meaningful for a receive — the backend ignores it for a withdrawal, which
-        // always values out at the item's current cost.
-        unitPrice: txnForm.type === 'รับ' && txnForm.unitPrice !== '' ? Number(txnForm.unitPrice) : undefined,
-      })
-      setTxnModal(false)
+      await postTxn(entryForm)
+      const savedItem = items.find(i => i._id === entryForm.itemId)
+      setEntrySuccess(`บันทึก ${entryForm.type === 'รับ' ? 'รับเข้า' : 'เบิกจ่าย'} "${savedItem?.name || ''}" จำนวน ${entryForm.qty} ${savedItem?.unit || ''} สำเร็จ`)
+      setEntryForm(f => ({ ...f, qty: '', party: '', docNo: '', note: '' }))
       await load()
     } catch (err) {
-      setTxnError(err?.response?.data?.error || 'บันทึกไม่สำเร็จ')
+      setEntryError(err?.response?.data?.error || 'บันทึกไม่สำเร็จ')
     } finally {
-      setTxnSaving(false)
+      setEntrySaving(false)
     }
   }
 
@@ -438,7 +449,12 @@ export default function ElectricalStockPage() {
     })
   }
 
-  const txnItem = items.find(i => i._id === txnForm.itemId)
+  const entryItem = items.find(i => i._id === entryForm.itemId)
+  const entryRecent = useMemo(() =>
+    categoryTxns.filter(t => t.type === entryForm.type)
+      .sort((a, b) => new Date(b.date) - new Date(a.date) || new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+      .slice(0, 8),
+    [categoryTxns, entryForm.type])
 
   // Standalone page (no site header/sidebar — see App.jsx) with its own login wall: the whole
   // page requires the admin password to view at all, not just to edit.
@@ -616,7 +632,7 @@ export default function ElectricalStockPage() {
 
           {/* Quick entry */}
           <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => openTxn(null, 'รับ')}
+            <button onClick={() => goEntry(null, 'รับ')}
               className="bg-white rounded-xl shadow-sm border border-gray-100 hover:border-green-300 hover:shadow-md transition-all p-4 flex items-center gap-3 text-left">
               <span className="w-11 h-11 rounded-full bg-green-50 flex items-center justify-center text-xl flex-shrink-0">📥</span>
               <div>
@@ -624,7 +640,7 @@ export default function ElectricalStockPage() {
                 <p className="text-[11px] text-gray-400">บันทึกรายการรับวัสดุใหม่</p>
               </div>
             </button>
-            <button onClick={() => openTxn(null, 'จ่าย')}
+            <button onClick={() => goEntry(null, 'จ่าย')}
               className="bg-white rounded-xl shadow-sm border border-gray-100 hover:border-amber-300 hover:shadow-md transition-all p-4 flex items-center gap-3 text-left">
               <span className="w-11 h-11 rounded-full bg-amber-50 flex items-center justify-center text-xl flex-shrink-0">📤</span>
               <div>
@@ -674,7 +690,7 @@ export default function ElectricalStockPage() {
                   {lowStockItems.slice(0, 8).map(item => (
                     <li key={item._id} className="px-4 py-2.5 flex items-center justify-between gap-2.5 text-xs">
                       <span className="text-gray-700 truncate">{item.name}</span>
-                      <button onClick={() => openTxn(item, 'รับ')}
+                      <button onClick={() => goEntry(item, 'รับ')}
                         className="text-[10px] px-2 py-1 rounded-md bg-green-50 text-green-600 hover:bg-green-100 font-medium transition-colors flex-shrink-0">
                         รับเข้า
                       </button>
@@ -683,6 +699,141 @@ export default function ElectricalStockPage() {
                 </ul>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB: บันทึกรับ-จ่าย (dedicated data-entry screen, not a popup) ── */}
+      {tab === 'entry' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Entry form */}
+          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-100">
+              <h2 className="text-xs font-bold text-gray-700">✍️ บันทึกรายการรับ-จ่ายวัสดุ</h2>
+            </div>
+            <div className="p-4">
+              <div className="flex rounded-lg overflow-hidden border border-gray-200 mb-4">
+                {[['รับ', '📥 รับเข้า'], ['จ่าย', '📤 เบิกจ่าย']].map(([v, l]) => (
+                  <button key={v} type="button"
+                    onClick={() => { setEntryForm(f => ({ ...f, type: v })); setEntryError(''); setEntrySuccess('') }}
+                    className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
+                      entryForm.type === v
+                        ? (v === 'รับ' ? 'bg-green-600 text-white' : 'bg-amber-500 text-white')
+                        : 'bg-white text-gray-500 hover:bg-gray-50'
+                    }`}>
+                    {l}
+                  </button>
+                ))}
+              </div>
+
+              <form onSubmit={handleSubmitEntry} className="space-y-3">
+                <div>
+                  <label className="form-label">รายการวัสดุ</label>
+                  <select className="input" required value={entryForm.itemId}
+                    onChange={e => {
+                      const picked = items.find(i => i._id === e.target.value)
+                      setEntryForm(f => ({ ...f, itemId: e.target.value, unitPrice: picked ? String(picked.unitPrice ?? '') : '' }))
+                    }}>
+                    <option value="" disabled>เลือกวัสดุ...</option>
+                    {categoryItems.map(i => (
+                      <option key={i._id} value={i._id}>{i.code ? `[${i.code}] ` : ''}{i.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {entryItem && (
+                  <div className="bg-gray-50 rounded-lg px-3 py-2 text-xs">
+                    <p className="text-gray-400">
+                      คงเหลือปัจจุบัน: <span className="font-semibold text-gray-700">{(entryItem.balance || 0).toLocaleString()} {entryItem.unit}</span>
+                      {' '}· ราคาล่าสุด: <span className="font-semibold text-gray-700">฿{(entryItem.unitPrice || 0).toLocaleString()}</span>/{entryItem.unit}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="form-label">จำนวน</label>
+                    <input type="number" min="1" step="1" className="input" required value={entryForm.qty}
+                      onChange={e => setEntryForm(f => ({ ...f, qty: e.target.value }))} />
+                  </div>
+                  <div className="flex-1">
+                    <label className="form-label">วันที่</label>
+                    <input type="date" className="input" value={entryForm.date}
+                      onChange={e => setEntryForm(f => ({ ...f, date: e.target.value }))} />
+                  </div>
+                </div>
+
+                {entryForm.type === 'รับ' && (
+                  <div>
+                    <label className="form-label">ราคา/หน่วยที่รับ (฿)</label>
+                    <input type="number" min="0" step="0.01" className="input" value={entryForm.unitPrice}
+                      onChange={e => setEntryForm(f => ({ ...f, unitPrice: e.target.value }))}
+                      placeholder="เว้นว่างไว้ = ใช้ราคาเดิมของวัสดุ" />
+                    {entryItem && entryForm.unitPrice !== '' && Number(entryForm.unitPrice) !== entryItem.unitPrice && (
+                      <p className="text-[11px] text-amber-600 mt-1">
+                        ⚠️ ราคาต่างจากเดิม (฿{(entryItem.unitPrice || 0).toLocaleString()}) — ระบบจะอัปเดตราคาวัสดุเป็นราคานี้หลังบันทึก
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <div>
+                  <label className="form-label">{entryForm.type === 'รับ' ? 'รับจาก' : 'จ่ายให้ / ผู้เบิก'}</label>
+                  <input className="input" value={entryForm.party}
+                    onChange={e => setEntryForm(f => ({ ...f, party: e.target.value }))}
+                    placeholder={entryForm.type === 'รับ' ? 'เช่น ร้านค้า / ผู้จำหน่าย' : 'เช่น ชื่อผู้เบิก / งานที่ใช้'} />
+                </div>
+
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="form-label">เลขที่เอกสาร <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
+                    <input className="input" value={entryForm.docNo}
+                      onChange={e => setEntryForm(f => ({ ...f, docNo: e.target.value }))} />
+                  </div>
+                  <div className="flex-1">
+                    <label className="form-label">หมายเหตุ <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
+                    <input className="input" value={entryForm.note}
+                      onChange={e => setEntryForm(f => ({ ...f, note: e.target.value }))} />
+                  </div>
+                </div>
+
+                {entryError && <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2">{entryError}</p>}
+                {entrySuccess && <p className="text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2">✅ {entrySuccess}</p>}
+
+                <button type="submit" disabled={entrySaving || !entryForm.itemId}
+                  className={`w-full py-2.5 rounded-lg text-sm font-semibold text-white transition-colors disabled:opacity-50 ${
+                    entryForm.type === 'รับ' ? 'bg-green-600 hover:bg-green-700' : 'bg-amber-500 hover:bg-amber-600'
+                  }`}>
+                  {entrySaving ? 'กำลังบันทึก...' : entryForm.type === 'รับ' ? '📥 บันทึกรับเข้า' : '📤 บันทึกเบิกจ่าย'}
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {/* Recent entries of the same type — immediate feedback that the entry saved */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-fit">
+            <div className="px-4 py-3 border-b border-gray-100">
+              <h2 className="text-xs font-bold text-gray-700">
+                {entryForm.type === 'รับ' ? '🕐 รายการรับเข้าล่าสุด' : '🕐 รายการเบิกจ่ายล่าสุด'}
+              </h2>
+            </div>
+            {entryRecent.length === 0 ? (
+              <p className="text-center text-gray-400 text-xs py-8">ยังไม่มีรายการ</p>
+            ) : (
+              <ul className="divide-y divide-gray-50">
+                {entryRecent.map(t => (
+                  <li key={t._id} className="px-4 py-2.5 text-xs">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-gray-700 truncate font-medium">{t.itemName}</p>
+                      <span className={`font-semibold flex-shrink-0 ${t.type === 'รับ' ? 'text-green-600' : 'text-amber-600'}`}>
+                        {t.type === 'รับ' ? '+' : '-'}{t.qty.toLocaleString()} {t.unit}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-0.5">{new Date(t.date).toLocaleDateString('th-TH')} · {t.party || 'ไม่ระบุ'}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       )}
@@ -752,11 +903,11 @@ export default function ElectricalStockPage() {
                                 className="text-[11px] px-2 py-1 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium transition-colors">
                                 📇 บัญชี
                               </button>
-                              <button onClick={() => openTxn(item, 'รับ')}
+                              <button onClick={() => goEntry(item, 'รับ')}
                                 className="text-[11px] px-2 py-1 rounded-md bg-green-50 text-green-600 hover:bg-green-100 font-medium transition-colors">
                                 รับเข้า
                               </button>
-                              <button onClick={() => openTxn(item, 'จ่าย')}
+                              <button onClick={() => goEntry(item, 'จ่าย')}
                                 className="text-[11px] px-2 py-1 rounded-md bg-amber-50 text-amber-600 hover:bg-amber-100 font-medium transition-colors">
                                 เบิกจ่าย
                               </button>
@@ -1114,105 +1265,6 @@ export default function ElectricalStockPage() {
                 <button type="button" onClick={() => setItemModal(false)} className="flex-1 btn-ghost">ยกเลิก</button>
                 <button type="submit" disabled={itemSaving} className="flex-1 btn-primary disabled:opacity-50">
                   {itemSaving ? 'กำลังบันทึก...' : 'บันทึก'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ── Receive / withdraw modal ── */}
-      {txnModal && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.45)' }}
-          onMouseDown={e => { if (e.target === e.currentTarget) setTxnModal(false) }}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-            <div className="bg-slate-800 text-white px-4 py-3 flex items-center justify-between">
-              <h3 className="text-sm font-semibold">
-                {txnForm.type === 'รับ' ? '📥 บันทึกรับวัสดุเข้า' : '📤 บันทึกเบิกจ่ายวัสดุ'}
-              </h3>
-              <button onClick={() => setTxnModal(false)} className="text-white/70 hover:text-white text-lg">×</button>
-            </div>
-            <form onSubmit={handleSubmitTxn} className="p-4 space-y-3">
-              <div>
-                <label className="form-label">รายการวัสดุ</label>
-                <select className="input" required value={txnForm.itemId}
-                  onChange={e => {
-                    const picked = items.find(i => i._id === e.target.value)
-                    setTxnForm({ ...txnForm, itemId: e.target.value, unitPrice: picked ? String(picked.unitPrice ?? '') : '' })
-                  }}>
-                  <option value="" disabled>เลือกวัสดุ...</option>
-                  {categoryItems.map(i => (
-                    <option key={i._id} value={i._id}>{i.code ? `[${i.code}] ` : ''}{i.name}</option>
-                  ))}
-                </select>
-              </div>
-              {txnItem && (
-                <div className="bg-gray-50 rounded-lg px-3 py-2 text-xs">
-                  <p className="text-gray-400">คงเหลือปัจจุบัน: <span className="font-semibold text-gray-700">{(txnItem.balance || 0).toLocaleString()} {txnItem.unit}</span> · ราคาล่าสุด: <span className="font-semibold text-gray-700">฿{(txnItem.unitPrice || 0).toLocaleString()}</span>/{txnItem.unit}</p>
-                </div>
-              )}
-
-              <div className="flex rounded-lg overflow-hidden border border-gray-200">
-                {[['รับ', 'รับเข้า'], ['จ่าย', 'เบิกจ่าย']].map(([v, l]) => (
-                  <button key={v} type="button" onClick={() => setTxnForm({ ...txnForm, type: v })}
-                    className={`flex-1 py-2 text-xs font-semibold transition-colors ${txnForm.type === v ? 'bg-secondary text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
-                    {l}
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="form-label">จำนวน</label>
-                  <input type="number" min="1" step="1" className="input" required value={txnForm.qty}
-                    onChange={e => setTxnForm({ ...txnForm, qty: e.target.value })} />
-                </div>
-                <div className="flex-1">
-                  <label className="form-label">วันที่</label>
-                  <input type="date" className="input" value={txnForm.date}
-                    onChange={e => setTxnForm({ ...txnForm, date: e.target.value })} />
-                </div>
-              </div>
-
-              {txnForm.type === 'รับ' && (
-                <div>
-                  <label className="form-label">ราคา/หน่วยที่รับ (฿)</label>
-                  <input type="number" min="0" step="0.01" className="input" value={txnForm.unitPrice}
-                    onChange={e => setTxnForm({ ...txnForm, unitPrice: e.target.value })}
-                    placeholder="เว้นว่างไว้ = ใช้ราคาเดิมของวัสดุ" />
-                  {txnItem && txnForm.unitPrice !== '' && Number(txnForm.unitPrice) !== txnItem.unitPrice && (
-                    <p className="text-[11px] text-amber-600 mt-1">
-                      ⚠️ ราคาต่างจากเดิม (฿{(txnItem.unitPrice || 0).toLocaleString()}) — ระบบจะอัปเดตราคาวัสดุเป็นราคานี้หลังบันทึก
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <div>
-                <label className="form-label">{txnForm.type === 'รับ' ? 'รับจาก' : 'จ่ายให้ / ผู้เบิก'}</label>
-                <input className="input" value={txnForm.party}
-                  onChange={e => setTxnForm({ ...txnForm, party: e.target.value })}
-                  placeholder={txnForm.type === 'รับ' ? 'เช่น ร้านค้า / ผู้จำหน่าย' : 'เช่น ชื่อผู้เบิก / งานที่ใช้'} />
-              </div>
-
-              <div>
-                <label className="form-label">เลขที่เอกสาร <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
-                <input className="input" value={txnForm.docNo}
-                  onChange={e => setTxnForm({ ...txnForm, docNo: e.target.value })} />
-              </div>
-
-              <div>
-                <label className="form-label">หมายเหตุ <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
-                <input className="input" value={txnForm.note}
-                  onChange={e => setTxnForm({ ...txnForm, note: e.target.value })} />
-              </div>
-
-              {txnError && <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2">{txnError}</p>}
-
-              <div className="flex gap-2 pt-1">
-                <button type="button" onClick={() => setTxnModal(false)} className="flex-1 btn-ghost">ยกเลิก</button>
-                <button type="submit" disabled={txnSaving} className="flex-1 btn-primary disabled:opacity-50">
-                  {txnSaving ? 'กำลังบันทึก...' : 'บันทึก'}
                 </button>
               </div>
             </form>
