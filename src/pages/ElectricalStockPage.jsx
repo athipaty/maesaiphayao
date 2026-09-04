@@ -804,7 +804,7 @@ export default function ElectricalStockPage() {
                         const rowPrice = row.unitPrice !== '' ? (Number(row.unitPrice) || 0) : (rowItem?.unitPrice || 0)
                         const priceDiffers = entryForm.type === 'รับ' && rowItem && row.unitPrice !== '' && Number(row.unitPrice) !== rowItem.unitPrice
                         return (
-                          <tr key={idx} className="align-top">
+                          <tr key={idx} className="align-middle">
                             <td className="p-2 border-b border-gray-50 text-center text-gray-400">{idx + 1}</td>
                             <td className="p-2 border-b border-gray-50">
                               <select className="input py-1.5" value={row.itemId}
@@ -862,19 +862,23 @@ export default function ElectricalStockPage() {
                   </table>
                 </div>
 
-                <button type="button" onClick={addEntryRow} className="text-xs text-blue-600 hover:underline font-medium">
-                  + เพิ่มรายการ
-                </button>
+                <div>
+                  <button type="button" onClick={addEntryRow} className="text-xs text-blue-600 hover:underline font-medium">
+                    + เพิ่มรายการ
+                  </button>
+                </div>
 
                 {entryError && <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2">{entryError}</p>}
                 {entrySuccess && <p className="text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2">✅ {entrySuccess}</p>}
 
-                <button type="submit" disabled={entrySaving}
-                  className={`w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors disabled:opacity-50 ${
-                    entryForm.type === 'รับ' ? 'bg-green-600 hover:bg-green-700' : 'bg-amber-500 hover:bg-amber-600'
-                  }`}>
-                  {entrySaving ? 'กำลังบันทึก...' : entryForm.type === 'รับ' ? '📥 บันทึกรับเข้า' : '📤 บันทึกเบิกจ่าย'}
-                </button>
+                <div>
+                  <button type="submit" disabled={entrySaving}
+                    className={`w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors disabled:opacity-50 ${
+                      entryForm.type === 'รับ' ? 'bg-green-600 hover:bg-green-700' : 'bg-amber-500 hover:bg-amber-600'
+                    }`}>
+                    {entrySaving ? 'กำลังบันทึก...' : entryForm.type === 'รับ' ? '📥 บันทึกรับเข้า' : '📤 บันทึกเบิกจ่าย'}
+                  </button>
+                </div>
               </form>
             </div>
           </div>
