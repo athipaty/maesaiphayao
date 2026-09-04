@@ -8,6 +8,7 @@ import {
 
 const EMPTY_ITEM = { code: '', name: '', unit: '', unitPrice: '', balance: '', category: '' }
 const EMPTY_TXN  = { itemId: '', type: 'จ่าย', qty: '', party: '', docNo: '', date: '', note: '', unitPrice: '' }
+const EMPTY_ENTRY_ROW = { itemId: '', qty: '', unitPrice: '', note: '' }
 
 // Independently-tracked material categories sharing the same dashboard/registry/history/
 // summary tabs — the active one filters which items and transactions show everywhere.
@@ -158,7 +159,9 @@ export default function ElectricalStockPage() {
   const [itemForm, setItemForm]       = useState(EMPTY_ITEM)
   const [itemSaving, setItemSaving]   = useState(false)
 
-  const [entryForm, setEntryForm]       = useState({ ...EMPTY_TXN, type: 'รับ', date: todayStr() })
+  // Shared header (type/date/party/docNo entered once) + one or more item rows — for
+  // batch entries like "15 items received today on the same delivery note".
+  const [entryForm, setEntryForm] = useState({ type: 'รับ', date: todayStr(), party: '', docNo: '', rows: [{ ...EMPTY_ENTRY_ROW }] })
   const [entrySaving, setEntrySaving]   = useState(false)
   const [entryError, setEntryError]     = useState('')
   const [entrySuccess, setEntrySuccess] = useState('')
@@ -388,30 +391,44 @@ export default function ElectricalStockPage() {
     })
   }
 
-  // ── Dedicated "บันทึกรับ-จ่าย" tab — a full data-entry screen (not a popup), for
-  // fast repeated entries: after each save it clears qty/party/docNo/note/price but
-  // keeps the item + type + date selected, so the next entry is one field away.
+  // ── Dedicated "บันทึกรับ-จ่าย" tab — a full data-entry screen (not a popup) that batches
+  // several items under one shared type/date/party/docNo, for cases like "15 items received
+  // today on the same delivery note" where re-typing that header per item is wasted effort.
   // `item` is optional — quick-entry buttons elsewhere on the page (dashboard, registry
-  // rows) jump here pre-filled with an item picked already, instead of a blank form.
+  // rows) jump here pre-filled with a single row already picked, instead of a blank form.
   function goEntry(item, type) {
-    setEntryForm({ ...EMPTY_TXN, itemId: item?._id || '', type, date: todayStr(), unitPrice: item ? String(item.unitPrice ?? '') : '' })
+    setEntryForm({
+      type, date: todayStr(), party: '', docNo: '',
+      rows: [{ ...EMPTY_ENTRY_ROW, itemId: item?._id || '', unitPrice: item ? String(item.unitPrice ?? '') : '' }],
+    })
     setEntryError('')
     setEntrySuccess('')
     setTab('entry')
   }
 
-  function postTxn(form) {
+  function addEntryRow() {
+    setEntryForm(f => ({ ...f, rows: [...f.rows, { ...EMPTY_ENTRY_ROW }] }))
+  }
+  function removeEntryRow(idx) {
+    setEntryForm(f => ({ ...f, rows: f.rows.length > 1 ? f.rows.filter((_, i) => i !== idx) : f.rows }))
+  }
+  function updateEntryRow(idx, patch) {
+    setEntryForm(f => ({ ...f, rows: f.rows.map((r, i) => i === idx ? { ...r, ...patch } : r) }))
+  }
+
+  // header carries the shared type/date/party/docNo; row carries the per-item fields.
+  function postTxnRow(header, row) {
     return createStockTransaction({
-      itemId: form.itemId,
-      type: form.type,
-      qty: Number(form.qty),
-      date: form.date || undefined,
-      party: form.party.trim(),
-      docNo: form.docNo.trim(),
-      note: form.note.trim(),
+      itemId: row.itemId,
+      type: header.type,
+      qty: Number(row.qty),
+      date: header.date || undefined,
+      party: header.party.trim(),
+      docNo: header.docNo.trim(),
+      note: row.note.trim(),
       // Only meaningful for a receive — the backend ignores it for a withdrawal, which
       // always values out at the item's current cost.
-      unitPrice: form.type === 'รับ' && form.unitPrice !== '' ? Number(form.unitPrice) : undefined,
+      unitPrice: header.type === 'รับ' && row.unitPrice !== '' ? Number(row.unitPrice) : undefined,
     })
   }
 
@@ -419,15 +436,29 @@ export default function ElectricalStockPage() {
     e.preventDefault()
     setEntryError('')
     setEntrySuccess('')
+    const validRows = entryForm.rows.filter(r => r.itemId && Number(r.qty) > 0)
+    if (validRows.length === 0) {
+      setEntryError('กรุณาเลือกวัสดุและระบุจำนวนอย่างน้อย 1 รายการ')
+      return
+    }
     setEntrySaving(true)
+    let savedCount = 0
     try {
-      await postTxn(entryForm)
-      const savedItem = items.find(i => i._id === entryForm.itemId)
-      setEntrySuccess(`บันทึก ${entryForm.type === 'รับ' ? 'รับเข้า' : 'เบิกจ่าย'} "${savedItem?.name || ''}" จำนวน ${entryForm.qty} ${savedItem?.unit || ''} สำเร็จ`)
-      setEntryForm(f => ({ ...f, qty: '', party: '', docNo: '', note: '' }))
+      // Sequential, not Promise.all — several rows can share the same item, and each
+      // transaction's balance/cost update depends on the previous one having landed.
+      for (const row of validRows) {
+        await postTxnRow(entryForm, row)
+        savedCount++
+      }
+      setEntrySuccess(`บันทึก${entryForm.type === 'รับ' ? 'รับเข้า' : 'เบิกจ่าย'}สำเร็จ ${savedCount} รายการ`)
+      setEntryForm(f => ({ ...f, party: '', docNo: '', rows: [{ ...EMPTY_ENTRY_ROW }] }))
       await load()
     } catch (err) {
-      setEntryError(err?.response?.data?.error || 'บันทึกไม่สำเร็จ')
+      const reason = err?.response?.data?.error || 'บันทึกไม่สำเร็จ'
+      setEntryError(savedCount > 0
+        ? `บันทึกไปแล้ว ${savedCount} รายการ ก่อนเกิดข้อผิดพลาด: ${reason} — รายการที่บันทึกแล้วจะไม่ถูกยกเลิกอัตโนมัติ ตรวจสอบได้ที่ประวัติรับ-จ่าย`
+        : reason)
+      await load()
     } finally {
       setEntrySaving(false)
     }
@@ -449,12 +480,18 @@ export default function ElectricalStockPage() {
     })
   }
 
-  const entryItem = items.find(i => i._id === entryForm.itemId)
   const entryRecent = useMemo(() =>
     categoryTxns.filter(t => t.type === entryForm.type)
       .sort((a, b) => new Date(b.date) - new Date(a.date) || new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
       .slice(0, 8),
     [categoryTxns, entryForm.type])
+
+  const entryRowTotals = useMemo(() => entryForm.rows.reduce((acc, r) => {
+    const item = items.find(i => i._id === r.itemId)
+    const qty = Number(r.qty) || 0
+    const price = r.unitPrice !== '' ? Number(r.unitPrice) || 0 : (item?.unitPrice || 0)
+    return { qty: acc.qty + (item ? qty : 0), amount: acc.amount + (item ? qty * price : 0) }
+  }, { qty: 0, amount: 0 }), [entryForm.rows, items])
 
   // Standalone page (no site header/sidebar — see App.jsx) with its own login wall: the whole
   // page requires the admin password to view at all, not just to edit.
@@ -705,14 +742,15 @@ export default function ElectricalStockPage() {
 
       {/* ── TAB: บันทึกรับ-จ่าย (dedicated data-entry screen, not a popup) ── */}
       {tab === 'entry' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Entry form */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="space-y-4">
+          {/* Entry form — one shared type/date/party/docNo header, then a row per item so a
+              whole delivery note or requisition can be logged in one submit. */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-100">
               <h2 className="text-xs font-bold text-gray-700">✍️ บันทึกรายการรับ-จ่ายวัสดุ</h2>
             </div>
             <div className="p-4">
-              <div className="flex rounded-lg overflow-hidden border border-gray-200 mb-4">
+              <div className="flex rounded-lg overflow-hidden border border-gray-200 mb-4 max-w-md">
                 {[['รับ', '📥 รับเข้า'], ['จ่าย', '📤 เบิกจ่าย']].map(([v, l]) => (
                   <button key={v} type="button"
                     onClick={() => { setEntryForm(f => ({ ...f, type: v })); setEntryError(''); setEntrySuccess('') }}
@@ -727,81 +765,112 @@ export default function ElectricalStockPage() {
               </div>
 
               <form onSubmit={handleSubmitEntry} className="space-y-3">
-                <div>
-                  <label className="form-label">รายการวัสดุ</label>
-                  <select className="input" required value={entryForm.itemId}
-                    onChange={e => {
-                      const picked = items.find(i => i._id === e.target.value)
-                      setEntryForm(f => ({ ...f, itemId: e.target.value, unitPrice: picked ? String(picked.unitPrice ?? '') : '' }))
-                    }}>
-                    <option value="" disabled>เลือกวัสดุ...</option>
-                    {categoryItems.map(i => (
-                      <option key={i._id} value={i._id}>{i.code ? `[${i.code}] ` : ''}{i.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {entryItem && (
-                  <div className="bg-gray-50 rounded-lg px-3 py-2 text-xs">
-                    <p className="text-gray-400">
-                      คงเหลือปัจจุบัน: <span className="font-semibold text-gray-700">{(entryItem.balance || 0).toLocaleString()} {entryItem.unit}</span>
-                      {' '}· ราคาล่าสุด: <span className="font-semibold text-gray-700">฿{(entryItem.unitPrice || 0).toLocaleString()}</span>/{entryItem.unit}
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <label className="form-label">จำนวน</label>
-                    <input type="number" min="1" step="1" className="input" required value={entryForm.qty}
-                      onChange={e => setEntryForm(f => ({ ...f, qty: e.target.value }))} />
-                  </div>
-                  <div className="flex-1">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div>
                     <label className="form-label">วันที่</label>
                     <input type="date" className="input" value={entryForm.date}
                       onChange={e => setEntryForm(f => ({ ...f, date: e.target.value }))} />
                   </div>
-                </div>
-
-                {entryForm.type === 'รับ' && (
                   <div>
-                    <label className="form-label">ราคา/หน่วยที่รับ (฿)</label>
-                    <input type="number" min="0" step="0.01" className="input" value={entryForm.unitPrice}
-                      onChange={e => setEntryForm(f => ({ ...f, unitPrice: e.target.value }))}
-                      placeholder="เว้นว่างไว้ = ใช้ราคาเดิมของวัสดุ" />
-                    {entryItem && entryForm.unitPrice !== '' && Number(entryForm.unitPrice) !== entryItem.unitPrice && (
-                      <p className="text-[11px] text-amber-600 mt-1">
-                        ⚠️ ราคาต่างจากเดิม (฿{(entryItem.unitPrice || 0).toLocaleString()}) — ระบบจะอัปเดตราคาวัสดุเป็นราคานี้หลังบันทึก
-                      </p>
-                    )}
+                    <label className="form-label">{entryForm.type === 'รับ' ? 'รับจาก' : 'จ่ายให้ / ผู้เบิก'}</label>
+                    <input className="input" value={entryForm.party}
+                      onChange={e => setEntryForm(f => ({ ...f, party: e.target.value }))}
+                      placeholder={entryForm.type === 'รับ' ? 'เช่น ร้านค้า / ผู้จำหน่าย' : 'เช่น ชื่อผู้เบิก / งานที่ใช้'} />
                   </div>
-                )}
-
-                <div>
-                  <label className="form-label">{entryForm.type === 'รับ' ? 'รับจาก' : 'จ่ายให้ / ผู้เบิก'}</label>
-                  <input className="input" value={entryForm.party}
-                    onChange={e => setEntryForm(f => ({ ...f, party: e.target.value }))}
-                    placeholder={entryForm.type === 'รับ' ? 'เช่น ร้านค้า / ผู้จำหน่าย' : 'เช่น ชื่อผู้เบิก / งานที่ใช้'} />
-                </div>
-
-                <div className="flex gap-2">
-                  <div className="flex-1">
+                  <div>
                     <label className="form-label">เลขที่เอกสาร <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
                     <input className="input" value={entryForm.docNo}
                       onChange={e => setEntryForm(f => ({ ...f, docNo: e.target.value }))} />
                   </div>
-                  <div className="flex-1">
-                    <label className="form-label">หมายเหตุ <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
-                    <input className="input" value={entryForm.note}
-                      onChange={e => setEntryForm(f => ({ ...f, note: e.target.value }))} />
-                  </div>
                 </div>
+
+                <div className="overflow-x-auto border border-gray-100 rounded-lg">
+                  <table className="w-full text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50 text-gray-500">
+                        <th className="text-center p-2 w-8">#</th>
+                        <th className="text-left p-2 min-w-[190px]">รายการวัสดุ</th>
+                        <th className="text-right p-2 w-24">จำนวน</th>
+                        {entryForm.type === 'รับ' && <th className="text-right p-2 w-28">ราคา/หน่วย</th>}
+                        <th className="text-right p-2 w-28">จำนวนเงิน</th>
+                        <th className="text-left p-2 min-w-[140px]">หมายเหตุ</th>
+                        <th className="p-2 w-8"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {entryForm.rows.map((row, idx) => {
+                        const rowItem = items.find(i => i._id === row.itemId)
+                        const rowQty = Number(row.qty) || 0
+                        const rowPrice = row.unitPrice !== '' ? (Number(row.unitPrice) || 0) : (rowItem?.unitPrice || 0)
+                        const priceDiffers = entryForm.type === 'รับ' && rowItem && row.unitPrice !== '' && Number(row.unitPrice) !== rowItem.unitPrice
+                        return (
+                          <tr key={idx} className="align-top">
+                            <td className="p-2 border-b border-gray-50 text-center text-gray-400">{idx + 1}</td>
+                            <td className="p-2 border-b border-gray-50">
+                              <select className="input py-1.5" value={row.itemId}
+                                onChange={e => {
+                                  const picked = items.find(i => i._id === e.target.value)
+                                  updateEntryRow(idx, { itemId: e.target.value, unitPrice: picked ? String(picked.unitPrice ?? '') : '' })
+                                }}>
+                                <option value="">เลือกวัสดุ...</option>
+                                {categoryItems.map(i => (
+                                  <option key={i._id} value={i._id}>{i.code ? `[${i.code}] ` : ''}{i.name}</option>
+                                ))}
+                              </select>
+                              {rowItem && (
+                                <p className="text-[10px] text-gray-400 mt-0.5">คงเหลือ {(rowItem.balance || 0).toLocaleString()} {rowItem.unit}</p>
+                              )}
+                            </td>
+                            <td className="p-2 border-b border-gray-50">
+                              <input type="number" min="1" step="1" className="input py-1.5 text-right" value={row.qty}
+                                onChange={e => updateEntryRow(idx, { qty: e.target.value })} />
+                            </td>
+                            {entryForm.type === 'รับ' && (
+                              <td className="p-2 border-b border-gray-50">
+                                <input type="number" min="0" step="0.01" className="input py-1.5 text-right" value={row.unitPrice}
+                                  onChange={e => updateEntryRow(idx, { unitPrice: e.target.value })}
+                                  placeholder={rowItem ? String(rowItem.unitPrice ?? 0) : ''} />
+                                {priceDiffers && <p className="text-[10px] text-amber-600 mt-0.5">⚠️ ต่างจากเดิม</p>}
+                              </td>
+                            )}
+                            <td className="p-2 border-b border-gray-50 text-right text-gray-600 whitespace-nowrap">
+                              {rowItem ? (rowQty * rowPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-'}
+                            </td>
+                            <td className="p-2 border-b border-gray-50">
+                              <input className="input py-1.5" value={row.note}
+                                onChange={e => updateEntryRow(idx, { note: e.target.value })} />
+                            </td>
+                            <td className="p-2 border-b border-gray-50 text-center">
+                              <button type="button" onClick={() => removeEntryRow(idx)} disabled={entryForm.rows.length === 1}
+                                className="text-gray-300 hover:text-red-500 disabled:opacity-30 disabled:hover:text-gray-300 text-base leading-none">
+                                ×
+                              </button>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-gray-50 font-semibold text-gray-700">
+                        <td className="p-2" colSpan={2}>รวมรายการ</td>
+                        <td className="p-2 text-right">{entryRowTotals.qty.toLocaleString()}</td>
+                        {entryForm.type === 'รับ' && <td className="p-2"></td>}
+                        <td className="p-2 text-right">฿{entryRowTotals.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td className="p-2" colSpan={2}></td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+
+                <button type="button" onClick={addEntryRow} className="text-xs text-blue-600 hover:underline font-medium">
+                  + เพิ่มรายการ
+                </button>
 
                 {entryError && <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2">{entryError}</p>}
                 {entrySuccess && <p className="text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2">✅ {entrySuccess}</p>}
 
-                <button type="submit" disabled={entrySaving || !entryForm.itemId}
-                  className={`w-full py-2.5 rounded-lg text-sm font-semibold text-white transition-colors disabled:opacity-50 ${
+                <button type="submit" disabled={entrySaving}
+                  className={`w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors disabled:opacity-50 ${
                     entryForm.type === 'รับ' ? 'bg-green-600 hover:bg-green-700' : 'bg-amber-500 hover:bg-amber-600'
                   }`}>
                   {entrySaving ? 'กำลังบันทึก...' : entryForm.type === 'รับ' ? '📥 บันทึกรับเข้า' : '📤 บันทึกเบิกจ่าย'}
@@ -810,8 +879,8 @@ export default function ElectricalStockPage() {
             </div>
           </div>
 
-          {/* Recent entries of the same type — immediate feedback that the entry saved */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-fit">
+          {/* Recent entries of the same type — immediate feedback that entries saved */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-100">
               <h2 className="text-xs font-bold text-gray-700">
                 {entryForm.type === 'รับ' ? '🕐 รายการรับเข้าล่าสุด' : '🕐 รายการเบิกจ่ายล่าสุด'}
@@ -820,16 +889,16 @@ export default function ElectricalStockPage() {
             {entryRecent.length === 0 ? (
               <p className="text-center text-gray-400 text-xs py-8">ยังไม่มีรายการ</p>
             ) : (
-              <ul className="divide-y divide-gray-50">
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-4 divide-y divide-gray-50 md:divide-y-0">
                 {entryRecent.map(t => (
-                  <li key={t._id} className="px-4 py-2.5 text-xs">
+                  <li key={t._id} className="px-4 py-2.5 text-xs md:border-b md:border-gray-50">
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-gray-700 truncate font-medium">{t.itemName}</p>
                       <span className={`font-semibold flex-shrink-0 ${t.type === 'รับ' ? 'text-green-600' : 'text-amber-600'}`}>
                         {t.type === 'รับ' ? '+' : '-'}{t.qty.toLocaleString()} {t.unit}
                       </span>
                     </div>
-                    <p className="text-[10px] text-gray-400 mt-0.5">{new Date(t.date).toLocaleDateString('th-TH')} · {t.party || 'ไม่ระบุ'}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">{new Date(t.date).toLocaleDateString('th-TH')} · {t.party || 'ไม่ระบุ'} {t.docNo ? `· ${t.docNo}` : ''}</p>
                   </li>
                 ))}
               </ul>
