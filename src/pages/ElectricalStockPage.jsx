@@ -762,10 +762,11 @@ export default function ElectricalStockPage() {
 
       {/* ── TAB: บันทึกรับ-จ่าย (dedicated data-entry screen, not a popup) ── */}
       {tab === 'entry' && (
-        <div className="space-y-4">
+        <div className="flex flex-col lg:flex-row gap-4 items-start">
           {/* Entry form — one shared type/date/party/docNo header, then a row per item so a
-              whole delivery note or requisition can be logged in one submit. */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              whole delivery note or requisition can be logged in one submit. Takes the
+              remaining width so it isn't squeezed by the recent-entries sidebar. */}
+          <div className="w-full lg:flex-1 lg:min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-100">
               <h2 className="text-xs font-bold text-gray-700">✍️ บันทึกรายการรับ-จ่ายวัสดุ</h2>
             </div>
@@ -833,18 +834,16 @@ export default function ElectricalStockPage() {
                             <td className="p-2 border-b border-gray-50 text-center text-gray-400">{idx + 1}</td>
                             <td className="p-2 border-b border-gray-50">
                               <select className="input py-1.5" value={row.itemId}
+                                title={rowItem ? `คงเหลือ ${(rowItem.balance || 0).toLocaleString()} ${rowItem.unit}` : undefined}
                                 onChange={e => {
                                   const picked = items.find(i => i._id === e.target.value)
                                   updateEntryRow(idx, { itemId: e.target.value, unitPrice: picked ? String(picked.unitPrice ?? '') : '' })
                                 }}>
                                 <option value="">เลือกวัสดุ...</option>
                                 {categoryItems.map(i => (
-                                  <option key={i._id} value={i._id}>{i.code ? `[${i.code}] ` : ''}{i.name}</option>
+                                  <option key={i._id} value={i._id}>{i.code ? `[${i.code}] ` : ''}{i.name}{i.balance != null ? ` (คงเหลือ ${i.balance.toLocaleString()} ${i.unit})` : ''}</option>
                                 ))}
                               </select>
-                              {rowItem && (
-                                <p className="text-[10px] text-gray-400 mt-0.5">คงเหลือ {(rowItem.balance || 0).toLocaleString()} {rowItem.unit}</p>
-                              )}
                             </td>
                             <td className="p-2 border-b border-gray-50">
                               <input type="number" min="1" step="1" className="input py-1.5 text-right" value={row.qty}
@@ -916,8 +915,9 @@ export default function ElectricalStockPage() {
             </div>
           </div>
 
-          {/* Recent entries of the same type — immediate feedback that entries saved */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Recent entries of the same type — a narrow sidebar, not full width, so it
+              doesn't compete with the form for space */}
+          <div className="w-full lg:w-72 lg:flex-shrink-0 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-100">
               <h2 className="text-xs font-bold text-gray-700">
                 {entryForm.type === 'รับ' ? '🕐 รายการรับเข้าล่าสุด' : '🕐 รายการเบิกจ่ายล่าสุด'}
@@ -926,9 +926,9 @@ export default function ElectricalStockPage() {
             {entryRecent.length === 0 ? (
               <p className="text-center text-gray-400 text-xs py-8">ยังไม่มีรายการ</p>
             ) : (
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-4 divide-y divide-gray-50 md:divide-y-0">
+              <ul className="divide-y divide-gray-50">
                 {entryRecent.map(t => (
-                  <li key={t._id} className="px-4 py-2.5 text-xs md:border-b md:border-gray-50">
+                  <li key={t._id} className="px-4 py-2.5 text-xs">
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-gray-700 truncate font-medium">{t.itemName}</p>
                       <span className={`font-semibold flex-shrink-0 ${t.type === 'รับ' ? 'text-green-600' : 'text-amber-600'}`}>
