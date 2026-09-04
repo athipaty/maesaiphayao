@@ -177,6 +177,8 @@ export default function ElectricalStockPage() {
 
   const [printMode, setPrintMode] = useState(null) // null | 'report' | 'withdraw' | 'ledger'
   const [withdrawSelection, setWithdrawSelection] = useState(new Set())
+  const [withdrawPrintSource, setWithdrawPrintSource] = useState('history') // 'history' | 'entry' — which rows the withdraw slip prints
+  const [lastWithdrawBatch, setLastWithdrawBatch] = useState(null) // { date, rows: [{ itemName, qty, unit }] } from the entry tab's last submitted withdrawal
   const [ledgerItem, setLedgerItem] = useState(null) // item whose full in/out history (บัญชีวัสดุ) is open
 
   const [signerSettings, setSignerSettings] = useState({}) // { [category]: [signer1, signer2] }, loaded from server
@@ -297,6 +299,15 @@ export default function ElectricalStockPage() {
     () => historyFiltered.filter(t => t.type === 'จ่าย' && withdrawSelection.has(t._id)),
     [historyFiltered, withdrawSelection]
   )
+
+  // The withdraw slip prints either the history tab's checked rows, or (right after a batch
+  // withdrawal) the rows just submitted from the entry tab — whichever was triggered last.
+  const withdrawPrintRows = withdrawPrintSource === 'entry' && lastWithdrawBatch ? lastWithdrawBatch.rows : selectedWithdrawRows
+  const withdrawPrintDateLabel = withdrawPrintSource === 'entry' && lastWithdrawBatch
+    ? thaiDateShort(lastWithdrawBatch.date)
+    : (selectedWithdrawRows.length && new Set(selectedWithdrawRows.map(t => new Date(t.date).toDateString())).size === 1
+        ? thaiDateShort(selectedWithdrawRows[0].date)
+        : '.......................')
 
   // Full in/out history for one item (บัญชีวัสดุ) — oldest first, running balance from each txn
   const ledgerTxns = useMemo(() => {
@@ -451,6 +462,15 @@ export default function ElectricalStockPage() {
         savedCount++
       }
       setEntrySuccess(`บันทึก${entryForm.type === 'รับ' ? 'รับเข้า' : 'เบิกจ่าย'}สำเร็จ ${savedCount} รายการ`)
+      if (entryForm.type === 'จ่าย') {
+        setLastWithdrawBatch({
+          date: entryForm.date,
+          rows: validRows.map(row => {
+            const item = items.find(i => i._id === row.itemId)
+            return { itemName: item?.name || '', qty: Number(row.qty), unit: item?.unit || '' }
+          }),
+        })
+      }
       setEntryForm(f => ({ ...f, party: '', docNo: '', rows: [{ ...EMPTY_ENTRY_ROW }] }))
       await load()
     } catch (err) {
@@ -753,7 +773,12 @@ export default function ElectricalStockPage() {
               <div className="flex rounded-lg overflow-hidden border border-gray-200 mb-4 max-w-md">
                 {[['รับ', '📥 รับเข้า'], ['จ่าย', '📤 เบิกจ่าย']].map(([v, l]) => (
                   <button key={v} type="button"
-                    onClick={() => { setEntryForm(f => ({ ...f, type: v })); setEntryError(''); setEntrySuccess('') }}
+                    onClick={() => {
+                      setEntryForm(f => ({ ...f, type: v }))
+                      setEntryError('')
+                      setEntrySuccess('')
+                      if (v !== 'จ่าย') setLastWithdrawBatch(null)
+                    }}
                     className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
                       entryForm.type === v
                         ? (v === 'รับ' ? 'bg-green-600 text-white' : 'bg-amber-500 text-white')
@@ -849,6 +874,13 @@ export default function ElectricalStockPage() {
                           </tr>
                         )
                       })}
+                      <tr>
+                        <td className="p-2 border-b border-gray-50" colSpan={entryForm.type === 'รับ' ? 7 : 6}>
+                          <button type="button" onClick={addEntryRow} className="text-xs text-blue-600 hover:underline font-medium">
+                            + เพิ่มรายการ
+                          </button>
+                        </td>
+                      </tr>
                     </tbody>
                     <tfoot>
                       <tr className="bg-gray-50 font-semibold text-gray-700">
@@ -862,22 +894,23 @@ export default function ElectricalStockPage() {
                   </table>
                 </div>
 
-                <div>
-                  <button type="button" onClick={addEntryRow} className="text-xs text-blue-600 hover:underline font-medium">
-                    + เพิ่มรายการ
-                  </button>
-                </div>
-
                 {entryError && <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2">{entryError}</p>}
                 {entrySuccess && <p className="text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2">✅ {entrySuccess}</p>}
 
-                <div>
+                <div className="flex flex-wrap items-center gap-2">
                   <button type="submit" disabled={entrySaving}
                     className={`w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors disabled:opacity-50 ${
                       entryForm.type === 'รับ' ? 'bg-green-600 hover:bg-green-700' : 'bg-amber-500 hover:bg-amber-600'
                     }`}>
                     {entrySaving ? 'กำลังบันทึก...' : entryForm.type === 'รับ' ? '📥 บันทึกรับเข้า' : '📤 บันทึกเบิกจ่าย'}
                   </button>
+                  {entryForm.type === 'จ่าย' && lastWithdrawBatch && (
+                    <button type="button"
+                      onClick={() => { setWithdrawPrintSource('entry'); triggerPrint('withdraw') }}
+                      className="text-xs px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white font-medium transition-colors">
+                      🖨️ พิมพ์ใบเบิกวัสดุ (รายการที่เพิ่งบันทึก)
+                    </button>
+                  )}
                 </div>
               </form>
             </div>
@@ -1027,7 +1060,7 @@ export default function ElectricalStockPage() {
                     ล้างการเลือก
                   </button>
                 )}
-                <button onClick={() => triggerPrint('withdraw')} disabled={selectedWithdrawRows.length === 0}
+                <button onClick={() => { setWithdrawPrintSource('history'); triggerPrint('withdraw') }} disabled={selectedWithdrawRows.length === 0}
                   className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white font-medium transition-colors disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-500">
                   🖨️ พิมพ์ใบเบิกวัสดุ
                 </button>
@@ -1238,9 +1271,7 @@ export default function ElectricalStockPage() {
       {printMode === 'withdraw' && (
       <div className="print-only p-6 text-black text-xs">
         <h1 className="text-center text-lg font-bold mb-3">ใบเบิกวัสดุ</h1>
-        <p className="mb-1">วันที่ {selectedWithdrawRows.length && new Set(selectedWithdrawRows.map(t => new Date(t.date).toDateString())).size === 1
-          ? thaiDateShort(selectedWithdrawRows[0].date)
-          : '.......................'}</p>
+        <p className="mb-1">วันที่ {withdrawPrintDateLabel}</p>
         <p className="mb-1">
           ข้าพเจ้า {signers[0].name} ตำแหน่ง {signers[0].position}
         </p>
@@ -1256,8 +1287,8 @@ export default function ElectricalStockPage() {
             </tr>
           </thead>
           <tbody>
-            {selectedWithdrawRows.map((t, idx) => (
-              <tr key={t._id}>
+            {withdrawPrintRows.map((t, idx) => (
+              <tr key={t._id ?? idx}>
                 <td className="border border-black p-1 text-center">{idx + 1}</td>
                 <td className="border border-black p-1">{t.itemName}</td>
                 <td className="border border-black p-1 text-center">{t.qty.toLocaleString()} {t.unit}</td>
