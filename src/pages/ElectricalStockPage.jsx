@@ -21,6 +21,191 @@ const CATEGORIES = [
 const DEFAULT_CATEGORY = CATEGORIES[0].key
 function categoryOf(item) { return item?.category || DEFAULT_CATEGORY }
 
+// Full replacement item lists for วัสดุไฟฟ้า and วัสดุก่อสร้าง, from the user's updated
+// Excel exports — used one-time to wipe the old (partly wrong) items in each category
+// (and, via cascade, all their transaction history) and reseed from this corrected data.
+const CATEGORY_REPLACE_DATA = {
+  'วัสดุไฟฟ้า': [
+    { code: 1, name: 'H แคล้ม', unit: 'ตัว', unitPrice: 40.0, balance: 20.0 },
+    { code: 2, name: 'ขั้วนีออนน็อคดาวน์', unit: 'ชุด', unitPrice: 75.0, balance: 0.0 },
+    { code: 3, name: 'ขั้วบิดล็อค', unit: 'อัน', unitPrice: 15.0, balance: 31.0 },
+    { code: 4, name: 'ขั้วแป้น E27', unit: 'อัน', unitPrice: 15.0, balance: 8.0 },
+    { code: 5, name: 'ขั้วหลอด E 27', unit: 'อัน', unitPrice: 15.0, balance: 8.0 },
+    { code: 6, name: 'ขาจับก้านโคมไฟกิ่ง 11/2 นิ้ว', unit: 'ตัว', unitPrice: 200.0, balance: 7.0 },
+    { code: 7, name: 'โคมขาสปริง 1x18w', unit: 'ชุด', unitPrice: 85.0, balance: 0.0 },
+    { code: 8, name: 'โคมขาสปริง 1x36w', unit: 'ชุด', unitPrice: 100.0, balance: 0.0 },
+    { code: 9, name: 'โคมโซล่าเซลล์ 5500w แผงในตัว', unit: 'ชุด', unitPrice: 2250.0, balance: 0.0 },
+    { code: 10, name: 'โคมสปอร์ตไลท์ LED 30w Daylight', unit: 'ชุด', unitPrice: 400.0, balance: 3.0 },
+    { code: 11, name: 'ชุดโคมไฟกิ่ง 1x36w พร้อมขาจับโยก', unit: 'ชุด', unitPrice: 1100.0, balance: 4.0 },
+    { code: 12, name: 'โซ่เลื่อยยนต์ 22 T', unit: 'เส้น', unitPrice: 400.0, balance: 5.0 },
+    { code: 13, name: 'โซ่เลื่อยยนต์ 31 T', unit: 'เส้น', unitPrice: 400.0, balance: 5.0 },
+    { code: 14, name: 'โซ่เลื่อยยนต์ ขนาดบาร์ 12 นิ้ว', unit: 'เส้น', unitPrice: 350.0, balance: 0.0 },
+    { code: 15, name: 'ตู้เหล็กกันน้ำมีหลังคา NO.0', unit: 'ใบ', unitPrice: 800.0, balance: 0.0 },
+    { code: 16, name: 'เต้ารับ 3 รู', unit: 'อัน', unitPrice: 40.0, balance: 0.0 },
+    { code: 17, name: 'เทปพันสาย', unit: 'ม้วน', unitPrice: 40.0, balance: 10.0 },
+    { code: 18, name: 'น็อตกาวาไนท์ 8 นิ้ว', unit: 'ตัว', unitPrice: 50.0, balance: 0.0 },
+    { code: 19, name: 'น็อตกาวาไนท์ 9 นิ้ว', unit: 'ตัว', unitPrice: 50.0, balance: 21.0 },
+    { code: 20, name: 'บัสบาร์สำเร็จ', unit: 'อัน', unitPrice: 200.0, balance: 0.0 },
+    { code: 21, name: 'บาร์เลื่อยยนต์  11.5”', unit: 'อัน', unitPrice: 800.0, balance: 0.0 },
+    { code: 22, name: 'เบรกเกอร์ 20 A 1P', unit: 'ตัว', unitPrice: 150.0, balance: 3.0 },
+    { code: 23, name: 'เบรกเกอร์ 50 A 3 P', unit: 'ตัว', unitPrice: 650.0, balance: 0.0 },
+    { code: 24, name: 'ปลั้กกราวด์ 3 ที่', unit: 'อัน', unitPrice: 85.0, balance: 10.0 },
+    { code: 25, name: 'ปลั๊กกราว์ดคู่', unit: 'ตัว', unitPrice: 55.0, balance: 0.0 },
+    { code: 26, name: 'ปลั๊กกราว์ดเดี่ยว', unit: 'ตัว', unitPrice: 45.0, balance: 0.0 },
+    { code: 27, name: 'ปลั๊กตัวผู้', unit: 'ตัว', unitPrice: 15.0, balance: 0.0 },
+    { code: 28, name: 'ไฟกระพริบ LED 100T วอร์มไวท์', unit: 'ชุด', unitPrice: 80.0, balance: 0.0 },
+    { code: 29, name: 'ไฟตุ้ม LED E27 6500k', unit: 'หลอด', unitPrice: 330.0, balance: 12.0 },
+    { code: 30, name: 'แมกเนติก 30A', unit: 'ตัว', unitPrice: 380.0, balance: 1.0 },
+    { code: 31, name: 'แร็ค  4  ช่องพร้อมลูก', unit: 'ชุด', unitPrice: 280.0, balance: 0.0 },
+    { code: 32, name: 'ลวดอลูมิเนียม', unit: 'กก.', unitPrice: 200.0, balance: 0.0 },
+    { code: 33, name: 'ลำโพงฮอร์น 8”x15”60 วัตต์ OBOM', unit: 'ชุด', unitPrice: 2150.0, balance: 4.0 },
+    { code: 34, name: 'ลูกถ้วยบัสบาร์', unit: 'ตัว', unitPrice: 50.0, balance: 0.0 },
+    { code: 35, name: 'สวิตช์', unit: 'ตัว', unitPrice: 20.0, balance: 0.0 },
+    { code: 36, name: 'สวิตซ์แสงแดด LUMINO', unit: 'ตัว', unitPrice: 380.0, balance: 16.0 },
+    { code: 37, name: 'สาย  THW - A # 25 sq.mm', unit: 'เมตร', unitPrice: 15.0, balance: 0.0 },
+    { code: 38, name: 'สาย  VFF  # 2 x 2.5 sq.mm', unit: 'ม้วน', unitPrice: 1650.0, balance: 1.0 },
+    { code: 39, name: 'สาย THW#1.5 sq.mm', unit: 'ม้วน', unitPrice: 650.0, balance: 0.0 },
+    { code: 40, name: 'สาย VFF 2x1.5 sq.mm', unit: 'ม้วน', unitPrice: 1100.0, balance: 0.0 },
+    { code: 41, name: 'สายไฟ VCT#4x4', unit: 'เมตร', unitPrice: 950.0, balance: 0.0 },
+    { code: 42, name: 'หน้ากาก 3 ช่อง', unit: 'ตัว', unitPrice: 15.0, balance: 0.0 },
+    { code: 43, name: 'หลอด 150W. ขั้ว E 27', unit: 'หลอด', unitPrice: 590.0, balance: 5.0 },
+    { code: 44, name: 'หลอด LED  14W. ขั้ว E 27', unit: 'หลอด', unitPrice: 95.0, balance: 11.0 },
+    { code: 45, name: 'หลอด LED 155 W ทรงใบพัด', unit: 'หลอด', unitPrice: 380.0, balance: 10.0 },
+    { code: 46, name: 'หลอด LED BULB 14w. DAYLIGHT', unit: 'หลอด', unitPrice: 95.0, balance: 12.0 },
+    { code: 47, name: 'หลอด LED T8  18 W', unit: 'หลอด', unitPrice: 120.0, balance: 15.0 },
+    { code: 48, name: 'หลอดเมทลฮาไลท์ 400W', unit: 'หลอด', unitPrice: 680.0, balance: 0.0 },
+    { code: 49, name: 'หางปลา CL25 – 8', unit: 'ตัว', unitPrice: 15.0, balance: 0.0 },
+    { code: 50, name: 'อิกนิเตอร์', unit: 'ตัว', unitPrice: 240.0, balance: 0.0 },
+    { code: 51, name: 'หลอด LED T8  9 W', unit: 'หลอด', unitPrice: 100.0, balance: 26.0 },
+  ],
+  'วัสดุก่อสร้าง': [
+    { code: 1, name: 'FULL Pro วาล์วประหยัดน้ำ', unit: 'ชุด', unitPrice: 480.0, balance: 2.0 },
+    { code: 2, name: 'กรรไกรตัดเหล็กขนาด 36 นิ้ว', unit: 'อัน', unitPrice: 1150.0, balance: 1.0 },
+    { code: 3, name: 'กระดาษทรายขัดไม้กลมตีนตุ๊กแก', unit: 'แผ่น', unitPrice: 14.0, balance: 0.0 },
+    { code: 4, name: 'กระบะผสมปูน 220 ลิตร', unit: 'อัน', unitPrice: 650.0, balance: 0.0 },
+    { code: 5, name: 'ก๊อกน้ำ 1/2 นิ้ว', unit: 'อัน', unitPrice: 150.0, balance: 0.0 },
+    { code: 6, name: 'ก๊อกน้ำอ่างล้างหน้า', unit: 'อัน', unitPrice: 160.0, balance: 0.0 },
+    { code: 7, name: 'ก๊อกสนาม 1/2 นิ้ว', unit: 'อัน', unitPrice: 120.0, balance: 2.0 },
+    { code: 8, name: 'ก๊อกอ่างล้างจาน', unit: 'ชุด', unitPrice: 350.0, balance: 2.0 },
+    { code: 9, name: 'ก้ามปูจับท่อ PVC ขนาด 1/2 นิ้ว', unit: 'อัน', unitPrice: 7.0, balance: 0.0 },
+    { code: 10, name: 'กาวทาท่อ PVC', unit: 'กระป๋อง', unitPrice: 180.0, balance: 1.0 },
+    { code: 11, name: 'กุญแจประตูอลูมิเนียมบานสวิง', unit: 'ชุด', unitPrice: 350.0, balance: 1.0 },
+    { code: 12, name: 'เกรียงพลาสติกฉาบปูน', unit: 'อัน', unitPrice: 35.0, balance: 2.0 },
+    { code: 13, name: 'ข้องอ 45 องศา ขนาด 3 นิ้ว', unit: 'อัน', unitPrice: 60.0, balance: 7.0 },
+    { code: 14, name: 'ข้องอ 90 องศา 3 นิ้ว 68', unit: 'อัน', unitPrice: 120.0, balance: 5.0 },
+    { code: 15, name: 'ข้องอ 90 องศา ขนาด 1/2 นิ้ว', unit: 'อัน', unitPrice: 6.0, balance: 0.0 },
+    { code: 16, name: 'ข้องอ 90 องศา ขนาด 3 นิ้ว', unit: 'อัน', unitPrice: 60.0, balance: 2.0 },
+    { code: 17, name: 'คอนกรีตผสมเสร็จ 240 ksc', unit: 'ลบ.ม.', unitPrice: 2300.0, balance: 0.0 },
+    { code: 18, name: 'ค้อนหงอน', unit: 'อัน', unitPrice: 200.0, balance: 8.0 },
+    { code: 19, name: 'คีมผูกลวด', unit: 'อัน', unitPrice: 70.0, balance: 5.0 },
+    { code: 20, name: 'จอบพร้อมด้ามจับ', unit: 'ด้าม', unitPrice: 380.0, balance: 3.0 },
+    { code: 21, name: 'จารบีขนาด 2 กก.', unit: 'กระป๋อง', unitPrice: 490.0, balance: 1.0 },
+    { code: 22, name: 'ฉากเหล็ก', unit: 'อัน', unitPrice: 120.0, balance: 1.0 },
+    { code: 23, name: 'ชุดอะไหล่ชักโครก', unit: 'ชุด', unitPrice: 400.0, balance: 1.0 },
+    { code: 24, name: 'เชิงชาย 2in1 ขนาด 1.8 x 23 x 3.00 ม.', unit: 'แผ่น', unitPrice: 450.0, balance: 0.0 },
+    { code: 25, name: 'เชือกไนล่อนสีเขียว', unit: 'เมตร', unitPrice: 40.0, balance: 0.0 },
+    { code: 26, name: 'เชือกเอ็น', unit: 'ม้วน', unitPrice: 30.0, balance: 0.0 },
+    { code: 27, name: 'ดอกไขควงหัวแฉก', unit: 'ดอก', unitPrice: 40.0, balance: 0.0 },
+    { code: 28, name: 'ดอกเจาะไม้ฟันทังสเตน', unit: 'ชุด', unitPrice: 1180.0, balance: 0.0 },
+    { code: 29, name: 'ดอกเจาะเหล็ก 1/8 นิ้ว', unit: 'แพ๊ค', unitPrice: 400.0, balance: 0.0 },
+    { code: 30, name: 'ดอกสกัดปูน', unit: 'ดอก', unitPrice: 400.0, balance: 0.0 },
+    { code: 31, name: 'ดอกสว่านเจาะเหล็กทุกขนาด', unit: 'แพ็ค', unitPrice: 2660.0, balance: 0.0 },
+    { code: 32, name: 'ตลับเมตร 5 เมตร', unit: 'อัน', unitPrice: 250.0, balance: 8.0 },
+    { code: 33, name: 'ต่อตรง PVC ขนาด 1/2', unit: 'อัน', unitPrice: 7.0, balance: 8.0 },
+    { code: 34, name: 'ต่อตรงเกลียวในทองเหลือง ขนด 1/2', unit: 'อัน', unitPrice: 30.0, balance: 0.0 },
+    { code: 35, name: 'ตะปูตอกไม้ขนาด 1 1/2 นิ้ว', unit: 'กล่อง', unitPrice: 55.0, balance: 0.0 },
+    { code: 36, name: 'ตะปูตอกไม้ขนาด 2 นิ้ว', unit: 'กล่อง', unitPrice: 55.0, balance: 0.0 },
+    { code: 37, name: 'ตะปูตอกไม้ขนาด 3 นิ้ว', unit: 'กิโลกรัม', unitPrice: 60.0, balance: 0.0 },
+    { code: 38, name: 'ตะปูตอกไม้ขนาด 4 นิ้ว', unit: 'กล่อง', unitPrice: 55.0, balance: 0.0 },
+    { code: 39, name: 'ตะปูตอกสังกะสี', unit: 'กล่อง', unitPrice: 30.0, balance: 0.0 },
+    { code: 40, name: 'ถังปูหูพีวีซี', unit: 'ถัง', unitPrice: 45.83, balance: 0.0 },
+    { code: 41, name: 'ถุงมือผ้า', unit: 'คู่', unitPrice: 10.0, balance: 0.0 },
+    { code: 42, name: 'ถุงมือผ้า (ยาง)', unit: 'คู่', unitPrice: 15.0, balance: 0.0 },
+    { code: 43, name: 'ทรายละเอียด', unit: 'ลบ.ม.', unitPrice: 845.0, balance: 0.0 },
+    { code: 44, name: 'ทรายหยาบ', unit: 'ลบ.ม.', unitPrice: 162.0, balance: 3.75 },
+    { code: 45, name: 'ท่อPVCขนาด 1/2 นิ้ว', unit: 'ท่อน', unitPrice: 52.0, balance: 3.0 },
+    { code: 46, name: 'ท่อPVCขนาด 3 นิ้ว', unit: 'เส้น', unitPrice: 450.0, balance: 0.0 },
+    { code: 47, name: 'ท่อน้ำ PVC ขนาด 3 นิ้ว ชั้น 8.5', unit: 'เส้น', unitPrice: 450.0, balance: 3.0 },
+    { code: 48, name: 'ทินเนอร์', unit: 'ปี๊บ', unitPrice: 680.0, balance: 0.0 },
+    { code: 49, name: 'ทินเนอร์ ขวด', unit: 'ขวด', unitPrice: 50.0, balance: 0.0 },
+    { code: 50, name: 'เทปวัดระยะ 100 เมตร', unit: 'ม้วน', unitPrice: 250.0, balance: 0.0 },
+    { code: 51, name: 'เทปวัดระยะ 50 เมตร', unit: 'ม้วน', unitPrice: 950.0, balance: 0.0 },
+    { code: 52, name: 'น๊อต 3/4 x 5 นิ้ว', unit: 'ตัว', unitPrice: 80.0, balance: 0.0 },
+    { code: 53, name: 'น้ำมันสกัด(ใช้กับเครื่องสกัด เครื่องแย็ค)', unit: 'ขวด', unitPrice: 120.0, balance: 0.0 },
+    { code: 54, name: 'น้ำมันอเนกประสงค์', unit: 'กระป๋อง', unitPrice: 150.0, balance: 1.0 },
+    { code: 55, name: 'บุ้งกี๋', unit: 'อัน', unitPrice: 60.0, balance: 3.0 },
+    { code: 56, name: 'ใบตัดกระเบื้อง 4 นิ้ว', unit: 'ใบ', unitPrice: 280.0, balance: 0.0 },
+    { code: 57, name: 'ใบตัดเหล็ก 4 นิ้ว', unit: 'ใบ', unitPrice: 35.0, balance: 27.0 },
+    { code: 58, name: 'ใบตัดเหล็ก 4 นิ้ว ใบเพชร', unit: 'อัน', unitPrice: 750.0, balance: 2.0 },
+    { code: 59, name: 'ใบเลื่อยตัดเหล็ก 12 นิ้ว', unit: 'ใบ', unitPrice: 50.0, balance: 10.0 },
+    { code: 60, name: 'ประแจคอม้า', unit: 'อัน', unitPrice: 240.0, balance: 0.0 },
+    { code: 61, name: 'ประแจคอม้า 4 นิ้ว', unit: 'ตัว', unitPrice: 950.0, balance: 0.0 },
+    { code: 62, name: 'ประแจดัดเหล็ก', unit: 'อัน', unitPrice: 250.0, balance: 0.0 },
+    { code: 63, name: 'ประแจเลื่อนขนาด 15 นิ้ว 375 มม.', unit: 'ตัว', unitPrice: 450.0, balance: 0.0 },
+    { code: 64, name: 'ปูนซีเมนต์ปอร์ตแลนด์', unit: 'ถุง', unitPrice: 160.0, balance: 15.0 },
+    { code: 65, name: 'ปูนซีเมนต์ผสม', unit: 'ถุง', unitPrice: 136.0, balance: 0.0 },
+    { code: 66, name: 'ปูนยาแนว', unit: 'ถุง', unitPrice: 35.0, balance: 0.0 },
+    { code: 67, name: 'แปรงทองเหลือง', unit: 'ด้าม', unitPrice: 40.0, balance: 0.0 },
+    { code: 68, name: 'แปรงทาสี 2 นิ้ว', unit: 'อัน', unitPrice: 30.0, balance: 1.0 },
+    { code: 69, name: 'แปรงทาสี 4 นิ้ว', unit: 'อัน', unitPrice: 80.0, balance: 0.0 },
+    { code: 70, name: 'แผ่นเพท 20 x 20 x 6 มม.', unit: 'แผ่น', unitPrice: 120.0, balance: 0.0 },
+    { code: 71, name: 'แผ่นยาง', unit: 'แผ่น', unitPrice: 450.0, balance: 0.0 },
+    { code: 72, name: 'แผ่นเหล็กรีดลอนขนาด 0.35 สีน้ำตาล', unit: 'เมตร', unitPrice: 120.0, balance: 0.0 },
+    { code: 73, name: 'พลั่วปลายแหลม', unit: 'ด้าม', unitPrice: 180.0, balance: 0.0 },
+    { code: 74, name: 'ฟลุ๊คเหล็กขนาด 1/2', unit: 'อัน', unitPrice: 20.0, balance: 0.0 },
+    { code: 75, name: 'ไม้สต๊าฟ 5 เมตร', unit: 'อัน', unitPrice: 1450.0, balance: 0.0 },
+    { code: 76, name: 'ไม้อัด 6 มม.', unit: 'แผ่น', unitPrice: 350.0, balance: 4.0 },
+    { code: 77, name: 'ยางมะตอยสำเร็จรูป', unit: 'ถุง', unitPrice: 140.0, balance: 36.0 },
+    { code: 78, name: 'รถเข็นปูนล้อคู่', unit: 'คัน', unitPrice: 2200.0, balance: 0.0 },
+    { code: 79, name: 'ลวดเชื่อม', unit: 'ห่อ', unitPrice: 190.0, balance: 1.0 },
+    { code: 80, name: 'ลวดดำผูกเหล็ก', unit: 'กิโลกรัม', unitPrice: 70.0, balance: 5.0 },
+    { code: 81, name: 'ลวดผูกเหล็ก', unit: 'กิโลกรัม', unitPrice: 70.0, balance: 0.0 },
+    { code: 82, name: 'ลูกกลิ้งทาสี 4 นิ้ว', unit: 'อัน', unitPrice: 50.0, balance: 0.0 },
+    { code: 83, name: 'ลูกบิดประตู', unit: 'อัน', unitPrice: 250.0, balance: 0.0 },
+    { code: 84, name: 'ลูกแม็ค F 20', unit: 'กล่อง', unitPrice: 90.0, balance: 0.0 },
+    { code: 85, name: 'ลูกแม็ค F 30', unit: 'กล่อง', unitPrice: 100.0, balance: 0.0 },
+    { code: 86, name: 'เลื่อยลันดา', unit: 'ปื้น', unitPrice: 250.0, balance: 1.0 },
+    { code: 87, name: 'วาล์ว PVC ขนาด 1/2', unit: 'อัน', unitPrice: 40.0, balance: 1.0 },
+    { code: 88, name: 'สกรูเกรียวปลายสว่าน 1 นิ้ว', unit: 'กล่อง', unitPrice: 90.0, balance: 1.0 },
+    { code: 89, name: 'สกรูเกลียวปลายสว่าน 1 นิ้ว', unit: 'กล่อง', unitPrice: 180.0, balance: 0.0 },
+    { code: 90, name: 'สกรูเกลียวปลายสว่านปีกผีเสื้อ 28.5 มม.', unit: 'กล่อง', unitPrice: 400.0, balance: 0.0 },
+    { code: 91, name: 'สกรูดำปลายสว่าน 1 นิ้ว', unit: 'กล่อง', unitPrice: 90.0, balance: 1.0 },
+    { code: 92, name: 'สกรูยิงเมลทัลชัล', unit: 'กล่อง', unitPrice: 350.0, balance: 0.0 },
+    { code: 93, name: 'สต๊อปวาล์ว 2 ทาง 1/2 นิ้ว ผม.', unit: 'อัน', unitPrice: 100.0, balance: 0.0 },
+    { code: 94, name: 'สต๊อปวาล์ว 3 ทาง 1/2 นิ้ว ผผผ.', unit: 'อัน', unitPrice: 120.0, balance: 1.0 },
+    { code: 95, name: 'สตัดเหล็กเกรียว 5 หุน ยาว 1 เมตร', unit: 'เส้น', unitPrice: 170.0, balance: 2.0 },
+    { code: 96, name: 'สะดืออ่างล้างหน้า', unit: 'อัน', unitPrice: 180.0, balance: 2.0 },
+    { code: 97, name: 'สังกะสี ยาว 10 ฟุต', unit: 'แผ่น', unitPrice: 240.0, balance: 0.0 },
+    { code: 98, name: 'สามทาง PVC ขนาด 1/2', unit: 'อัน', unitPrice: 7.0, balance: 0.0 },
+    { code: 99, name: 'สามเหลี่ยมปาดปูน', unit: 'อัน', unitPrice: 350.0, balance: 1.0 },
+    { code: 100, name: 'สายฉีดชำระ', unit: 'อัน', unitPrice: 350.0, balance: 2.0 },
+    { code: 101, name: 'สายน้ำดี 0.50 m.', unit: 'เส้น', unitPrice: 70.0, balance: 0.0 },
+    { code: 102, name: 'สายยางขนาด 5 หุน', unit: 'เมตร', unitPrice: 20.0, balance: 15.0 },
+    { code: 103, name: 'สีกันสนิม', unit: 'แกลลอน', unitPrice: 390.0, balance: 0.0 },
+    { code: 104, name: 'สีน้ำมันสีขาว', unit: 'แกลลอน', unitPrice: 480.0, balance: 0.0 },
+    { code: 105, name: 'สีน้ำมันสีดำ', unit: 'แกลลอน', unitPrice: 480.0, balance: 0.0 },
+    { code: 106, name: 'สีน้ำมันสีแดง', unit: 'แกลลอน', unitPrice: 480.0, balance: 0.0 },
+    { code: 107, name: 'สีน้ำมันสีเทา', unit: 'แกลลอน', unitPrice: 480.0, balance: 1.0 },
+    { code: 108, name: 'สีน้ำสีฟ้า', unit: 'ถัง', unitPrice: 1650.0, balance: 1.0 },
+    { code: 109, name: 'สีสเปรย์สีแดง', unit: 'กระป๋อง', unitPrice: 65.0, balance: 10.0 },
+    { code: 110, name: 'เสียมพร้อมด้ามจับ', unit: 'ด้าม', unitPrice: 250.0, balance: 2.0 },
+    { code: 111, name: 'หัวฉีดชำระพร้อมสาย', unit: 'ชุด', unitPrice: 250.0, balance: 1.0 },
+    { code: 112, name: 'หัวบล็อกแม่เหล็กเบอร์ 8', unit: 'ดอก', unitPrice: 450.0, balance: 0.0 },
+    { code: 113, name: 'หินขนาด 3/4 นิ้ว', unit: 'ลบ.ม.', unitPrice: 161.0, balance: 3.75 },
+    { code: 114, name: 'เหล็กกล่อง 1 x 1 นิ้ว หนา 2.0 มม.', unit: 'เส้น', unitPrice: 290.0, balance: 0.0 },
+    { code: 115, name: 'เหล็กกล่อง 100 x 50 x 3.2 มม.', unit: 'ท่อน', unitPrice: 1100.0, balance: 1.0 },
+    { code: 116, name: 'เหล็กกล่อง 125 x 125 x 2.3 มม.', unit: 'ท่อน', unitPrice: 1650.0, balance: 1.0 },
+    { code: 117, name: 'เหล็กกล่อง 2 x 2 นิ้ว หนา 1.8 มม.', unit: 'ท่อน', unitPrice: 540.0, balance: 0.0 },
+    { code: 118, name: 'เหล็กกล่อง 2x4 นิ้ว หนา 2.3 มม.', unit: 'เส้น', unitPrice: 1100.0, balance: 1.0 },
+    { code: 119, name: 'เหล็กกล่อง 50 x 50 x 2.3 มม.', unit: 'ท่อน', unitPrice: 570.0, balance: 4.0 },
+    { code: 120, name: 'เหล็กขากิ่งโคมไฟดัดโค้ง 1 1/2 ยาว 1.50 เมตร', unit: 'ท่อน', unitPrice: 180.0, balance: 12.0 },
+    { code: 121, name: 'เหล็กซี 100 x 50 x 20 x 2.3 มม.', unit: 'ท่อน', unitPrice: 665.0, balance: 2.0 },
+    { code: 122, name: 'เหล็กตะแกรงวายเมท2.8มม. @ 25ซม.', unit: 'ม้วน', unitPrice: 850.0, balance: 0.0 },
+    { code: 123, name: 'เหล็กเส้นRB 6', unit: 'เส้น', unitPrice: 70.0, balance: 5.0 },
+    { code: 124, name: 'เหล็กเส้นRB 9', unit: 'เส้น', unitPrice: 140.0, balance: 5.0 },
+  ],
+}
+
 // Default signers shown on the printed "รายงานวัสดุคงเหลือ" report — editable by admins,
 // saved server-side per category (staff in these positions differ per category, and
 // change over time regardless).
@@ -240,6 +425,10 @@ export default function ElectricalStockPage() {
   const [itemForm, setItemForm]       = useState(EMPTY_ITEM)
   const [itemSaving, setItemSaving]   = useState(false)
 
+  const [replacing, setReplacing] = useState(false)
+  const [replaceResult, setReplaceResult] = useState('')
+  const [replaceProgress, setReplaceProgress] = useState('')
+
   // Shared header (type/date/party/docNo entered once) + one or more item rows — for
   // batch entries like "15 items received today on the same delivery note".
   const [entryForm, setEntryForm] = useState({ type: 'รับ', date: todayStr(), party: '', docNo: '', rows: [{ ...EMPTY_ENTRY_ROW }] })
@@ -434,6 +623,47 @@ export default function ElectricalStockPage() {
       unitPrice: item.unitPrice ?? '', balance: item.balance ?? '', category: categoryOf(item),
     })
     setItemModal(true)
+  }
+
+  // One-time full replace: deletes every existing item in the active category (which cascades
+  // to delete all of that item's transaction history — same as the single-item delete does)
+  // and recreates the category from CATEGORY_REPLACE_DATA. Destructive and not undoable, so
+  // the confirm dialog spells out exactly what's being removed before anything runs.
+  function handleReplaceCategoryData() {
+    const newItems = CATEGORY_REPLACE_DATA[activeCategory]
+    if (!newItems) return
+    const existing = categoryItems
+    const label = CATEGORIES.find(c => c.key === activeCategory)?.label || activeCategory
+    setConfirmState({
+      title: `แทนที่ข้อมูลวัสดุทั้งหมด — ${label}`,
+      message: `จะลบวัสดุเดิมทั้งหมด ${existing.length} รายการในหมวด "${label}" รวมถึงประวัติรับ-จ่ายทั้งหมดของรายการเหล่านั้น แล้วสร้างใหม่ ${newItems.length} รายการจากไฟล์ที่อัปโหลด — การกระทำนี้ย้อนกลับไม่ได้`,
+      confirmLabel: 'ลบและแทนที่ทั้งหมด',
+      onConfirm: async () => {
+        setReplacing(true)
+        setReplaceResult('')
+        let deleted = 0, created = 0
+        try {
+          for (const item of existing) {
+            setReplaceProgress(`กำลังลบข้อมูลเดิม ${deleted + 1}/${existing.length}...`)
+            await deleteStockItem(item._id)
+            deleted++
+          }
+          for (const newItem of newItems) {
+            setReplaceProgress(`กำลังสร้างข้อมูลใหม่ ${created + 1}/${newItems.length}...`)
+            await createStockItem({ ...newItem, category: activeCategory })
+            created++
+          }
+          setReplaceResult(`แทนที่ข้อมูลสำเร็จ — ลบของเดิม ${deleted} รายการ สร้างใหม่ ${created} รายการ`)
+          await load()
+        } catch (err) {
+          setReplaceResult(`เกิดข้อผิดพลาดระหว่างดำเนินการ (ลบไปแล้ว ${deleted} รายการ สร้างใหม่ไปแล้ว ${created} รายการ): ${err?.response?.data?.error || 'ไม่สำเร็จ'}`)
+          await load()
+        } finally {
+          setReplacing(false)
+          setReplaceProgress('')
+        }
+      },
+    })
   }
 
   async function handleSaveItem(e) {
@@ -1034,11 +1264,23 @@ export default function ElectricalStockPage() {
                 }`}>
                 {hideZeroRegistry ? '🙈 ซ่อนรายการหมดสต๊อก' : '👁️ แสดงรายการหมดสต๊อก'}
               </button>
+              {CATEGORY_REPLACE_DATA[activeCategory] && (
+                <button onClick={handleReplaceCategoryData} disabled={replacing}
+                  className="text-xs border border-red-300 text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-50">
+                  🔁 แทนที่ข้อมูลทั้งหมดจากไฟล์ใหม่ ({CATEGORY_REPLACE_DATA[activeCategory].length} รายการ)
+                </button>
+              )}
               <button onClick={openAddItem} className="text-xs bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
                 + เพิ่มวัสดุใหม่
               </button>
             </div>
           </div>
+          {replaceProgress && (
+            <p className="mx-3 mt-3 text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2">⏳ {replaceProgress}</p>
+          )}
+          {replaceResult && (
+            <p className="mx-3 mt-3 text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2">✅ {replaceResult}</p>
+          )}
           <div className="p-3">
             <input
               className="input mb-3"
