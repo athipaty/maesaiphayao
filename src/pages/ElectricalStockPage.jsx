@@ -1321,14 +1321,14 @@ export default function ElectricalStockPage() {
                 <td className="border border-black p-1"></td>
               </tr>
             ))}
-          </tbody>
-          <tfoot>
+            {/* A regular tbody row (not tfoot) so it prints once, wherever the table ends,
+                instead of repeating on every page — tfoot repeats per printed page by spec. */}
             <tr>
               <td className="border border-black p-1 text-center font-semibold" colSpan={5}>รวมรายการ</td>
               <td className="border border-black p-1 text-right font-semibold">{money2(yearTotals.value)}</td>
               <td className="border border-black p-1"></td>
             </tr>
-          </tfoot>
+          </tbody>
         </table>
 
         <div className="flex justify-around mt-12 text-center">
@@ -1562,13 +1562,13 @@ export default function ElectricalStockPage() {
                 <td className="border border-black p-1 text-right">{t.balanceAfter.toLocaleString()}</td>
               </tr>
             ))}
-          </tbody>
-          <tfoot>
+            {/* A regular tbody row (not tfoot) so it prints once, wherever the table ends,
+                instead of repeating on every page — tfoot repeats per printed page by spec. */}
             <tr>
               <td className="border border-black p-1 text-center" colSpan={9}>-</td>
               <td className="border border-black p-1 text-right font-semibold">{(ledgerItem.balance || 0).toLocaleString()}</td>
             </tr>
-          </tfoot>
+          </tbody>
         </table>
       </div>
       )}
