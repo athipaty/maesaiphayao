@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import {
   getStockItems, createStockItem, updateStockItem, deleteStockItem,
   getStockTransactions, createStockTransaction, deleteStockTransaction,
@@ -96,6 +97,86 @@ function computeItemYear(item, itemTxns, fy) {
   const closing = opening + received - withdrawn
 
   return { opening, received, withdrawn, closing }
+}
+
+// Type-to-filter item picker for the entry-tab rows — a plain <select> gets unwieldy once a
+// category has more than a handful of items, so this filters by name/code as you type instead.
+// The dropdown is portaled to <body> with fixed positioning rather than an absolutely
+// positioned child, since the table it lives in scrolls horizontally (overflow-x-auto), which
+// would otherwise clip the panel vertically too (a "visible" y-axis next to a scrolling x-axis
+// collapses to auto per the CSS overflow spec).
+function ItemCombobox({ items, value, onSelect, placeholder }) {
+  const [query, setQuery] = useState('')
+  const [open, setOpen] = useState(false)
+  const [rect, setRect] = useState(null)
+  const wrapRef = useRef(null)
+  const inputRef = useRef(null)
+  const panelRef = useRef(null) // the portaled dropdown lives outside wrapRef in the DOM tree
+  const selected = items.find(i => i._id === value)
+
+  function reposition() {
+    if (inputRef.current) setRect(inputRef.current.getBoundingClientRect())
+  }
+
+  useEffect(() => {
+    if (!open) return
+    reposition()
+    function onDocMouseDown(e) {
+      if (wrapRef.current?.contains(e.target)) return
+      if (panelRef.current?.contains(e.target)) return
+      setOpen(false)
+    }
+    document.addEventListener('mousedown', onDocMouseDown)
+    window.addEventListener('scroll', reposition, true)
+    window.addEventListener('resize', reposition)
+    return () => {
+      document.removeEventListener('mousedown', onDocMouseDown)
+      window.removeEventListener('scroll', reposition, true)
+      window.removeEventListener('resize', reposition)
+    }
+  }, [open])
+
+  const q = query.trim().toLowerCase()
+  const filtered = q
+    ? items.filter(i => i.name.toLowerCase().includes(q) || String(i.code ?? '').includes(q))
+    : items
+
+  const selectedLabel = selected ? `${selected.code ? `[${selected.code}] ` : ''}${selected.name}` : ''
+
+  return (
+    <div ref={wrapRef}>
+      <input
+        ref={inputRef}
+        className="input py-1.5"
+        placeholder={placeholder}
+        value={open ? query : selectedLabel}
+        onFocus={() => { setQuery(''); setOpen(true) }}
+        onChange={e => { setQuery(e.target.value); setOpen(true) }}
+        onKeyDown={e => { if (e.key === 'Escape') { setOpen(false); e.currentTarget.blur() } }}
+      />
+      {open && rect && createPortal(
+        <div
+          ref={panelRef}
+          style={{ position: 'fixed', top: rect.bottom + 4, left: rect.left, width: rect.width }}
+          className="z-[999] max-h-56 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg">
+          {filtered.length === 0 ? (
+            <p className="px-3 py-2 text-xs text-gray-400">ไม่พบวัสดุที่ตรงกับ "{query}"</p>
+          ) : (
+            filtered.map(i => (
+              <button key={i._id} type="button"
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => { onSelect(i); setQuery(''); setOpen(false) }}
+                className={`w-full text-left px-3 py-2 text-xs hover:bg-slate-50 transition-colors ${i._id === value ? 'bg-slate-50 font-medium text-gray-800' : 'text-gray-700'}`}>
+                <span>{i.code ? `[${i.code}] ` : ''}{i.name}</span>
+                <span className="text-gray-400"> · คงเหลือ {(i.balance || 0).toLocaleString()} {i.unit}</span>
+              </button>
+            ))
+          )}
+        </div>,
+        document.body
+      )}
+    </div>
+  )
 }
 
 export default function ElectricalStockPage() {
@@ -833,17 +914,12 @@ export default function ElectricalStockPage() {
                           <tr key={idx} className="align-middle">
                             <td className="p-2 border-b border-gray-50 text-center text-gray-400">{idx + 1}</td>
                             <td className="p-2 border-b border-gray-50">
-                              <select className="input py-1.5" value={row.itemId}
-                                title={rowItem ? `คงเหลือ ${(rowItem.balance || 0).toLocaleString()} ${rowItem.unit}` : undefined}
-                                onChange={e => {
-                                  const picked = items.find(i => i._id === e.target.value)
-                                  updateEntryRow(idx, { itemId: e.target.value, unitPrice: picked ? String(picked.unitPrice ?? '') : '' })
-                                }}>
-                                <option value="">เลือกวัสดุ...</option>
-                                {categoryItems.map(i => (
-                                  <option key={i._id} value={i._id}>{i.code ? `[${i.code}] ` : ''}{i.name}{i.balance != null ? ` (คงเหลือ ${i.balance.toLocaleString()} ${i.unit})` : ''}</option>
-                                ))}
-                              </select>
+                              <ItemCombobox
+                                items={categoryItems}
+                                value={row.itemId}
+                                placeholder="พิมพ์เพื่อค้นหาวัสดุ..."
+                                onSelect={picked => updateEntryRow(idx, { itemId: picked._id, unitPrice: picked ? String(picked.unitPrice ?? '') : '' })}
+                              />
                             </td>
                             <td className="p-2 border-b border-gray-50">
                               <input type="number" min="1" step="1" className="input py-1.5 text-right" value={row.qty}
