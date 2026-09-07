@@ -18,60 +18,6 @@ const CATEGORIES = [
   { key: 'วัสดุสำนักงาน', icon: '🗄️', label: 'สำนักงาน' },
 ]
 const DEFAULT_CATEGORY = CATEGORIES[0].key
-
-// One-time seed list for วัสดุสำนักงาน, from the uploaded "บัญชีวัสดุ" Excel export — codes
-// and prices as listed there, starting balance 0 (the sheet had no on-hand quantities).
-const OFFICE_SUPPLY_IMPORT = [
-  { code: 1, name: 'กบเหลาดินสอตั้งโต๊ะ', unit: 'อัน', unitPrice: 165.0 },
-  { code: 2, name: 'กระดาษชาร์ททำปก A4/120g/180แผ่น', unit: 'ห่อ', unitPrice: 120.0 },
-  { code: 3, name: 'กระดาษชาร์ททำปก A4/180g/100แผ่น', unit: 'ห่อ', unitPrice: 135.0 },
-  { code: 4, name: 'กระดาษสีเขียวเข้ม 80แกรม', unit: 'รีม', unitPrice: 240.0 },
-  { code: 5, name: 'กล่องพลาสติกมีล้อแบบสี ขนาด100ลิตร', unit: 'กล่อง', unitPrice: 395.0 },
-  { code: 6, name: 'กาว UHU219', unit: 'แท่ง', unitPrice: 70.0 },
-  { code: 7, name: 'กาวน้ำ', unit: 'หลอด', unitPrice: 15.0 },
-  { code: 8, name: 'กาวร้อน', unit: 'ขวด', unitPrice: 35.0 },
-  { code: 9, name: 'กาวสองหน้าบาง 1 นิ้ว', unit: 'ม้วน', unitPrice: 30.0 },
-  { code: 10, name: 'กาวหนังไก่ 1.5นิ้ว', unit: 'ม้วน', unitPrice: 30.0 },
-  { code: 11, name: 'กาวหนังไก่ 2 นิ้ว', unit: 'มัด', unitPrice: 40.0 },
-  { code: 12, name: 'คลิบหนีบดำ เบอร์ 110', unit: 'กล่อง', unitPrice: 30.0 },
-  { code: 13, name: 'คลิบหนีบดำ เบอร์ 112', unit: 'กล่อง', unitPrice: 15.0 },
-  { code: 14, name: 'คัตเตอร์ โครงสแตนเลส ใหญ่', unit: 'อัน', unitPrice: 48.0 },
-  { code: 15, name: 'เครื่องเย็บกระดาษ HD-88', unit: 'เครื่อง', unitPrice: 425.0 },
-  { code: 16, name: 'ซองสีน้ำตาล A4 ไม่ขยายข้าง', unit: 'มัด', unitPrice: 200.0 },
-  { code: 17, name: 'ต้นไม้ปลอม', unit: 'ชุด', unitPrice: 250.0 },
-  { code: 18, name: 'ต้นไม้ปลอม 1.5 เมตร', unit: 'อัน', unitPrice: 1200.0 },
-  { code: 19, name: 'ต้นไม้ปลอม 1.8 เมตร', unit: 'อัน', unitPrice: 1500.0 },
-  { code: 20, name: 'ต้นไม้ปลอมไซส์เล็ก', unit: 'ชุด', unitPrice: 150.0 },
-  { code: 21, name: 'ต้นไม้ปลอมไซส์ใหญ่', unit: 'ชุด', unitPrice: 580.0 },
-  { code: 22, name: 'ตรายาง', unit: 'อัน', unitPrice: 250.0 },
-  { code: 23, name: 'ตรายาง ลับ', unit: 'อัน', unitPrice: 25.0 },
-  { code: 24, name: 'ตรายาง โลโก้', unit: 'อัน', unitPrice: 250.0 },
-  { code: 25, name: 'ตรายางชื่อ ตำแหน่ง', unit: 'อัน', unitPrice: 280.0 },
-  { code: 26, name: 'ตรายางชื่อ ตำแหน่ง ตลับเบอร์ S833', unit: 'อัน', unitPrice: 550.0 },
-  { code: 27, name: 'ตรายางชื่อ ตำแหน่ง ตลับเบอร์ S844', unit: 'อัน', unitPrice: 450.0 },
-  { code: 28, name: 'ตรายางชื่อ ตำแหน่ง แบบธรรมดา', unit: 'อัน', unitPrice: 280.0 },
-  { code: 29, name: 'ตรายางโลโก้ อบต.', unit: 'อัน', unitPrice: 450.0 },
-  { code: 30, name: 'ถ่าน panasonic AA', unit: 'แพค', unitPrice: 50.0 },
-  { code: 31, name: 'ที่เย็บกระดาษ NO.10', unit: 'อัน', unitPrice: 95.0 },
-  { code: 32, name: 'เทปตีเส้นสะท้อนแสงสีทอง', unit: 'ม้วน', unitPrice: 20.0 },
-  { code: 33, name: 'เทปใส', unit: 'ม้วน', unitPrice: 55.0 },
-  { code: 34, name: 'ธง วปร. ขนาด 60x90 ซม.', unit: 'ผืน', unitPrice: 45.0 },
-  { code: 35, name: 'ธงชาติ size ขนาด 60x90 ซม.', unit: 'ถุง', unitPrice: 30.0 },
-  { code: 36, name: 'ธูปเทียนแพ เบอร์1', unit: 'ชุด', unitPrice: 625.0 },
-  { code: 37, name: 'ปากกาไวท์บอร์ด', unit: 'ด้าม', unitPrice: 25.0 },
-  { code: 38, name: 'แปรงลบกระดานดำ', unit: 'อัน', unitPrice: 25.0 },
-  { code: 39, name: 'พลาสติกลูกฟูก 65*122 ซม.หนา3มม.', unit: 'แผ่น', unitPrice: 50.0 },
-  { code: 40, name: 'พานบัวคู่', unit: 'ชุด', unitPrice: 650.0 },
-  { code: 41, name: 'ลวดเย็บกระดาษ 1/100 ตัว', unit: 'กล่อง', unitPrice: 16.0 },
-  { code: 42, name: 'ลวดเย็บกระดาษ ETON9 23/10', unit: 'กล่อง', unitPrice: 100.0 },
-  { code: 43, name: 'ลวดเย็บกระดาษ NO.10', unit: 'กล่อง', unitPrice: 288.0 },
-  { code: 44, name: 'ลวดเย็บกระดาษ MAX 10-1M', unit: 'กล่อง', unitPrice: 230.0 },
-  { code: 45, name: 'ลวดเสียบกระดาษ/100ตัว', unit: 'กล่อง', unitPrice: 16.0 },
-  { code: 46, name: 'ลวดเสียบกระดาษ/50ตัว', unit: 'กล่อง', unitPrice: 8.0 },
-  { code: 47, name: 'แล็คซีน 1.5นิ้ว', unit: 'ม้วน', unitPrice: 35.0 },
-  { code: 48, name: 'สติ๊กเกอร์ใส A4', unit: 'ห่อ', unitPrice: 250.0 },
-  { code: 49, name: 'สันรูดแฟ้มคละสี 5mm', unit: 'โหล', unitPrice: 60.0 },
-]
 function categoryOf(item) { return item?.category || DEFAULT_CATEGORY }
 
 // Default signers shown on the printed "รายงานวัสดุคงเหลือ" report — editable by admins,
@@ -212,9 +158,6 @@ export default function ElectricalStockPage() {
   const [editingItemId, setEditingItemId] = useState(null)
   const [itemForm, setItemForm]       = useState(EMPTY_ITEM)
   const [itemSaving, setItemSaving]   = useState(false)
-
-  const [officeImporting, setOfficeImporting] = useState(false)
-  const [officeImportResult, setOfficeImportResult] = useState('')
 
   // Shared header (type/date/party/docNo entered once) + one or more item rows — for
   // batch entries like "15 items received today on the same delivery note".
@@ -410,43 +353,6 @@ export default function ElectricalStockPage() {
       unitPrice: item.unitPrice ?? '', balance: item.balance ?? '', category: categoryOf(item),
     })
     setItemModal(true)
-  }
-
-  // One-time import of the OFFICE_SUPPLY_IMPORT seed list — skips names already present in
-  // the category so re-running (or a partial prior run) never creates duplicates.
-  function handleImportOfficeSupplies() {
-    const existingNames = new Set(categoryItems.map(i => i.name.trim().toLowerCase()))
-    const toCreate = OFFICE_SUPPLY_IMPORT.filter(i => !existingNames.has(i.name.trim().toLowerCase()))
-    if (toCreate.length === 0) {
-      setOfficeImportResult('รายการทั้งหมดมีอยู่ในระบบแล้ว ไม่มีรายการใหม่ให้นำเข้า')
-      return
-    }
-    setConfirmState({
-      title: 'นำเข้ารายการวัสดุสำนักงาน',
-      message: `นำเข้าวัสดุ ${toCreate.length} รายการ (จากทั้งหมด ${OFFICE_SUPPLY_IMPORT.length} รายการในไฟล์ — ${OFFICE_SUPPLY_IMPORT.length - toCreate.length} รายการมีชื่อซ้ำกับที่มีอยู่แล้ว จะถูกข้าม) จำนวนคงเหลือเริ่มต้นของทุกรายการจะเป็น 0`,
-      confirmLabel: 'นำเข้าข้อมูล',
-      onConfirm: async () => {
-        setOfficeImporting(true)
-        setOfficeImportResult('')
-        let created = 0
-        try {
-          for (const item of toCreate) {
-            await createStockItem({
-              code: item.code, name: item.name, unit: item.unit,
-              unitPrice: item.unitPrice, balance: 0, category: 'วัสดุสำนักงาน',
-            })
-            created++
-          }
-          setOfficeImportResult(`นำเข้าสำเร็จ ${created} รายการ`)
-          await load()
-        } catch (err) {
-          setOfficeImportResult(`นำเข้าได้ ${created} รายการ ก่อนเกิดข้อผิดพลาด: ${err?.response?.data?.error || 'บันทึกไม่สำเร็จ'}`)
-          await load()
-        } finally {
-          setOfficeImporting(false)
-        }
-      },
-    })
   }
 
   async function handleSaveItem(e) {
@@ -1052,20 +958,11 @@ export default function ElectricalStockPage() {
                 }`}>
                 {hideZeroRegistry ? '🙈 ซ่อนรายการหมดสต๊อก' : '👁️ แสดงรายการหมดสต๊อก'}
               </button>
-              {activeCategory === 'วัสดุสำนักงาน' && (
-                <button onClick={handleImportOfficeSupplies} disabled={officeImporting}
-                  className="text-xs border border-blue-200 text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-50">
-                  📥 นำเข้าจากไฟล์ Excel ({OFFICE_SUPPLY_IMPORT.length} รายการ)
-                </button>
-              )}
               <button onClick={openAddItem} className="text-xs bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
                 + เพิ่มวัสดุใหม่
               </button>
             </div>
           </div>
-          {officeImportResult && (
-            <p className="mx-3 mt-3 text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2">✅ {officeImportResult}</p>
-          )}
           <div className="p-3">
             <input
               className="input mb-3"
