@@ -21,6 +21,60 @@ const CATEGORIES = [
 const DEFAULT_CATEGORY = CATEGORIES[0].key
 function categoryOf(item) { return item?.category || DEFAULT_CATEGORY }
 
+// Correct code/price reference for the วัสดุสำนักงาน items imported from the uploaded Excel —
+// used one-time to detect and fix items whose unitPrice/balance landed swapped after import.
+const OFFICE_SUPPLY_REFERENCE = [
+  { code: 1, name: 'กบเหลาดินสอตั้งโต๊ะ', unit: 'อัน', unitPrice: 165.0 },
+  { code: 2, name: 'กระดาษชาร์ททำปก A4/120g/180แผ่น', unit: 'ห่อ', unitPrice: 120.0 },
+  { code: 3, name: 'กระดาษชาร์ททำปก A4/180g/100แผ่น', unit: 'ห่อ', unitPrice: 135.0 },
+  { code: 4, name: 'กระดาษสีเขียวเข้ม 80แกรม', unit: 'รีม', unitPrice: 240.0 },
+  { code: 5, name: 'กล่องพลาสติกมีล้อแบบสี ขนาด100ลิตร', unit: 'กล่อง', unitPrice: 395.0 },
+  { code: 6, name: 'กาว UHU219', unit: 'แท่ง', unitPrice: 70.0 },
+  { code: 7, name: 'กาวน้ำ', unit: 'หลอด', unitPrice: 15.0 },
+  { code: 8, name: 'กาวร้อน', unit: 'ขวด', unitPrice: 35.0 },
+  { code: 9, name: 'กาวสองหน้าบาง 1 นิ้ว', unit: 'ม้วน', unitPrice: 30.0 },
+  { code: 10, name: 'กาวหนังไก่ 1.5นิ้ว', unit: 'ม้วน', unitPrice: 30.0 },
+  { code: 11, name: 'กาวหนังไก่ 2 นิ้ว', unit: 'มัด', unitPrice: 40.0 },
+  { code: 12, name: 'คลิบหนีบดำ เบอร์ 110', unit: 'กล่อง', unitPrice: 30.0 },
+  { code: 13, name: 'คลิบหนีบดำ เบอร์ 112', unit: 'กล่อง', unitPrice: 15.0 },
+  { code: 14, name: 'คัตเตอร์ โครงสแตนเลส ใหญ่', unit: 'อัน', unitPrice: 48.0 },
+  { code: 15, name: 'เครื่องเย็บกระดาษ HD-88', unit: 'เครื่อง', unitPrice: 425.0 },
+  { code: 16, name: 'ซองสีน้ำตาล A4 ไม่ขยายข้าง', unit: 'มัด', unitPrice: 200.0 },
+  { code: 17, name: 'ต้นไม้ปลอม', unit: 'ชุด', unitPrice: 250.0 },
+  { code: 18, name: 'ต้นไม้ปลอม 1.5 เมตร', unit: 'อัน', unitPrice: 1200.0 },
+  { code: 19, name: 'ต้นไม้ปลอม 1.8 เมตร', unit: 'อัน', unitPrice: 1500.0 },
+  { code: 20, name: 'ต้นไม้ปลอมไซส์เล็ก', unit: 'ชุด', unitPrice: 150.0 },
+  { code: 21, name: 'ต้นไม้ปลอมไซส์ใหญ่', unit: 'ชุด', unitPrice: 580.0 },
+  { code: 22, name: 'ตรายาง', unit: 'อัน', unitPrice: 250.0 },
+  { code: 23, name: 'ตรายาง ลับ', unit: 'อัน', unitPrice: 25.0 },
+  { code: 24, name: 'ตรายาง โลโก้', unit: 'อัน', unitPrice: 250.0 },
+  { code: 25, name: 'ตรายางชื่อ ตำแหน่ง', unit: 'อัน', unitPrice: 280.0 },
+  { code: 26, name: 'ตรายางชื่อ ตำแหน่ง ตลับเบอร์ S833', unit: 'อัน', unitPrice: 550.0 },
+  { code: 27, name: 'ตรายางชื่อ ตำแหน่ง ตลับเบอร์ S844', unit: 'อัน', unitPrice: 450.0 },
+  { code: 28, name: 'ตรายางชื่อ ตำแหน่ง แบบธรรมดา', unit: 'อัน', unitPrice: 280.0 },
+  { code: 29, name: 'ตรายางโลโก้ อบต.', unit: 'อัน', unitPrice: 450.0 },
+  { code: 30, name: 'ถ่าน panasonic AA', unit: 'แพค', unitPrice: 50.0 },
+  { code: 31, name: 'ที่เย็บกระดาษ NO.10', unit: 'อัน', unitPrice: 95.0 },
+  { code: 32, name: 'เทปตีเส้นสะท้อนแสงสีทอง', unit: 'ม้วน', unitPrice: 20.0 },
+  { code: 33, name: 'เทปใส', unit: 'ม้วน', unitPrice: 55.0 },
+  { code: 34, name: 'ธง วปร. ขนาด 60x90 ซม.', unit: 'ผืน', unitPrice: 45.0 },
+  { code: 35, name: 'ธงชาติ size ขนาด 60x90 ซม.', unit: 'ถุง', unitPrice: 30.0 },
+  { code: 36, name: 'ธูปเทียนแพ เบอร์1', unit: 'ชุด', unitPrice: 625.0 },
+  { code: 37, name: 'ปากกาไวท์บอร์ด', unit: 'ด้าม', unitPrice: 25.0 },
+  { code: 38, name: 'แปรงลบกระดานดำ', unit: 'อัน', unitPrice: 25.0 },
+  { code: 39, name: 'พลาสติกลูกฟูก 65*122 ซม.หนา3มม.', unit: 'แผ่น', unitPrice: 50.0 },
+  { code: 40, name: 'พานบัวคู่', unit: 'ชุด', unitPrice: 650.0 },
+  { code: 41, name: 'ลวดเย็บกระดาษ 1/100 ตัว', unit: 'กล่อง', unitPrice: 16.0 },
+  { code: 42, name: 'ลวดเย็บกระดาษ ETON9 23/10', unit: 'กล่อง', unitPrice: 100.0 },
+  { code: 43, name: 'ลวดเย็บกระดาษ NO.10', unit: 'กล่อง', unitPrice: 288.0 },
+  { code: 44, name: 'ลวดเย็บกระดาษ MAX 10-1M', unit: 'กล่อง', unitPrice: 230.0 },
+  { code: 45, name: 'ลวดเสียบกระดาษ/100ตัว', unit: 'กล่อง', unitPrice: 16.0 },
+  { code: 46, name: 'ลวดเสียบกระดาษ/50ตัว', unit: 'กล่อง', unitPrice: 8.0 },
+  { code: 47, name: 'แล็คซีน 1.5นิ้ว', unit: 'ม้วน', unitPrice: 35.0 },
+  { code: 48, name: 'สติ๊กเกอร์ใส A4', unit: 'ห่อ', unitPrice: 250.0 },
+  { code: 49, name: 'สันรูดแฟ้มคละสี 5mm', unit: 'โหล', unitPrice: 60.0 },
+]
+
 // Default signers shown on the printed "รายงานวัสดุคงเหลือ" report — editable by admins,
 // saved server-side per category (staff in these positions differ per category, and
 // change over time regardless).
@@ -240,6 +294,9 @@ export default function ElectricalStockPage() {
   const [itemForm, setItemForm]       = useState(EMPTY_ITEM)
   const [itemSaving, setItemSaving]   = useState(false)
 
+  const [swapFixing, setSwapFixing] = useState(false)
+  const [swapFixResult, setSwapFixResult] = useState('')
+
   // Shared header (type/date/party/docNo entered once) + one or more item rows — for
   // batch entries like "15 items received today on the same delivery note".
   const [entryForm, setEntryForm] = useState({ type: 'รับ', date: todayStr(), party: '', docNo: '', rows: [{ ...EMPTY_ENTRY_ROW }] })
@@ -434,6 +491,52 @@ export default function ElectricalStockPage() {
       unitPrice: item.unitPrice ?? '', balance: item.balance ?? '', category: categoryOf(item),
     })
     setItemModal(true)
+  }
+
+  // One-time fix for the วัสดุสำนักงาน import: unitPrice/balance landed swapped for some
+  // items. Only touches an item when its current balance exactly matches the known-correct
+  // price from the source Excel (a strong, specific signal of that exact swap) — anything
+  // that doesn't match this precise pattern is left untouched rather than guessed at.
+  function handleFixSwappedOfficeSupplies() {
+    const refByName = new Map(OFFICE_SUPPLY_REFERENCE.map(r => [r.name.trim().toLowerCase(), r]))
+    const toFix = categoryItems
+      .map(item => {
+        const ref = refByName.get(item.name.trim().toLowerCase())
+        if (!ref) return null
+        const alreadyCorrect = Number(item.unitPrice) === ref.unitPrice
+        const looksSwapped = !alreadyCorrect && Number(item.balance) === ref.unitPrice
+        return looksSwapped ? { item, ref } : null
+      })
+      .filter(Boolean)
+
+    if (toFix.length === 0) {
+      setSwapFixResult('ไม่พบรายการที่ราคากับคงเหลือสลับกัน (อาจแก้ไขไปแล้ว หรือรูปแบบไม่ตรงกับที่คาดไว้)')
+      return
+    }
+
+    setConfirmState({
+      title: 'แก้ไขราคา/คงเหลือที่สลับกัน',
+      message: `พบ ${toFix.length} รายการที่ "ราคา/หน่วย" กับ "คงเหลือ" สลับกัน — จะตั้งราคาให้ถูกต้องตามไฟล์ Excel ต้นฉบับ และตั้งจำนวนคงเหลือกลับเป็นค่าที่เคยอยู่ในช่องราคา (ปกติคือ 0) ทุกรายการ`,
+      confirmLabel: 'แก้ไขข้อมูล',
+      onConfirm: async () => {
+        setSwapFixing(true)
+        setSwapFixResult('')
+        let fixed = 0
+        try {
+          for (const { item, ref } of toFix) {
+            await updateStockItem(item._id, { unitPrice: ref.unitPrice, balance: Number(item.unitPrice) || 0 })
+            fixed++
+          }
+          setSwapFixResult(`แก้ไขสำเร็จ ${fixed} รายการ — ถ้าคอลัมน์คงเหลือยังไม่ถูกต้อง (ราคาถูกแล้วแต่คงเหลือไม่เปลี่ยน) แจ้งได้เลย จะแก้ด้วยวิธีอื่นต่อ`)
+          await load()
+        } catch (err) {
+          setSwapFixResult(`แก้ไขได้ ${fixed} รายการ ก่อนเกิดข้อผิดพลาด: ${err?.response?.data?.error || 'บันทึกไม่สำเร็จ'}`)
+          await load()
+        } finally {
+          setSwapFixing(false)
+        }
+      },
+    })
   }
 
   async function handleSaveItem(e) {
@@ -1034,11 +1137,20 @@ export default function ElectricalStockPage() {
                 }`}>
                 {hideZeroRegistry ? '🙈 ซ่อนรายการหมดสต๊อก' : '👁️ แสดงรายการหมดสต๊อก'}
               </button>
+              {activeCategory === 'วัสดุสำนักงาน' && (
+                <button onClick={handleFixSwappedOfficeSupplies} disabled={swapFixing}
+                  className="text-xs border border-amber-300 text-amber-700 hover:bg-amber-50 px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-50">
+                  🔧 แก้ไขราคา/คงเหลือที่สลับกัน
+                </button>
+              )}
               <button onClick={openAddItem} className="text-xs bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
                 + เพิ่มวัสดุใหม่
               </button>
             </div>
           </div>
+          {swapFixResult && (
+            <p className="mx-3 mt-3 text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2">✅ {swapFixResult}</p>
+          )}
           <div className="p-3">
             <input
               className="input mb-3"
