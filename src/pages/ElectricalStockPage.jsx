@@ -436,24 +436,6 @@ export default function ElectricalStockPage() {
     setItemModal(true)
   }
 
-  // Swap a single item's ราคา/หน่วย and คงเหลือ — for correcting an item entered with those
-  // two fields reversed (works for any item, in any category, unlike a bulk import-matched fix).
-  function handleSwapItemValues(item) {
-    setConfirmState({
-      title: 'สลับค่าราคา/คงเหลือ',
-      message: `สลับ "ราคา/หน่วย" (${(item.unitPrice || 0).toLocaleString()}) กับ "คงเหลือ" (${(item.balance || 0).toLocaleString()}) ของ "${item.name}"?`,
-      confirmLabel: 'สลับค่า',
-      onConfirm: async () => {
-        try {
-          await updateStockItem(item._id, { unitPrice: item.balance || 0, balance: item.unitPrice || 0 })
-          await load()
-        } catch (err) {
-          alert(err?.response?.data?.error || 'สลับค่าไม่สำเร็จ')
-        }
-      },
-    })
-  }
-
   async function handleSaveItem(e) {
     e.preventDefault()
     setItemSaving(true)
@@ -1114,11 +1096,6 @@ export default function ElectricalStockPage() {
                               <button onClick={() => openEditItem(item)}
                                 className="text-[11px] px-2 py-1 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium transition-colors">
                                 แก้ไข
-                              </button>
-                              <button onClick={() => handleSwapItemValues(item)}
-                                title="สลับค่าราคา/หน่วย กับ คงเหลือ — ใช้เมื่อกรอกสองช่องนี้สลับกัน"
-                                className="text-[11px] px-2 py-1 rounded-md bg-purple-50 text-purple-600 hover:bg-purple-100 font-medium transition-colors">
-                                🔄 สลับ
                               </button>
                               <button onClick={() => handleDeleteItem(item)}
                                 className="text-[11px] px-2 py-1 rounded-md bg-red-50 text-red-500 hover:bg-red-100 font-medium transition-colors">
