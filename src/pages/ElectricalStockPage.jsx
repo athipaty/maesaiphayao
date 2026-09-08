@@ -922,7 +922,7 @@ export default function ElectricalStockPage() {
                               />
                             </td>
                             <td className="p-2 border-b border-gray-50">
-                              <input type="number" min="1" step="1" className="input py-1.5 text-right" value={row.qty}
+                              <input type="number" min="0.01" step="0.01" className="input py-1.5 text-right" value={row.qty}
                                 onChange={e => updateEntryRow(idx, { qty: e.target.value })} />
                             </td>
                             {entryForm.type === 'รับ' && (
@@ -1437,7 +1437,7 @@ export default function ElectricalStockPage() {
               ) : (
                 <div>
                   <label className="form-label">จำนวนคงเหลือเริ่มต้น</label>
-                  <input type="number" min="0" className="input" value={itemForm.balance}
+                  <input type="number" min="0" step="0.01" className="input" value={itemForm.balance}
                     onChange={e => setItemForm({ ...itemForm, balance: e.target.value })} />
                 </div>
               )}
