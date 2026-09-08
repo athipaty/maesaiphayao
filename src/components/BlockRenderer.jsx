@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import DOMPurify from 'dompurify'
 
 const BACKEND_ORIGIN = (import.meta.env.VITE_API_URL || '').replace(/\/api\/abt.*$/, '') || 'https://center-kitchen-backend.onrender.com'
 const B2_ORIGIN = 'https://s3.us-west-004.backblazeb2.com'
@@ -720,11 +721,19 @@ function ArchiveBlock({ data }) {
   )
 }
 
-// Renders admin-authored HTML (embeds, custom markup). Deliberately does NOT
-// execute <script> tags inside it -- dangerouslySetInnerHTML already inserts
-// them inert, and that's load-bearing here: this block is reachable by anyone
-// with the admin password, so letting scripts run would make it a stored-XSS
-// vector served to every site visitor.
+// Renders admin-authored HTML (embeds, custom markup) through DOMPurify before it ever
+// reaches dangerouslySetInnerHTML. A raw <script> tag never executes via innerHTML — that
+// much was true of the old approach here — but that is nowhere near sufficient: a
+// <meta http-equiv="refresh" content="0;url=...">, an <iframe src="...">, a <form
+// action="...">, a <base href="..."> that hijacks every relative link on the page, or a
+// plain onerror="..."/onload="..." attribute all run or navigate the visitor's browser
+// without any <script> tag at all. This block is reachable by anyone who can save a page
+// (the admin password, or a leaked/stolen session), so unsanitized HTML here is a stored
+// open-redirect / XSS vector served to every site visitor — which is what actually
+// happened: a saved page silently redirected visitors to a gambling site.
+const HTML_SANITIZE_CONFIG = {
+  FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'meta', 'link', 'base', 'form'],
+}
 function HtmlBlock({ data, preview }) {
   if (!data.html) return null
   if (preview) {
@@ -736,7 +745,7 @@ function HtmlBlock({ data, preview }) {
     )
   }
   return (
-    <div className="mb-2" dangerouslySetInnerHTML={{ __html: data.html }} />
+    <div className="mb-2" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data.html, HTML_SANITIZE_CONFIG) }} />
   )
 }
 
