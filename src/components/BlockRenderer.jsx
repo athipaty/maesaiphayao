@@ -731,8 +731,30 @@ function ArchiveBlock({ data }) {
 // (the admin password, or a leaked/stolen session), so unsanitized HTML here is a stored
 // open-redirect / XSS vector served to every site visitor — which is what actually
 // happened: a saved page silently redirected visitors to a gambling site.
+//
+// Allowlist rather than a forbid-list, so nothing dangerous gets in by omission. FORCE_BODY
+// is required for <style> to survive at all — DOMPurify's default fragment sanitizer strips
+// it unconditionally (it's normally head-only content) regardless of any tag list, which is
+// why content pasted from Word/Google Docs (that bundles its formatting in a <style> block)
+// rendered as plain unstyled text until this. <style> content itself isn't further sanitized
+// in this mode, but that's not a live gap: expression() died with IE and no current browser
+// executes url(javascript:...) from CSS, so there's no known way to turn injected CSS into
+// script execution or navigation today. The one real caveat is that a <style> tag here is
+// unscoped — its rules apply to the whole page, not just this block — which is a defacement
+// risk, not a redirect one, and no worse than what a malicious admin can already do by
+// editing any other page directly.
 const HTML_SANITIZE_CONFIG = {
-  FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'meta', 'link', 'base', 'form'],
+  FORCE_BODY: true,
+  ALLOWED_TAGS: [
+    'div', 'span', 'p', 'br', 'hr',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'b', 'strong', 'i', 'em', 'u', 's', 'strike', 'sub', 'sup', 'small', 'mark', 'font',
+    'ul', 'ol', 'li',
+    'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'caption', 'colgroup', 'col',
+    'a', 'img',
+    'blockquote', 'pre', 'code', 'kbd',
+    'style',
+  ],
 }
 function HtmlBlock({ data, preview }) {
   if (!data.html) return null
