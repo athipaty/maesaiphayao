@@ -1275,12 +1275,7 @@ export default function ElectricalStockPage() {
                   </tbody>
                   <tfoot>
                     <tr className="bg-gray-50 font-semibold text-gray-700">
-                      <td className="p-2" colSpan={3}>รวม</td>
-                      <td className="p-2 text-right">{yearTotals.opening.toLocaleString()}</td>
-                      <td className="p-2 text-right text-green-600">{yearTotals.received.toLocaleString()}</td>
-                      <td className="p-2 text-right text-amber-600">{yearTotals.withdrawn.toLocaleString()}</td>
-                      <td className="p-2 text-right">{yearTotals.closing.toLocaleString()}</td>
-                      <td className="p-2"></td>
+                      <td className="p-2" colSpan={8}>รวม</td>
                       <td className="p-2 text-right">฿{yearTotals.value.toLocaleString()}</td>
                     </tr>
                   </tfoot>
