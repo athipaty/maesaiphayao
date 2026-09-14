@@ -390,25 +390,34 @@ export default function HomePage() {
       <SectionBanner icon="📘" label="Facebook" />
       <div className="flex flex-col lg:flex-row gap-4">
         {/* Facebook widget — crisp at native size, full width on mobile */}
-        <div className="card p-0 overflow-hidden flex justify-center w-full lg:w-[500px] lg:flex-shrink-0">
-          <div ref={fbContainerRef} className="overflow-hidden w-full max-w-[500px]"
-            style={{ height: `${Math.round(500 * fbScale)}px` }}>
-            <iframe
-              src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false"
-              style={{
-                border: 'none',
-                width: '500px',
-                height: '500px',
-                display: 'block',
-                transform: `scale(${fbScale})`,
-                transformOrigin: 'top left',
-              }}
-              frameBorder="0"
-              allowFullScreen
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-              sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox"
-              title="Facebook Page อบต.แม่ใส"
-            />
+        <div className="card p-0 overflow-hidden w-full lg:w-[500px] lg:flex-shrink-0">
+          <div className="flex justify-center">
+            <div ref={fbContainerRef} className="overflow-hidden w-full max-w-[500px]"
+              style={{ height: `${Math.round(500 * fbScale)}px` }}>
+              <iframe
+                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false"
+                style={{
+                  border: 'none',
+                  width: '500px',
+                  height: '500px',
+                  display: 'block',
+                  transform: `scale(${fbScale})`,
+                  transformOrigin: 'top left',
+                }}
+                frameBorder="0"
+                allowFullScreen
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox allow-storage-access-by-user-activation"
+                title="Facebook Page อบต.แม่ใส"
+              />
+            </div>
+          </div>
+          {/* Fallback for browsers that block the embed (mobile Safari third-party cookies, carrier content filters, in-app browsers) */}
+          <div className="text-center py-2 border-t border-gray-100">
+            <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
+              className="text-xs text-secondary hover:underline">
+              เห็นเนื้อหาด้านบนว่างเปล่า? คลิกเพื่อเปิดดูใน Facebook →
+            </a>
           </div>
         </div>
 
