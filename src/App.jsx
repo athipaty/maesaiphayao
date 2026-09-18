@@ -53,7 +53,6 @@ const DynamicPage          = lazy(() => import("./pages/DynamicPage"));
 
 // Admin pages — lazy loaded so each page is its own chunk
 import AdminLayout from "./pages/admin/AdminLayout";
-const AdminHomeBuilder    = lazy(() => import("./pages/admin/AdminHomeBuilder"));
 const AdminNews           = lazy(() => import("./pages/admin/AdminNews"));
 const AdminAnnounce       = lazy(() => import("./pages/admin/AdminAnnounce"));
 const AdminProcurement    = lazy(() => import("./pages/admin/AdminProcurement"));
@@ -189,7 +188,6 @@ export default function App() {
         {/* Admin panel */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/pages" replace />} />
-          <Route path="home-builder"     element={<ChunkErrorBoundary><Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm animate-pulse">กำลังโหลด...</div>}><AdminHomeBuilder /></Suspense></ChunkErrorBoundary>} />
           <Route path="news"             element={<ChunkErrorBoundary><Suspense fallback={null}><AdminNews /></Suspense></ChunkErrorBoundary>} />
           <Route path="announcements"    element={<ChunkErrorBoundary><Suspense fallback={null}><AdminAnnounce /></Suspense></ChunkErrorBoundary>} />
           <Route path="procurement"      element={<ChunkErrorBoundary><Suspense fallback={null}><AdminProcurement /></Suspense></ChunkErrorBoundary>} />

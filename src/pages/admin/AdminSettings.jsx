@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
 import ImageUpload from '../../components/ImageUpload'
 import { getSettings, updateSetting, uploadImage } from '../../services/api'
 
@@ -269,15 +268,6 @@ export default function AdminSettings() {
           <p className="text-xs text-gray-400 mb-3">แนะนำภาพแนวตั้งหรือสี่เหลี่ยมจัตุรัส เช่น ภาพกิจกรรม อบต. หรือทัศนียภาพในพื้นที่</p>
           <LogoUpload value={form.landingPhoto} onChange={url => set('landingPhoto', url)}
             icon="📷" emptyLabel="ยังไม่มีรูปภาพ" uploadLabel="อัปโหลดรูปภาพ" />
-        </Section>
-
-        {/* Homepage layout — now a dedicated visual builder */}
-        <Section delay={250} icon="🏠" title="เค้าโครงหน้าแรก" subtitle="จัดเรียง แก้ไข หรือซ่อนส่วนต่างๆ ของหน้าแรก แบบเห็นผลจริง">
-          <Link to="/admin/home-builder"
-            className="flex items-center justify-between gap-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl px-5 py-4 hover:opacity-90 transition-opacity">
-            <span className="text-sm font-semibold">🏠 ไปที่ตัวจัดหน้าแรก →</span>
-            <span className="text-xs text-white/70">ลากจัดเรียง · แก้ไข · ซ่อน/แสดง</span>
-          </Link>
         </Section>
 
       </div>

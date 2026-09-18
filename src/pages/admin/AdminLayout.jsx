@@ -4,7 +4,6 @@ import { loginAdmin, verifyAdmin, logoutAdmin, getEServices, getComplaints, getF
 
 const MENU = [
   { path: '/admin/pages',         label: 'จัดการเมนู/หน้า',    icon: '🗂️' },
-  { path: '/admin/home-builder',  label: 'จัดหน้าแรก',         icon: '🏠' },
   { path: '/admin/news',          label: 'ข่าวสารกิจกรรม',     icon: '📰' },
   { path: '/admin/announcements', label: 'ประชาสัมพันธ์',       icon: '📢' },
   { path: '/admin/notices',       label: 'หัวข้อประกาศ',        icon: '📋' },
