@@ -37,7 +37,7 @@ export function NewsSection({ dept, items = [], loading }) {
             const icon = DEPT_ICONS[item.department] || DEPT_ICONS[dept] || '📰'
             const label = DEPT_LABELS[item.department] || DEPT_LABELS[dept] || ''
             return (
-              <Link to={`/news/detail/${item._id}`} key={item._id}
+              <Link to={`/page/builtin-news/detail/${item._id}`} key={item._id}
                 className={`bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group${idx === 2 ? ' hidden md:block' : ''}`}>
                 {img ? (
                   <img src={img} alt={item.title} loading="lazy" className="w-full h-44 object-cover group-hover:scale-[1.02] transition-transform duration-300" />
@@ -95,7 +95,7 @@ export function LatestNewsGrid({ items = [], loading }) {
   return (
     <div className="space-y-3">
       {/* Hero — latest news item, full width */}
-      <Link to={`/news/detail/${hero._id}`}
+      <Link to={`/page/builtin-news/detail/${hero._id}`}
         className="relative block rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group bg-white">
         <div className="relative w-full h-64 sm:h-80 md:h-96 overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200">
           {heroImg ? (
@@ -132,7 +132,7 @@ export function LatestNewsGrid({ items = [], loading }) {
             const icon = DEPT_ICONS[dept] || '📰'
             const label = DEPT_LABELS[dept] || ''
             return (
-              <Link to={`/news/detail/${item._id}`} key={item._id}
+              <Link to={`/page/builtin-news/detail/${item._id}`} key={item._id}
                 className="bg-white rounded-lg sm:rounded-xl shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group">
                 {img ? (
                   <img src={img} alt={item.title} loading="lazy" className="w-full h-20 sm:h-36 object-cover group-hover:scale-[1.02] transition-transform duration-300" />

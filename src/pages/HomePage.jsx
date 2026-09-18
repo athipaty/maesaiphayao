@@ -222,7 +222,7 @@ export default function HomePage() {
 
       {/* ── ข่าวสารกิจกรรม — one combined section: latest news as a full-width hero, then a 3x3 grid ── */}
       <Reveal>
-        <SectionBanner icon="📰" label="ข่าวสารกิจกรรม" to="/news" />
+        <SectionBanner icon="📰" label="ข่าวสารกิจกรรม" to="/page/builtin-news" />
         <LatestNewsGrid items={allNews} loading={loading} />
       </Reveal>
 
@@ -552,7 +552,7 @@ export default function HomePage() {
       {/* ── สถานที่ท่องเที่ยว ─────────────────────────────────────────── */}
       {travel.length > 0 && (
       <Reveal>
-        <SectionBanner icon="🗺️" label="สถานที่ท่องเที่ยว" to="/travel" />
+        <SectionBanner icon="🗺️" label="สถานที่ท่องเที่ยว" to="/page/builtin-travel" />
 
         <div className="card">
           <style>{`
@@ -595,7 +595,7 @@ export default function HomePage() {
       {/* ── สินค้า OTOP ───────────────────────────────────────────────── */}
       {products.length > 0 && (
       <Reveal>
-        <SectionBanner icon="🛍️" label="สินค้า OTOP" to="/products" />
+        <SectionBanner icon="🛍️" label="สินค้า OTOP" to="/page/builtin-products" />
 
         <div className="card">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4">

@@ -1,11 +1,19 @@
 import { useState, lazy, Suspense, useEffect } from "react";
 import ChunkErrorBoundary from "./components/ChunkErrorBoundary";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 
 function ScrollToTop() {
   const { pathname } = useLocation()
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }) }, [pathname])
   return null
+}
+
+// Legacy URL support: old fixed routes (e.g. /news/detail/:id) now redirect to their
+// /page/<slug>/... equivalent, substituting any route params into the target pattern.
+function ParamRedirect({ to }) {
+  const params = useParams()
+  const target = Object.entries(params).reduce((p, [k, v]) => p.replace(`:${k}`, v), to)
+  return <Navigate to={target} replace />
 }
 import Layout from "./components/Layout";
 import SplashPage from "./pages/SplashPage";
@@ -86,12 +94,12 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
 
           {/* 2. เกี่ยวกับ อบต. */}
-          <Route path="/about" element={<AboutPage />} />
+          <Route path="/page/builtin-about" element={<AboutPage />} />
 
           {/* 3. ข่าวสาร */}
-          <Route path="/news" element={<NewsListPage />} />
-          <Route path="/news/:dept" element={<NewsListPage />} />
-          <Route path="/news/detail/:id" element={<NewsDetailPage />} />
+          <Route path="/page/builtin-news" element={<NewsListPage />} />
+          <Route path="/page/builtin-news/:dept" element={<NewsListPage />} />
+          <Route path="/page/builtin-news/detail/:id" element={<NewsDetailPage />} />
           <Route path="/announcements" element={<AnnouncePage />} />
 
           {/* 4. แผนงาน/งบประมาณ */}
@@ -100,47 +108,68 @@ export default function App() {
           <Route path="/participation" element={<ParticipationPage />} />
 
           {/* 5. การเงิน/การคลัง */}
-          <Route path="/finance" element={<FinancePage />} />
+          <Route path="/page/builtin-finance" element={<FinancePage />} />
 
           {/* 6. จัดซื้อจัดจ้าง */}
-          <Route path="/procurement" element={<ProcurementPage />} />
+          <Route path="/page/builtin-procurement" element={<ProcurementPage />} />
           <Route path="/procurement-plans" element={<ProcurementPlanPage />} />
 
           {/* 7. บุคลากร/กิจการสภา */}
-          <Route path="/staff" element={<StaffPage />} />
+          <Route path="/page/builtin-staff" element={<StaffPage />} />
 
           {/* 8. บริการสาธารณะ */}
-          <Route path="/public-service" element={<PublicServicePage />} />
-          <Route path="/travel" element={<TravelPage />} />
-          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/page/builtin-public" element={<PublicServicePage />} />
+          <Route path="/page/builtin-travel" element={<TravelPage />} />
+          <Route path="/page/builtin-products" element={<ProductsPage />} />
 
           {/* 9. e-Service */}
-          <Route path="/eservice" element={<EServicePage />} />
+          <Route path="/page/builtin-eservice" element={<EServicePage />} />
 
           {/* 10. ร้องเรียน/ร้องทุกข์ */}
-          <Route path="/complaint" element={<ComplaintPage />} />
+          <Route path="/page/builtin-complaint" element={<ComplaintPage />} />
 
           {/* ช่องทางรับฟังความคิดเห็น / แบบสำรวจความพึงพอใจ */}
           <Route path="/feedback" element={<FeedbackPage />} />
           <Route path="/survey" element={<SurveyPage />} />
 
           {/* 11. ร้องเรียนทุจริต */}
-          <Route path="/corruption" element={<CorruptionPage />} />
+          <Route path="/page/builtin-corruption" element={<CorruptionPage />} />
 
           {/* 12. ITA/OIT */}
-          <Route path="/ita" element={<ItaPage />} />
+          <Route path="/page/builtin-ita" element={<ItaPage />} />
 
           {/* 13. ศูนย์ข้อมูลข่าวสาร */}
-          <Route path="/info-center" element={<InfoCenterPage />} />
+          <Route path="/page/builtin-info" element={<InfoCenterPage />} />
 
           {/* 14. กฎหมาย/ข้อบัญญัติ */}
-          <Route path="/laws" element={<LawPage />} />
+          <Route path="/page/builtin-laws" element={<LawPage />} />
 
           {/* คลังเอกสาร (sub-page) */}
           <Route path="/documents" element={<DocumentPage />} />
 
           {/* 15. ติดต่อเรา */}
-          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/page/builtin-contact" element={<ContactPage />} />
+
+          {/* Legacy URLs — the 15 fixed pages above used to live at their own short path
+              (e.g. /about). They now live under /page/<slug>, same pattern as pages
+              created in admin. These redirects keep old bookmarks/links working. */}
+          <Route path="/about"           element={<Navigate to="/page/builtin-about" replace />} />
+          <Route path="/news"            element={<Navigate to="/page/builtin-news" replace />} />
+          <Route path="/news/:dept"      element={<ParamRedirect to="/page/builtin-news/:dept" />} />
+          <Route path="/news/detail/:id" element={<ParamRedirect to="/page/builtin-news/detail/:id" />} />
+          <Route path="/finance"         element={<Navigate to="/page/builtin-finance" replace />} />
+          <Route path="/procurement"     element={<Navigate to="/page/builtin-procurement" replace />} />
+          <Route path="/staff"           element={<Navigate to="/page/builtin-staff" replace />} />
+          <Route path="/public-service"  element={<Navigate to="/page/builtin-public" replace />} />
+          <Route path="/travel"          element={<Navigate to="/page/builtin-travel" replace />} />
+          <Route path="/products"        element={<Navigate to="/page/builtin-products" replace />} />
+          <Route path="/eservice"        element={<Navigate to="/page/builtin-eservice" replace />} />
+          <Route path="/complaint"       element={<Navigate to="/page/builtin-complaint" replace />} />
+          <Route path="/corruption"      element={<Navigate to="/page/builtin-corruption" replace />} />
+          <Route path="/ita"             element={<Navigate to="/page/builtin-ita" replace />} />
+          <Route path="/info-center"     element={<Navigate to="/page/builtin-info" replace />} />
+          <Route path="/laws"            element={<Navigate to="/page/builtin-laws" replace />} />
+          <Route path="/contact"         element={<Navigate to="/page/builtin-contact" replace />} />
 
           {/* หน้าแบบ dynamic (สร้างจาก admin) */}
           <Route path="/page/:slug" element={<DynamicPage />} />

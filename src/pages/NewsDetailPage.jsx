@@ -29,9 +29,9 @@ export default function NewsDetailPage() {
     <div>
       {/* Breadcrumb */}
       <nav className="text-xs text-gray-400 mb-3 flex items-center gap-1.5">
-        <Link to="/news" className="hover:text-secondary">ข่าวสารทั้งหมด</Link>
+        <Link to="/page/builtin-news" className="hover:text-secondary">ข่าวสารทั้งหมด</Link>
         <span>›</span>
-        <Link to={`/news/${item.department}`} className="hover:text-secondary">
+        <Link to={`/page/builtin-news/${item.department}`} className="hover:text-secondary">
           {DEPT_LABELS[item.department]}
         </Link>
         <span>›</span>
@@ -105,7 +105,7 @@ export default function NewsDetailPage() {
         </div>
       )}
 
-      <Link to="/news" onClick={() => window.scrollTo(0, 0)}
+      <Link to="/page/builtin-news" onClick={() => window.scrollTo(0, 0)}
         className="inline-flex items-center gap-1 text-sm text-secondary hover:text-primary mt-3">
         ‹ กลับไปหน้าข่าวสาร
       </Link>

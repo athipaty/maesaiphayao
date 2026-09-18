@@ -13,7 +13,7 @@ const SERVICES = [
       { icon: '🚿', label: 'ประปาหมู่บ้าน',         desc: 'บริหารจัดการระบบประปาหมู่บ้าน 6 แห่ง' },
       { icon: '🌊', label: 'ระบบระบายน้ำ',          desc: 'ขุดลอก บำรุงรักษาคูคลองระบายน้ำ' },
     ],
-    newsLink: '/news/engineering',
+    newsLink: '/page/builtin-news/engineering',
     newsLabel: 'ข่าวกองช่าง →',
   },
   {
@@ -28,7 +28,7 @@ const SERVICES = [
       { icon: '🏥', label: 'สาธารณสุขชุมชน',         desc: 'ดูแลสุขภาพชุมชน อสม. 168 คน' },
       { icon: '📚', label: 'ส่งเสริมการศึกษา',        desc: 'สนับสนุนโรงเรียนและการเรียนรู้ตลอดชีวิต' },
     ],
-    newsLink: '/news/health',
+    newsLink: '/page/builtin-news/health',
     newsLabel: 'ข่าวสาธารณสุข →',
   },
   {
@@ -38,12 +38,12 @@ const SERVICES = [
     color: 'bg-amber-50 border-amber-200',
     hColor: 'text-amber-700',
     items: [
-      { icon: '🛍️', label: 'สินค้า OTOP',            desc: 'ข้าวร่องไฮ มีดร่องไฮ กระเป๋าจากต้นกก', link: '/products' },
-      { icon: '🗺️', label: 'แหล่งท่องเที่ยว',         desc: 'กว๊านพะเยา ธรรมชาติและวัฒนธรรม', link: '/travel' },
+      { icon: '🛍️', label: 'สินค้า OTOP',            desc: 'ข้าวร่องไฮ มีดร่องไฮ กระเป๋าจากต้นกก', link: '/page/builtin-products' },
+      { icon: '🗺️', label: 'แหล่งท่องเที่ยว',         desc: 'กว๊านพะเยา ธรรมชาติและวัฒนธรรม', link: '/page/builtin-travel' },
       { icon: '🌾', label: 'กลุ่มเกษตรกร',            desc: 'เกษตรกรทำนา 2,051 ราย พื้นที่ 9,012 ไร่' },
       { icon: '🤝', label: 'กลุ่มอาชีพ/สหกรณ์',       desc: 'ส่งเสริมรายได้และสหกรณ์ชุมชน' },
     ],
-    newsLink: '/news',
+    newsLink: '/page/builtin-news',
     newsLabel: 'ข่าวสารชุมชน →',
   },
   {
@@ -58,7 +58,7 @@ const SERVICES = [
       { icon: '🔨', label: 'ภูมิปัญญาท้องถิ่น',        desc: 'การตีมีด การทอผ้า ปั้นอิฐมอญ' },
       { icon: '🌿', label: 'อนุรักษ์วัฒนธรรม',         desc: 'ส่งเสริมและอนุรักษ์ศิลปวัฒนธรรมท้องถิ่น' },
     ],
-    newsLink: '/news',
+    newsLink: '/page/builtin-news',
     newsLabel: 'ข่าวกิจกรรม →',
   },
   {
@@ -73,7 +73,7 @@ const SERVICES = [
       { icon: '⚠️', label: 'แจ้งเหตุฉุกเฉิน',           desc: 'โทร 0-5488-9909 หรือ 191' },
       { icon: '🌊', label: 'ภัยพิบัติ/น้ำท่วม',         desc: 'ระบบเตือนภัยและแผนอพยพ' },
     ],
-    newsLink: '/news/disaster',
+    newsLink: '/page/builtin-news/disaster',
     newsLabel: 'ข่าวสาธารณภัย →',
   },
   {
@@ -88,7 +88,7 @@ const SERVICES = [
       { icon: '🌲', label: 'ทรัพยากรธรรมชาติ',          desc: 'อนุรักษ์ป่า ต้นน้ำ และกว๊านพะเยา' },
       { icon: '♻️', label: 'ชุมชนสีเขียว',              desc: 'ส่งเสริมการลดขยะและสิ่งแวดล้อมยั่งยืน' },
     ],
-    newsLink: '/news/health',
+    newsLink: '/page/builtin-news/health',
     newsLabel: 'ข่าวสิ่งแวดล้อม →',
   },
 ]

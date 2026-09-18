@@ -39,7 +39,7 @@ export default function NewsListPage() {
 
       {/* Dept filter */}
       <div className="bg-white rounded-xl shadow-sm mb-4 p-3 flex flex-wrap gap-2">
-        <Link to="/news"
+        <Link to="/page/builtin-news"
           className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
             !activeDept
               ? 'bg-secondary text-white border-secondary'
@@ -48,7 +48,7 @@ export default function NewsListPage() {
           ทั้งหมด
         </Link>
         {ALL_DEPTS.map(d => (
-          <Link key={d} to={`/news/${d}`}
+          <Link key={d} to={`/page/builtin-news/${d}`}
             className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
               activeDept === d
                 ? 'bg-secondary text-white border-secondary'
@@ -73,7 +73,7 @@ export default function NewsListPage() {
             const deptLabel = DEPT_LABELS[item.department] || item.department
 
             return (
-              <Link key={item._id} to={`/news/detail/${item._id}`}
+              <Link key={item._id} to={`/page/builtin-news/detail/${item._id}`}
                 className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group">
                 {/* Image */}
                 {img ? (

@@ -19,9 +19,9 @@ const DEFAULT_SETTINGS = {
 }
 
 const PUBLIC_SERVICE_ITEMS = [
-  { icon: '🌐', label: 'ยื่นคำร้อง',           to: '/eservice' },
-  { icon: '📮', label: 'ร้องเรียน/ร้องทุกข์',  to: '/complaint' },
-  { icon: '🚨', label: 'แจ้งเบาะแสทุจริต',    to: '/corruption' },
+  { icon: '🌐', label: 'ยื่นคำร้อง',           to: '/page/builtin-eservice' },
+  { icon: '📮', label: 'ร้องเรียน/ร้องทุกข์',  to: '/page/builtin-complaint' },
+  { icon: '🚨', label: 'แจ้งเบาะแสทุจริต',    to: '/page/builtin-corruption' },
 ]
 const PUBLIC_SERVICE_PATHS = PUBLIC_SERVICE_ITEMS.map(i => i.to)
 

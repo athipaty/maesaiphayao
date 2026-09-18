@@ -25,7 +25,7 @@ export default function CookieConsent() {
         <p className="text-xs sm:text-sm leading-relaxed flex-1 text-center sm:text-left">
           เว็บไซต์นี้ใช้คุกกี้เพื่อพัฒนาประสิทธิภาพและประสบการณ์ที่ดีในการใช้งานเว็บไซต์ของท่าน
           ท่านสามารถศึกษารายละเอียดเพิ่มเติมได้ที่{' '}
-          <a href="/laws" className="underline hover:text-white/80">
+          <a href="/page/builtin-laws" className="underline hover:text-white/80">
             นโยบายความเป็นส่วนตัว (PDPA)
           </a>
         </p>
