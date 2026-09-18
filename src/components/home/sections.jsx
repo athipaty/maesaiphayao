@@ -1,0 +1,668 @@
+import { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
+import { LatestNewsGrid } from '../NewsSection'
+import { iframeSrc as pdfIframeSrc } from '../PdfPreviewPanel'
+import { toArabicDigits } from '../../utils/thaiNumerals'
+
+// Homepage sections — each is fully self-contained (owns its own local UI
+// state like open/closed rows, marquee widths, the lightbox) and takes only
+// *data* as props. That's what lets the exact same components be rendered
+// both on the public HomePage and inside the admin homepage builder
+// (AdminHomeBuilder), which needs the real thing, not a mockup.
+
+function getYoutubeId(url) {
+  if (!url) return ''
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/)
+  return m ? m[1] : ''
+}
+
+// Click-to-play facade — shows just the thumbnail until clicked, so the homepage doesn't load
+// YouTube's full (heavy) embed player JS for every video up front. Loading several live YouTube
+// iframes at once is a well-known cause of slow page loads; this defers that cost per-video.
+function LiteYoutube({ id, title }) {
+  const [playing, setPlaying] = useState(false)
+  if (playing) {
+    return (
+      <iframe
+        src={`https://www.youtube.com/embed/${id}?autoplay=1`}
+        className="w-full h-full"
+        title={title}
+        allow="autoplay; encrypted-media"
+        allowFullScreen
+      />
+    )
+  }
+  return (
+    <button type="button" onClick={() => setPlaying(true)}
+      className="relative w-full h-full block group" aria-label={`เล่นวิดีโอ: ${title}`}>
+      <img src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`} alt={title} loading="lazy"
+        className="w-full h-full object-cover" />
+      <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+        <span className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
+        </span>
+      </span>
+    </button>
+  )
+}
+
+export function Reveal({ children, className = '' }) {
+  const ref = useRef(null)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        // Sections already in the initial viewport (e.g. the news sections at the top of the
+        // page, compact enough to all fit above the fold with no content yet) can have this
+        // callback fire before the browser has ever painted the starting opacity:0/translateY
+        // state — flipping straight to "visible" with nothing to transition from, so the fade-in
+        // never actually plays, even though the exact same Reveal wrapper is used everywhere.
+        // Two rAFs guarantee at least one real paint of the hidden state happens first, so the
+        // transition is always visible, not just for sections the user has to scroll to reach.
+        requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)))
+        io.unobserve(el)
+      }
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  return (
+    <div ref={ref} className={`reveal-section ${visible ? 'is-visible' : ''} ${className}`}>
+      {children}
+    </div>
+  )
+}
+
+export function SectionBanner({ icon, label, to, toLabel = 'ดูทั้งหมด »' }) {
+  return (
+    <div className="flex items-center gap-3 mt-5 mb-2 px-1">
+      <div className="flex items-center gap-2 bg-gradient-to-r from-primary to-secondary text-white px-4 py-1.5 rounded-full shadow-sm">
+        <span className="text-sm">{icon}</span>
+        <span className="text-xs font-bold tracking-wide">{label}</span>
+      </div>
+      <div className="flex-1 h-px bg-gradient-to-r from-secondary/30 to-transparent" />
+      {to && (
+        <Link to={to} className="text-xs font-semibold text-secondary hover:text-primary transition-colors whitespace-nowrap">
+          {toLabel}
+        </Link>
+      )}
+    </div>
+  )
+}
+
+export function SectionNews({ allNews, loading }) {
+  return (
+    <Reveal>
+      <SectionBanner icon="📰" label="ข่าวสารกิจกรรม" to="/page/builtin-news" />
+      <LatestNewsGrid items={allNews} loading={loading} />
+    </Reveal>
+  )
+}
+
+export function SectionAnnounce({ annItems }) {
+  const [lightboxItem, setLightboxItem] = useState(null)
+  const annTrackRef = useRef(null)
+  const [annItemWidth, setAnnItemWidth] = useState(320)
+  const annDesktopTrackRef = useRef(null)
+  const [annDesktopItemWidth, setAnnDesktopItemWidth] = useState(300)
+
+  useEffect(() => {
+    function updateAnnWidth() {
+      if (!annTrackRef.current) return
+      setAnnItemWidth(annTrackRef.current.offsetWidth - 24) // minus px-3 track padding (12px each side)
+    }
+    updateAnnWidth()
+    window.addEventListener('resize', updateAnnWidth)
+    return () => window.removeEventListener('resize', updateAnnWidth)
+  }, [])
+
+  useEffect(() => {
+    function updateDesktopAnnWidth() {
+      if (!annDesktopTrackRef.current) return
+      // 2 cards per row: subtract px-5 track padding (40px) and 1 gap (gap-4 = 16px)
+      setAnnDesktopItemWidth((annDesktopTrackRef.current.offsetWidth - 40 - 16) / 2)
+    }
+    updateDesktopAnnWidth()
+    window.addEventListener('resize', updateDesktopAnnWidth)
+    return () => window.removeEventListener('resize', updateDesktopAnnWidth)
+  }, [])
+
+  useEffect(() => {
+    if (!lightboxItem) return
+    const onKey = e => { if (e.key === 'Escape') setLightboxItem(null) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [lightboxItem])
+
+  return (
+    <>
+      {/* Banner + mobile marquee (desktop shows in Facebook right panel) */}
+      <Reveal>
+        <SectionBanner icon="📢" label="ข่าวประชาสัมพันธ์ & จดหมายข่าว" to="/announcements" />
+        {annItems.length > 0 && (
+          <div className="card lg:hidden">
+            <style>{`
+              @keyframes ann-marquee {
+                0%   { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+              }
+              .ann-marquee {
+                animation: ann-marquee ${Math.max((annItemWidth + 12) * annItems.length / 26, 50)}s linear infinite;
+              }
+              .ann-marquee:hover { animation-play-state: paused; }
+            `}</style>
+
+            <div className="overflow-hidden pt-2 pb-3" ref={annTrackRef}>
+              <div className="ann-marquee flex gap-3 w-max px-3">
+                {[...annItems, ...annItems].map((item, i) => (
+                  <div
+                    key={i}
+                    onClick={() => (item.image || item.fileUrl) && setLightboxItem(item)}
+                    style={{ width: `${annItemWidth}px` }}
+                    className="flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
+                  >
+                    {/* Image — tall portrait, object-contain shows full image without cropping */}
+                    <div className="relative overflow-hidden" style={{
+                      height: '300px',
+                      background: item.image
+                        ? '#f1f5f9'
+                        : item._kind === 'newsletter'
+                          ? 'linear-gradient(135deg,#065f46 0%,#059669 60%,#34d399 100%)'
+                          : 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)'
+                    }}>
+                      {item.image ? (
+                        <img src={item.image} alt={item.title} loading="lazy"
+                          className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-300">
+                            {item._kind === 'newsletter' ? '📰' : '📄'}
+                          </span>
+                        </div>
+                      )}
+                      {/* Thin top gradient for badge readability only */}
+                      <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-black/40 to-transparent" />
+                      <span className="absolute top-2 left-2 text-[10px] font-bold bg-white/90 text-primary px-2 py-0.5 rounded-full z-10">
+                        {item._kind === 'newsletter' ? '📰 จดหมายข่าว' : '📢 ประชาสัมพันธ์'}
+                      </span>
+                      {item.image && (
+                        <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                          <span className="bg-black/50 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">🔍 ดูรูปภาพ</span>
+                        </span>
+                      )}
+                    </div>
+                    {/* Title + date + PDF link below image */}
+                    <div className="px-3 py-2.5">
+                      <p className="text-xs font-semibold text-gray-800 line-clamp-2 leading-snug mb-1.5 group-hover:text-primary transition-colors">
+                        {item.title}
+                      </p>
+                      <div className="flex items-center justify-between gap-2">
+                        {item.createdAt && (
+                          <p className="text-[10px] text-gray-400">
+                            📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                          </p>
+                        )}
+                        {item.fileUrl && (
+                          <a href={item.fileUrl} target="_blank" rel="noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            className="text-[10px] font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors flex-shrink-0">
+                            📄 PDF
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </Reveal>
+
+      {/* Desktop marquee — full width, 3 cards visible, slides left */}
+      {annItems.length > 0 && (
+        <Reveal>
+          <div className="hidden lg:block card p-0 overflow-hidden">
+            <style>{`
+              @keyframes ann-marquee-desktop {
+                0%   { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+              }
+              .ann-marquee-desktop {
+                animation: ann-marquee-desktop ${Math.max((annDesktopItemWidth + 16) * annItems.length / 12, 60)}s linear infinite;
+              }
+              .ann-marquee-desktop:hover { animation-play-state: paused; }
+            `}</style>
+            <div className="overflow-hidden py-5" ref={annDesktopTrackRef}>
+              <div className="ann-marquee-desktop flex gap-4 w-max px-5">
+                {[...annItems, ...annItems].map((item, i) => (
+              <div key={i}
+                onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
+                style={{ width: `${annDesktopItemWidth}px` }}
+                className="flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
+              >
+                <div className="relative overflow-hidden" style={{
+                  height: '460px',
+                  background: item.image
+                    ? '#f1f5f9'
+                    : item._kind === 'newsletter'
+                      ? 'linear-gradient(135deg,#065f46 0%,#059669 60%,#34d399 100%)'
+                      : 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)'
+                }}>
+                  {item.image ? (
+                    <img src={item.image} alt={item.title}
+                      className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-9xl opacity-40 group-hover:scale-110 transition-transform duration-300">
+                        {item._kind === 'newsletter' ? '📰' : '📄'}
+                      </span>
+                    </div>
+                  )}
+                  <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-black/40 to-transparent" />
+                  <span className="absolute top-3 left-3 text-sm font-bold bg-white/90 text-primary px-3 py-1.5 rounded-full z-10">
+                    {item._kind === 'newsletter' ? '📰 จดหมายข่าว' : '📢 ประชาสัมพันธ์'}
+                  </span>
+                </div>
+                <div className="px-5 py-4">
+                  <p className="text-base font-semibold text-gray-800 line-clamp-2 leading-snug mb-2.5 group-hover:text-primary transition-colors">
+                    {item.title}
+                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    {item.createdAt && (
+                      <p className="text-sm text-gray-400">
+                        📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                      </p>
+                    )}
+                    {item.fileUrl && (
+                      <a href={item.fileUrl} target="_blank" rel="noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="text-sm font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-full transition-colors flex-shrink-0">
+                        📄 PDF
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      )}
+
+      {/* ── Lightbox ─────────────────────────────────────────────────── */}
+      {lightboxItem && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => setLightboxItem(null)}
+        >
+          <div className="absolute inset-0 bg-black/75 backdrop-blur-md" />
+          <div
+            className={`relative w-full max-h-[90vh] flex flex-col items-center ${lightboxItem.fileUrl ? 'max-w-5xl' : 'max-w-3xl'}`}
+            onClick={e => e.stopPropagation()}
+          >
+            {lightboxItem.fileUrl ? (
+              <iframe
+                src={pdfIframeSrc(lightboxItem.fileUrl)}
+                title={lightboxItem.title}
+                className="w-full rounded-2xl shadow-2xl bg-white"
+                style={{ height: '78vh' }}
+              />
+            ) : (
+              <img
+                src={lightboxItem.image}
+                alt={lightboxItem.title}
+                className="max-h-[80vh] max-w-full w-auto rounded-2xl shadow-2xl object-contain"
+              />
+            )}
+            <p className="mt-3 text-white text-sm font-semibold text-center drop-shadow line-clamp-2 px-4">
+              {lightboxItem.title}
+            </p>
+            <div className="flex items-center gap-3 mt-3">
+              {lightboxItem.fileUrl && (
+                <a href={lightboxItem.fileUrl} target="_blank" rel="noreferrer"
+                  className="text-xs font-semibold bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full backdrop-blur-sm transition-colors">
+                  📄 เปิด PDF
+                </a>
+              )}
+              <button
+                onClick={() => setLightboxItem(null)}
+                className="text-xs font-semibold bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full backdrop-blur-sm transition-colors">
+                ✕ ปิด
+              </button>
+            </div>
+          </div>
+          <button
+            onClick={() => setLightboxItem(null)}
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center text-lg backdrop-blur-sm transition-colors z-10"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+    </>
+  )
+}
+
+export function SectionFacebook({ landingPhoto }) {
+  const fbContainerRef = useRef(null)
+  const [fbScale, setFbScale] = useState(1)
+
+  useEffect(() => {
+    function updateScale() {
+      if (!fbContainerRef.current) return
+      setFbScale(fbContainerRef.current.offsetWidth / 500)
+    }
+    updateScale()
+    window.addEventListener('resize', updateScale)
+    return () => window.removeEventListener('resize', updateScale)
+  }, [])
+
+  return (
+    <Reveal>
+      <SectionBanner icon="📘" label="Facebook" />
+      <div className="flex flex-col lg:flex-row gap-4">
+        {/* Facebook widget — crisp at native size, full width on mobile */}
+        <div className="card p-0 overflow-hidden w-full lg:w-[500px] lg:flex-shrink-0">
+          <div className="flex justify-center">
+            <div ref={fbContainerRef} className="overflow-hidden w-full max-w-[500px]"
+              style={{ height: `${Math.round(500 * fbScale)}px` }}>
+              <iframe
+                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false"
+                style={{
+                  border: 'none',
+                  width: '500px',
+                  height: '500px',
+                  display: 'block',
+                  transform: `scale(${fbScale})`,
+                  transformOrigin: 'top left',
+                }}
+                frameBorder="0"
+                allowFullScreen
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox allow-storage-access-by-user-activation"
+                title="Facebook Page อบต.แม่ใส"
+              />
+            </div>
+          </div>
+          {/* Fallback for browsers that block the embed (mobile Safari third-party cookies, carrier content filters, in-app browsers) */}
+          <div className="text-center py-2 border-t border-gray-100">
+            <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
+              className="text-xs text-secondary hover:underline">
+              เห็นเนื้อหาด้านบนว่างเปล่า? คลิกเพื่อเปิดดูใน Facebook →
+            </a>
+          </div>
+        </div>
+
+        {/* Photo — fills the space beside Facebook on desktop, same total height, uploaded by admin in ตั้งค่าเว็บไซต์ */}
+        <div className="hidden lg:block card p-0 overflow-hidden flex-1 bg-gray-50" style={{ height: `${Math.round(500 * fbScale)}px` }}>
+          {landingPhoto ? (
+            <img src={landingPhoto} alt="อบต.แม่ใส" className="w-full h-full object-contain" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">
+              ยังไม่มีรูปภาพ
+            </div>
+          )}
+        </div>
+      </div>
+    </Reveal>
+  )
+}
+
+export function SectionNotices({ notices }) {
+  const [noticeOpen, setNoticeOpen] = useState({})
+  if (notices.length === 0) return null
+  return (
+    <Reveal>
+      <SectionBanner icon="📋" label="หัวข้อประกาศ" />
+      <div className="card p-0 overflow-hidden">
+        <div className="divide-y divide-gray-50">
+          {notices.slice(0, 5).map((n, i) => {
+            const open = !!noticeOpen[n._id]
+            return (
+              <div key={n._id}>
+                {/* Row */}
+                <div
+                  className="flex items-center gap-2 px-4 py-2.5 hover:bg-blue-50/40 transition-colors cursor-pointer"
+                  onClick={() => setNoticeOpen(s => ({ ...s, [n._id]: !s[n._id] }))}
+                >
+                  <span className="w-4 h-4 rounded-full bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                  <span className="flex-1 min-w-0 text-xs text-gray-800 font-medium truncate">{n.title}</span>
+                  {n.topic && (
+                    <span className="hidden sm:inline text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">{n.topic}</span>
+                  )}
+                  <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
+                    {new Date(n.publishedAt || n.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                  </span>
+                  {n.fileUrl && (
+                    <span className={`text-[10px] text-gray-400 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
+                  )}
+                </div>
+                {/* PDF preview */}
+                {open && (
+                  n.fileUrl ? (
+                    <div className="px-4 pb-3 bg-blue-50/30">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] text-gray-400">📄 ตัวอย่างเอกสาร</span>
+                        <a href={n.fileUrl} target="_blank" rel="noreferrer"
+                          className="text-[10px] font-semibold text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors">
+                          เปิดใน Tab ใหม่ ↗
+                        </a>
+                      </div>
+                      <iframe
+                        src={(() => { const m = n.fileUrl.match(/drive\.google\.com\/file\/d\/([^/?#]+)/); if (m) return `https://drive.google.com/file/d/${m[1]}/preview`; if (n.fileUrl.includes('backblazeb2.com')) return n.fileUrl; return `https://docs.google.com/viewer?url=${encodeURIComponent(n.fileUrl)}&embedded=true` })()}
+                        className="w-full rounded border border-gray-200"
+                        style={{ height: '480px' }}
+                        title={n.title}
+                      />
+                    </div>
+                  ) : (
+                    <div className="px-4 pb-3 text-[11px] text-gray-400">ไม่มีไฟล์แนบ</div>
+                  )
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </Reveal>
+  )
+}
+
+export function SectionProcurement({ egpLoading, egpError, egp }) {
+  const [egpOpen, setEgpOpen] = useState({})
+  return (
+    <Reveal>
+      <SectionBanner icon="📦" label="ระบบ e-GP (เรียลไทม์)" to="/procurement?tab=egp" />
+      <div className="card p-0 overflow-hidden flex flex-col">
+        <div className="overflow-y-auto flex-1" style={{ maxHeight: '460px' }}>
+          {egpLoading ? (
+            <div className="px-3 py-4 text-center text-gray-400 text-sm animate-pulse">กำลังดึงข้อมูลจากระบบ e-GP...</div>
+          ) : egpError ? (
+            <div className="px-3 py-4 text-center">
+              <span className="text-2xl">🔧</span>
+              <p className="text-gray-400 text-sm mt-2">{egpError}</p>
+              <p className="text-gray-300 text-xs mt-1">เปิดให้บริการ 17:01–08:59 น.</p>
+            </div>
+          ) : egp.length === 0 ? (
+            <div className="px-3 py-4 text-center text-gray-400 text-sm">ยังไม่มีข้อมูล</div>
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {egp.slice(0, 8).map((p, i) => {
+                const open = !!egpOpen[i]
+                return (
+                  <div key={i} className="transition-colors">
+                    <div className="flex items-center gap-2 px-3 py-2 hover:bg-pink-50/40 cursor-pointer"
+                      onClick={() => setEgpOpen(s => ({ ...s, [i]: !s[i] }))}>
+                      <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[11px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                      {p.link
+                        ? <a href={p.link} target="_blank" rel="noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            className="flex-1 min-w-0 text-sm text-primary hover:text-secondary font-medium truncate">{toArabicDigits(p.title)}</a>
+                        : <span className="flex-1 min-w-0 text-sm text-gray-700 font-medium truncate">{toArabicDigits(p.title)}</span>
+                      }
+                      {p.amount != null && (
+                        <span className="text-xs font-semibold text-blue-700 whitespace-nowrap flex-shrink-0">
+                          {Number(p.amount).toLocaleString('th-TH', { numberingSystem: 'latn' })} บาท
+                        </span>
+                      )}
+                      <span className={`text-gray-400 text-xs flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
+                    </div>
+                    {open && (
+                      <div className="flex items-center gap-3 px-3 pb-2 pl-9 bg-pink-50/30">
+                        {p.winner && (
+                          <span className="flex-1 min-w-0 text-xs text-green-700 truncate">🏆 {toArabicDigits(p.winner)}</span>
+                        )}
+                        {p.date && (
+                          <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
+                            📅 {new Date(p.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', numberingSystem: 'latn' })}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </Reveal>
+  )
+}
+
+export function SectionTravel({ travel }) {
+  if (travel.length === 0) return null
+  return (
+    <Reveal>
+      <SectionBanner icon="🗺️" label="สถานที่ท่องเที่ยว" to="/page/builtin-travel" />
+
+      <div className="card">
+        <style>{`
+          @keyframes marquee {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          .travel-marquee {
+            animation: marquee ${Math.max(travel.length * 8, 50)}s linear infinite;
+          }
+          .travel-marquee:hover { animation-play-state: paused; }
+        `}</style>
+
+        <div className="overflow-hidden pt-3 pb-4">
+          <div className="travel-marquee flex gap-3 w-max">
+            {[...travel, ...travel].map((item, i) => {
+              const mainImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
+              return (
+                <div key={i} className="w-96 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
+                  <div className="relative overflow-hidden bg-teal-50" style={{ height: '280px' }}>
+                    {mainImg
+                      ? <img src={mainImg} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🏞️</div>
+                    }
+                    <div className="absolute inset-0 pointer-events-none"
+                      style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.65) 10%, transparent 25%)' }} />
+                    <div className="absolute bottom-0 left-0 right-0 px-3 py-2">
+                      <p className="text-white text-xs font-semibold leading-snug drop-shadow line-clamp-2">{item.title}</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </Reveal>
+  )
+}
+
+export function SectionProducts({ products }) {
+  if (products.length === 0) return null
+  return (
+    <Reveal>
+      <SectionBanner icon="🛍️" label="สินค้า OTOP" to="/page/builtin-products" />
+
+      <div className="card">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4">
+          {products.map((item, i) => {
+            const mainImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image
+            return (
+              <div key={i} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white">
+                <div className="relative overflow-hidden bg-green-50 aspect-[4/3]">
+                  {mainImg
+                    ? <img src={mainImg} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    : <div className="w-full h-full flex items-center justify-center text-3xl opacity-40">🛍️</div>
+                  }
+                  {item.price != null && (
+                    <div className="absolute top-2 right-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                      ฿{Number(item.price).toLocaleString()}
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs font-medium text-gray-700 px-2 py-1.5 leading-snug line-clamp-2">{item.title}</p>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </Reveal>
+  )
+}
+
+export function SectionVideos({ videos }) {
+  if (videos.length === 0) return null
+  return (
+    <Reveal>
+      <SectionBanner icon="▶️" label="วีดีทัศน์การดำเนินงานของหน่วยงาน" />
+
+      <div className="card">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4">
+          {videos.map((item, i) => {
+            const id = getYoutubeId(item.youtubeUrl)
+            if (!id) return null
+            return (
+              <div key={i} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm bg-white">
+                <div className="aspect-video">
+                  <LiteYoutube id={id} title={item.title} />
+                </div>
+                <p className="text-xs font-medium text-gray-700 px-2 py-1.5 leading-snug line-clamp-2">{item.title}</p>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </Reveal>
+  )
+}
+
+export const SECTION_COMPONENTS = {
+  news: SectionNews,
+  announce: SectionAnnounce,
+  facebook: SectionFacebook,
+  notices: SectionNotices,
+  procurement: SectionProcurement,
+  travel: SectionTravel,
+  products: SectionProducts,
+  videos: SectionVideos,
+}
+
+// Maps useHomeData()'s flat return value onto each section's own prop shape.
+// Shared by HomePage.jsx and AdminHomeBuilder.jsx so both feed the exact same
+// data into the exact same components.
+export function buildSectionProps({ allNews, loading, annItems, egpLoading, egpError, egp, travel, products, videos, notices, landingPhoto }) {
+  return {
+    news:        { allNews, loading },
+    announce:    { annItems },
+    facebook:    { landingPhoto },
+    notices:     { notices },
+    procurement: { egpLoading, egpError, egp },
+    travel:      { travel },
+    products:    { products },
+    videos:      { videos },
+  }
+}

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import ImageUpload from '../../components/ImageUpload'
 import { getSettings, updateSetting, uploadImage } from '../../services/api'
-import { DEFAULT_HOME_ORDER, HOME_SECTION_META, normalizeHomeOrder } from '../../config/homeSections'
 
 function LogoUpload({ value, onChange, icon = '🏛️', emptyLabel = 'ยังไม่มีโลโก้', uploadLabel = 'อัปโหลดโลโก้' }) {
   const [uploading, setUploading] = useState(false)
@@ -75,50 +75,8 @@ function Field({ label, hint, children }) {
 
 const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all bg-gray-50 focus:bg-white focus:scale-[1.01]'
 
-// Drag-and-drop reorderable list of homepage sections — same native HTML5 drag
-// pattern used for reordering pages/blocks in AdminPages.jsx.
-function HomeSectionOrderEditor({ order, onChange }) {
-  const dragRef = useRef(null)
-  const [dragOverKey, setDragOverKey] = useState(null)
-
-  function reorder(fromKey, toKey) {
-    if (fromKey === toKey) return
-    const next = [...order]
-    const fromIdx = next.indexOf(fromKey)
-    const toIdx   = next.indexOf(toKey)
-    if (fromIdx === -1 || toIdx === -1) return
-    const [moved] = next.splice(fromIdx, 1)
-    next.splice(toIdx, 0, moved)
-    onChange(next)
-  }
-
-  return (
-    <div className="space-y-1.5">
-      {order.map((key, i) => {
-        const meta = HOME_SECTION_META[key] || { icon: '📦', label: key }
-        const isOver = dragOverKey === key
-        return (
-          <div key={key}
-            draggable
-            onDragStart={() => { dragRef.current = key }}
-            onDragOver={e => { e.preventDefault(); setDragOverKey(key) }}
-            onDragLeave={() => setDragOverKey(null)}
-            onDrop={e => { e.preventDefault(); setDragOverKey(null); reorder(dragRef.current, key) }}
-            onDragEnd={() => { dragRef.current = null; setDragOverKey(null) }}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border bg-white cursor-grab active:cursor-grabbing transition-colors select-none ${isOver ? 'border-primary/50 bg-primary/5' : 'border-gray-100 hover:border-gray-200'}`}>
-            <span className="text-gray-300 flex-shrink-0 text-base leading-none">⠿</span>
-            <span className="text-[10px] font-bold text-gray-300 w-4 text-center flex-shrink-0">{i + 1}</span>
-            <span className="text-base flex-shrink-0">{meta.icon}</span>
-            <span className="text-sm text-gray-700 flex-1 truncate">{meta.label}</span>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
 export default function AdminSettings() {
-  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '', headerBgImage: '', landingPhoto: '', homeSectionOrder: DEFAULT_HOME_ORDER })
+  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '', headerBgImage: '', landingPhoto: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving]   = useState(false)
   const [saved, setSaved]     = useState(false)
@@ -126,7 +84,7 @@ export default function AdminSettings() {
 
   useEffect(() => {
     getSettings()
-      .then(r => { if (r?.data) setForm(prev => ({ ...prev, ...r.data, homeSectionOrder: normalizeHomeOrder(r.data.homeSectionOrder) })) })
+      .then(r => { if (r?.data) setForm(prev => ({ ...prev, ...r.data })) })
       .finally(() => setLoading(false))
   }, [])
 
@@ -313,9 +271,13 @@ export default function AdminSettings() {
             icon="📷" emptyLabel="ยังไม่มีรูปภาพ" uploadLabel="อัปโหลดรูปภาพ" />
         </Section>
 
-        {/* Homepage section order */}
-        <Section delay={250} icon="🏠" title="ลำดับส่วนต่างๆ ในหน้าแรก" subtitle="ลากไอคอน ⠿ เพื่อจัดเรียงลำดับส่วนที่แสดงบนหน้าแรก">
-          <HomeSectionOrderEditor order={form.homeSectionOrder} onChange={order => set('homeSectionOrder', order)} />
+        {/* Homepage layout — now a dedicated visual builder */}
+        <Section delay={250} icon="🏠" title="เค้าโครงหน้าแรก" subtitle="จัดเรียง แก้ไข หรือซ่อนส่วนต่างๆ ของหน้าแรก แบบเห็นผลจริง">
+          <Link to="/admin/home-builder"
+            className="flex items-center justify-between gap-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl px-5 py-4 hover:opacity-90 transition-opacity">
+            <span className="text-sm font-semibold">🏠 ไปที่ตัวจัดหน้าแรก →</span>
+            <span className="text-xs text-white/70">ลากจัดเรียง · แก้ไข · ซ่อน/แสดง</span>
+          </Link>
         </Section>
 
       </div>
