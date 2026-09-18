@@ -1483,7 +1483,10 @@ function MenuManagerView({ pages, loading, onReload, onEditContent, expandedSlug
   }
 
   async function remove(page) {
-    if (!window.confirm(`ลบ "${page.title}"?\nเนื้อหาทั้งหมดจะหายไปถาวร`)) return
+    const msg = page.isBuiltin
+      ? `ลบ "${page.title}" ออกจากเมนู?\nหน้านี้จะไม่ปรากฏใน Navbar/Sidebar อีกต่อไป แต่ตัวหน้าเว็บ (${page.path}) ยังเข้าถึงได้ถ้ามีลิงก์ตรงไปยัง URL นี้`
+      : `ลบ "${page.title}"?\nเนื้อหาทั้งหมดจะหายไปถาวร`
+    if (!window.confirm(msg)) return
     await deletePage(page._id); onReload()
   }
 
@@ -1559,25 +1562,24 @@ function MenuManagerView({ pages, loading, onReload, onEditContent, expandedSlug
             แก้ไข
           </button>
           {!page.isBuiltin && (
-            <>
-              {hasChildren ? (
-                <span
-                  title="เมนูนี้มีเมนูย่อย — แก้ไขเนื้อหาที่หน้าเมนูย่อยแทน"
-                  className="text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-lg flex-shrink-0 cursor-not-allowed select-none">
-                  เนื้อหา
-                </span>
-              ) : (
-                <button onClick={() => onEditContent(page)}
-                  className="text-xs font-medium text-white bg-primary hover:opacity-90 px-2.5 py-1 rounded-lg transition-colors flex-shrink-0">
-                  เนื้อหา
-                </button>
-              )}
-              <button onClick={() => remove(page)}
-                className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all text-sm flex-shrink-0">
-                🗑️
+            hasChildren ? (
+              <span
+                title="เมนูนี้มีเมนูย่อย — แก้ไขเนื้อหาที่หน้าเมนูย่อยแทน"
+                className="text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-lg flex-shrink-0 cursor-not-allowed select-none">
+                เนื้อหา
+              </span>
+            ) : (
+              <button onClick={() => onEditContent(page)}
+                className="text-xs font-medium text-white bg-primary hover:opacity-90 px-2.5 py-1 rounded-lg transition-colors flex-shrink-0">
+                เนื้อหา
               </button>
-            </>
+            )
           )}
+          <button onClick={() => remove(page)}
+            title={page.isBuiltin ? 'ลบออกจากเมนู (หน้าเว็บยังเข้าถึงได้ผ่าน URL)' : 'ลบหน้านี้'}
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all text-sm flex-shrink-0">
+            🗑️
+          </button>
         </div>
         {isExpanded && children.map((c, ci) => renderRow(c, children, ci, `child:${page.slug}`))}
       </div>
