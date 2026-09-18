@@ -1533,9 +1533,6 @@ function MenuManagerView({ pages, loading, onReload, onEditContent, expandedSlug
             </div>
             <p className="text-xs text-gray-400 font-mono truncate">{publicPath}</p>
           </div>
-          {page.isBuiltin && (
-            <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium flex-shrink-0">ระบบ</span>
-          )}
           {!isChild && (
             group === 'navbar'
               ? <button
