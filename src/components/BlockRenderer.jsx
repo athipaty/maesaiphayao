@@ -576,7 +576,7 @@ function WordBlock({ data, preview }) {
       ) : (
         <>
           <div className="flex items-center gap-2 py-2 px-3 hover:bg-gray-50 transition-colors">
-            <span className="text-base flex-shrink-0">📝</span>
+            <WordFileIcon size={16} />
             <button onClick={handleOpen}
               className="flex-1 text-left text-sm text-primary hover:text-secondary transition-colors">
               {data.title || 'ไฟล์ Word'}
