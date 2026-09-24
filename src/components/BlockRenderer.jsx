@@ -291,7 +291,7 @@ function PdfBlock({ data, preview }) {
   function handleOpen() { setOpen(v => !v); setLoadErr(false) }
 
   return (
-    <div className="bg-white border-b border-gray-100">
+    <div className="bg-white border-b border-gray-100 mb-2">
       {data.description && <p className="text-xs text-gray-500 px-3 pt-2 leading-relaxed">{data.description}</p>}
 
       {preview ? (
@@ -562,7 +562,7 @@ function WordBlock({ data, preview }) {
   function handleOpen() { setOpen(v => !v); setLoadErr(false) }
 
   return (
-    <div className="bg-white border-b border-gray-100">
+    <div className="bg-white border-b border-gray-100 mb-2">
       {data.description && <p className="text-xs text-gray-500 px-3 pt-2 leading-relaxed">{data.description}</p>}
 
       {preview ? (
@@ -629,7 +629,7 @@ function ExcelBlock({ data, preview }) {
   function handleOpen() { setOpen(v => !v); setLoadErr(false) }
 
   return (
-    <div className="bg-white border-b border-gray-100">
+    <div className="bg-white border-b border-gray-100 mb-2">
       {data.description && <p className="text-xs text-gray-500 px-3 pt-2 leading-relaxed">{data.description}</p>}
 
       {preview ? (
