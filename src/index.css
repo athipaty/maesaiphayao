@@ -83,30 +83,32 @@ a {
   .reveal-section { opacity: 1; transform: none; transition: none; }
 }
 
-/* Section-title badge with a scalloped/cloud-shaped edge and gold trim — an
-   ornate Thai-style frame (like temple/ribbon signage) instead of a plain pill.
-   Two stacked pseudo-elements (gold, inset slightly outward; pink, on top)
-   are each clipped into the scallop shape via a masked radial-gradient row
+/* Section-title badge with a lotus-petal-edged frame and gold trim — an ornate
+   Thai-style border (ลายกลีบบัว) instead of a plain pill. Two stacked
+   pseudo-elements (gold, inset slightly outward; pink, on top) are each
+   clipped into the petal-scallop shape via a masked SVG petal tile repeated
    along the top and bottom edges. Width-independent, so it works for any
    label length. */
 .thai-scallop-badge {
-  --scallop-r: 7px;
-  --scallop-s: 16px;
+  --scallop-r: 13px;
+  --scallop-s: 20px;
+  --petal-top: url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2720%27 height=%2713%27 viewBox=%270 0 20 13%27%3E%3Cpath d=%27M10,13 C4,13 3,7 6,4.5 C7.3,3.3 6.5,1.5 10,0 C13.5,1.5 12.7,3.3 14,4.5 C17,7 16,13 10,13 Z%27 fill=%27black%27/%3E%3C/svg%3E');
+  --petal-bottom: url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2720%27 height=%2713%27 viewBox=%270 0 20 13%27%3E%3Cpath d=%27M10,0 C4,0 3,6 6,8.5 C7.3,9.7 6.5,11.5 10,13 C13.5,11.5 12.7,9.7 14,8.5 C17,6 16,0 10,0 Z%27 fill=%27black%27/%3E%3C/svg%3E');
   position: relative;
   display: inline-flex;
-  padding: 11px 22px;
+  padding: 13px 26px;
 }
 .thai-scallop-badge::before,
 .thai-scallop-badge::after {
   content: '';
   position: absolute;
   -webkit-mask:
-    radial-gradient(var(--scallop-r) at 50% var(--scallop-r), #000 99%, transparent 101%) top / var(--scallop-s) var(--scallop-r) repeat-x,
-    radial-gradient(var(--scallop-r) at 50% calc(100% - var(--scallop-r)), #000 99%, transparent 101%) bottom / var(--scallop-s) var(--scallop-r) repeat-x,
+    var(--petal-top) top / var(--scallop-s) var(--scallop-r) repeat-x,
+    var(--petal-bottom) bottom / var(--scallop-s) var(--scallop-r) repeat-x,
     linear-gradient(#000 0 0) 50% / 100% calc(100% - 2 * var(--scallop-r)) no-repeat;
   mask:
-    radial-gradient(var(--scallop-r) at 50% var(--scallop-r), #000 99%, transparent 101%) top / var(--scallop-s) var(--scallop-r) repeat-x,
-    radial-gradient(var(--scallop-r) at 50% calc(100% - var(--scallop-r)), #000 99%, transparent 101%) bottom / var(--scallop-s) var(--scallop-r) repeat-x,
+    var(--petal-top) top / var(--scallop-s) var(--scallop-r) repeat-x,
+    var(--petal-bottom) bottom / var(--scallop-s) var(--scallop-r) repeat-x,
     linear-gradient(#000 0 0) 50% / 100% calc(100% - 2 * var(--scallop-r)) no-repeat;
 }
 .thai-scallop-badge::before {
