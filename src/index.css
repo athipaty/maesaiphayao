@@ -83,32 +83,6 @@ a {
   .reveal-section { opacity: 1; transform: none; transition: none; }
 }
 
-/* Section-title badge styled as a plaque/certificate — gold-bordered rounded
-   rectangle with a small gold flame (ลายกนก) accent flaring out of each
-   corner, matching ornate Thai signage. Width-independent (plain box, no
-   tiling needed), so it works for any label length. */
-.thai-plaque-badge {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  padding: 12px 26px;
-  border-radius: 10px;
-  background: linear-gradient(to right, #be185d, #ec4899);
-  border: 3px solid #f59e0b;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .15), inset 0 0 0 1px rgba(255, 255, 255, .15);
-}
-.thai-plaque-corner {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  pointer-events: none;
-}
-.thai-plaque-corner svg { width: 100%; height: 100%; display: block; }
-.thai-plaque-corner.tl { top: -9px; left: -9px; transform: rotate(-45deg); }
-.thai-plaque-corner.tr { top: -9px; right: -9px; transform: rotate(45deg) scaleX(-1); }
-.thai-plaque-corner.bl { bottom: -9px; left: -9px; transform: rotate(-135deg); }
-.thai-plaque-corner.br { bottom: -9px; right: -9px; transform: rotate(135deg) scaleX(-1); }
-
 /* Print-only report sections: hidden on screen, shown full-page when printing */
 .print-only { display: none; }
 @media print {

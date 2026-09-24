@@ -74,39 +74,13 @@ function Reveal({ children, className = '' }) {
   )
 }
 
-// Small repeating Thai-motif (ลายกนก) wave used as the section-title divider —
-// a plain gradient line reads as generic; this reads as intentionally Thai.
-const THAI_BORDER_URL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='18' viewBox='0 0 16 18'%3E%3Cpath d='M0,15 C4,15 4,6 8,6 C12,6 12,15 16,15' fill='none' stroke='%23ec4899' stroke-width='1.4' stroke-linecap='round'/%3E%3Cpath d='M8,6 C6.3,6 5.8,2.5 8,0 C10.2,2.5 9.7,6 8,6 Z' fill='%23be185d'/%3E%3C/svg%3E"
-
-// Small gold flame (ลายกนก) accent flaring out of each corner of the plaque badge.
-function ThaiPlaqueCorner({ position }) {
-  return (
-    <span className={`thai-plaque-corner ${position}`}>
-      <svg viewBox="0 0 20 20">
-        <path d="M10,20 C4,20 3,12 6,8.5 C7.3,6.9 6.5,4.5 10,0 C13.5,4.5 12.7,6.9 14,8.5 C17,12 16,20 10,20 Z" fill="#f59e0b" />
-      </svg>
-    </span>
-  )
-}
-
 function SectionBanner({ label, to, toLabel = 'ดูทั้งหมด »' }) {
   return (
     <div className="flex items-center gap-3 mt-5 mb-2 px-1">
-      <div className="thai-plaque-badge">
-        <ThaiPlaqueCorner position="tl" />
-        <ThaiPlaqueCorner position="tr" />
-        <ThaiPlaqueCorner position="bl" />
-        <ThaiPlaqueCorner position="br" />
-        <span className="text-xs font-bold tracking-wide text-white">{label}</span>
+      <div className="flex items-center gap-2 bg-gradient-to-r from-primary to-secondary text-white px-4 py-1.5 rounded-full shadow-sm">
+        <span className="text-xs font-bold tracking-wide">{label}</span>
       </div>
-      <div className="flex-1 h-4" style={{
-        backgroundImage: `url("${THAI_BORDER_URL}")`,
-        backgroundRepeat: 'repeat-x',
-        backgroundPosition: 'left center',
-        backgroundSize: 'auto 100%',
-        WebkitMaskImage: 'linear-gradient(to right, black, black 65%, transparent)',
-        maskImage: 'linear-gradient(to right, black, black 65%, transparent)',
-      }} />
+      <div className="flex-1 h-px bg-gradient-to-r from-secondary/30 to-transparent" />
       {to && (
         <Link to={to} className="text-xs font-semibold text-secondary hover:text-primary transition-colors whitespace-nowrap">
           {toLabel}
