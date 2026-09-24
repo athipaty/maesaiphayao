@@ -83,6 +83,47 @@ a {
   .reveal-section { opacity: 1; transform: none; transition: none; }
 }
 
+/* Section-title badge with a scalloped/cloud-shaped edge and gold trim — an
+   ornate Thai-style frame (like temple/ribbon signage) instead of a plain pill.
+   Two stacked pseudo-elements (gold, inset slightly outward; pink, on top)
+   are each clipped into the scallop shape via a masked radial-gradient row
+   along the top and bottom edges. Width-independent, so it works for any
+   label length. */
+.thai-scallop-badge {
+  --scallop-r: 7px;
+  --scallop-s: 16px;
+  position: relative;
+  display: inline-flex;
+  padding: 11px 22px;
+}
+.thai-scallop-badge::before,
+.thai-scallop-badge::after {
+  content: '';
+  position: absolute;
+  -webkit-mask:
+    radial-gradient(var(--scallop-r) at 50% var(--scallop-r), #000 99%, transparent 101%) top / var(--scallop-s) var(--scallop-r) repeat-x,
+    radial-gradient(var(--scallop-r) at 50% calc(100% - var(--scallop-r)), #000 99%, transparent 101%) bottom / var(--scallop-s) var(--scallop-r) repeat-x,
+    linear-gradient(#000 0 0) 50% / 100% calc(100% - 2 * var(--scallop-r)) no-repeat;
+  mask:
+    radial-gradient(var(--scallop-r) at 50% var(--scallop-r), #000 99%, transparent 101%) top / var(--scallop-s) var(--scallop-r) repeat-x,
+    radial-gradient(var(--scallop-r) at 50% calc(100% - var(--scallop-r)), #000 99%, transparent 101%) bottom / var(--scallop-s) var(--scallop-r) repeat-x,
+    linear-gradient(#000 0 0) 50% / 100% calc(100% - 2 * var(--scallop-r)) no-repeat;
+}
+.thai-scallop-badge::before {
+  inset: -4px;
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
+  z-index: 1;
+}
+.thai-scallop-badge::after {
+  inset: 0;
+  background: linear-gradient(to right, #be185d, #ec4899);
+  z-index: 2;
+}
+.thai-scallop-badge > * {
+  position: relative;
+  z-index: 3;
+}
+
 /* Print-only report sections: hidden on screen, shown full-page when printing */
 .print-only { display: none; }
 @media print {
