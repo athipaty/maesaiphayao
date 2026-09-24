@@ -78,12 +78,11 @@ function Reveal({ children, className = '' }) {
 // a plain gradient line reads as generic; this reads as intentionally Thai.
 const THAI_BORDER_URL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='18' viewBox='0 0 16 18'%3E%3Cpath d='M0,15 C4,15 4,6 8,6 C12,6 12,15 16,15' fill='none' stroke='%23ec4899' stroke-width='1.4' stroke-linecap='round'/%3E%3Cpath d='M8,6 C6.3,6 5.8,2.5 8,0 C10.2,2.5 9.7,6 8,6 Z' fill='%23be185d'/%3E%3C/svg%3E"
 
-function SectionBanner({ icon, label, to, toLabel = 'ดูทั้งหมด »' }) {
+function SectionBanner({ label, to, toLabel = 'ดูทั้งหมด »' }) {
   return (
     <div className="flex items-center gap-3 mt-5 mb-2 px-1">
       <div className="thai-scallop-badge shadow-sm">
         <div className="flex items-center gap-2 text-white">
-          <span className="text-sm">{icon}</span>
           <span className="text-xs font-bold tracking-wide">{label}</span>
         </div>
       </div>
@@ -235,13 +234,13 @@ export default function HomePage() {
 
       {/* ── ข่าวสารกิจกรรม — one combined section: latest news as a full-width hero, then a 3x3 grid ── */}
       <Reveal>
-        <SectionBanner icon="📰" label="ข่าวสารกิจกรรม" to="/page/builtin-news" />
+        <SectionBanner label="ข่าวสารกิจกรรม" to="/page/builtin-news" />
         <LatestNewsGrid items={allNews} loading={loading} />
       </Reveal>
 
       {/* ── ประชาสัมพันธ์ ─────────────────────────────────────────────── */}
       <Reveal>
-      <SectionBanner icon="📢" label="ข่าวประชาสัมพันธ์ & จดหมายข่าว" to="/announcements" />
+      <SectionBanner label="ข่าวประชาสัมพันธ์ & จดหมายข่าว" to="/announcements" />
 
       {/* ── Announcement marquee — mobile only (desktop shows in Facebook right panel) ── */}
       {annItems.length > 0 && (() => {
@@ -400,7 +399,7 @@ export default function HomePage() {
 
       {/* ── Facebook ─────────────────────────────────────────────────── */}
       <Reveal>
-      <SectionBanner icon="📘" label="Facebook" />
+      <SectionBanner label="Facebook" />
       <div className="flex flex-col lg:flex-row gap-4">
         {/* Facebook widget — desktop only. The embedded page.php iframe frequently fails to render
             its content (broken images) over mobile carrier networks, so mobile gets a static card instead. */}
@@ -465,7 +464,7 @@ export default function HomePage() {
       {/* ── Notices (หัวข้อประกาศ) ───────────────────────────────────── */}
       {notices.length > 0 && (
       <Reveal>
-      <SectionBanner icon="📋" label="หัวข้อประกาศ" />
+      <SectionBanner label="หัวข้อประกาศ" />
         <div className="card p-0 overflow-hidden">
           <div className="divide-y divide-gray-50">
             {notices.slice(0, 5).map((n, i) => {
@@ -521,7 +520,7 @@ export default function HomePage() {
 
       {/* ── Procurement e-GP ─────────────────────────────────────────── */}
       <Reveal>
-      <SectionBanner icon="📦" label="ระบบ e-GP (เรียลไทม์)" to="/procurement?tab=egp" />
+      <SectionBanner label="ระบบ e-GP (เรียลไทม์)" to="/procurement?tab=egp" />
       <div className="card p-0 overflow-hidden flex flex-col">
         <div className="overflow-y-auto flex-1" style={{ maxHeight: '460px' }}>
           {egpLoading ? (
@@ -580,7 +579,7 @@ export default function HomePage() {
       {/* ── สถานที่ท่องเที่ยว ─────────────────────────────────────────── */}
       {travel.length > 0 && (
       <Reveal>
-        <SectionBanner icon="🗺️" label="สถานที่ท่องเที่ยว" to="/page/builtin-travel" />
+        <SectionBanner label="สถานที่ท่องเที่ยว" to="/page/builtin-travel" />
 
         <div className="card">
           <style>{`
@@ -623,7 +622,7 @@ export default function HomePage() {
       {/* ── สินค้า OTOP ───────────────────────────────────────────────── */}
       {products.length > 0 && (
       <Reveal>
-        <SectionBanner icon="🛍️" label="สินค้า OTOP" to="/page/builtin-products" />
+        <SectionBanner label="สินค้า OTOP" to="/page/builtin-products" />
 
         <div className="card">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4">
@@ -654,7 +653,7 @@ export default function HomePage() {
       {/* ── วิดีโอ YouTube ────────────────────────────────────────────── */}
       {videos.length > 0 && (
       <Reveal>
-        <SectionBanner icon="▶️" label="วีดีทัศน์การดำเนินงานของหน่วยงาน" />
+        <SectionBanner label="วีดีทัศน์การดำเนินงานของหน่วยงาน" />
 
         <div className="card">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4">
