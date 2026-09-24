@@ -135,6 +135,8 @@ export default function HomePage() {
   const [noticeOpen, setNoticeOpen] = useState({})
   const [fbPage, setFbPage]         = useState(null)
   const [landingPhoto, setLandingPhoto] = useState('')
+  const [topBanner, setTopBanner]       = useState('')
+  const [bottomBanner, setBottomBanner] = useState('')
   const [lightboxItem, setLightboxItem] = useState(null)
   const fbContainerRef = useRef(null)
   const [fbScale, setFbScale] = useState(1)
@@ -204,7 +206,11 @@ export default function HomePage() {
         ])
         getFacebookPage().then(r => setFbPage(r?.data)).catch(() => {})
         getNotices().then(r => setNotices(Array.isArray(r?.data) ? r.data : [])).catch(() => {})
-        getSettings().then(r => setLandingPhoto(r?.data?.landingPhoto || '')).catch(() => {})
+        getSettings().then(r => {
+          setLandingPhoto(r?.data?.landingPhoto || '')
+          setTopBanner(r?.data?.homeTopBanner || '')
+          setBottomBanner(r?.data?.homeBottomBanner || '')
+        }).catch(() => {})
         getVideos().then(r => setVideos((r?.data || []).slice(0, 6))).catch(() => {})
         setAnnounce(ann?.data || [])
         setNewsletter(nl?.data || [])
@@ -244,6 +250,15 @@ export default function HomePage() {
 
   return (
     <div>
+
+      {/* ── Top banner — optional, uploaded by admin in ตั้งค่าเว็บไซต์ ───── */}
+      {topBanner && (
+        <Reveal>
+          <div className="card p-0 overflow-hidden mb-3">
+            <img src={topBanner} alt="" className="w-full h-auto block" />
+          </div>
+        </Reveal>
+      )}
 
       {/* ── ข่าวสารกิจกรรม — one combined section: latest news as a full-width hero, then a 3x3 grid ── */}
       <Reveal>
@@ -685,6 +700,15 @@ export default function HomePage() {
           </div>
         </div>
       </Reveal>
+      )}
+
+      {/* ── Bottom banner — optional, uploaded by admin in ตั้งค่าเว็บไซต์ ── */}
+      {bottomBanner && (
+        <Reveal>
+          <div className="card p-0 overflow-hidden mb-3">
+            <img src={bottomBanner} alt="" className="w-full h-auto block" />
+          </div>
+        </Reveal>
       )}
 
       {/* ── Lightbox ─────────────────────────────────────────────────── */}

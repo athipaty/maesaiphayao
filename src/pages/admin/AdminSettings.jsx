@@ -75,7 +75,7 @@ function Field({ label, hint, children }) {
 const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all bg-gray-50 focus:bg-white focus:scale-[1.01]'
 
 export default function AdminSettings() {
-  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '', headerBgImage: '', landingPhoto: '' })
+  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '', headerBgImage: '', landingPhoto: '', homeTopBanner: '', homeBottomBanner: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving]   = useState(false)
   const [saved, setSaved]     = useState(false)
@@ -268,6 +268,20 @@ export default function AdminSettings() {
           <p className="text-xs text-gray-400 mb-3">แนะนำภาพแนวตั้งหรือสี่เหลี่ยมจัตุรัส เช่น ภาพกิจกรรม อบต. หรือทัศนียภาพในพื้นที่</p>
           <LogoUpload value={form.landingPhoto} onChange={url => set('landingPhoto', url)}
             icon="📷" emptyLabel="ยังไม่มีรูปภาพ" uploadLabel="อัปโหลดรูปภาพ" />
+        </Section>
+
+        {/* Banner image at the very top of the homepage content */}
+        <Section delay={250} icon="🖼️" title="แบนเนอร์บนสุดของหน้าแรก" subtitle="แสดงเต็มความกว้าง เหนือหัวข้อข่าวสารกิจกรรม — เว้นว่างถ้าไม่ต้องการแสดง">
+          <p className="text-xs text-gray-400 mb-3">แนะนำภาพแนวนอน เช่น ป้ายประชาสัมพันธ์ หรือภาพกิจกรรมเด่น</p>
+          <LogoUpload value={form.homeTopBanner} onChange={url => set('homeTopBanner', url)}
+            icon="🖼️" emptyLabel="ยังไม่มีแบนเนอร์" uploadLabel="อัปโหลดแบนเนอร์" />
+        </Section>
+
+        {/* Banner image at the very bottom of the homepage content */}
+        <Section delay={280} icon="🖼️" title="แบนเนอร์ล่างสุดของหน้าแรก" subtitle="แสดงเต็มความกว้าง ใต้วีดีทัศน์การดำเนินงาน — เว้นว่างถ้าไม่ต้องการแสดง">
+          <p className="text-xs text-gray-400 mb-3">แนะนำภาพแนวนอน เช่น ป้ายประชาสัมพันธ์ หรือภาพกิจกรรมเด่น</p>
+          <LogoUpload value={form.homeBottomBanner} onChange={url => set('homeBottomBanner', url)}
+            icon="🖼️" emptyLabel="ยังไม่มีแบนเนอร์" uploadLabel="อัปโหลดแบนเนอร์" />
         </Section>
 
       </div>
