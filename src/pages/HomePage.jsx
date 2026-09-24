@@ -74,6 +74,10 @@ function Reveal({ children, className = '' }) {
   )
 }
 
+// Small repeating Thai-motif (ลายกนก) wave used as the section-title divider —
+// a plain gradient line reads as generic; this reads as intentionally Thai.
+const THAI_BORDER_URL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='18' viewBox='0 0 16 18'%3E%3Cpath d='M0,15 C4,15 4,6 8,6 C12,6 12,15 16,15' fill='none' stroke='%23ec4899' stroke-width='1.4' stroke-linecap='round'/%3E%3Cpath d='M8,6 C6.3,6 5.8,2.5 8,0 C10.2,2.5 9.7,6 8,6 Z' fill='%23be185d'/%3E%3C/svg%3E"
+
 function SectionBanner({ icon, label, to, toLabel = 'ดูทั้งหมด »' }) {
   return (
     <div className="flex items-center gap-3 mt-5 mb-2 px-1">
@@ -81,7 +85,14 @@ function SectionBanner({ icon, label, to, toLabel = 'ดูทั้งหมด
         <span className="text-sm">{icon}</span>
         <span className="text-xs font-bold tracking-wide">{label}</span>
       </div>
-      <div className="flex-1 h-px bg-gradient-to-r from-secondary/30 to-transparent" />
+      <div className="flex-1 h-4" style={{
+        backgroundImage: `url("${THAI_BORDER_URL}")`,
+        backgroundRepeat: 'repeat-x',
+        backgroundPosition: 'left center',
+        backgroundSize: 'auto 100%',
+        WebkitMaskImage: 'linear-gradient(to right, black, black 65%, transparent)',
+        maskImage: 'linear-gradient(to right, black, black 65%, transparent)',
+      }} />
       {to && (
         <Link to={to} className="text-xs font-semibold text-secondary hover:text-primary transition-colors whitespace-nowrap">
           {toLabel}
