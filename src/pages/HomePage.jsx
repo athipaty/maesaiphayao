@@ -110,7 +110,6 @@ export default function HomePage() {
   const [fbPage, setFbPage]         = useState(null)
   const [landingPhoto, setLandingPhoto] = useState('')
   const [topBanner, setTopBanner]       = useState('')
-  const [bottomBanner, setBottomBanner] = useState('')
   const [lightboxItem, setLightboxItem] = useState(null)
   const fbContainerRef = useRef(null)
   const [fbScale, setFbScale] = useState(1)
@@ -170,7 +169,6 @@ export default function HomePage() {
         getSettings().then(r => {
           setLandingPhoto(r?.data?.landingPhoto || '')
           setTopBanner(r?.data?.homeTopBanner || '')
-          setBottomBanner(r?.data?.homeBottomBanner || '')
         }).catch(() => {})
         getVideos().then(r => setVideos((r?.data || []).slice(0, 6))).catch(() => {})
         setAnnounce(ann?.data || [])
@@ -648,15 +646,6 @@ export default function HomePage() {
           </div>
         </div>
       </Reveal>
-      )}
-
-      {/* ── Bottom banner — optional, uploaded by admin in ตั้งค่าเว็บไซต์ ── */}
-      {bottomBanner && (
-        <Reveal>
-          <div className="card p-0 overflow-hidden mb-3">
-            <img src={bottomBanner} alt="" className="w-full h-auto block" />
-          </div>
-        </Reveal>
       )}
 
       {/* ── Lightbox ─────────────────────────────────────────────────── */}

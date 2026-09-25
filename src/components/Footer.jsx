@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { getBanners } from '../services/api'
+import { useLocation } from 'react-router-dom'
+import { getBanners, getSettings } from '../services/api'
 
 const FALLBACK_LINKS = [
   { label: 'กรมส่งเสริมการปกครอง', sub: 'DLA',  href: 'http://www.dla.go.th/',          bg: 'linear-gradient(135deg,#1e3a8a,#2563eb)' },
@@ -15,10 +16,16 @@ const FALLBACK_LINKS = [
 
 export default function Footer() {
   const [links, setLinks] = useState(FALLBACK_LINKS)
+  const [bottomBanner, setBottomBanner] = useState('')
+  const location = useLocation()
+  const isHome = location.pathname === '/'
 
   useEffect(() => {
     getBanners()
       .then(r => { if (r.data?.length > 0) setLinks(r.data) })
+      .catch(() => {})
+    getSettings()
+      .then(r => setBottomBanner(r?.data?.homeBottomBanner || ''))
       .catch(() => {})
   }, [])
 
@@ -126,6 +133,13 @@ export default function Footer() {
           </div>
         </div>
       </div>
+
+      {/* Bottom banner — optional, uploaded by admin in ตั้งค่าเว็บไซต์, homepage only */}
+      {isHome && bottomBanner && (
+        <div className="max-w-[1200px] mx-auto px-4 pt-5">
+          <img src={bottomBanner} alt="" className="w-full h-auto block rounded-lg overflow-hidden" />
+        </div>
+      )}
 
       {/* Footer info */}
       <div className="max-w-[1200px] mx-auto px-4 py-5 text-center">
