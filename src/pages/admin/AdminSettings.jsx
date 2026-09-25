@@ -75,7 +75,7 @@ function Field({ label, hint, children }) {
 const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all bg-gray-50 focus:bg-white focus:scale-[1.01]'
 
 export default function AdminSettings() {
-  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', logoImage: '', headerBgImage: '', landingPhoto: '', homeTopBanner: '', homeBottomBanner: '' })
+  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', deputyName: '', deputyPosition: '', deputyPhone: '', deputyImage: '', logoImage: '', headerBgImage: '', landingPhoto: '', homeTopBanner: '', homeBottomBanner: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving]   = useState(false)
   const [saved, setSaved]     = useState(false)
@@ -219,6 +219,72 @@ export default function AdminSettings() {
                 </p>
               </div>
             </div>
+          </Section>
+
+        </div>
+
+        {/* Second position — shown under the mayor card in the sidebar box */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+          <Section delay={100} icon="👤" title="ข้อมูลตำแหน่งที่ 2" subtitle="แสดงใต้ตำแหน่งแรกในกล่องด้านข้างของเว็บไซต์ (เว้นว่างชื่อถ้าไม่ต้องการแสดง)">
+            <div className="flex flex-col items-center gap-5">
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">รูปภาพ</p>
+                <div className="border-2 border-dashed border-gray-200 rounded-xl p-3 hover:border-primary/40 transition-all duration-300 bg-gray-50 w-48 hover:bg-primary/5">
+                  <ImageUpload value={form.deputyImage} onChange={url => set('deputyImage', url)} />
+                </div>
+                <p className="text-xs text-gray-400">แนะนำขนาด 100×150 px</p>
+              </div>
+              <div className="w-full space-y-4">
+                <Field label="ชื่อ-นามสกุล">
+                  <input className={inputCls} value={form.deputyName}
+                    onChange={e => set('deputyName', e.target.value)}
+                    placeholder="เช่น นายสมชาย ใจดี" />
+                </Field>
+                <Field label="ตำแหน่ง">
+                  <input className={inputCls} value={form.deputyPosition}
+                    onChange={e => set('deputyPosition', e.target.value)}
+                    placeholder="เช่น ปลัดองค์การบริหารส่วนตำบลแม่ใส" />
+                </Field>
+                <Field label="เบอร์โทรศัพท์">
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 text-sm">📞</span>
+                    <input className={`${inputCls} pl-9`} value={form.deputyPhone}
+                      onChange={e => set('deputyPhone', e.target.value)}
+                      placeholder="08x-xxx-xxxx" />
+                  </div>
+                </Field>
+              </div>
+            </div>
+          </Section>
+
+          {/* Sidebar preview — mirrors the real second-position card markup in Sidebar.jsx */}
+          <Section delay={140} icon="👁" title="ตัวอย่าง Sidebar Card" subtitle="แสดงผลจริงในเว็บไซต์">
+            {form.deputyName ? (
+              <div className="flex items-center justify-center py-2">
+                <div className="bg-white rounded-md shadow-sm border border-gray-100 p-4 text-center w-full max-w-[180px] transition-all duration-500">
+                  {form.deputyImage ? (
+                    <img src={form.deputyImage} alt="preview"
+                      className="object-cover mx-auto mb-2 border-2 border-yellow-400 rounded transition-all duration-500"
+                      style={{ width: '130px', height: '195px', objectFit: 'cover', objectPosition: 'top center' }} />
+                  ) : (
+                    <div className="bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-4xl mx-auto mb-2 rounded border-2 border-yellow-400"
+                      style={{ width: '130px', height: '195px' }}>👤</div>
+                  )}
+                  <h4 className="text-sm font-semibold text-primary transition-all duration-300">{form.deputyName}</h4>
+                  <p className="text-xs text-gray-500 mt-1 transition-all duration-300">
+                    {form.deputyPosition || <span className="text-gray-300">ตำแหน่ง</span>}
+                  </p>
+                  <p className="text-xs text-secondary mt-1 transition-all duration-300">
+                    {form.deputyPhone || <span className="text-gray-300">เบอร์โทร</span>}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center py-8 text-xs text-gray-300">
+                กรอกชื่อด้านซ้ายเพื่อแสดงตัวอย่าง — ถ้าเว้นว่างจะไม่แสดงการ์ดนี้บนเว็บไซต์
+              </div>
+            )}
           </Section>
 
         </div>

@@ -15,6 +15,10 @@ const DEFAULT_SETTINGS = {
   mayorPosition: 'นายกองค์การบริหารส่วนตำบลแม่ใส',
   mayorPhone:    '089-757-7366',
   mayorImage:    '',
+  deputyName:    '',
+  deputyPosition: '',
+  deputyPhone:   '',
+  deputyImage:   '',
   logoImage:     '',
 }
 
@@ -106,6 +110,23 @@ export default function Sidebar({ onNavigate, mobile = false }) {
             {settings.mayorPhone && <p className="text-xs text-secondary mt-1 font-medium">{settings.mayorPhone}</p>}
           </div>
         </div>
+
+        {/* Second position compact card */}
+        {settings.deputyName && (
+          <div className="flex-shrink-0 bg-white border-b border-gray-100 flex items-center gap-3 px-5 py-3">
+            {settings.deputyImage ? (
+              <img src={settings.deputyImage} alt={settings.deputyName} loading="lazy"
+                className="w-16 h-20 rounded object-cover object-top border-2 border-yellow-300 flex-shrink-0" />
+            ) : (
+              <div className="w-16 h-20 rounded bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-3xl flex-shrink-0 border-2 border-yellow-300">👤</div>
+            )}
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-primary leading-snug">{settings.deputyName}</p>
+              <p className="text-xs text-gray-500 mt-0.5 leading-snug">{settings.deputyPosition}</p>
+              {settings.deputyPhone && <p className="text-xs text-secondary mt-1 font-medium">{settings.deputyPhone}</p>}
+            </div>
+          </div>
+        )}
 
         {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto">
@@ -261,6 +282,23 @@ export default function Sidebar({ onNavigate, mobile = false }) {
         <p className="text-xs text-gray-500 mt-1">{settings.mayorPosition}</p>
         <p className="text-xs text-secondary mt-1">{settings.mayorPhone}</p>
       </div>
+
+      {/* Second position card — shown under the mayor card when set in admin */}
+      {settings.deputyName && (
+        <div className="bg-white rounded-md shadow-sm mb-3 p-4 text-center">
+          {settings.deputyImage ? (
+            <img src={settings.deputyImage} alt={settings.deputyName}
+              className="object-cover mx-auto mb-2 border-2 border-yellow-400 rounded"
+              style={{ width: '130px', height: '195px', objectFit: 'cover', objectPosition: 'top center' }} />
+          ) : (
+            <div className="bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-4xl mx-auto mb-2 rounded border-2 border-yellow-400"
+              style={{ width: '130px', height: '195px' }}>👤</div>
+          )}
+          <h4 className="text-sm font-semibold text-primary">{settings.deputyName}</h4>
+          <p className="text-xs text-gray-500 mt-1">{settings.deputyPosition}</p>
+          <p className="text-xs text-secondary mt-1">{settings.deputyPhone}</p>
+        </div>
+      )}
 
       {/* บริการสาธารณะ + E-Service (combined) */}
       <div className="bg-white rounded-md shadow-sm mb-3 overflow-hidden">
