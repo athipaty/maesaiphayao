@@ -30,6 +30,12 @@ export default function AdminAnnounce() {
   }
 
   const columns = [
+    {
+      label: 'รูป',
+      render: item => item.image
+        ? <img src={item.image} alt="" className="w-14 h-10 object-cover rounded" />
+        : <div className="w-14 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-300 text-lg">📷</div>
+    },
     { label: 'หัวข้อ', render: item => <span className="text-sm font-medium text-gray-800 line-clamp-1">{item.title}</span> },
     {
       label: 'ประเภท',
