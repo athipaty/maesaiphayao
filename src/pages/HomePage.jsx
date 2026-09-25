@@ -116,8 +116,6 @@ export default function HomePage() {
   const [fbScale, setFbScale] = useState(1)
   const annTrackRef = useRef(null)
   const [annItemWidth, setAnnItemWidth] = useState(320)
-  const annDesktopTrackRef = useRef(null)
-  const [annDesktopItemWidth, setAnnDesktopItemWidth] = useState(300)
 
   useEffect(() => {
     function updateScale() {
@@ -137,17 +135,6 @@ export default function HomePage() {
     updateAnnWidth()
     window.addEventListener('resize', updateAnnWidth)
     return () => window.removeEventListener('resize', updateAnnWidth)
-  }, [])
-
-  useEffect(() => {
-    function updateDesktopAnnWidth() {
-      if (!annDesktopTrackRef.current) return
-      // 2 cards per row: subtract px-5 track padding (40px) and 1 gap (gap-4 = 16px)
-      setAnnDesktopItemWidth((annDesktopTrackRef.current.offsetWidth - 40 - 16) / 2)
-    }
-    updateDesktopAnnWidth()
-    window.addEventListener('resize', updateDesktopAnnWidth)
-    return () => window.removeEventListener('resize', updateDesktopAnnWidth)
   }, [])
 
   useEffect(() => {
@@ -327,30 +314,18 @@ export default function HomePage() {
       })()}
       </Reveal>
 
-      {/* ── Announcement marquee — desktop only, full width, 3 cards visible, slides left ───────────── */}
+      {/* ── ประชาสัมพันธ์ & จดหมายข่าว — desktop only, static 3×3 grid, latest 9 items ───────────── */}
       {annItems.length > 0 && (
       <Reveal>
           <div className="hidden lg:block card p-0 overflow-hidden">
-            <style>{`
-              @keyframes ann-marquee-desktop {
-                0%   { transform: translateX(0); }
-                100% { transform: translateX(-50%); }
-              }
-              .ann-marquee-desktop {
-                animation: ann-marquee-desktop ${Math.max((annDesktopItemWidth + 16) * annItems.length / 12, 60)}s linear infinite;
-              }
-              .ann-marquee-desktop:hover { animation-play-state: paused; }
-            `}</style>
-            <div className="overflow-hidden py-5" ref={annDesktopTrackRef}>
-              <div className="ann-marquee-desktop flex gap-4 w-max px-5">
-                {[...annItems, ...annItems].map((item, i) => (
+            <div className="grid grid-cols-3 gap-4 p-5">
+              {annItems.slice(0, 9).map((item, i) => (
               <div key={i}
                 onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
-                style={{ width: `${annDesktopItemWidth}px` }}
-                className="flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
+                className="rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
               >
                 <div className="relative overflow-hidden" style={{
-                  height: '460px',
+                  height: '220px',
                   background: item.image
                     ? '#f1f5f9'
                     : item._kind === 'newsletter'
@@ -362,38 +337,37 @@ export default function HomePage() {
                       className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-9xl opacity-40 group-hover:scale-110 transition-transform duration-300">
+                      <span className="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-300">
                         {item._kind === 'newsletter' ? '📰' : '📄'}
                       </span>
                     </div>
                   )}
-                  <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-black/40 to-transparent" />
-                  <span className="absolute top-3 left-3 text-sm font-bold bg-white/90 text-primary px-3 py-1.5 rounded-full z-10">
+                  <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-black/40 to-transparent" />
+                  <span className="absolute top-2 left-2 text-xs font-bold bg-white/90 text-primary px-2.5 py-1 rounded-full z-10">
                     {item._kind === 'newsletter' ? '📰 จดหมายข่าว' : '📢 ประชาสัมพันธ์'}
                   </span>
                 </div>
-                <div className="px-5 py-4">
-                  <p className="text-base font-semibold text-gray-800 line-clamp-2 leading-snug mb-2.5 group-hover:text-primary transition-colors">
+                <div className="px-4 py-3">
+                  <p className="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug mb-2 group-hover:text-primary transition-colors">
                     {item.title}
                   </p>
                   <div className="flex items-center justify-between gap-2">
                     {item.createdAt && (
-                      <p className="text-sm text-gray-400">
+                      <p className="text-xs text-gray-400">
                         📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
                       </p>
                     )}
                     {item.fileUrl && (
                       <a href={item.fileUrl} target="_blank" rel="noreferrer"
                         onClick={e => e.stopPropagation()}
-                        className="text-sm font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-full transition-colors flex-shrink-0">
+                        className="text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-full transition-colors flex-shrink-0">
                         📄 PDF
                       </a>
                     )}
                   </div>
                 </div>
               </div>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
       </Reveal>
