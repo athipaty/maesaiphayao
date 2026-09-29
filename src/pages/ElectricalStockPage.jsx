@@ -247,6 +247,19 @@ export default function ElectricalStockPage() {
   const [entryError, setEntryError]     = useState('')
   const [entrySuccess, setEntrySuccess] = useState('')
 
+  // Previously typed "รับจาก"/"จ่ายให้" names for this transaction type — powers the
+  // datalist autocomplete on that field so common names don't need retyping.
+  const partySuggestions = useMemo(() => {
+    const seen = new Set()
+    const list = []
+    for (const t of txns) {
+      if (t.type !== entryForm.type) continue
+      const p = (t.party || '').trim()
+      if (p && !seen.has(p)) { seen.add(p); list.push(p) }
+    }
+    return list
+  }, [txns, entryForm.type])
+
   const [confirmState, setConfirmState] = useState(null) // { title, message, confirmLabel, onConfirm }
   const [confirmBusy, setConfirmBusy]   = useState(false)
 
@@ -880,9 +893,12 @@ export default function ElectricalStockPage() {
                   </div>
                   <div>
                     <label className="form-label">{entryForm.type === 'รับ' ? 'รับจาก' : 'จ่ายให้ / ผู้เบิก'}</label>
-                    <input className="input" value={entryForm.party}
+                    <input className="input" value={entryForm.party} list="party-suggestions"
                       onChange={e => setEntryForm(f => ({ ...f, party: e.target.value }))}
                       placeholder={entryForm.type === 'รับ' ? 'เช่น ร้านค้า / ผู้จำหน่าย' : 'เช่น ชื่อผู้เบิก / งานที่ใช้'} />
+                    <datalist id="party-suggestions">
+                      {partySuggestions.map(p => <option key={p} value={p} />)}
+                    </datalist>
                   </div>
                   <div>
                     <label className="form-label">เลขที่เอกสาร <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
