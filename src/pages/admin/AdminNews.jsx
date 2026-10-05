@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect } from 'react'
 import AdminCrud from './AdminCrud'
 import ImageUpload from '../../components/ImageUpload'
+import ThaiDateInput from '../../components/ThaiDateInput'
 import { getNews, createNews, updateNews, deleteNews } from '../../services/api'
 
 const DEPTS = [
@@ -152,11 +153,10 @@ export default function AdminNews() {
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">📅 วันที่เผยแพร่</label>
-              <input
-                type="date"
+              <ThaiDateInput
                 className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 transition-all"
                 value={data.publishedAt ? data.publishedAt.slice(0,10) : ''}
-                onChange={e => onChange('publishedAt', e.target.value)}
+                onChange={d => onChange('publishedAt', d)}
               />
             </div>
             <div className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
