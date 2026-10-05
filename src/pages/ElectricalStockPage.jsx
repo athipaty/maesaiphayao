@@ -432,6 +432,15 @@ export default function ElectricalStockPage() {
       .sort((a, b) => new Date(a.date) - new Date(b.date) || new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
   }, [txns, ledgerItem])
 
+  // Balance the item had before its very first recorded transaction (ยอดยกมา) — undoes the
+  // first transaction's own delta from its stored balanceAfter, same technique used for the
+  // fiscal-year opening balance in computeItemYear above.
+  const ledgerOpeningBalance = useMemo(() => {
+    if (ledgerTxns.length === 0) return ledgerItem?.balance || 0
+    const first = ledgerTxns[0]
+    return first.balanceAfter - (first.type === 'รับ' ? first.qty : -first.qty)
+  }, [ledgerTxns, ledgerItem])
+
   const yearSummaryRows = useMemo(() => {
     return categoryItems
       .map(item => {
@@ -1589,6 +1598,10 @@ export default function ElectricalStockPage() {
                       </tr>
                     </thead>
                     <tbody>
+                      <tr className="bg-blue-50/50">
+                        <td className="p-2 text-gray-500" colSpan={8}>ยกมา</td>
+                        <td className="p-2 text-right font-semibold text-gray-700">{ledgerOpeningBalance.toLocaleString()}</td>
+                      </tr>
                       {ledgerTxns.map(t => (
                         <tr key={t._id} className="hover:bg-slate-50">
                           <td className="p-2 border-b border-gray-50 text-gray-500 whitespace-nowrap">{new Date(t.date).toLocaleDateString('th-TH')}</td>
@@ -1647,6 +1660,10 @@ export default function ElectricalStockPage() {
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td className="border border-black p-1 text-center" colSpan={9}>ยกมา</td>
+              <td className="border border-black p-1 text-right font-semibold">{ledgerOpeningBalance.toLocaleString()}</td>
+            </tr>
             {ledgerTxns.map(t => (
               <tr key={t._id}>
                 <td className="border border-black p-1 text-center">{thaiDateShort(t.date)}</td>
