@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import {
   getStockItems, createStockItem, updateStockItem, deleteStockItem,
-  getStockTransactions, createStockTransaction, deleteStockTransaction,
+  getStockTransactions, createStockTransaction, updateStockTransaction, deleteStockTransaction,
   loginAdmin, verifyAdmin, logoutAdmin,
   getSettings, updateSetting,
 } from '../services/api'
@@ -240,6 +240,11 @@ export default function ElectricalStockPage() {
   const [editingItemId, setEditingItemId] = useState(null)
   const [itemForm, setItemForm]       = useState(EMPTY_ITEM)
   const [itemSaving, setItemSaving]   = useState(false)
+
+  const [editingTxn, setEditingTxn]   = useState(null) // the transaction being edited, or null
+  const [editTxnForm, setEditTxnForm] = useState(EMPTY_TXN)
+  const [editTxnSaving, setEditTxnSaving] = useState(false)
+  const [editTxnError, setEditTxnError]   = useState('')
 
   // Shared header (type/date/party/docNo entered once) + one or more item rows — for
   // batch entries like "15 items received today on the same delivery note".
@@ -611,6 +616,52 @@ export default function ElectricalStockPage() {
         }
       },
     })
+  }
+
+  // Which item the transaction belongs to isn't editable here — switching items would mean
+  // adjusting two items' balances in one edit, so that case is still delete-and-re-add via
+  // the entry form, same as picking the wrong item entirely.
+  function openEditTxn(txn) {
+    setEditTxnForm({
+      type: txn.type,
+      date: new Date(txn.date).toISOString().slice(0, 10),
+      party: txn.party || '',
+      docNo: txn.docNo || '',
+      qty: String(txn.qty),
+      unitPrice: txn.type === 'รับ' ? String(txn.unitPrice ?? '') : '',
+      note: txn.note || '',
+    })
+    setEditTxnError('')
+    setEditingTxn(txn)
+  }
+
+  async function handleSaveEditTxn(e) {
+    e.preventDefault()
+    if (editTxnSaving) return
+    setEditTxnError('')
+    const qtyNum = Number(editTxnForm.qty)
+    if (!qtyNum || qtyNum <= 0) {
+      setEditTxnError('จำนวนต้องมากกว่า 0')
+      return
+    }
+    setEditTxnSaving(true)
+    try {
+      await updateStockTransaction(editingTxn._id, {
+        type: editTxnForm.type,
+        qty: qtyNum,
+        date: editTxnForm.date,
+        party: editTxnForm.party.trim(),
+        docNo: editTxnForm.docNo.trim(),
+        note: editTxnForm.note.trim(),
+        unitPrice: editTxnForm.type === 'รับ' && editTxnForm.unitPrice !== '' ? Number(editTxnForm.unitPrice) : undefined,
+      })
+      setEditingTxn(null)
+      await load()
+    } catch (err) {
+      setEditTxnError(err?.response?.data?.error || 'บันทึกไม่สำเร็จ')
+    } finally {
+      setEditTxnSaving(false)
+    }
   }
 
   const entryRecent = useMemo(() =>
@@ -1232,7 +1283,11 @@ export default function ElectricalStockPage() {
                         <td className="p-2 border-b border-gray-50 text-gray-500">{t.docNo || '-'}</td>
                         <td className="p-2 border-b border-gray-50 text-right text-gray-600">{t.balanceAfter.toLocaleString()}</td>
                         {isAdmin && (
-                          <td className="p-2 border-b border-gray-50 text-center">
+                          <td className="p-2 border-b border-gray-50 text-center whitespace-nowrap">
+                            <button onClick={() => openEditTxn(t)}
+                              className="text-[11px] px-2 py-1 rounded-md bg-blue-50 text-blue-500 hover:bg-blue-100 font-medium transition-colors mr-1">
+                              แก้ไข
+                            </button>
                             <button onClick={() => handleDeleteTxn(t)}
                               className="text-[11px] px-2 py-1 rounded-md bg-red-50 text-red-500 hover:bg-red-100 font-medium transition-colors">
                               ยกเลิก
@@ -1615,6 +1670,74 @@ export default function ElectricalStockPage() {
           </tbody>
         </table>
       </div>
+      )}
+
+      {/* ── Edit transaction modal ── */}
+      {editingTxn && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.45)' }}
+          onMouseDown={e => { if (e.target === e.currentTarget) setEditingTxn(null) }}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div className="bg-slate-800 text-white px-4 py-3 flex items-center justify-between">
+              <h3 className="text-sm font-semibold">✏️ แก้ไขรายการ — {editingTxn.itemName}</h3>
+              <button onClick={() => setEditingTxn(null)} className="text-white/70 hover:text-white text-lg">×</button>
+            </div>
+            <form onSubmit={handleSaveEditTxn} className="p-4 space-y-3">
+              {editTxnError && <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">{editTxnError}</p>}
+              <div className="flex gap-1.5">
+                {[{ v: 'รับ', l: 'รับเข้า' }, { v: 'จ่าย', l: 'เบิกจ่าย' }].map(({ v, l }) => (
+                  <button key={v} type="button" onClick={() => setEditTxnForm(f => ({ ...f, type: v }))}
+                    className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                      editTxnForm.type === v
+                        ? (v === 'รับ' ? 'bg-green-600 text-white' : 'bg-amber-500 text-white')
+                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}>
+                    {l}
+                  </button>
+                ))}
+              </div>
+              <div>
+                <label className="form-label">วันที่</label>
+                <ThaiDateInput value={editTxnForm.date}
+                  onChange={d => setEditTxnForm(f => ({ ...f, date: d }))} />
+              </div>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="form-label">จำนวน</label>
+                  <input type="number" min="0.01" step="0.01" className="input" value={editTxnForm.qty}
+                    onChange={e => setEditTxnForm(f => ({ ...f, qty: e.target.value }))} />
+                </div>
+                {editTxnForm.type === 'รับ' && (
+                  <div className="flex-1">
+                    <label className="form-label">ราคา/หน่วย</label>
+                    <input type="number" min="0" step="0.01" className="input" value={editTxnForm.unitPrice}
+                      onChange={e => setEditTxnForm(f => ({ ...f, unitPrice: e.target.value }))} />
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="form-label">{editTxnForm.type === 'รับ' ? 'รับจาก' : 'จ่ายให้ / ผู้เบิก'}</label>
+                <input className="input" value={editTxnForm.party}
+                  onChange={e => setEditTxnForm(f => ({ ...f, party: e.target.value }))} />
+              </div>
+              <div>
+                <label className="form-label">เลขที่เอกสาร <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
+                <input className="input" value={editTxnForm.docNo}
+                  onChange={e => setEditTxnForm(f => ({ ...f, docNo: e.target.value }))} />
+              </div>
+              <div>
+                <label className="form-label">หมายเหตุ <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
+                <input className="input" value={editTxnForm.note}
+                  onChange={e => setEditTxnForm(f => ({ ...f, note: e.target.value }))} />
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button type="button" onClick={() => setEditingTxn(null)} className="flex-1 btn-ghost">ยกเลิก</button>
+                <button type="submit" disabled={editTxnSaving} className="flex-1 btn-primary disabled:opacity-50">
+                  {editTxnSaving ? 'กำลังบันทึก...' : 'บันทึกการแก้ไข'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {/* ── Edit report signers modal ── */}

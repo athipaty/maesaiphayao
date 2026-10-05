@@ -77,6 +77,7 @@ export const updateStockItem       = (id, data)  => api.put(`/stock-items/${id}`
 export const deleteStockItem       = (id)        => api.delete(`/stock-items/${id}`)
 export const getStockTransactions  = (params)    => api.get('/stock-transactions', { params })
 export const createStockTransaction = (data)     => api.post('/stock-transactions', data)
+export const updateStockTransaction = (id, data) => api.put(`/stock-transactions/${id}`, data)
 export const deleteStockTransaction = (id)       => api.delete(`/stock-transactions/${id}`)
 
 // ── Settings ──────────────────────────────────────────────────────────────────
