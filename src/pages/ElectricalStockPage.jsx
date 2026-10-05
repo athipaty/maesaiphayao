@@ -540,6 +540,10 @@ export default function ElectricalStockPage() {
 
   async function handleSubmitEntry(e) {
     e.preventDefault()
+    // The disabled={entrySaving} button prop guards against a second click once React has
+    // re-rendered, but a fast double-tap can fire both click events before that paint lands —
+    // this re-entry guard closes that gap so a rushed double-tap can't post the same batch twice.
+    if (entrySaving) return
     setEntryError('')
     setEntrySuccess('')
     const validRows = entryForm.rows.filter(r => r.itemId && Number(r.qty) > 0)
