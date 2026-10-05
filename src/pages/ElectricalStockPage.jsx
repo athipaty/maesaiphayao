@@ -266,6 +266,7 @@ export default function ElectricalStockPage() {
 
   const currentFY = fiscalYearOf(new Date())
   const [historyYear, setHistoryYear] = useState(currentFY)
+  const [historySearch, setHistorySearch] = useState('')
   const [summaryYear, setSummaryYear] = useState(currentFY)
   const [hideZeroStock, setHideZeroStock] = useState(true)
   const [hideZeroRegistry, setHideZeroRegistry] = useState(true)
@@ -387,6 +388,19 @@ export default function ElectricalStockPage() {
   }, [categoryTxns, currentFY, summaryYear, historyYear])
 
   const historyFiltered = useMemo(() => categoryTxns.filter(t => fiscalYearOf(t.date) === historyYear), [categoryTxns, historyYear])
+
+  // Search across item name / party / document no. — narrows what's shown in the table without
+  // touching historyFiltered itself, since the "ใบเบิกวัสดุ" withdraw-row selection (below) is
+  // meant to survive a search term being typed, cleared, or changed.
+  const historySearched = useMemo(() => {
+    const q = historySearch.trim().toLowerCase()
+    if (!q) return historyFiltered
+    return historyFiltered.filter(t =>
+      (t.itemName || '').toLowerCase().includes(q) ||
+      (t.party || '').toLowerCase().includes(q) ||
+      (t.docNo || '').toLowerCase().includes(q)
+    )
+  }, [historyFiltered, historySearch])
 
   useEffect(() => { setWithdrawSelection(new Set()) }, [historyYear, activeCategory])
 
@@ -1146,6 +1160,18 @@ export default function ElectricalStockPage() {
             </select>
           </div>
           <div className="p-3">
+            <div className="relative mb-3">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm">🔍</span>
+              <input type="text" value={historySearch} onChange={e => setHistorySearch(e.target.value)}
+                placeholder="ค้นหารายการ / ผู้รับ-จ่าย / เลขที่เอกสาร..."
+                className="input pl-9 py-2 text-xs" />
+              {historySearch && (
+                <button type="button" onClick={() => setHistorySearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-sm">
+                  ✕
+                </button>
+              )}
+            </div>
             <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
               <p className="text-xs text-gray-400">
                 ✅ เลือกรายการ "จ่าย" เพื่อรวมเป็นใบเบิกวัสดุ — เลือกแล้ว {selectedWithdrawRows.length} รายการ
@@ -1163,8 +1189,10 @@ export default function ElectricalStockPage() {
                 </button>
               </div>
             </div>
-            {historyFiltered.length === 0 ? (
-              <p className="text-center text-gray-400 text-sm py-6">ไม่มีรายการเคลื่อนไหวในปีงบประมาณ {historyYear}</p>
+            {historySearched.length === 0 ? (
+              <p className="text-center text-gray-400 text-sm py-6">
+                {historySearch ? `ไม่พบรายการที่ตรงกับ "${historySearch}"` : `ไม่มีรายการเคลื่อนไหวในปีงบประมาณ ${historyYear}`}
+              </p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-xs border-collapse">
@@ -1182,7 +1210,7 @@ export default function ElectricalStockPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {historyFiltered.map(t => (
+                    {historySearched.map(t => (
                       <tr key={t._id} className="hover:bg-slate-50">
                         <td className="p-2 border-b border-gray-50 text-center">
                           {t.type === 'จ่าย' && (
