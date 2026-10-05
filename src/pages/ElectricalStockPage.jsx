@@ -1265,7 +1265,6 @@ export default function ElectricalStockPage() {
                       <th className="text-right p-2 border-b border-gray-100">จำนวน</th>
                       <th className="text-left p-2 border-b border-gray-100">รับจาก/จ่ายให้</th>
                       <th className="text-left p-2 border-b border-gray-100">เลขที่เอกสาร</th>
-                      <th className="text-right p-2 border-b border-gray-100">คงเหลือ</th>
                       {isAdmin && <th className="text-center p-2 border-b border-gray-100"></th>}
                     </tr>
                   </thead>
@@ -1290,7 +1289,6 @@ export default function ElectricalStockPage() {
                         <td className="p-2 border-b border-gray-50 text-right text-gray-600">{t.qty.toLocaleString()} {t.unit}</td>
                         <td className="p-2 border-b border-gray-50 text-gray-500">{t.party || '-'}</td>
                         <td className="p-2 border-b border-gray-50 text-gray-500">{t.docNo || '-'}</td>
-                        <td className="p-2 border-b border-gray-50 text-right text-gray-600">{t.balanceAfter.toLocaleString()}</td>
                         {isAdmin && (
                           <td className="p-2 border-b border-gray-50 text-center whitespace-nowrap">
                             <button onClick={() => openEditTxn(t)}
