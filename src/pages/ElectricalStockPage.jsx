@@ -418,13 +418,9 @@ export default function ElectricalStockPage() {
     return results
   }, [items, txns])
 
-  // Grouped by category, in the same fixed order as the CATEGORIES nav, so the audit
-  // panel reads as one section per material type instead of one mixed list.
-  const balanceAuditByCategory = useMemo(() => {
-    return CATEGORIES
-      .map(c => ({ category: c, rows: balanceAudit.filter(r => r.category === c.key) }))
-      .filter(g => g.rows.length > 0)
-  }, [balanceAudit])
+  // Scoped to whichever category tab is active, so the audit panel always matches
+  // what the rest of the dashboard is currently showing.
+  const balanceAuditActive = useMemo(() => balanceAudit.filter(r => r.category === activeCategory), [balanceAudit, activeCategory])
 
   // ── Years available for the dropdowns (from transaction dates + current FY, always) ──
   const availableYears = useMemo(() => {
@@ -985,56 +981,46 @@ export default function ElectricalStockPage() {
             </div>
           </div>
 
-          {/* Data integrity audit — admin-only, read-only, checks every category */}
+          {/* Data integrity audit — admin-only, read-only, scoped to the active category tab */}
           {isAdmin && (
-            <div className={`bg-white rounded-xl shadow-sm border overflow-hidden ${balanceAudit.length > 0 ? 'border-red-200' : 'border-gray-100'}`}>
+            <div className={`bg-white rounded-xl shadow-sm border overflow-hidden ${balanceAuditActive.length > 0 ? 'border-red-200' : 'border-gray-100'}`}>
               <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                <h2 className="text-xs font-bold text-gray-700">🔍 ตรวจสอบความถูกต้องของยอดคงเหลือ</h2>
-                {balanceAudit.length > 0 && (
+                <h2 className="text-xs font-bold text-gray-700">
+                  🔍 ตรวจสอบความถูกต้องของยอดคงเหลือ — {CATEGORIES.find(c => c.key === activeCategory)?.icon} {CATEGORIES.find(c => c.key === activeCategory)?.label}
+                </h2>
+                {balanceAuditActive.length > 0 && (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-50 text-red-600 font-semibold">
-                    พบ {balanceAudit.length} รายการ
+                    พบ {balanceAuditActive.length} รายการ
                   </span>
                 )}
               </div>
-              {balanceAudit.length === 0 ? (
-                <p className="text-center text-gray-400 text-xs py-8">✅ ไม่พบข้อมูลยอดคงเหลือที่ไม่ตรงกันในทุกประเภทวัสดุ</p>
+              {balanceAuditActive.length === 0 ? (
+                <p className="text-center text-gray-400 text-xs py-8">✅ ไม่พบข้อมูลยอดคงเหลือที่ไม่ตรงกันในหมวดนี้</p>
               ) : (
-                <div className="divide-y divide-gray-100">
-                  {balanceAuditByCategory.map(({ category, rows }) => (
-                    <div key={category.key}>
-                      <div className="px-4 py-2 bg-gray-50 flex items-center justify-between">
-                        <span className="text-[11px] font-bold text-gray-500">{category.icon} {category.label}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-50 text-red-600 font-semibold">
-                          พบ {rows.length} รายการ
-                        </span>
+                <ul className="divide-y divide-gray-50">
+                  {balanceAuditActive.map(({ item, chainBreaks, currentMismatch, lastBalanceAfter, txnCount }) => (
+                    <li key={item._id} className="px-4 py-3 text-xs">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="font-semibold text-gray-800">[{item.code}] {item.name}</span>
+                        <button onClick={() => setLedgerItem(item)}
+                          className="text-[10px] px-2 py-1 rounded-md bg-slate-50 text-slate-600 hover:bg-slate-100 font-medium transition-colors flex-shrink-0">
+                          📇 ดูบัญชี
+                        </button>
                       </div>
-                      <ul className="divide-y divide-gray-50">
-                        {rows.map(({ item, chainBreaks, currentMismatch, lastBalanceAfter, txnCount }) => (
-                          <li key={item._id} className="px-4 py-3 text-xs">
-                            <div className="flex items-center justify-between gap-2 mb-1">
-                              <span className="font-semibold text-gray-800">[{item.code}] {item.name}</span>
-                              <button onClick={() => setLedgerItem(item)}
-                                className="text-[10px] px-2 py-1 rounded-md bg-slate-50 text-slate-600 hover:bg-slate-100 font-medium transition-colors flex-shrink-0">
-                                📇 ดูบัญชี
-                              </button>
-                            </div>
-                            <p className="text-gray-400 text-[11px] mb-1">{txnCount} รายการเคลื่อนไหว</p>
-                            {currentMismatch && (
-                              <p className="text-red-600">
-                                ยอดคงเหลือปัจจุบันในทะเบียน ({(item.balance || 0).toLocaleString()}) ไม่ตรงกับยอดจากรายการล่าสุดในประวัติ ({lastBalanceAfter.toLocaleString()})
-                              </p>
-                            )}
-                            {chainBreaks.map((b, i) => (
-                              <p key={i} className="text-amber-600">
-                                {new Date(b.txn.date).toLocaleDateString('th-TH')} — "{b.txn.type}" {b.txn.qty.toLocaleString()} {b.txn.unit}: ยอดคงเหลือที่บันทึกไว้ ({b.stored.toLocaleString()}) ไม่ตรงกับยอดที่ควรจะเป็นตามรายการก่อนหน้า ({b.expected.toLocaleString()})
-                              </p>
-                            ))}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                      <p className="text-gray-400 text-[11px] mb-1">{txnCount} รายการเคลื่อนไหว</p>
+                      {currentMismatch && (
+                        <p className="text-red-600">
+                          ยอดคงเหลือปัจจุบันในทะเบียน ({(item.balance || 0).toLocaleString()}) ไม่ตรงกับยอดจากรายการล่าสุดในประวัติ ({lastBalanceAfter.toLocaleString()})
+                        </p>
+                      )}
+                      {chainBreaks.map((b, i) => (
+                        <p key={i} className="text-amber-600">
+                          {new Date(b.txn.date).toLocaleDateString('th-TH')} — "{b.txn.type}" {b.txn.qty.toLocaleString()} {b.txn.unit}: ยอดคงเหลือที่บันทึกไว้ ({b.stored.toLocaleString()}) ไม่ตรงกับยอดที่ควรจะเป็นตามรายการก่อนหน้า ({b.expected.toLocaleString()})
+                        </p>
+                      ))}
+                    </li>
                   ))}
-                </div>
+                </ul>
               )}
             </div>
           )}
