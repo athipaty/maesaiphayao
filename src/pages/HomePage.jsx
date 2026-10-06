@@ -375,9 +375,10 @@ export default function HomePage() {
       <Reveal>
       <SectionBanner label="Facebook" />
       <div className="flex flex-col lg:flex-row gap-4">
-        {/* Facebook widget — desktop only. The embedded page.php iframe frequently fails to render
-            its content (broken images) over mobile carrier networks, so mobile gets a static card instead. */}
-        <div className="hidden lg:block card p-0 overflow-hidden w-full lg:w-[500px] lg:flex-shrink-0">
+        {/* Facebook widget — shown on all screen sizes. The embedded page.php iframe can fail to
+            render its content (broken images) over some mobile carrier networks, so the fallback
+            link below stays visible on mobile too as a guaranteed-working way to reach the page. */}
+        <div className="card p-0 overflow-hidden w-full lg:w-[500px] lg:flex-shrink-0">
           <div className="flex justify-center">
             <div ref={fbContainerRef} className="overflow-hidden w-full max-w-[500px]"
               style={{ height: `${Math.round(500 * fbScale)}px` }}>
@@ -407,20 +408,6 @@ export default function HomePage() {
             </a>
           </div>
         </div>
-
-        {/* Static follow card — mobile. The live embed is unreliable on mobile carrier networks (images
-            fail to load inside the iframe), so mobile gets a guaranteed-working link-out card instead. */}
-        <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
-          className="lg:hidden card flex items-center gap-4 p-5 w-full hover:shadow-md transition-shadow">
-          <div className="w-14 h-14 rounded-full bg-[#1877F2] flex items-center justify-center text-3xl flex-shrink-0">
-            📘
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-gray-800">องค์การบริหารส่วนตำบลแม่ใส</p>
-            <p className="text-xs text-gray-500 mt-0.5">ติดตามข่าวสารและกิจกรรมล่าสุดของเราบน Facebook</p>
-          </div>
-          <span className="btn-primary text-xs px-3 py-1.5 flex-shrink-0">เปิดดู →</span>
-        </a>
 
         {/* Photo — fills the space beside Facebook on desktop, same total height, uploaded by admin in ตั้งค่าเว็บไซต์ */}
         <div className="hidden lg:block card p-0 overflow-hidden flex-1 bg-gray-50" style={{ height: `${Math.round(500 * fbScale)}px` }}>
