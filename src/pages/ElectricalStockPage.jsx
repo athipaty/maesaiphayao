@@ -273,8 +273,6 @@ export default function ElectricalStockPage() {
   const [historyYear, setHistoryYear] = useState(currentFY)
   const [historySearch, setHistorySearch] = useState('')
   const [summaryYear, setSummaryYear] = useState(currentFY)
-  const [hideZeroStock, setHideZeroStock] = useState(true)
-  const [hideZeroRegistry, setHideZeroRegistry] = useState(true)
 
   const [printMode, setPrintMode] = useState(null) // null | 'report' | 'withdraw' | 'ledger'
   const [withdrawSelection, setWithdrawSelection] = useState(new Set())
@@ -367,11 +365,9 @@ export default function ElectricalStockPage() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
-    let list = categoryItems
-    if (q) list = list.filter(i => i.name.toLowerCase().includes(q) || String(i.code).includes(q))
-    if (hideZeroRegistry) list = list.filter(i => (i.balance || 0) !== 0)
-    return list
-  }, [categoryItems, search, hideZeroRegistry])
+    if (!q) return categoryItems
+    return categoryItems.filter(i => i.name.toLowerCase().includes(q) || String(i.code).includes(q))
+  }, [categoryItems, search])
 
   const totalValue = useMemo(() => categoryItems.reduce((s, i) => s + (i.balance || 0) * (i.unitPrice || 0), 0), [categoryItems])
   const lowStockItems = useMemo(() => categoryItems.filter(i => (i.balance || 0) <= 0), [categoryItems])
@@ -539,11 +535,6 @@ export default function ElectricalStockPage() {
       .filter(Boolean)
       .sort((a, b) => (a.item.code || 0) - (b.item.code || 0))
   }, [categoryItems, txns, summaryYear])
-
-  const yearSummaryRowsDisplayed = useMemo(
-    () => hideZeroStock ? yearSummaryRows.filter(r => r.closing !== 0) : yearSummaryRows,
-    [yearSummaryRows, hideZeroStock]
-  )
 
   const yearTotals = useMemo(() => yearSummaryRows.reduce((acc, r) => ({
     opening:  acc.opening + r.opening,
@@ -1251,14 +1242,6 @@ export default function ElectricalStockPage() {
           <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
             <h2 className="text-xs font-bold text-gray-700">📋 ทะเบียนวัสดุคงเหลือ</h2>
             <div className="flex gap-2">
-              <button onClick={() => setHideZeroRegistry(v => !v)}
-                className={`text-[11px] px-3 py-1.5 rounded-full border font-medium transition-colors ${
-                  hideZeroRegistry
-                    ? 'bg-slate-800 text-white border-slate-800'
-                    : 'border-gray-200 text-gray-500 hover:border-slate-800 hover:text-slate-800 bg-white'
-                }`}>
-                {hideZeroRegistry ? '🙈 ซ่อนรายการหมดสต๊อก' : '👁️ แสดงรายการหมดสต๊อก'}
-              </button>
               <button onClick={openAddItem} className="text-xs bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg font-medium transition-colors">
                 + เพิ่มวัสดุใหม่
               </button>
@@ -1457,14 +1440,6 @@ export default function ElectricalStockPage() {
                 ณ วันที่ 30 กันยายน {summaryYear} · กองช่าง · {activeCategory}
               </p>
               <div className="flex gap-2">
-                <button onClick={() => setHideZeroStock(v => !v)}
-                  className={`text-[11px] px-3 py-1.5 rounded-full border font-medium transition-colors ${
-                    hideZeroStock
-                      ? 'bg-primary text-white border-primary'
-                      : 'border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white'
-                  }`}>
-                  {hideZeroStock ? '🙈 ซ่อนรายการหมดสต๊อก' : '👁️ แสดงรายการหมดสต๊อก'}
-                </button>
                 <button onClick={() => triggerPrint('report')}
                   className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white font-medium transition-colors">
                   🖨️ พิมพ์รายงาน
@@ -1477,8 +1452,6 @@ export default function ElectricalStockPage() {
             </div>
             {yearSummaryRows.length === 0 ? (
               <p className="text-center text-gray-400 text-sm py-8">ไม่มีวัสดุในปีงบประมาณ {summaryYear}</p>
-            ) : yearSummaryRowsDisplayed.length === 0 ? (
-              <p className="text-center text-gray-400 text-sm py-8">ไม่มีวัสดุคงเหลือ (ทุกรายการหมดสต๊อก)</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-xs border-collapse">
@@ -1496,7 +1469,7 @@ export default function ElectricalStockPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {yearSummaryRowsDisplayed.map(r => (
+                    {yearSummaryRows.map(r => (
                       <tr key={r.item._id} className="hover:bg-slate-50">
                         <td className="p-2 border-b border-gray-50 text-gray-400">{r.item.code}</td>
                         <td className="p-2 border-b border-gray-50 font-medium text-gray-700">{r.item.name}</td>
@@ -1546,7 +1519,7 @@ export default function ElectricalStockPage() {
             </tr>
           </thead>
           <tbody>
-            {yearSummaryRowsDisplayed.map((r, idx) => (
+            {yearSummaryRows.map((r, idx) => (
               <tr key={r.item._id}>
                 <td className="border border-black p-1 text-center">{idx + 1}</td>
                 <td className="border border-black p-1">{r.item.name}</td>
