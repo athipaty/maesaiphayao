@@ -471,14 +471,50 @@ export default function ElectricalStockPage() {
       .sort((a, b) => new Date(a.date) - new Date(b.date) || new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
   }, [txns, ledgerItem])
 
-  // Balance the item had before its very first recorded transaction (ยอดยกมา) — undoes the
+  // Balance the item had before its very first recorded transaction (ยอดยกมา). Once an admin
+  // has explicitly set it, it's stored on the item (openingBalance) and used directly — editing
+  // it re-cascades every later balanceAfter server-side. Until then it's derived by undoing the
   // first transaction's own delta from its stored balanceAfter, same technique used for the
   // fiscal-year opening balance in computeItemYear above.
   const ledgerOpeningBalance = useMemo(() => {
+    if (ledgerItem?.openingBalance != null) return ledgerItem.openingBalance
     if (ledgerTxns.length === 0) return ledgerItem?.balance || 0
     const first = ledgerTxns[0]
     return first.balanceAfter - (first.type === 'รับ' ? first.qty : -first.qty)
   }, [ledgerTxns, ledgerItem])
+
+  // ── Editing ยกมา (opening balance) from the ledger modal ──────────────────
+  const [editingOpeningBalance, setEditingOpeningBalance] = useState(false)
+  const [openingBalanceInput, setOpeningBalanceInput] = useState('')
+  const [openingBalanceSaving, setOpeningBalanceSaving] = useState(false)
+  const [openingBalanceError, setOpeningBalanceError] = useState('')
+  useEffect(() => { setEditingOpeningBalance(false); setOpeningBalanceError('') }, [ledgerItem?._id])
+
+  function openEditOpeningBalance() {
+    setOpeningBalanceInput(String(ledgerOpeningBalance))
+    setOpeningBalanceError('')
+    setEditingOpeningBalance(true)
+  }
+
+  async function handleSaveOpeningBalance() {
+    const val = Number(openingBalanceInput)
+    if (openingBalanceInput.trim() === '' || isNaN(val)) {
+      setOpeningBalanceError('กรุณากรอกตัวเลข')
+      return
+    }
+    setOpeningBalanceSaving(true)
+    setOpeningBalanceError('')
+    try {
+      const { data } = await updateStockItem(ledgerItem._id, { openingBalance: val })
+      setLedgerItem(data)
+      setEditingOpeningBalance(false)
+      await load()
+    } catch (err) {
+      setOpeningBalanceError(err?.response?.data?.error || 'บันทึกไม่สำเร็จ')
+    } finally {
+      setOpeningBalanceSaving(false)
+    }
+  }
 
   const yearSummaryRows = useMemo(() => {
     const yearEnd = fiscalYearEnd(summaryYear).getTime()
@@ -1691,7 +1727,35 @@ export default function ElectricalStockPage() {
                     </thead>
                     <tbody>
                       <tr className="bg-blue-50/50">
-                        <td className="p-2 text-gray-500" colSpan={8}>ยกมา</td>
+                        <td className="p-2 text-gray-500" colSpan={8}>
+                          <div className="flex items-center gap-2">
+                            <span>ยกมา</span>
+                            {isAdmin && !editingOpeningBalance && (
+                              <button onClick={openEditOpeningBalance}
+                                className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium transition-colors">
+                                ✏️ แก้ไข
+                              </button>
+                            )}
+                            {editingOpeningBalance && (
+                              <div className="flex items-center gap-1.5">
+                                <input type="number" step="0.01" autoFocus
+                                  className="input !py-1 !px-2 text-xs w-24"
+                                  value={openingBalanceInput}
+                                  onChange={e => setOpeningBalanceInput(e.target.value)}
+                                  onKeyDown={e => { if (e.key === 'Enter') handleSaveOpeningBalance() }} />
+                                <button onClick={handleSaveOpeningBalance} disabled={openingBalanceSaving}
+                                  className="text-[10px] px-2 py-1 rounded-md bg-emerald-500 text-white hover:bg-emerald-600 font-medium transition-colors disabled:opacity-50">
+                                  {openingBalanceSaving ? '...' : 'บันทึก'}
+                                </button>
+                                <button onClick={() => setEditingOpeningBalance(false)} disabled={openingBalanceSaving}
+                                  className="text-[10px] px-2 py-1 rounded-md bg-gray-100 text-gray-500 hover:bg-gray-200 font-medium transition-colors">
+                                  ยกเลิก
+                                </button>
+                                {openingBalanceError && <span className="text-red-500 text-[10px]">{openingBalanceError}</span>}
+                              </div>
+                            )}
+                          </div>
+                        </td>
                         <td className="p-2 text-right font-semibold text-gray-700">{ledgerOpeningBalance.toLocaleString()}</td>
                       </tr>
                       {ledgerTxns.map(t => (
