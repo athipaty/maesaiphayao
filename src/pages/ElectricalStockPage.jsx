@@ -383,6 +383,41 @@ export default function ElectricalStockPage() {
     [categoryTxns])
   const todayTxnCount = useMemo(() => categoryTxns.filter(t => (t.date || '').slice(0, 10) === todayStr()).length, [categoryTxns])
 
+  // ── Data integrity audit — across every category, not just the active one, since this is
+  // meant to catch the kind of problems already found this way in practice: a transaction
+  // deleted/edited before the balanceAfter cascade fix existed, a duplicate batch submission,
+  // or a current balance that's drifted from what replaying the item's own transaction history
+  // actually produces. Purely a read-only check — flags issues, doesn't touch any data.
+  const balanceAudit = useMemo(() => {
+    const results = []
+    for (const item of items) {
+      const itemTxns = txns
+        .filter(t => String(t.item) === String(item._id))
+        .slice()
+        .sort((a, b) => new Date(a.date) - new Date(b.date) || new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
+      if (itemTxns.length === 0) continue
+
+      const chainBreaks = []
+      let running = itemTxns[0].balanceAfter
+      for (let i = 1; i < itemTxns.length; i++) {
+        const t = itemTxns[i]
+        const expected = t.type === 'รับ' ? running + t.qty : running - t.qty
+        if (expected !== t.balanceAfter) {
+          chainBreaks.push({ txn: t, expected, stored: t.balanceAfter })
+        }
+        running = t.balanceAfter // resync to stored value so one break doesn't cascade false positives
+      }
+
+      const lastBalanceAfter = itemTxns[itemTxns.length - 1].balanceAfter
+      const currentMismatch = (item.balance || 0) !== lastBalanceAfter
+
+      if (chainBreaks.length > 0 || currentMismatch) {
+        results.push({ item, chainBreaks, currentMismatch, lastBalanceAfter, txnCount: itemTxns.length })
+      }
+    }
+    return results
+  }, [items, txns])
+
   // ── Years available for the dropdowns (from transaction dates + current FY, always) ──
   const availableYears = useMemo(() => {
     const set = new Set([currentFY])
@@ -941,6 +976,48 @@ export default function ElectricalStockPage() {
               )}
             </div>
           </div>
+
+          {/* Data integrity audit — admin-only, read-only, checks every category */}
+          {isAdmin && (
+            <div className={`bg-white rounded-xl shadow-sm border overflow-hidden ${balanceAudit.length > 0 ? 'border-red-200' : 'border-gray-100'}`}>
+              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <h2 className="text-xs font-bold text-gray-700">🔍 ตรวจสอบความถูกต้องของยอดคงเหลือ</h2>
+                {balanceAudit.length > 0 && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-50 text-red-600 font-semibold">
+                    พบ {balanceAudit.length} รายการ
+                  </span>
+                )}
+              </div>
+              {balanceAudit.length === 0 ? (
+                <p className="text-center text-gray-400 text-xs py-8">✅ ไม่พบข้อมูลยอดคงเหลือที่ไม่ตรงกันในทุกประเภทวัสดุ</p>
+              ) : (
+                <ul className="divide-y divide-gray-50">
+                  {balanceAudit.map(({ item, chainBreaks, currentMismatch, lastBalanceAfter, txnCount }) => (
+                    <li key={item._id} className="px-4 py-3 text-xs">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="font-semibold text-gray-800">[{item.code}] {item.name}</span>
+                        <button onClick={() => setLedgerItem(item)}
+                          className="text-[10px] px-2 py-1 rounded-md bg-slate-50 text-slate-600 hover:bg-slate-100 font-medium transition-colors flex-shrink-0">
+                          📇 ดูบัญชี
+                        </button>
+                      </div>
+                      <p className="text-gray-400 text-[11px] mb-1">หมวด {categoryOf(item)} · {txnCount} รายการ</p>
+                      {currentMismatch && (
+                        <p className="text-red-600">
+                          ยอดคงเหลือปัจจุบันในทะเบียน ({(item.balance || 0).toLocaleString()}) ไม่ตรงกับยอดจากรายการล่าสุดในประวัติ ({lastBalanceAfter.toLocaleString()})
+                        </p>
+                      )}
+                      {chainBreaks.map((b, i) => (
+                        <p key={i} className="text-amber-600">
+                          {new Date(b.txn.date).toLocaleDateString('th-TH')} — "{b.txn.type}" {b.txn.qty.toLocaleString()} {b.txn.unit}: ยอดคงเหลือที่บันทึกไว้ ({b.stored.toLocaleString()}) ไม่ตรงกับยอดที่ควรจะเป็นตามรายการก่อนหน้า ({b.expected.toLocaleString()})
+                        </p>
+                      ))}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
         </div>
       )}
 
