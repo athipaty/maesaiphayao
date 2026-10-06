@@ -442,10 +442,21 @@ export default function ElectricalStockPage() {
   }, [ledgerTxns, ledgerItem])
 
   const yearSummaryRows = useMemo(() => {
+    const yearEnd = fiscalYearEnd(summaryYear).getTime()
     return categoryItems
       .map(item => {
         const itemTxns = txns.filter(t => String(t.item) === String(item._id))
-        const existedThisYear = new Date(item.createdAt || 0) <= fiscalYearEnd(summaryYear)
+        // An item "existed" by this fiscal year if it has a transaction dated on or before
+        // the year's end — not whether its database row was created by then. Backdated entry
+        // (adding an item today with its first transaction dated months ago) means createdAt
+        // reflects today, not when the item's history actually starts, which silently dropped
+        // such items from every report year before the one they were entered in.
+        const earliestTxnTime = itemTxns.length > 0
+          ? Math.min(...itemTxns.map(t => new Date(t.date).getTime()))
+          : null
+        const existedThisYear = earliestTxnTime !== null
+          ? earliestTxnTime <= yearEnd
+          : new Date(item.createdAt || 0).getTime() <= yearEnd
         if (!existedThisYear) return null
         const calc = computeItemYear(item, itemTxns, summaryYear)
         return { item, ...calc }
