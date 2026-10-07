@@ -392,24 +392,33 @@ export default function ElectricalStockPage() {
         .filter(t => String(t.item) === String(item._id))
         .slice()
         .sort((a, b) => new Date(a.date) - new Date(b.date) || new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
-      if (itemTxns.length === 0) continue
 
       const chainBreaks = []
-      let running = itemTxns[0].balanceAfter
-      for (let i = 1; i < itemTxns.length; i++) {
-        const t = itemTxns[i]
-        const expected = t.type === 'รับ' ? running + t.qty : running - t.qty
-        if (expected !== t.balanceAfter) {
-          chainBreaks.push({ txn: t, expected, stored: t.balanceAfter })
+      let currentMismatch = false
+      let lastBalanceAfter = null
+      if (itemTxns.length > 0) {
+        let running = itemTxns[0].balanceAfter
+        for (let i = 1; i < itemTxns.length; i++) {
+          const t = itemTxns[i]
+          const expected = t.type === 'รับ' ? running + t.qty : running - t.qty
+          if (expected !== t.balanceAfter) {
+            chainBreaks.push({ txn: t, expected, stored: t.balanceAfter })
+          }
+          running = t.balanceAfter // resync to stored value so one break doesn't cascade false positives
         }
-        running = t.balanceAfter // resync to stored value so one break doesn't cascade false positives
+        lastBalanceAfter = itemTxns[itemTxns.length - 1].balanceAfter
+        currentMismatch = (item.balance || 0) !== lastBalanceAfter
       }
 
-      const lastBalanceAfter = itemTxns[itemTxns.length - 1].balanceAfter
-      const currentMismatch = (item.balance || 0) !== lastBalanceAfter
+      // A ยกมา (openingBalance) that falls in a พ.ศ.-year-like range almost certainly means
+      // someone typed a fiscal year into the field by mistake (e.g. confusing it with the
+      // ปีงบประมาณ shown right next to it when editing) instead of a real quantity — the
+      // chain/currentMismatch checks above can't catch this because the backend cascade keeps
+      // everything internally consistent even when the opening value itself is wrong.
+      const suspiciousOpeningBalance = item.openingBalance != null && item.openingBalance >= 2500 && item.openingBalance <= 2600
 
-      if (chainBreaks.length > 0 || currentMismatch) {
-        results.push({ item, category: categoryOf(item), chainBreaks, currentMismatch, lastBalanceAfter, txnCount: itemTxns.length })
+      if (chainBreaks.length > 0 || currentMismatch || suspiciousOpeningBalance) {
+        results.push({ item, category: categoryOf(item), chainBreaks, currentMismatch, lastBalanceAfter, txnCount: itemTxns.length, suspiciousOpeningBalance })
       }
     }
     return results
@@ -1050,7 +1059,7 @@ export default function ElectricalStockPage() {
                 <p className="text-center text-gray-400 text-xs py-8">✅ ไม่พบข้อมูลยอดคงเหลือที่ไม่ตรงกันในหมวดนี้</p>
               ) : (
                 <ul className="divide-y divide-gray-50">
-                  {balanceAuditActive.map(({ item, chainBreaks, currentMismatch, lastBalanceAfter, txnCount }) => (
+                  {balanceAuditActive.map(({ item, chainBreaks, currentMismatch, lastBalanceAfter, txnCount, suspiciousOpeningBalance }) => (
                     <li key={item._id} className="px-4 py-3 text-xs">
                       <div className="flex items-center justify-between gap-2 mb-1">
                         <span className="font-semibold text-gray-800">[{item.code}] {item.name}</span>
@@ -1060,6 +1069,11 @@ export default function ElectricalStockPage() {
                         </button>
                       </div>
                       <p className="text-gray-400 text-[11px] mb-1">{txnCount} รายการเคลื่อนไหว</p>
+                      {suspiciousOpeningBalance && (
+                        <p className="text-purple-600">
+                          ยอดยกมา ({item.openingBalance.toLocaleString()}) ดูคล้ายเลขปีงบประมาณมากกว่าจำนวนจริง — เช็คและแก้ไขผ่านปุ่ม ✏️ แก้ไข ในหน้าบัญชีวัสดุ
+                        </p>
+                      )}
                       {currentMismatch && (
                         <p className="text-red-600">
                           ยอดคงเหลือปัจจุบันในทะเบียน ({(item.balance || 0).toLocaleString()}) ไม่ตรงกับยอดจากรายการล่าสุดในประวัติ ({lastBalanceAfter.toLocaleString()})
