@@ -1680,24 +1680,21 @@ export default function ElectricalStockPage() {
                 <p>ชื่อวัสดุ : <span className="font-semibold text-gray-800">{ledgerItem.name}</span></p>
                 <p>หน่วยนับ : <span className="font-semibold text-gray-800">{ledgerItem.unit}</span></p>
               </div>
-              {ledgerTxns.length === 0 ? (
-                <p className="text-center text-gray-400 text-sm py-8">ยังไม่มีประวัติรับ-จ่ายของวัสดุนี้</p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-gray-50 text-gray-500">
-                        <th className="text-left p-2 border-b border-gray-100">วันที่</th>
-                        <th className="text-center p-2 border-b border-gray-100">รับ/จ่าย</th>
-                        <th className="text-left p-2 border-b border-gray-100">รับจาก/จ่ายให้</th>
-                        <th className="text-left p-2 border-b border-gray-100">เลขที่เอกสาร</th>
-                        <th className="text-right p-2 border-b border-gray-100">จำนวน</th>
-                        <th className="text-center p-2 border-b border-gray-100">หน่วย</th>
-                        <th className="text-right p-2 border-b border-gray-100">ราคาต่อหน่วย</th>
-                        <th className="text-right p-2 border-b border-gray-100">รวมเงิน</th>
-                        <th className="text-right p-2 border-b border-gray-100">คงเหลือ</th>
-                      </tr>
-                    </thead>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50 text-gray-500">
+                      <th className="text-left p-2 border-b border-gray-100">วันที่</th>
+                      <th className="text-center p-2 border-b border-gray-100">รับ/จ่าย</th>
+                      <th className="text-left p-2 border-b border-gray-100">รับจาก/จ่ายให้</th>
+                      <th className="text-left p-2 border-b border-gray-100">เลขที่เอกสาร</th>
+                      <th className="text-right p-2 border-b border-gray-100">จำนวน</th>
+                      <th className="text-center p-2 border-b border-gray-100">หน่วย</th>
+                      <th className="text-right p-2 border-b border-gray-100">ราคาต่อหน่วย</th>
+                      <th className="text-right p-2 border-b border-gray-100">รวมเงิน</th>
+                      <th className="text-right p-2 border-b border-gray-100">คงเหลือ</th>
+                    </tr>
+                  </thead>
                     <tbody>
                       <tr className="bg-blue-50/50">
                         <td className="p-2 text-gray-500" colSpan={8}>
@@ -1731,7 +1728,11 @@ export default function ElectricalStockPage() {
                         </td>
                         <td className="p-2 text-right font-semibold text-gray-700">{ledgerOpeningBalance.toLocaleString()}</td>
                       </tr>
-                      {ledgerTxns.map(t => (
+                      {ledgerTxns.length === 0 ? (
+                        <tr>
+                          <td className="p-2 text-center text-gray-400 py-8" colSpan={9}>ยังไม่มีประวัติรับ-จ่ายของวัสดุนี้</td>
+                        </tr>
+                      ) : ledgerTxns.map(t => (
                         <tr key={t._id} className="hover:bg-slate-50">
                           <td className="p-2 border-b border-gray-50 text-gray-500 whitespace-nowrap">{new Date(t.date).toLocaleDateString('th-TH')}</td>
                           <td className="p-2 border-b border-gray-50 text-center">
@@ -1755,7 +1756,6 @@ export default function ElectricalStockPage() {
                     </tfoot>
                   </table>
                 </div>
-              )}
             </div>
           </div>
         </div>
