@@ -1540,7 +1540,6 @@ export default function ElectricalStockPage() {
             <tr>
               <th className="border border-black p-1">ลำดับ</th>
               <th className="border border-black p-1">รายการ</th>
-              <th className="border border-black p-1">ยกมา</th>
               <th className="border border-black p-1">ปริมาณ</th>
               <th className="border border-black p-1">หน่วยนับ</th>
               <th className="border border-black p-1">ราคาต่อหน่วย<br />(บาท)</th>
@@ -1553,7 +1552,6 @@ export default function ElectricalStockPage() {
               <tr key={r.item._id}>
                 <td className="border border-black p-1 text-center">{idx + 1}</td>
                 <td className="border border-black p-1">{r.item.name}</td>
-                <td className="border border-black p-1 text-right">{r.opening ? money2(r.opening) : '-'}</td>
                 <td className="border border-black p-1 text-right">{r.closing ? money2(r.closing) : '-'}</td>
                 <td className="border border-black p-1 text-center">{r.item.unit}</td>
                 <td className="border border-black p-1 text-right">{money2(r.item.unitPrice)}</td>
@@ -1564,7 +1562,7 @@ export default function ElectricalStockPage() {
             {/* A regular tbody row (not tfoot) so it prints once, wherever the table ends,
                 instead of repeating on every page — tfoot repeats per printed page by spec. */}
             <tr>
-              <td className="border border-black p-1 text-center font-semibold" colSpan={6}>รวมรายการ</td>
+              <td className="border border-black p-1 text-center font-semibold" colSpan={5}>รวมรายการ</td>
               <td className="border border-black p-1 text-right font-semibold">{money2(yearTotals.value)}</td>
               <td className="border border-black p-1"></td>
             </tr>
