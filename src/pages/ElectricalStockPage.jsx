@@ -7,6 +7,7 @@ import {
   getSettings, updateSetting,
 } from '../services/api'
 import ThaiDateInput from '../components/ThaiDateInput'
+import * as XLSX from 'xlsx'
 
 const EMPTY_ITEM = { code: '', name: '', unit: '', unitPrice: '', balance: '', category: '' }
 const EMPTY_TXN  = { itemId: '', type: 'จ่าย', qty: '', party: '', docNo: '', date: '', note: '', unitPrice: '' }
@@ -543,6 +544,30 @@ export default function ElectricalStockPage() {
     closing:  acc.closing + r.closing,
     value:    acc.value + r.closing * (r.item.unitPrice || 0),
   }), { opening: 0, received: 0, withdrawn: 0, closing: 0, value: 0 }), [yearSummaryRows])
+
+  function handleExportExcel() {
+    const rows = yearSummaryRows.map(r => ({
+      'รหัส': r.item.code,
+      'รายการ': r.item.name,
+      'หน่วย': r.item.unit,
+      'ยกมา': r.opening,
+      'รับ': r.received,
+      'จ่าย': r.withdrawn,
+      'คงเหลือ': r.closing,
+      'ราคา/หน่วย': r.item.unitPrice || 0,
+      'จำนวนเงิน': r.closing * (r.item.unitPrice || 0),
+    }))
+    rows.push({
+      'รหัส': '', 'รายการ': 'รวม', 'หน่วย': '', 'ยกมา': yearTotals.opening,
+      'รับ': yearTotals.received, 'จ่าย': yearTotals.withdrawn, 'คงเหลือ': yearTotals.closing,
+      'ราคา/หน่วย': '', 'จำนวนเงิน': yearTotals.value,
+    })
+    const sheet = XLSX.utils.json_to_sheet(rows)
+    sheet['!cols'] = [{ wch: 6 }, { wch: 36 }, { wch: 8 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 14 }]
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, sheet, 'รายงานวัสดุคงเหลือ')
+    XLSX.writeFile(workbook, `รายงานวัสดุคงเหลือ_${activeCategory}_${summaryYear}.xlsx`)
+  }
 
   // ── Item add/edit/delete ────────────────────────────────────────────────
   function openAddItem() { setEditingItemId(null); setItemForm({ ...EMPTY_ITEM, category: activeCategory }); setItemModal(true) }
@@ -1443,6 +1468,10 @@ export default function ElectricalStockPage() {
                 <button onClick={() => triggerPrint('report')}
                   className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white font-medium transition-colors">
                   🖨️ พิมพ์รายงาน
+                </button>
+                <button onClick={handleExportExcel} disabled={yearSummaryRows.length === 0}
+                  className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                  📊 ดาวน์โหลด Excel
                 </button>
                 <button onClick={openSignerModal}
                   className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white font-medium transition-colors">
