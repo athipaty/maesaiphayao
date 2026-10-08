@@ -80,7 +80,14 @@ function fiscalYearEnd(fy) {
 function computeItemYear(item, itemTxns, fy) {
   const prevEnd = fiscalYearEnd(fy - 1)
   const yearEnd = fiscalYearEnd(fy)
-  const sorted = itemTxns.slice().sort((a, b) => new Date(a.date) - new Date(b.date))
+  // date-only tiebreaker is missing elsewhere: with several same-day transactions (e.g. a
+  // batch of จ่าย entries all dated the same day), comparing only by date leaves their
+  // relative order unstable — picking the wrong one as "last of the year" and reading its
+  // balanceAfter as next year's opening balance. createdAt as a tiebreaker fixes that, same
+  // as every other transaction sort in this file.
+  const sorted = itemTxns.slice().sort((a, b) =>
+    new Date(a.date) - new Date(b.date) || new Date(a.createdAt || 0) - new Date(b.createdAt || 0)
+  )
   const beforeYear = sorted.filter(t => new Date(t.date) <= prevEnd)
   const withinYear = sorted.filter(t => { const dt = new Date(t.date); return dt > prevEnd && dt <= yearEnd })
 
