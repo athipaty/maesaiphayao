@@ -71,6 +71,19 @@ export default function ThaiDateInput({ value, onChange, className = 'input' }) 
   const today = new Date()
   const displayText = selected ? `${pad2(selected.getDate())}/${pad2(selected.getMonth() + 1)}/${selected.getFullYear() + 543}` : ''
 
+  // Clamp the panel inside the viewport instead of letting it overflow off the right edge
+  // (its common home — a narrow modal near the right side of the screen — gives rect.left
+  // too little room for the panel's own min-width) and flip above the trigger when there's
+  // not enough room below. PANEL_HEIGHT is an estimate (header + weekday row + ~6 day rows +
+  // today button) good enough for this flip decision without a measure-after-render pass.
+  const PANEL_WIDTH = rect ? Math.max(rect.width, 288) : 288
+  const PANEL_HEIGHT = 340
+  const MARGIN = 8
+  const spaceBelow = rect ? window.innerHeight - rect.bottom : 0
+  const openAbove = rect ? (spaceBelow < PANEL_HEIGHT && rect.top > PANEL_HEIGHT) : false
+  const panelLeft = rect ? Math.min(Math.max(rect.left, MARGIN), window.innerWidth - PANEL_WIDTH - MARGIN) : 0
+  const panelTop = rect ? (openAbove ? rect.top - PANEL_HEIGHT - 4 : rect.bottom + 4) : 0
+
   return (
     <div>
       <button type="button" ref={triggerRef} onClick={() => setOpen(v => !v)}
@@ -81,7 +94,7 @@ export default function ThaiDateInput({ value, onChange, className = 'input' }) 
       {open && rect && createPortal(
         <div
           ref={panelRef}
-          style={{ position: 'fixed', top: rect.bottom + 4, left: rect.left, width: Math.max(rect.width, 288) }}
+          style={{ position: 'fixed', top: panelTop, left: panelLeft, width: PANEL_WIDTH }}
           className="z-[999] bg-white border border-gray-200 rounded-lg shadow-lg p-3">
           <div className="flex items-center justify-between mb-2 gap-1">
             <button type="button" onClick={() => changeMonth(-12)} className="w-7 h-7 rounded hover:bg-gray-100 text-gray-500 text-xs flex-shrink-0">«</button>
