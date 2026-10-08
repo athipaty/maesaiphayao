@@ -202,51 +202,32 @@ export default function HomePage() {
     load()
   }, [])
 
-  const annItems = [
-    ...announce.map(i => ({ ...i, _kind: 'announcement' })),
-    ...newsletter.map(i => ({ ...i, _kind: 'newsletter' })),
-  ]
-
-  return (
-    <div>
-
-      {/* ── Top banner — optional, uploaded by admin in ตั้งค่าเว็บไซต์ ───── */}
-      {topBanner && (
+  // Renders one of the two announcement-family sections (ประชาสัมพันธ์ / จดหมายข่าว) — kept
+  // as a plain function rather than a separate component so it can share this component's
+  // state (setLightboxItem) and the single annTrackRef/annItemWidth measurement (both
+  // sections render at the same card width, so one measurement serves both; the ref is only
+  // attached to whichever section renders its marquee first).
+  function renderAnnSection(items, { label, to, kind, gradient, icon, attachRef }) {
+    if (items.length === 0) return null
+    return (
+      <>
         <Reveal>
-          <div className="card p-0 overflow-hidden mb-3">
-            <img src={topBanner} alt="" className="w-full h-auto block" />
-          </div>
-        </Reveal>
-      )}
-
-      {/* ── ข่าวสารกิจกรรม — one combined section: latest news as a full-width hero, then a 3x3 grid ── */}
-      <Reveal>
-        <SectionBanner label="ข่าวสารกิจกรรม" to="/page/builtin-news" />
-        <LatestNewsGrid items={allNews} loading={loading} />
-      </Reveal>
-
-      {/* ── ประชาสัมพันธ์ ─────────────────────────────────────────────── */}
-      <Reveal>
-      <SectionBanner label="ข่าวประชาสัมพันธ์ & จดหมายข่าว" to="/announcements" />
-
-      {/* ── Announcement marquee — mobile only (desktop shows in Facebook right panel) ── */}
-      {annItems.length > 0 && (() => {
-        return (
+          <SectionBanner label={label} to={to} />
           <div className="card lg:hidden">
             <style>{`
-              @keyframes ann-marquee {
+              @keyframes ann-marquee-${kind} {
                 0%   { transform: translateX(0); }
                 100% { transform: translateX(-50%); }
               }
-              .ann-marquee {
-                animation: ann-marquee ${Math.max((annItemWidth + 12) * annItems.length / 26, 50)}s linear infinite;
+              .ann-marquee-${kind} {
+                animation: ann-marquee-${kind} ${Math.max((annItemWidth + 12) * items.length / 26, 50)}s linear infinite;
               }
-              .ann-marquee:hover { animation-play-state: paused; }
+              .ann-marquee-${kind}:hover { animation-play-state: paused; }
             `}</style>
 
-            <div className="overflow-hidden pt-2 pb-3" ref={annTrackRef}>
-              <div className="ann-marquee flex gap-3 w-max px-3">
-                {[...annItems, ...annItems].map((item, i) => (
+            <div className="overflow-hidden pt-2 pb-3" ref={attachRef ? annTrackRef : undefined}>
+              <div className={`ann-marquee-${kind} flex gap-3 w-max px-3`}>
+                {[...items, ...items].map((item, i) => (
                   <div
                     key={i}
                     onClick={() => (item.image || item.fileUrl) && setLightboxItem(item)}
@@ -256,27 +237,16 @@ export default function HomePage() {
                     {/* Image — tall portrait, object-contain shows full image without cropping */}
                     <div className="relative overflow-hidden" style={{
                       height: '300px',
-                      background: item.image
-                        ? '#f1f5f9'
-                        : item._kind === 'newsletter'
-                          ? 'linear-gradient(135deg,#065f46 0%,#059669 60%,#34d399 100%)'
-                          : 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)'
+                      background: item.image ? '#f1f5f9' : gradient
                     }}>
                       {item.image ? (
                         <img src={item.image} alt={item.title} loading="lazy"
                           className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-300">
-                            {item._kind === 'newsletter' ? '📰' : '📄'}
-                          </span>
+                          <span className="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-300">{icon}</span>
                         </div>
                       )}
-                      {/* Thin top gradient for badge readability only */}
-                      <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-black/40 to-transparent" />
-                      <span className="absolute top-2 left-2 text-[10px] font-bold bg-white/90 text-primary px-2 py-0.5 rounded-full z-10">
-                        {item._kind === 'newsletter' ? '📰 จดหมายข่าว' : '📢 ประชาสัมพันธ์'}
-                      </span>
                       {item.image && (
                         <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10">
                           <span className="bg-black/50 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">🔍 ดูรูปภาพ</span>
@@ -308,42 +278,29 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        )
-      })()}
-      </Reveal>
+        </Reveal>
 
-      {/* ── ประชาสัมพันธ์ & จดหมายข่าว — desktop only, static 3×3 grid, latest 9 items ───────────── */}
-      {annItems.length > 0 && (
-      <Reveal>
+        {/* Desktop only, static 3×3 grid, latest 9 items */}
+        <Reveal>
           <div className="hidden lg:block card p-0 overflow-hidden">
             <div className="grid grid-cols-3 gap-4 p-5">
-              {annItems.slice(0, 9).map((item, i) => (
+              {items.slice(0, 9).map((item, i) => (
               <div key={i}
                 onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
                 className="rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
               >
                 <div className="relative overflow-hidden" style={{
                   height: '220px',
-                  background: item.image
-                    ? '#f1f5f9'
-                    : item._kind === 'newsletter'
-                      ? 'linear-gradient(135deg,#065f46 0%,#059669 60%,#34d399 100%)'
-                      : 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)'
+                  background: item.image ? '#f1f5f9' : gradient
                 }}>
                   {item.image ? (
                     <img src={item.image} alt={item.title}
                       className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-300">
-                        {item._kind === 'newsletter' ? '📰' : '📄'}
-                      </span>
+                      <span className="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-300">{icon}</span>
                     </div>
                   )}
-                  <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-black/40 to-transparent" />
-                  <span className="absolute top-2 left-2 text-xs font-bold bg-white/90 text-primary px-2.5 py-1 rounded-full z-10">
-                    {item._kind === 'newsletter' ? '📰 จดหมายข่าว' : '📢 ประชาสัมพันธ์'}
-                  </span>
                 </div>
                 <div className="px-4 py-3">
                   <p className="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug mb-2 group-hover:text-primary transition-colors">
@@ -368,8 +325,40 @@ export default function HomePage() {
               ))}
             </div>
           </div>
-      </Reveal>
+        </Reveal>
+      </>
+    )
+  }
+
+  return (
+    <div>
+
+      {/* ── Top banner — optional, uploaded by admin in ตั้งค่าเว็บไซต์ ───── */}
+      {topBanner && (
+        <Reveal>
+          <div className="card p-0 overflow-hidden mb-3">
+            <img src={topBanner} alt="" className="w-full h-auto block" />
+          </div>
+        </Reveal>
       )}
+
+      {/* ── ข่าวสารกิจกรรม — one combined section: latest news as a full-width hero, then a 3x3 grid ── */}
+      <Reveal>
+        <SectionBanner label="ข่าวสารกิจกรรม" to="/page/builtin-news" />
+        <LatestNewsGrid items={allNews} loading={loading} />
+      </Reveal>
+
+      {/* ── ข่าวประชาสัมพันธ์ ─────────────────────────────────────────── */}
+      {renderAnnSection(announce, {
+        label: 'ข่าวประชาสัมพันธ์', to: '/announcements', kind: 'announcement',
+        gradient: 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)', icon: '📄', attachRef: true,
+      })}
+
+      {/* ── จดหมายข่าว ─────────────────────────────────────────────────── */}
+      {renderAnnSection(newsletter, {
+        label: 'จดหมายข่าว', to: '/announcements', kind: 'newsletter',
+        gradient: 'linear-gradient(135deg,#065f46 0%,#059669 60%,#34d399 100%)', icon: '📰', attachRef: false,
+      })}
 
       {/* ── Facebook ─────────────────────────────────────────────────── */}
       <Reveal>

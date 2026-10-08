@@ -5,7 +5,8 @@ import { loginAdmin, verifyAdmin, logoutAdmin, getEServices, getComplaints, getF
 const MENU = [
   { path: '/admin/pages',         label: 'จัดการเมนู/หน้า',    icon: '🗂️' },
   { path: '/admin/news',          label: 'ข่าวสารกิจกรรม',     icon: '📰' },
-  { path: '/admin/announcements', label: 'ประชาสัมพันธ์',       icon: '📢' },
+  { path: '/admin/announcements', label: 'ข่าวประชาสัมพันธ์',   icon: '📢' },
+  { path: '/admin/newsletter',    label: 'จดหมายข่าว',          icon: '📰' },
   { path: '/admin/notices',       label: 'หัวข้อประกาศ',        icon: '📋' },
 { path: '/admin/staff',         label: 'บุคลากร',             icon: '👥' },
   { path: '/admin/travel',        label: 'สถานที่ท่องเที่ยว',   icon: '🗺️' },

@@ -55,6 +55,7 @@ const DynamicPage          = lazy(() => import("./pages/DynamicPage"));
 import AdminLayout from "./pages/admin/AdminLayout";
 const AdminNews           = lazy(() => import("./pages/admin/AdminNews"));
 const AdminAnnounce       = lazy(() => import("./pages/admin/AdminAnnounce"));
+const AdminNewsletter     = lazy(() => import("./pages/admin/AdminNewsletter"));
 const AdminProcurement    = lazy(() => import("./pages/admin/AdminProcurement"));
 const AdminProcurementPlan = lazy(() => import("./pages/admin/AdminProcurementPlan"));
 const AdminStaff          = lazy(() => import("./pages/admin/AdminStaff"));
@@ -190,6 +191,7 @@ export default function App() {
           <Route index element={<Navigate to="/admin/pages" replace />} />
           <Route path="news"             element={<ChunkErrorBoundary><Suspense fallback={null}><AdminNews /></Suspense></ChunkErrorBoundary>} />
           <Route path="announcements"    element={<ChunkErrorBoundary><Suspense fallback={null}><AdminAnnounce /></Suspense></ChunkErrorBoundary>} />
+          <Route path="newsletter"       element={<ChunkErrorBoundary><Suspense fallback={null}><AdminNewsletter /></Suspense></ChunkErrorBoundary>} />
           <Route path="procurement"      element={<ChunkErrorBoundary><Suspense fallback={null}><AdminProcurement /></Suspense></ChunkErrorBoundary>} />
           <Route path="procurement-plans" element={<ChunkErrorBoundary><Suspense fallback={null}><AdminProcurementPlan /></Suspense></ChunkErrorBoundary>} />
           <Route path="staff"            element={<ChunkErrorBoundary><Suspense fallback={null}><AdminStaff /></Suspense></ChunkErrorBoundary>} />
