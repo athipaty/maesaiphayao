@@ -90,6 +90,150 @@ function SectionBanner({ label, to, toLabel = 'ดูทั้งหมด »' }
   )
 }
 
+// One of the two announcement-family sections (ประชาสัมพันธ์ / จดหมายข่าว). A real component
+// (not a helper closure) so each instance measures its own mobile-marquee track width — sharing
+// one ref/state across both sections meant whichever section had zero items never attached the
+// ref, leaving the other stuck at the 320px fallback width instead of its actual card width.
+function AnnouncementSection({ items, label, to, kind, gradient, icon, onLightbox }) {
+  const trackRef = useRef(null)
+  const [itemWidth, setItemWidth] = useState(320)
+
+  useEffect(() => {
+    function updateWidth() {
+      if (!trackRef.current) return
+      setItemWidth(trackRef.current.offsetWidth - 24) // minus px-3 track padding (12px each side)
+    }
+    updateWidth()
+    window.addEventListener('resize', updateWidth)
+    return () => window.removeEventListener('resize', updateWidth)
+    // items.length === 0 re-runs this once the track actually mounts: `items` starts as []
+    // while the fetch is in flight, so this component renders null on first mount and
+    // trackRef never attaches — an empty dep array would measure nothing and never retry.
+  }, [items.length === 0])
+
+  if (items.length === 0) return null
+
+  return (
+    <>
+      <Reveal>
+        <SectionBanner label={label} to={to} />
+        <div className="card lg:hidden">
+          <style>{`
+            @keyframes ann-marquee-${kind} {
+              0%   { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            .ann-marquee-${kind} {
+              animation: ann-marquee-${kind} ${Math.max((itemWidth + 12) * items.length / 26, 50)}s linear infinite;
+            }
+            .ann-marquee-${kind}:hover { animation-play-state: paused; }
+          `}</style>
+
+          <div className="overflow-hidden pt-2 pb-3" ref={trackRef}>
+            <div className={`ann-marquee-${kind} flex gap-3 w-max px-3`}>
+              {[...items, ...items].map((item, i) => (
+                <div
+                  key={i}
+                  onClick={() => (item.image || item.fileUrl) && onLightbox(item)}
+                  style={{ width: `${itemWidth}px` }}
+                  className="flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
+                >
+                  {/* Image — tall portrait, object-contain shows full image without cropping */}
+                  <div className="relative overflow-hidden" style={{
+                    height: '300px',
+                    background: item.image ? '#f1f5f9' : gradient
+                  }}>
+                    {item.image ? (
+                      <img src={item.image} alt={item.title} loading="lazy"
+                        className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-300">{icon}</span>
+                      </div>
+                    )}
+                    {item.image && (
+                      <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                        <span className="bg-black/50 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">🔍 ดูรูปภาพ</span>
+                      </span>
+                    )}
+                  </div>
+                  {/* Title + date + PDF link below image */}
+                  <div className="px-3 py-2.5">
+                    <p className="text-xs font-semibold text-gray-800 line-clamp-2 leading-snug mb-1.5 group-hover:text-primary transition-colors">
+                      {item.title}
+                    </p>
+                    <div className="flex items-center justify-between gap-2">
+                      {item.createdAt && (
+                        <p className="text-[10px] text-gray-400">
+                          📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                        </p>
+                      )}
+                      {item.fileUrl && (
+                        <a href={item.fileUrl} target="_blank" rel="noreferrer"
+                          onClick={e => e.stopPropagation()}
+                          className="text-[10px] font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors flex-shrink-0">
+                          📄 PDF
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Reveal>
+
+      {/* Desktop only, static 3×3 grid, latest 9 items */}
+      <Reveal>
+        <div className="hidden lg:block card p-0 overflow-hidden">
+          <div className="grid grid-cols-3 gap-4 p-5">
+            {items.slice(0, 9).map((item, i) => (
+            <div key={i}
+              onClick={() => item.image ? onLightbox(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
+              className="rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
+            >
+              <div className="relative overflow-hidden" style={{
+                height: '220px',
+                background: item.image ? '#f1f5f9' : gradient
+              }}>
+                {item.image ? (
+                  <img src={item.image} alt={item.title}
+                    className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-300">{icon}</span>
+                  </div>
+                )}
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug mb-2 group-hover:text-primary transition-colors">
+                  {item.title}
+                </p>
+                <div className="flex items-center justify-between gap-2">
+                  {item.createdAt && (
+                    <p className="text-xs text-gray-400">
+                      📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                    </p>
+                  )}
+                  {item.fileUrl && (
+                    <a href={item.fileUrl} target="_blank" rel="noreferrer"
+                      onClick={e => e.stopPropagation()}
+                      className="text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-full transition-colors flex-shrink-0">
+                      📄 PDF
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+            ))}
+          </div>
+        </div>
+      </Reveal>
+    </>
+  )
+}
+
 export default function HomePage() {
   const [allNews, setAllNews]       = useState([])
   const [announce, setAnnounce]     = useState([])
@@ -113,8 +257,6 @@ export default function HomePage() {
   const [lightboxItem, setLightboxItem] = useState(null)
   const fbContainerRef = useRef(null)
   const [fbScale, setFbScale] = useState(1)
-  const annTrackRef = useRef(null)
-  const [annItemWidth, setAnnItemWidth] = useState(320)
 
   useEffect(() => {
     function updateScale() {
@@ -124,16 +266,6 @@ export default function HomePage() {
     updateScale()
     window.addEventListener('resize', updateScale)
     return () => window.removeEventListener('resize', updateScale)
-  }, [])
-
-  useEffect(() => {
-    function updateAnnWidth() {
-      if (!annTrackRef.current) return
-      setAnnItemWidth(annTrackRef.current.offsetWidth - 24) // minus px-3 track padding (12px each side)
-    }
-    updateAnnWidth()
-    window.addEventListener('resize', updateAnnWidth)
-    return () => window.removeEventListener('resize', updateAnnWidth)
   }, [])
 
   useEffect(() => {
@@ -202,134 +334,6 @@ export default function HomePage() {
     load()
   }, [])
 
-  // Renders one of the two announcement-family sections (ประชาสัมพันธ์ / จดหมายข่าว) — kept
-  // as a plain function rather than a separate component so it can share this component's
-  // state (setLightboxItem) and the single annTrackRef/annItemWidth measurement (both
-  // sections render at the same card width, so one measurement serves both; the ref is only
-  // attached to whichever section renders its marquee first).
-  function renderAnnSection(items, { label, to, kind, gradient, icon, attachRef }) {
-    if (items.length === 0) return null
-    return (
-      <>
-        <Reveal>
-          <SectionBanner label={label} to={to} />
-          <div className="card lg:hidden">
-            <style>{`
-              @keyframes ann-marquee-${kind} {
-                0%   { transform: translateX(0); }
-                100% { transform: translateX(-50%); }
-              }
-              .ann-marquee-${kind} {
-                animation: ann-marquee-${kind} ${Math.max((annItemWidth + 12) * items.length / 26, 50)}s linear infinite;
-              }
-              .ann-marquee-${kind}:hover { animation-play-state: paused; }
-            `}</style>
-
-            <div className="overflow-hidden pt-2 pb-3" ref={attachRef ? annTrackRef : undefined}>
-              <div className={`ann-marquee-${kind} flex gap-3 w-max px-3`}>
-                {[...items, ...items].map((item, i) => (
-                  <div
-                    key={i}
-                    onClick={() => (item.image || item.fileUrl) && setLightboxItem(item)}
-                    style={{ width: `${annItemWidth}px` }}
-                    className="flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
-                  >
-                    {/* Image — tall portrait, object-contain shows full image without cropping */}
-                    <div className="relative overflow-hidden" style={{
-                      height: '300px',
-                      background: item.image ? '#f1f5f9' : gradient
-                    }}>
-                      {item.image ? (
-                        <img src={item.image} alt={item.title} loading="lazy"
-                          className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-300">{icon}</span>
-                        </div>
-                      )}
-                      {item.image && (
-                        <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                          <span className="bg-black/50 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">🔍 ดูรูปภาพ</span>
-                        </span>
-                      )}
-                    </div>
-                    {/* Title + date + PDF link below image */}
-                    <div className="px-3 py-2.5">
-                      <p className="text-xs font-semibold text-gray-800 line-clamp-2 leading-snug mb-1.5 group-hover:text-primary transition-colors">
-                        {item.title}
-                      </p>
-                      <div className="flex items-center justify-between gap-2">
-                        {item.createdAt && (
-                          <p className="text-[10px] text-gray-400">
-                            📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                          </p>
-                        )}
-                        {item.fileUrl && (
-                          <a href={item.fileUrl} target="_blank" rel="noreferrer"
-                            onClick={e => e.stopPropagation()}
-                            className="text-[10px] font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-full transition-colors flex-shrink-0">
-                            📄 PDF
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Reveal>
-
-        {/* Desktop only, static 3×3 grid, latest 9 items */}
-        <Reveal>
-          <div className="hidden lg:block card p-0 overflow-hidden">
-            <div className="grid grid-cols-3 gap-4 p-5">
-              {items.slice(0, 9).map((item, i) => (
-              <div key={i}
-                onClick={() => item.image ? setLightboxItem(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
-                className="rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
-              >
-                <div className="relative overflow-hidden" style={{
-                  height: '220px',
-                  background: item.image ? '#f1f5f9' : gradient
-                }}>
-                  {item.image ? (
-                    <img src={item.image} alt={item.title}
-                      className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300" />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-300">{icon}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="px-4 py-3">
-                  <p className="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug mb-2 group-hover:text-primary transition-colors">
-                    {item.title}
-                  </p>
-                  <div className="flex items-center justify-between gap-2">
-                    {item.createdAt && (
-                      <p className="text-xs text-gray-400">
-                        📅 {new Date(item.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                      </p>
-                    )}
-                    {item.fileUrl && (
-                      <a href={item.fileUrl} target="_blank" rel="noreferrer"
-                        onClick={e => e.stopPropagation()}
-                        className="text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-full transition-colors flex-shrink-0">
-                        📄 PDF
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
-              ))}
-            </div>
-          </div>
-        </Reveal>
-      </>
-    )
-  }
-
   return (
     <div>
 
@@ -349,16 +353,12 @@ export default function HomePage() {
       </Reveal>
 
       {/* ── ข่าวประชาสัมพันธ์ ─────────────────────────────────────────── */}
-      {renderAnnSection(announce, {
-        label: 'ข่าวประชาสัมพันธ์', to: '/announcements', kind: 'announcement',
-        gradient: 'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)', icon: '📄', attachRef: true,
-      })}
+      <AnnouncementSection items={announce} label="ข่าวประชาสัมพันธ์" to="/announcements" kind="announcement"
+        gradient="linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)" icon="📄" onLightbox={setLightboxItem} />
 
       {/* ── จดหมายข่าว ─────────────────────────────────────────────────── */}
-      {renderAnnSection(newsletter, {
-        label: 'จดหมายข่าว', to: '/announcements', kind: 'newsletter',
-        gradient: 'linear-gradient(135deg,#065f46 0%,#059669 60%,#34d399 100%)', icon: '📰', attachRef: false,
-      })}
+      <AnnouncementSection items={newsletter} label="จดหมายข่าว" to="/announcements" kind="newsletter"
+        gradient="linear-gradient(135deg,#065f46 0%,#059669 60%,#34d399 100%)" icon="📰" onLightbox={setLightboxItem} />
 
       {/* ── Facebook ─────────────────────────────────────────────────── */}
       <Reveal>
