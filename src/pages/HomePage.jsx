@@ -194,7 +194,7 @@ function AnnouncementSection({ items, label, to, kind, gradient, icon, onLightbo
               className="rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
             >
               <div className="relative overflow-hidden" style={{
-                height: '220px',
+                height: '300px',
                 background: item.image ? '#f1f5f9' : gradient
               }}>
                 {item.image ? (
