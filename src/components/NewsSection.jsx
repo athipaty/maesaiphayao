@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 const DEPT_ICONS = {
   council:     '🏛️',
@@ -69,6 +70,23 @@ export function NewsSection({ dept, items = [], loading }) {
 // (see HomePage.jsx), shown as one full-width hero (the latest item) followed by a 3x3 grid
 // of the next 9 items, instead of one grid per department.
 export function LatestNewsGrid({ items = [], loading }) {
+  const hero = items[0]
+  const heroImages = hero && Array.isArray(hero.images) && hero.images.length > 0
+    ? hero.images
+    : (hero?.image ? [hero.image] : [])
+
+  const [heroIdx, setHeroIdx] = useState(0)
+  const [paused, setPaused] = useState(false)
+
+  // New hero item (e.g. after a refetch) — restart the slideshow from its first photo.
+  useEffect(() => { setHeroIdx(0) }, [hero?._id])
+
+  useEffect(() => {
+    if (paused || heroImages.length <= 1) return
+    const t = setInterval(() => setHeroIdx(i => (i + 1) % heroImages.length), 4000)
+    return () => clearInterval(t)
+  }, [heroImages.length, hero?._id, paused])
+
   if (loading) {
     return (
       <div className="card">
@@ -84,23 +102,26 @@ export function LatestNewsGrid({ items = [], loading }) {
     )
   }
 
-  const [hero, ...rest] = items
+  const rest = items.slice(1)
   const gridItems = rest.slice(0, 9)
 
-  const heroImg = Array.isArray(hero.images) && hero.images.length > 0 ? hero.images[0] : hero.image
   const heroDept = hero._dept || hero.department
   const heroIcon = DEPT_ICONS[heroDept] || '📰'
   const heroLabel = DEPT_LABELS[heroDept] || ''
 
   return (
     <div className="space-y-3">
-      {/* Hero — latest news item, full width */}
+      {/* Hero — latest news item, full width, cycling through all its photos */}
       <Link to={`/page/builtin-news/detail/${hero._id}`}
+        onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
         className="relative block rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group bg-white">
         <div className="relative w-full h-64 sm:h-80 md:h-96 overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200">
-          {heroImg ? (
-            <img src={heroImg} alt={hero.title}
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+          {heroImages.length > 0 ? (
+            heroImages.map((src, i) => (
+              <img key={src} src={src} alt={hero.title} loading={i === 0 ? undefined : 'lazy'}
+                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out"
+                style={{ opacity: i === heroIdx ? 1 : 0 }} />
+            ))
           ) : (
             <div className="absolute inset-0 flex items-center justify-center text-6xl opacity-40">{heroIcon}</div>
           )}
@@ -111,6 +132,13 @@ export function LatestNewsGrid({ items = [], loading }) {
           <span className="absolute top-3 left-3 inline-flex items-center gap-1 text-xs font-semibold bg-white/90 text-primary px-2.5 py-1 rounded-full">
             {heroIcon} {heroLabel}
           </span>
+          {heroImages.length > 1 && (
+            <div className="absolute top-3 right-3 flex gap-1 z-10">
+              {heroImages.map((_, i) => (
+                <span key={i} className={`w-1.5 h-1.5 rounded-full transition-colors ${i === heroIdx ? 'bg-white' : 'bg-white/40'}`} />
+              ))}
+            </div>
+          )}
           <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-6 pb-4 pt-8">
             <h3 className="text-white text-base sm:text-xl font-bold leading-snug line-clamp-2 drop-shadow group-hover:underline">
               {hero.title}
