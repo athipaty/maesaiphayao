@@ -423,19 +423,19 @@ export default function HomePage() {
                 <div key={n._id}>
                   {/* Row */}
                   <div
-                    className="flex items-center gap-2 px-4 py-2.5 hover:bg-blue-50/40 transition-colors cursor-pointer"
+                    className="flex items-start gap-2 px-4 py-2.5 hover:bg-blue-50/40 transition-colors cursor-pointer"
                     onClick={() => setNoticeOpen(s => ({ ...s, [n._id]: !s[n._id] }))}
                   >
-                    <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[11px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
-                    <span className="flex-1 min-w-0 text-sm text-gray-800 font-medium truncate">{n.title}</span>
+                    <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                    <span className="flex-1 min-w-0 text-sm text-gray-800 font-medium leading-snug">{n.title}</span>
                     {n.topic && (
-                      <span className="hidden sm:inline text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">{n.topic}</span>
+                      <span className="hidden sm:inline text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 mt-0.5">{n.topic}</span>
                     )}
-                    <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
+                    <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5">
                       {new Date(n.publishedAt || n.createdAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
                     </span>
                     {n.fileUrl && (
-                      <span className={`text-xs text-gray-400 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
+                      <span className={`text-xs text-gray-400 flex-shrink-0 mt-0.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
                     )}
                   </div>
                   {/* PDF preview */}
