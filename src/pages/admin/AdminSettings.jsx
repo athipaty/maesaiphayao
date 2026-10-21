@@ -75,7 +75,7 @@ function Field({ label, hint, children }) {
 const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all bg-gray-50 focus:bg-white focus:scale-[1.01]'
 
 export default function AdminSettings() {
-  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', deputyName: '', deputyPosition: '', deputyPhone: '', deputyImage: '', logoImage: '', headerBgImage: '', landingPhoto: '', homeTopBanner: '', homeBottomBanner: '' })
+  const [form, setForm]     = useState({ mayorName: '', mayorPosition: '', mayorPhone: '', mayorImage: '', deputyName: '', deputyPosition: '', deputyPhone: '', deputyImage: '', logoImage: '', headerBgImage: '', landingPhoto: '', homeTopBanner: '', homeBottomBanner: '', fbPostImage: '', fbPostText: '', fbPostUrl: '', fbPostDate: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving]   = useState(false)
   const [saved, setSaved]     = useState(false)
@@ -334,6 +334,35 @@ export default function AdminSettings() {
           <p className="text-xs text-gray-400 mb-3">แนะนำภาพแนวตั้งหรือสี่เหลี่ยมจัตุรัส เช่น ภาพกิจกรรม อบต. หรือทัศนียภาพในพื้นที่</p>
           <LogoUpload value={form.landingPhoto} onChange={url => set('landingPhoto', url)}
             icon="📷" emptyLabel="ยังไม่มีรูปภาพ" uploadLabel="อัปโหลดรูปภาพ" />
+        </Section>
+
+        {/* Latest Facebook post — entered manually since Facebook's own API requires page-admin
+            permissions we don't have, and the live embed gets blocked by tracker blockers */}
+        <Section delay={210} icon="📘" title="โพสต์ล่าสุดจาก Facebook" subtitle="กรอกเอง — คัดลอกข้อความ/รูป/ลิงก์จากโพสต์ล่าสุดในเพจมาใส่ทุกครั้งที่มีโพสต์ใหม่">
+          <div className="space-y-4">
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide self-start">รูปภาพโพสต์</p>
+              <div className="w-full">
+                <LogoUpload value={form.fbPostImage} onChange={url => set('fbPostImage', url)}
+                  icon="📘" emptyLabel="ยังไม่มีรูปภาพ" uploadLabel="อัปโหลดรูปภาพ" />
+              </div>
+            </div>
+            <Field label="ข้อความโพสต์">
+              <textarea className={`${inputCls} min-h-[90px] resize-y`} value={form.fbPostText}
+                onChange={e => set('fbPostText', e.target.value)}
+                placeholder="คัดลอกข้อความจากโพสต์ Facebook มาวางตรงนี้" />
+            </Field>
+            <Field label="ลิงก์โพสต์" hint="คลิกขวาที่วันที่ของโพสต์บน Facebook → Copy link">
+              <input className={inputCls} value={form.fbPostUrl}
+                onChange={e => set('fbPostUrl', e.target.value)}
+                placeholder="https://www.facebook.com/MaesaiSAOPhayao/posts/..." />
+            </Field>
+            <Field label="วันที่โพสต์">
+              <input className={inputCls} value={form.fbPostDate}
+                onChange={e => set('fbPostDate', e.target.value)}
+                placeholder="เช่น 21 ต.ค. 69" />
+            </Field>
+          </div>
         </Section>
 
         {/* Banner image at the very top of the homepage content */}

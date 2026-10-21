@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { getNews, getAnnouncements, getProcurement, getTravel, getProducts, getVideos, getFacebookPage, getFacebookPosts, getEgpRss, getNotices, getSettings } from '../services/api'
+import { getNews, getAnnouncements, getProcurement, getTravel, getProducts, getVideos, getEgpRss, getNotices, getSettings } from '../services/api'
 import { LatestNewsGrid } from '../components/NewsSection'
 import { iframeSrc as pdfIframeSrc } from '../components/PdfPreviewPanel'
 import { toArabicDigits } from '../utils/thaiNumerals'
@@ -251,8 +251,7 @@ export default function HomePage() {
   const [egpOpen, setEgpOpen]       = useState({})
   const [notices, setNotices]       = useState([])
   const [noticeOpen, setNoticeOpen] = useState({})
-  const [fbPage, setFbPage]         = useState(null)
-  const [fbPosts, setFbPosts]       = useState([])
+  const [fbPost, setFbPost]             = useState(null)
   const [landingPhoto, setLandingPhoto] = useState('')
   const [topBanner, setTopBanner]       = useState('')
   const [lightboxItem, setLightboxItem] = useState(null)
@@ -285,12 +284,18 @@ export default function HomePage() {
           getTravel({ limit: 6 }),
           getProducts({ limit: 6 }),
         ])
-        getFacebookPage().then(r => setFbPage(r?.data)).catch(() => {})
-        getFacebookPosts().then(r => setFbPosts(Array.isArray(r?.data) ? r.data : [])).catch(() => {})
         getNotices().then(r => setNotices(Array.isArray(r?.data) ? r.data : [])).catch(() => {})
         getSettings().then(r => {
           setLandingPhoto(r?.data?.landingPhoto || '')
           setTopBanner(r?.data?.homeTopBanner || '')
+          if (r?.data?.fbPostText || r?.data?.fbPostImage) {
+            setFbPost({
+              image: r.data.fbPostImage || '',
+              text: r.data.fbPostText || '',
+              url: r.data.fbPostUrl || '',
+              date: r.data.fbPostDate || '',
+            })
+          }
         }).catch(() => {})
         getVideos().then(r => setVideos((r?.data || []).slice(0, 6))).catch(() => {})
         setAnnounce(ann?.data || [])
@@ -354,21 +359,15 @@ export default function HomePage() {
       <Reveal>
       <SectionBanner label="Facebook" />
       <div className="flex flex-col lg:flex-row gap-4 items-stretch">
-        {/* Posts fetched server-side via the Graph API and rendered as plain cards — no iframe,
-            so nothing here can be blocked by tracker/ad blockers (Brave Shields, uBlock, etc.)
-            the way the old page.php embed could be. */}
+        {/* The latest post is entered manually by admin (ตั้งค่าเว็บไซต์ → โพสต์ล่าสุดจาก Facebook)
+            instead of fetched live — Facebook's Graph API requires page-admin-granted permissions
+            we don't have, and the old page.php iframe embed gets blocked by tracker blockers
+            (Brave Shields, uBlock, etc.) for a lot of visitors. A plain link never has that problem. */}
         <div className="card p-0 overflow-hidden w-full lg:w-[500px] lg:flex-shrink-0">
           <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
-            {fbPage?.picture?.data?.url ? (
-              <img src={fbPage.picture.data.url} alt="" className="w-10 h-10 rounded-full flex-shrink-0 object-cover" />
-            ) : (
-              <div className="w-10 h-10 rounded-full flex-shrink-0 bg-secondary/10 flex items-center justify-center text-lg">📘</div>
-            )}
+            <div className="w-10 h-10 rounded-full flex-shrink-0 bg-secondary/10 flex items-center justify-center text-lg">📘</div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-800 truncate">{fbPage?.name || 'อบต.แม่ใส'}</p>
-              {(fbPage?.followers_count ?? fbPage?.fan_count) != null && (
-                <p className="text-xs text-gray-400">{(fbPage.followers_count ?? fbPage.fan_count).toLocaleString('th-TH')} ผู้ติดตาม</p>
-              )}
+              <p className="text-sm font-semibold text-gray-800 truncate">อบต.แม่ใส</p>
             </div>
             <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
               className="text-xs font-semibold text-white bg-secondary hover:bg-secondary/90 px-3 py-1.5 rounded-full transition-colors flex-shrink-0">
@@ -376,30 +375,24 @@ export default function HomePage() {
             </a>
           </div>
 
-          {fbPosts.length > 0 ? (
-            <div className="divide-y divide-gray-50 max-h-[460px] overflow-y-auto">
-              {fbPosts.map((p, i) => (
-                <a key={i} href={p.permalink_url} target="_blank" rel="noreferrer"
-                  className="flex gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
-                  {p.full_picture ? (
-                    <img src={p.full_picture} alt="" loading="lazy"
-                      className="w-16 h-16 rounded-lg object-cover flex-shrink-0 bg-gray-100" />
-                  ) : (
-                    <div className="w-16 h-16 rounded-lg flex-shrink-0 bg-secondary/10 flex items-center justify-center text-xl">📘</div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    {p.message && (
-                      <p className="text-sm text-gray-700 line-clamp-3 leading-snug">{p.message}</p>
-                    )}
-                    {p.created_time && (
-                      <p className="text-xs text-gray-400 mt-1.5">
-                        {new Date(p.created_time).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
-                      </p>
-                    )}
-                  </div>
-                </a>
-              ))}
-            </div>
+          {fbPost ? (
+            <a href={fbPost.url || 'https://www.facebook.com/MaesaiSAOPhayao'} target="_blank" rel="noreferrer"
+              className="flex gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+              {fbPost.image ? (
+                <img src={fbPost.image} alt="" loading="lazy"
+                  className="w-16 h-16 rounded-lg object-cover flex-shrink-0 bg-gray-100" />
+              ) : (
+                <div className="w-16 h-16 rounded-lg flex-shrink-0 bg-secondary/10 flex items-center justify-center text-xl">📘</div>
+              )}
+              <div className="flex-1 min-w-0">
+                {fbPost.text && (
+                  <p className="text-sm text-gray-700 line-clamp-3 leading-snug">{fbPost.text}</p>
+                )}
+                {fbPost.date && (
+                  <p className="text-xs text-gray-400 mt-1.5">📅 {fbPost.date}</p>
+                )}
+              </div>
+            </a>
           ) : (
             <div className="text-center py-6">
               <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"

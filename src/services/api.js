@@ -159,10 +159,6 @@ export const createNotice  = (data)      => api.post('/notices', data)
 export const updateNotice  = (id, data)  => api.put(`/notices/${id}`, data)
 export const deleteNotice  = (id)        => api.delete(`/notices/${id}`)
 
-// ── Facebook page info ────────────────────────────────────────────────────────
-export const getFacebookPage  = () => api.get('/facebook-page')
-export const getFacebookPosts = () => api.get('/facebook-posts')
-
 // ── Image upload ──────────────────────────────────────────────────────────────
 export const uploadImage = (file) => {
   const form = new FormData()
