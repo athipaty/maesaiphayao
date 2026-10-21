@@ -10,7 +10,7 @@ const STORAGE_KEY = 'abt_font_scale'
 export default function TopUtilityBar({ collapsed }) {
   const [scaleIdx, setScaleIdx] = useState(() => {
     const saved = Number(localStorage.getItem(STORAGE_KEY))
-    return Number.isInteger(saved) && saved >= 0 && saved < FONT_SIZES.length ? saved : 0
+    return Number.isInteger(saved) && saved >= 0 && saved < FONT_SIZES.length ? saved : 1
   })
 
   useEffect(() => {
