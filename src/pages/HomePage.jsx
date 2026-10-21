@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { getNews, getAnnouncements, getProcurement, getTravel, getProducts, getVideos, getFacebookPage, getEgpRss, getNotices, getSettings } from '../services/api'
+import { getNews, getAnnouncements, getProcurement, getTravel, getProducts, getVideos, getFacebookPage, getFacebookPosts, getEgpRss, getNotices, getSettings } from '../services/api'
 import { LatestNewsGrid } from '../components/NewsSection'
 import { iframeSrc as pdfIframeSrc } from '../components/PdfPreviewPanel'
 import { toArabicDigits } from '../utils/thaiNumerals'
@@ -252,21 +252,10 @@ export default function HomePage() {
   const [notices, setNotices]       = useState([])
   const [noticeOpen, setNoticeOpen] = useState({})
   const [fbPage, setFbPage]         = useState(null)
+  const [fbPosts, setFbPosts]       = useState([])
   const [landingPhoto, setLandingPhoto] = useState('')
   const [topBanner, setTopBanner]       = useState('')
   const [lightboxItem, setLightboxItem] = useState(null)
-  const fbContainerRef = useRef(null)
-  const [fbScale, setFbScale] = useState(1)
-
-  useEffect(() => {
-    function updateScale() {
-      if (!fbContainerRef.current) return
-      setFbScale(fbContainerRef.current.offsetWidth / 500)
-    }
-    updateScale()
-    window.addEventListener('resize', updateScale)
-    return () => window.removeEventListener('resize', updateScale)
-  }, [])
 
   useEffect(() => {
     if (!lightboxItem) return
@@ -297,6 +286,7 @@ export default function HomePage() {
           getProducts({ limit: 6 }),
         ])
         getFacebookPage().then(r => setFbPage(r?.data)).catch(() => {})
+        getFacebookPosts().then(r => setFbPosts(Array.isArray(r?.data) ? r.data : [])).catch(() => {})
         getNotices().then(r => setNotices(Array.isArray(r?.data) ? r.data : [])).catch(() => {})
         getSettings().then(r => {
           setLandingPhoto(r?.data?.landingPhoto || '')
@@ -363,43 +353,65 @@ export default function HomePage() {
       {/* ── Facebook ─────────────────────────────────────────────────── */}
       <Reveal>
       <SectionBanner label="Facebook" />
-      <div className="flex flex-col lg:flex-row gap-4">
-        {/* Facebook widget — shown on all screen sizes. The embedded page.php iframe can fail to
-            render its content (broken images) over some mobile carrier networks, so the fallback
-            link below stays visible on mobile too as a guaranteed-working way to reach the page. */}
+      <div className="flex flex-col lg:flex-row gap-4 items-stretch">
+        {/* Posts fetched server-side via the Graph API and rendered as plain cards — no iframe,
+            so nothing here can be blocked by tracker/ad blockers (Brave Shields, uBlock, etc.)
+            the way the old page.php embed could be. */}
         <div className="card p-0 overflow-hidden w-full lg:w-[500px] lg:flex-shrink-0">
-          <div className="flex justify-center">
-            <div ref={fbContainerRef} className="overflow-hidden w-full max-w-[500px]"
-              style={{ height: `${Math.round(500 * fbScale)}px` }}>
-              <iframe
-                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FMaesaiSAOPhayao&tabs=timeline&width=500&height=500&small_header=true&adapt_container_width=false&hide_cover=true&show_facepile=false"
-                style={{
-                  border: 'none',
-                  width: '500px',
-                  height: '500px',
-                  display: 'block',
-                  transform: `scale(${fbScale})`,
-                  transformOrigin: 'top left',
-                }}
-                frameBorder="0"
-                allowFullScreen
-                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox allow-storage-access-by-user-activation"
-                title="Facebook Page อบต.แม่ใส"
-              />
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
+            {fbPage?.picture?.data?.url ? (
+              <img src={fbPage.picture.data.url} alt="" className="w-10 h-10 rounded-full flex-shrink-0 object-cover" />
+            ) : (
+              <div className="w-10 h-10 rounded-full flex-shrink-0 bg-secondary/10 flex items-center justify-center text-lg">📘</div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-800 truncate">{fbPage?.name || 'อบต.แม่ใส'}</p>
+              {(fbPage?.followers_count ?? fbPage?.fan_count) != null && (
+                <p className="text-xs text-gray-400">{(fbPage.followers_count ?? fbPage.fan_count).toLocaleString('th-TH')} ผู้ติดตาม</p>
+              )}
             </div>
-          </div>
-          {/* Fallback for browsers that block the embed (third-party cookies, carrier content filters, in-app browsers) */}
-          <div className="text-center py-2 border-t border-gray-100">
             <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
-              className="text-xs text-secondary hover:underline">
-              เห็นเนื้อหาด้านบนว่างเปล่า? คลิกเพื่อเปิดดูใน Facebook →
+              className="text-xs font-semibold text-white bg-secondary hover:bg-secondary/90 px-3 py-1.5 rounded-full transition-colors flex-shrink-0">
+              ติดตาม
             </a>
           </div>
+
+          {fbPosts.length > 0 ? (
+            <div className="divide-y divide-gray-50 max-h-[460px] overflow-y-auto">
+              {fbPosts.map((p, i) => (
+                <a key={i} href={p.permalink_url} target="_blank" rel="noreferrer"
+                  className="flex gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+                  {p.full_picture ? (
+                    <img src={p.full_picture} alt="" loading="lazy"
+                      className="w-16 h-16 rounded-lg object-cover flex-shrink-0 bg-gray-100" />
+                  ) : (
+                    <div className="w-16 h-16 rounded-lg flex-shrink-0 bg-secondary/10 flex items-center justify-center text-xl">📘</div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    {p.message && (
+                      <p className="text-sm text-gray-700 line-clamp-3 leading-snug">{p.message}</p>
+                    )}
+                    {p.created_time && (
+                      <p className="text-xs text-gray-400 mt-1.5">
+                        {new Date(p.created_time).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                      </p>
+                    )}
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6">
+              <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
+                className="text-xs text-secondary hover:underline">
+                ดูโพสต์ล่าสุดที่เพจ Facebook →
+              </a>
+            </div>
+          )}
         </div>
 
-        {/* Photo — fills the space beside Facebook on desktop, same total height, uploaded by admin in ตั้งค่าเว็บไซต์ */}
-        <div className="hidden lg:block card p-0 overflow-hidden flex-1 bg-gray-50" style={{ height: `${Math.round(500 * fbScale)}px` }}>
+        {/* Photo — fills the space beside Facebook on desktop, uploaded by admin in ตั้งค่าเว็บไซต์ */}
+        <div className="hidden lg:block card p-0 overflow-hidden flex-1 bg-gray-50">
           {landingPhoto ? (
             <img src={landingPhoto} alt="อบต.แม่ใส" className="w-full h-full object-contain" />
           ) : (
