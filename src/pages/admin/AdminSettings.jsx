@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import ImageUpload from '../../components/ImageUpload'
-import { getSettings, updateSetting, uploadImage } from '../../services/api'
+import { getSettings, updateSetting, uploadImage, scrapeFacebookNow } from '../../services/api'
 
 function LogoUpload({ value, onChange, icon = '🏛️', emptyLabel = 'ยังไม่มีโลโก้', uploadLabel = 'อัปโหลดโลโก้' }) {
   const [uploading, setUploading] = useState(false)
@@ -80,6 +80,8 @@ export default function AdminSettings() {
   const [saving, setSaving]   = useState(false)
   const [saved, setSaved]     = useState(false)
   const [saveKey, setSaveKey] = useState(0)
+  const [scraping, setScraping]       = useState(false)
+  const [scrapeResult, setScrapeResult] = useState(null)
 
   useEffect(() => {
     getSettings()
@@ -88,6 +90,25 @@ export default function AdminSettings() {
   }, [])
 
   function set(key, value) { setForm(prev => ({ ...prev, [key]: value })) }
+
+  async function handleScrapeNow() {
+    setScraping(true)
+    setScrapeResult(null)
+    try {
+      const r = await scrapeFacebookNow()
+      setScrapeResult(r.data)
+      if (r.data?.success) {
+        // the scraper already saved fbPost* directly to the backend — refetch to show the
+        // real saved state (including fbPostDate, which the backend sets but doesn't echo back)
+        const settingsRes = await getSettings()
+        if (settingsRes?.data) setForm(prev => ({ ...prev, ...settingsRes.data }))
+      }
+    } catch (err) {
+      setScrapeResult({ success: false, error: err?.response?.data?.error || err.message })
+    } finally {
+      setScraping(false)
+    }
+  }
 
   async function handleSave() {
     setSaving(true)
@@ -338,7 +359,19 @@ export default function AdminSettings() {
 
         {/* Latest Facebook post — entered manually since Facebook's own API requires page-admin
             permissions we don't have, and the live embed gets blocked by tracker blockers */}
-        <Section delay={210} icon="📘" title="โพสต์ล่าสุดจาก Facebook" subtitle="กรอกเอง — คัดลอกข้อความ/รูป/ลิงก์จากโพสต์ล่าสุดในเพจมาใส่ทุกครั้งที่มีโพสต์ใหม่">
+        <Section delay={210} icon="📘" title="โพสต์ล่าสุดจาก Facebook" subtitle="ระบบพยายามดึงให้อัตโนมัติวันละครั้ง (อาจไม่สำเร็จเสมอไป) — กรอกเองได้ตลอดเวลาเป็น fallback">
+          <div className="mb-4 p-3 rounded-xl bg-blue-50 border border-blue-100 flex flex-wrap items-center gap-3">
+            <button type="button" onClick={handleScrapeNow} disabled={scraping}
+              className="text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 px-3 py-2 rounded-lg transition-colors inline-flex items-center gap-1.5">
+              {scraping ? '⏳ กำลังดึงข้อมูล...' : '🔄 ทดสอบดึงโพสต์ล่าสุดตอนนี้'}
+            </button>
+            {scrapeResult && (
+              <span className={`text-xs font-medium ${scrapeResult.success ? 'text-green-700' : 'text-red-600'}`}>
+                {scrapeResult.success ? '✓ ดึงสำเร็จ อัปเดตฟอร์มด้านล่างแล้ว' : `✗ ไม่สำเร็จ: ${scrapeResult.error}`}
+              </span>
+            )}
+            <p className="text-[11px] text-gray-500 basis-full">ระบบพยายาม scrape หน้า Facebook แบบ best-effort — ถ้า Facebook บล็อกหรือเปลี่ยนโครงสร้างเว็บ อาจดึงไม่สำเร็จ กรอกข้อมูลด้านล่างเองได้เสมอ</p>
+          </div>
           <div className="space-y-4">
             <div className="flex flex-col items-center gap-2">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide self-start">รูปภาพโพสต์</p>

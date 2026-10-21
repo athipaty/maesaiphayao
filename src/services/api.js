@@ -81,8 +81,9 @@ export const updateStockTransaction = (id, data) => api.put(`/stock-transactions
 export const deleteStockTransaction = (id)       => api.delete(`/stock-transactions/${id}`)
 
 // ── Settings ──────────────────────────────────────────────────────────────────
-export const getSettings   = ()           => api.get('/settings')
-export const updateSetting = (key, value) => api.put(`/settings/${key}`, { value })
+export const getSettings       = ()           => api.get('/settings')
+export const updateSetting     = (key, value) => api.put(`/settings/${key}`, { value })
+export const scrapeFacebookNow = ()           => api.post('/facebook-scrape-now')
 
 // ── ITA / OIT ─────────────────────────────────────────────────────────────────
 export const getOIT      = (params)    => api.get('/oit', { params })
