@@ -81,6 +81,7 @@ function EgpTab() {
   const [maintenance, setMaintenance] = useState(null)
   const [staleAt, setStaleAt]         = useState(null)
   const [fetchedAt, setFetchedAt]     = useState(null)
+  const [feed, setFeed]               = useState({})  // { unreachable, open, hours } from the backend
   const [tick, setTick]               = useState(0)  // bump to force re-fetch
   const [pdfOpen, setPdfOpen]         = useState({})
 
@@ -94,6 +95,7 @@ function EgpTab() {
     setMaintenance(null)
     setStaleAt(null)
     setFetchedAt(null)
+    setFeed({})
     const params = anounceType ? { anounceType } : {}
     getEgpRss(params)
       .then(r => {
@@ -102,6 +104,7 @@ function EgpTab() {
         if (d.stale)     setStaleAt(d.staleAt || null)
         if (d.fetchedAt) setFetchedAt(d.fetchedAt)
         if (d.notice)    setMaintenance({ notice: d.notice, hours: d.hours })
+        setFeed({ unreachable: !!d.unreachable, open: d.feedOpen, hours: d.feedHours || '17:01–08:59 น.' })
       })
       .catch(err => {
         const d = err?.response?.data || {}
@@ -140,8 +143,13 @@ function EgpTab() {
         <div className="px-4 py-1.5 bg-gray-50 border-b border-gray-100 text-[11px] text-gray-400 flex items-center gap-1.5">
           {staleAt
             ? <><span className="text-amber-500">⚠️ ข้อมูลแคช</span> · อัปเดตล่าสุด {new Date(staleAt).toLocaleString('th-TH', { numberingSystem: 'latn' })}</>
-            : <><span className="text-green-600">✓ ข้อมูลล่าสุด</span> · ดึงข้อมูลเมื่อ {new Date(fetchedAt).toLocaleString('th-TH', { numberingSystem: 'latn' })}</>
+            : feed.unreachable
+            ? <><span className="text-amber-500">⚠️ ดึงข้อมูลใหม่จาก e-GP ไม่สำเร็จ</span> · ข้อมูลล่าสุดเมื่อ {new Date(fetchedAt).toLocaleString('th-TH', { numberingSystem: 'latn' })}</>
+            : <><span className="text-green-600">✓ อัปเดตจากระบบ e-GP</span> · เมื่อ {new Date(fetchedAt).toLocaleString('th-TH', { numberingSystem: 'latn' })}</>
           }
+          {!staleAt && feed.open === false && (
+            <span className="ml-auto hidden sm:inline">ระบบ e-GP ให้ดึงข้อมูลได้ช่วง {feed.hours}</span>
+          )}
         </div>
       )}
 
@@ -177,7 +185,11 @@ function EgpTab() {
           <p className="text-xs text-gray-400 mt-2">ระบบ e-GP เปิดให้บริการ 17:01–08:59 น. (เว้นวันหยุดราชการ)</p>
         </div>
       ) : items.length === 0 && !maintenance ? (
-        <div className="p-10 text-center text-gray-400 text-sm">ไม่พบข้อมูลในขณะนี้</div>
+        <div className="p-10 text-center text-gray-400 text-sm">
+          {fetchedAt
+            ? 'ไม่พบประกาศประเภทนี้ของ อบต.แม่ใส ในระบบ e-GP'
+            : <>ยังไม่มีข้อมูลที่ดึงจากระบบ e-GP<p className="text-xs mt-2">ระบบจะดึงข้อมูลให้อัตโนมัติช่วง {feed.hours || '17:01–08:59 น.'}</p></>}
+        </div>
       ) : items.length === 0 ? null : (
         <div className="divide-y divide-gray-50">
           {items.map((item, i) => {
