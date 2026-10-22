@@ -29,6 +29,10 @@ const PUBLIC_SERVICE_ITEMS = [
 ]
 const PUBLIC_SERVICE_PATHS = PUBLIC_SERVICE_ITEMS.map(i => i.to)
 
+// Pages placed under "ยื่นคำร้อง" in admin (อยู่ภายใต้เมนู) show as extra rows in the E-Service
+// box. That builtin page is hidden from the normal menus, so its children appear only here.
+const ESERVICE_PARENT_SLUG = 'builtin-eservice'
+
 // Menu items that should open in a new tab instead of navigating the current one — currently
 // just the standalone stock system, since it's a separate login-gated app outside this Layout.
 const NEW_TAB_PATHS = ['/stock/electrical']
@@ -67,6 +71,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
     setOpenSubSlug(prev => prev === slug ? null : slug)
   }
   const pageLink = p => (p.isBuiltin ? p.path : `/page/${p.slug}`)
+  const eserviceExtras = getChildren(ESERVICE_PARENT_SLUG)
 
   const Chevron = ({ open, size = 12, width = 2 }) => (
     <svg width={size} height={size} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth={width} strokeLinecap="round" strokeLinejoin="round"
@@ -161,6 +166,17 @@ export default function Sidebar({ onNavigate, mobile = false }) {
                   </NavLink>
                 ))}
               </div>
+              {eserviceExtras.map(c => (
+                <NavLink key={c.slug} to={pageLink(c)} onClick={onNavigate}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-5 py-3.5 border-b border-gray-100 text-sm transition-colors ${
+                      isActive ? 'bg-pink-50 text-primary' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
+                    }`
+                  }>
+                  <span className="w-6 text-center text-base flex-shrink-0">{c.icon || '📄'}</span>
+                  <span className="flex-1">{c.title}</span>
+                </NavLink>
+              ))}
               {ESERVICES.map(e => e.to ? (
                 <NavLink key={e.label} to={e.to} onClick={onNavigate}
                   className={({ isActive }) =>
@@ -362,6 +378,19 @@ export default function Sidebar({ onNavigate, mobile = false }) {
                 }>
                 <span className="text-sm w-5 text-center">{item.icon}</span>
                 <span className="flex-1">{item.label}</span>
+              </NavLink>
+            </li>
+          ))}
+          {eserviceExtras.map(c => (
+            <li key={c.slug}>
+              <NavLink to={pageLink(c)} onClick={onNavigate}
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3.5 py-2.5 text-sm border-b border-gray-100 transition-colors ${
+                    isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-700 hover:bg-pink-50 hover:text-primary'
+                  }`
+                }>
+                <span className="text-sm w-5 text-center">{c.icon || '📄'}</span>
+                <span className="flex-1">{c.title}</span>
               </NavLink>
             </li>
           ))}

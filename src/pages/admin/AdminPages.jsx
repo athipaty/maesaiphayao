@@ -1433,7 +1433,7 @@ function PageFormModal({ pages, editPage, onClose, onSaved }) {
             <select className={`${inp}`} value={form.parentSlug} onChange={e => set('parentSlug', e.target.value)}>
               <option value="">— ไม่มี (เมนูหลัก) —</option>
               {parentOptions.map(({ page: p, depth }) => (
-                <option key={p.slug} value={p.slug}>{'    '.repeat(depth - 1)}{depth > 1 ? '└ ' : ''}{p.icon} {p.title}</option>
+                <option key={p.slug} value={p.slug}>{'    '.repeat(depth - 1)}{depth > 1 ? '└ ' : ''}{p.icon} {p.title}{p.slug === 'builtin-eservice' ? ' (แสดงในกล่อง E-Service)' : ''}</option>
               ))}
             </select>
           </div>
