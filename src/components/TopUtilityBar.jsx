@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 const FONT_SIZES = [16, 18, 20] // px, applied to <html>
-const STORAGE_KEY = 'abt_font_scale'
+const STORAGE_KEY = 'abt_font_scale_v2' // v2: old key held a bogus 0 for everyone (see null check below)
 
 // `collapsed` comes from Layout (the same hysteresis-driven scroll state Navbar collapses on) so
 // this bar disappears in sync with the header shrinking, instead of relying on normal-flow
@@ -9,7 +9,10 @@ const STORAGE_KEY = 'abt_font_scale'
 // are inside one `fixed` wrapper.
 export default function TopUtilityBar({ collapsed }) {
   const [scaleIdx, setScaleIdx] = useState(() => {
-    const saved = Number(localStorage.getItem(STORAGE_KEY))
+    // getItem returns null when nothing is saved, and Number(null) is 0 — check for that first,
+    // otherwise first-time visitors land on the smallest size instead of the middle default.
+    const raw = localStorage.getItem(STORAGE_KEY)
+    const saved = raw === null ? NaN : Number(raw)
     return Number.isInteger(saved) && saved >= 0 && saved < FONT_SIZES.length ? saved : 1
   })
 

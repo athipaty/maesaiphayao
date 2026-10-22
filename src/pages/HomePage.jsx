@@ -5,6 +5,8 @@ import { LatestNewsGrid } from '../components/NewsSection'
 import { iframeSrc as pdfIframeSrc } from '../components/PdfPreviewPanel'
 import { toArabicDigits } from '../utils/thaiNumerals'
 
+const FB_PAGE = 'https://www.facebook.com/MaesaiSAOPhayao'
+
 const DEPARTMENTS = ['council', 'office', 'disaster', 'health', 'engineering', 'finance']
 
 function getYoutubeId(url) {
@@ -252,6 +254,8 @@ export default function HomePage() {
   const [notices, setNotices]       = useState([])
   const [noticeOpen, setNoticeOpen] = useState({})
   const [fbPost, setFbPost]             = useState(null)
+  const [fbExpanded, setFbExpanded]     = useState(false)
+  const [logoImage, setLogoImage]       = useState('')
   const [landingPhoto, setLandingPhoto] = useState('')
   const [topBanner, setTopBanner]       = useState('')
   const [lightboxItem, setLightboxItem] = useState(null)
@@ -288,6 +292,7 @@ export default function HomePage() {
         getSettings().then(r => {
           setLandingPhoto(r?.data?.landingPhoto || '')
           setTopBanner(r?.data?.homeTopBanner || '')
+          setLogoImage(r?.data?.logoImage || '')
           if (r?.data?.fbPostText || r?.data?.fbPostImage) {
             setFbPost({
               image: r.data.fbPostImage || '',
@@ -363,39 +368,76 @@ export default function HomePage() {
             instead of fetched live — Facebook's Graph API requires page-admin-granted permissions
             we don't have, and the old page.php iframe embed gets blocked by tracker blockers
             (Brave Shields, uBlock, etc.) for a lot of visitors. A plain link never has that problem. */}
-        <div className="card p-0 overflow-hidden w-full lg:w-[500px] lg:flex-shrink-0">
-          <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
-            <div className="w-10 h-10 rounded-full flex-shrink-0 bg-secondary/10 flex items-center justify-center text-lg">📘</div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-800 truncate">อบต.แม่ใส</p>
-            </div>
-            <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
-              className="text-xs font-semibold text-white bg-secondary hover:bg-secondary/90 px-3 py-1.5 rounded-full transition-colors flex-shrink-0">
-              ติดตาม
+        <div className="card p-0 overflow-hidden w-full lg:w-[500px] lg:flex-shrink-0 flex flex-col">
+          {/* Header — laid out like a real Facebook post: avatar, page name + follow, date + globe */}
+          <div className="flex items-start gap-2.5 px-4 pt-3 pb-2">
+            <a href={FB_PAGE} target="_blank" rel="noreferrer" className="flex-shrink-0">
+              {logoImage ? (
+                <img src={logoImage} alt="อบต.แม่ใส" className="w-10 h-10 rounded-full object-cover bg-gray-100 border border-gray-200" />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-[#1877F2] flex items-center justify-center text-white font-bold text-lg">f</div>
+              )}
             </a>
+            <div className="flex-1 min-w-0 leading-tight">
+              <p className="text-[15px] truncate">
+                <a href={FB_PAGE} target="_blank" rel="noreferrer" className="font-semibold text-gray-900 hover:underline">อบต.แม่ใส</a>
+                <span className="text-gray-500"> · </span>
+                <a href={FB_PAGE} target="_blank" rel="noreferrer" className="font-semibold text-[#1877F2] hover:underline">ติดตาม</a>
+              </p>
+              {fbPost?.date && (
+                <a href={fbPost.url || FB_PAGE} target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-[13px] text-gray-500 hover:underline mt-0.5">
+                  {fbPost.date}
+                  <span aria-hidden>·</span>
+                  <svg viewBox="0 0 16 16" className="w-3 h-3 fill-current" aria-label="สาธารณะ"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0Zm5.9 7h-2.4a12 12 0 0 0-1-4.6A6 6 0 0 1 13.9 7ZM8 2c.6.8 1.3 2.5 1.5 5h-3C6.7 4.5 7.4 2.8 8 2ZM5.5 2.4A12 12 0 0 0 4.5 7H2.1a6 6 0 0 1 3.4-4.6ZM2.1 9h2.4a12 12 0 0 0 1 4.6A6 6 0 0 1 2.1 9ZM8 14c-.6-.8-1.3-2.5-1.5-5h3c-.2 2.5-.9 4.2-1.5 5Zm2.5-.4a12 12 0 0 0 1-4.6h2.4a6 6 0 0 1-3.4 4.6Z"/></svg>
+                </a>
+              )}
+            </div>
           </div>
 
           {fbPost ? (
-            <a href={fbPost.url || 'https://www.facebook.com/MaesaiSAOPhayao'} target="_blank" rel="noreferrer"
-              className="flex gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
-              {fbPost.image ? (
-                <img src={fbPost.image} alt="" loading="lazy"
-                  className="w-16 h-16 rounded-lg object-cover flex-shrink-0 bg-gray-100" />
-              ) : (
-                <div className="w-16 h-16 rounded-lg flex-shrink-0 bg-secondary/10 flex items-center justify-center text-xl">📘</div>
+            <>
+              {fbPost.text && (
+                <div className="px-4 pb-3 text-[15px] text-gray-900 leading-snug whitespace-pre-line break-words">
+                  <span className={fbExpanded ? '' : 'line-clamp-4'}>
+                    {fbPost.text.split(/(#[^\s#]+)/g).map((part, i) =>
+                      part.startsWith('#')
+                        ? <a key={i} href={`https://www.facebook.com/hashtag/${encodeURIComponent(part.slice(1))}`}
+                            target="_blank" rel="noreferrer" className="text-[#1877F2] font-medium hover:underline">{part}</a>
+                        : part
+                    )}
+                  </span>
+                  {!fbExpanded && fbPost.text.length > 180 && (
+                    <button type="button" onClick={() => setFbExpanded(true)}
+                      className="font-semibold text-gray-900 hover:underline">ดูเพิ่มเติม</button>
+                  )}
+                </div>
               )}
-              <div className="flex-1 min-w-0">
-                {fbPost.text && (
-                  <p className="text-sm text-gray-700 line-clamp-3 leading-snug">{fbPost.text}</p>
-                )}
-                {fbPost.date && (
-                  <p className="text-xs text-gray-400 mt-1.5">📅 {fbPost.date}</p>
-                )}
+
+              {fbPost.image && (
+                <a href={fbPost.url || FB_PAGE} target="_blank" rel="noreferrer" className="block bg-gray-100">
+                  <img src={fbPost.image} alt="" loading="lazy" className="w-full max-h-[520px] object-cover" />
+                </a>
+              )}
+
+              {/* Action bar — each button opens the post on Facebook */}
+              <div className="mx-4 mt-auto border-t border-gray-200 grid grid-cols-3 py-1 text-[15px] font-semibold text-gray-600">
+                {[
+                  { label: 'ถูกใจ', d: 'M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3m0 11V11m0 11h10.3a2 2 0 0 0 2-1.7l1.4-9A2 2 0 0 0 18.7 9H14V5a3 3 0 0 0-3-3l-4 9' },
+                  { label: 'แสดงความคิดเห็น', d: 'M21 12a8 8 0 0 1-11.8 7L3 21l2-5.6A8 8 0 1 1 21 12Z' },
+                  { label: 'แชร์', d: 'M14 4l7 7-7 7v-4c-5 0-8.5 1.5-11 5 1-5 4-10 11-11V4Z' },
+                ].map(b => (
+                  <a key={b.label} href={fbPost.url || FB_PAGE} target="_blank" rel="noreferrer"
+                    className="flex items-center justify-center gap-1.5 py-1.5 rounded-md hover:bg-gray-100 transition-colors min-w-0">
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0 fill-none stroke-current" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"><path d={b.d} /></svg>
+                    <span className="truncate text-sm sm:text-[15px]">{b.label}</span>
+                  </a>
+                ))}
               </div>
-            </a>
+            </>
           ) : (
             <div className="text-center py-6">
-              <a href="https://www.facebook.com/MaesaiSAOPhayao" target="_blank" rel="noreferrer"
+              <a href={FB_PAGE} target="_blank" rel="noreferrer"
                 className="text-xs text-secondary hover:underline">
                 ดูโพสต์ล่าสุดที่เพจ Facebook →
               </a>
