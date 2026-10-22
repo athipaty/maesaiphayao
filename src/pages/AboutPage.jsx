@@ -1,4 +1,5 @@
 ﻿import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 const TABS = [
   { id: 'info',    label: '📋 ข้อมูลพื้นฐาน' },
@@ -348,9 +349,18 @@ function TabPower() {
 }
 
 export default function AboutPage() {
-  const [tab, setTab] = useState('info')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const requestedTab = searchParams.get('tab')
+  const [tab, setTab] = useState(TABS.some(t => t.id === requestedTab) ? requestedTab : 'info')
 
   const content = { info: <TabInfo />, history: <TabHistory />, mission: <TabMission />, power: <TabPower /> }
+
+  // Keeps history/power directly linkable from the main menu, not just reachable by clicking
+  // a tab after landing on /about — so a menu item can point straight at /about?tab=power.
+  function selectTab(id) {
+    setTab(id)
+    setSearchParams(id === 'info' ? {} : { tab: id })
+  }
 
   return (
     <div>
@@ -363,7 +373,7 @@ export default function AboutPage() {
         </div>
         <div className="flex flex-wrap gap-1 p-2">
           {TABS.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)}
+            <button key={t.id} onClick={() => selectTab(t.id)}
               className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
                 tab === t.id ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'
               }`}>
