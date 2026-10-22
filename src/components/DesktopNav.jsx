@@ -31,6 +31,7 @@ const DesktopNav = forwardRef(function DesktopNav({ top }, ref) {
   const [pages, setPages] = useState([])
   const [depts, setDepts] = useState(DEFAULT_DEPTS)
   const [openSlug, setOpenSlug] = useState(null)
+  const [openSubKey, setOpenSubKey] = useState(null) // sub-menu whose own flyout is showing
   const closeTimer = useRef(null)
 
   useEffect(() => {
@@ -51,11 +52,14 @@ const DesktopNav = forwardRef(function DesktopNav({ top }, ref) {
   function getDropItems(m) {
     if (m.slug === 'builtin-staff')
       return depts.map(d => ({ key: d.value, title: d.label, icon: '👥', to: `/staff#dept-${d.value}` }))
-    return getChildren(m.slug).map(c => ({ key: c.slug, title: c.title, icon: c.icon || '', to: c.isBuiltin ? c.path : `/page/${c.slug}` }))
+    const toItem = c => ({ key: c.slug, title: c.title, icon: c.icon || '', to: c.isBuiltin ? c.path : `/page/${c.slug}` })
+    // Third level: a sub-menu's own children show in a flyout beside it.
+    return getChildren(m.slug).map(c => ({ ...toItem(c), children: getChildren(c.slug).map(toItem) }))
   }
 
   function openMenu(slug)  { clearTimeout(closeTimer.current); setOpenSlug(slug) }
-  function closeMenu()     { closeTimer.current = setTimeout(() => setOpenSlug(null), 120) }
+  function closeMenu()     { closeTimer.current = setTimeout(() => { setOpenSlug(null); setOpenSubKey(null) }, 120) }
+  function closeAll()      { setOpenSlug(null); setOpenSubKey(null) }
 
   return (
     <nav ref={ref} className="hidden lg:block fixed left-0 right-0 z-40 bg-white border-b border-gray-200 shadow-sm transition-[top] duration-300 ease-in-out"
@@ -109,11 +113,39 @@ const DesktopNav = forwardRef(function DesktopNav({ top }, ref) {
                 <div className="absolute top-full left-0 z-50 pt-1"
                   onMouseEnter={() => openMenu(m.slug)}
                   onMouseLeave={closeMenu}>
-                  <div className="bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 min-w-[210px] overflow-hidden">
+                  <div className="bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 min-w-[210px]">
                     <div className="absolute -top-1.5 left-6 w-3 h-3 bg-white border-l border-t border-gray-100 rotate-45" />
-                    {dropItems.map(item => (
+                    {dropItems.map(item => item.children?.length ? (
+                      <div key={item.key} className="relative"
+                        onMouseEnter={() => setOpenSubKey(item.key)}
+                        onMouseLeave={() => setOpenSubKey(k => (k === item.key ? null : k))}>
+                        <button type="button"
+                          onClick={() => setOpenSubKey(k => (k === item.key ? null : item.key))}
+                          className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium transition-colors text-left ${
+                            openSubKey === item.key ? 'bg-pink-50 text-primary' : 'text-gray-600 hover:bg-pink-50 hover:text-primary'
+                          }`}>
+                          {item.icon && <span className="text-base flex-shrink-0">{item.icon}</span>}
+                          <span className="flex-1">{item.title}</span>
+                          <span className={openSubKey === item.key ? 'text-primary' : 'text-gray-300'}>▸</span>
+                        </button>
+                        {openSubKey === item.key && (
+                          <div className="absolute left-full top-0 -mt-1.5 pl-1 z-50">
+                            <div className="bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 min-w-[200px]">
+                              {item.children.map(sub => (
+                                <Link key={sub.key} to={sub.to} onClick={closeAll}
+                                  className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-pink-50 hover:text-primary transition-colors group">
+                                  {sub.icon && <span className="text-base flex-shrink-0">{sub.icon}</span>}
+                                  <span className="flex-1">{sub.title}</span>
+                                  <span className="text-gray-300 group-hover:text-primary">›</span>
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
                       <Link key={item.key} to={item.to}
-                        onClick={() => setOpenSlug(null)}
+                        onClick={closeAll}
                         className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-pink-50 hover:text-primary transition-colors group">
                         {item.icon && <span className="text-base flex-shrink-0">{item.icon}</span>}
                         <span className="flex-1">{item.title}</span>

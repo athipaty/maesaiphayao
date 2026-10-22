@@ -37,6 +37,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
   const [menuPages, setMenuPages] = useState([])
   const [openSlug, setOpenSlug] = useState(null)
+  const [openSubSlug, setOpenSubSlug] = useState(null) // sub-menu expanded to show its own children
   const [visits, setVisits] = useState({ today: 0, week: 0, month: 0, year: 0, total: 0 })
 
   useEffect(() => {
@@ -60,7 +61,19 @@ export default function Sidebar({ onNavigate, mobile = false }) {
   }
   function toggleSlug(slug) {
     setOpenSlug(prev => prev === slug ? null : slug)
+    setOpenSubSlug(null)
   }
+  function toggleSubSlug(slug) {
+    setOpenSubSlug(prev => prev === slug ? null : slug)
+  }
+  const pageLink = p => (p.isBuiltin ? p.path : `/page/${p.slug}`)
+
+  const Chevron = ({ open, size = 12, width = 2 }) => (
+    <svg width={size} height={size} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth={width} strokeLinecap="round" strokeLinejoin="round"
+      style={{ transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }}>
+      <polyline points="2 4 6 8 10 4"/>
+    </svg>
+  )
 
   /* ── Mobile full-screen drawer ─────────────────────────────────── */
   if (mobile) {
@@ -212,17 +225,43 @@ export default function Sidebar({ onNavigate, mobile = false }) {
                     )}
                     {hasChildren && isOpen && (
                       <div className="bg-gray-50/80">
-                        {children.map(c => (
-                          <NavLink key={c.slug} to={c.isBuiltin ? c.path : `/page/${c.slug}`} onClick={onNavigate}
-                            className={({ isActive }) =>
-                              `flex items-center gap-3 pl-14 pr-5 py-3 border-b border-gray-100/80 text-sm transition-colors ${
-                                isActive ? 'text-primary font-semibold bg-blue-50/50' : 'text-gray-500 hover:text-primary hover:bg-blue-50/30'
-                              }`
-                            }>
-                            <span className="text-gray-300 text-xs mr-0.5">▸</span>
-                            <span>{c.title}</span>
-                          </NavLink>
-                        ))}
+                        {children.map(c => {
+                          const grandchildren = getChildren(c.slug)
+                          const subOpen = openSubSlug === c.slug
+                          return grandchildren.length > 0 ? (
+                            <div key={c.slug}>
+                              <button onClick={() => toggleSubSlug(c.slug)}
+                                className={`w-full flex items-center gap-3 pl-14 pr-5 py-3 border-b border-gray-100/80 text-sm transition-colors ${
+                                  subOpen ? 'text-primary font-semibold' : 'text-gray-500 hover:text-primary hover:bg-blue-50/30'
+                                }`}>
+                                <span className="text-gray-300 text-xs mr-0.5">▸</span>
+                                <span className="flex-1 text-left">{c.title}</span>
+                                <Chevron open={subOpen} size={10} width={2.5} />
+                              </button>
+                              {subOpen && grandchildren.map(g => (
+                                <NavLink key={g.slug} to={pageLink(g)} onClick={onNavigate}
+                                  className={({ isActive }) =>
+                                    `flex items-center gap-2 pl-20 pr-5 py-2.5 border-b border-gray-100/80 text-[13px] transition-colors ${
+                                      isActive ? 'text-primary font-semibold bg-blue-50/50' : 'text-gray-500 hover:text-primary hover:bg-blue-50/30'
+                                    }`
+                                  }>
+                                  <span className="text-gray-300 text-xs">–</span>
+                                  <span>{g.title}</span>
+                                </NavLink>
+                              ))}
+                            </div>
+                          ) : (
+                            <NavLink key={c.slug} to={pageLink(c)} onClick={onNavigate}
+                              className={({ isActive }) =>
+                                `flex items-center gap-3 pl-14 pr-5 py-3 border-b border-gray-100/80 text-sm transition-colors ${
+                                  isActive ? 'text-primary font-semibold bg-blue-50/50' : 'text-gray-500 hover:text-primary hover:bg-blue-50/30'
+                                }`
+                              }>
+                              <span className="text-gray-300 text-xs mr-0.5">▸</span>
+                              <span>{c.title}</span>
+                            </NavLink>
+                          )
+                        })}
                       </div>
                     )}
                   </div>
@@ -396,17 +435,47 @@ export default function Sidebar({ onNavigate, mobile = false }) {
                 )}
                 {hasChildren && isOpen && (
                   <ul>
-                    {children.map(c => (
-                      <NavLink key={c.slug} to={c.isBuiltin ? c.path : `/page/${c.slug}`} onClick={onNavigate}
-                        className={({ isActive }) =>
-                          `flex items-center gap-1.5 pl-8 pr-3.5 py-2 text-xs border-b border-gray-50 transition-colors ${
-                            isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-500 hover:bg-pink-50 hover:text-primary'
-                          }`
-                        }>
-                        <span className="text-gray-300">–</span>
-                        <span>{c.title}</span>
-                      </NavLink>
-                    ))}
+                    {children.map(c => {
+                      const grandchildren = getChildren(c.slug)
+                      const subOpen = openSubSlug === c.slug
+                      return grandchildren.length > 0 ? (
+                        <li key={c.slug}>
+                          <button onClick={() => toggleSubSlug(c.slug)}
+                            className={`w-full flex items-center gap-1.5 pl-8 pr-3.5 py-2 text-xs border-b border-gray-50 transition-colors ${
+                              subOpen ? 'text-primary font-semibold' : 'text-gray-500 hover:bg-pink-50 hover:text-primary'
+                            }`}>
+                            <span className="text-gray-300">–</span>
+                            <span className="flex-1 text-left">{c.title}</span>
+                            <Chevron open={subOpen} size={10} />
+                          </button>
+                          {subOpen && (
+                            <ul>
+                              {grandchildren.map(g => (
+                                <NavLink key={g.slug} to={pageLink(g)} onClick={onNavigate}
+                                  className={({ isActive }) =>
+                                    `flex items-center gap-1.5 pl-12 pr-3.5 py-1.5 text-xs border-b border-gray-50 transition-colors ${
+                                      isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-500 hover:bg-pink-50 hover:text-primary'
+                                    }`
+                                  }>
+                                  <span className="text-gray-300">·</span>
+                                  <span>{g.title}</span>
+                                </NavLink>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
+                      ) : (
+                        <NavLink key={c.slug} to={pageLink(c)} onClick={onNavigate}
+                          className={({ isActive }) =>
+                            `flex items-center gap-1.5 pl-8 pr-3.5 py-2 text-xs border-b border-gray-50 transition-colors ${
+                              isActive ? 'bg-pink-50 text-primary font-semibold' : 'text-gray-500 hover:bg-pink-50 hover:text-primary'
+                            }`
+                          }>
+                          <span className="text-gray-300">–</span>
+                          <span>{c.title}</span>
+                        </NavLink>
+                      )
+                    })}
                   </ul>
                 )}
               </li>

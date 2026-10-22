@@ -1334,6 +1334,41 @@ function BlockEditorView({ page, onBack, onPageSaved }) {
   )
 }
 
+// ── Menu tree helpers ─────────────────────────────────────────────────────────
+
+const MAX_MENU_DEPTH = 3
+
+function childrenOf(pages, slug) {
+  return pages.filter(p => p.parentSlug === slug).sort((a, b) => a.order - b.order)
+}
+
+// Levels in the subtree rooted at `slug`, counting the page itself (a leaf is 1).
+function subtreeHeight(pages, slug, seen = new Set()) {
+  if (seen.has(slug)) return 1
+  seen.add(slug)
+  return 1 + Math.max(0, ...childrenOf(pages, slug).map(c => subtreeHeight(pages, c.slug, seen)))
+}
+
+function descendantSlugs(pages, slug, out = new Set()) {
+  for (const c of childrenOf(pages, slug)) {
+    if (out.has(c.slug)) continue
+    out.add(c.slug)
+    descendantSlugs(pages, c.slug, out)
+  }
+  return out
+}
+
+// Every page in menu order, each with its depth (1 = top level), parents before their children.
+function menuTreeOrder(pages) {
+  const out = []
+  const walk = (list, depth) => list.forEach(p => {
+    out.push({ page: p, depth })
+    if (depth < MAX_MENU_DEPTH) walk(childrenOf(pages, p.slug), depth + 1)
+  })
+  walk(pages.filter(p => !p.parentSlug).sort((a, b) => a.order - b.order), 1)
+  return out
+}
+
 // ── Add / Edit page form (modal) ──────────────────────────────────────────────
 
 function PageFormModal({ pages, editPage, onClose, onSaved }) {
@@ -1364,7 +1399,14 @@ function PageFormModal({ pages, editPage, onClose, onSaved }) {
     finally { setSaving(false) }
   }
 
-  const topLevelPages = pages.filter(p => !p.parentSlug && (!isEdit || p._id !== editPage._id))
+  // Menus nest up to MAX_MENU_DEPTH levels (เมนูหลัก › เมนูย่อย › เมนูย่อยของเมนูย่อย). A parent is
+  // valid if the edited page plus its own subtree still fits under that limit, and it isn't the
+  // page itself or one of its descendants (that would make a loop).
+  const ownHeight   = isEdit ? subtreeHeight(pages, editPage.slug) : 1
+  const descendants = isEdit ? descendantSlugs(pages, editPage.slug) : new Set()
+  const parentOptions = menuTreeOrder(pages).filter(({ page: p, depth }) =>
+    depth + ownHeight <= MAX_MENU_DEPTH &&
+    (!isEdit || (p._id !== editPage._id && !descendants.has(p.slug))))
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -1387,10 +1429,12 @@ function PageFormModal({ pages, editPage, onClose, onSaved }) {
               onKeyDown={e => e.key === 'Enter' && submit()} />
           </div>
           <div>
-            <label className="text-xs font-semibold text-gray-600 mb-1.5 block">เมนูหลัก <span className="text-gray-400 font-normal">(ถ้าเป็นเมนูย่อย)</span></label>
+            <label className="text-xs font-semibold text-gray-600 mb-1.5 block">อยู่ภายใต้เมนู <span className="text-gray-400 font-normal">(ถ้าเป็นเมนูย่อย — ซ้อนได้ {MAX_MENU_DEPTH} ชั้น)</span></label>
             <select className={`${inp}`} value={form.parentSlug} onChange={e => set('parentSlug', e.target.value)}>
               <option value="">— ไม่มี (เมนูหลัก) —</option>
-              {topLevelPages.map(p => <option key={p.slug} value={p.slug}>{p.icon} {p.title}</option>)}
+              {parentOptions.map(({ page: p, depth }) => (
+                <option key={p.slug} value={p.slug}>{'    '.repeat(depth - 1)}{depth > 1 ? '└ ' : ''}{p.icon} {p.title}</option>
+              ))}
             </select>
           </div>
           <div className="space-y-2">
@@ -1490,10 +1534,10 @@ function MenuManagerView({ pages, loading, onReload, onEditContent, expandedSlug
     await deletePage(page._id); onReload()
   }
 
-  function renderRow(page, siblings, idx, group) {
+  function renderRow(page, siblings, idx, group, depth = 1) {
     const children    = getChildren(page.slug)
-    const isChild     = !!page.parentSlug
-    const hasChildren = !isChild && children.length > 0
+    const isChild     = depth > 1
+    const hasChildren = depth < MAX_MENU_DEPTH && children.length > 0
     const isExpanded  = expandedSlugs.has(page.slug)
     const publicPath  = page.isBuiltin ? page.path : `/page/${page.slug}`
     const isOver      = dragOverId === page._id
@@ -1507,7 +1551,7 @@ function MenuManagerView({ pages, loading, onReload, onEditContent, expandedSlug
           onDragLeave={() => setDragOverId(null)}
           onDrop={e => { e.preventDefault(); setDragOverId(null); if (dragRef.current.group === group) reorderDrop(dragRef.current.id, page, group) }}
           onDragEnd={() => { dragRef.current = { id: null, group: null }; setDragOverId(null) }}
-          className={`flex items-center gap-2 px-3 py-1.5 border-b transition-colors select-none ${isChild ? 'pl-8 bg-gray-50/40' : ''} ${isOver ? 'bg-blue-50 border-l-2 border-l-blue-400 border-b-gray-50' : 'border-b-gray-50 hover:bg-gray-50/60'}`}>
+          className={`flex items-center gap-2 px-3 py-1.5 border-b transition-colors select-none ${depth === 2 ? 'pl-8 bg-gray-50/40' : depth === 3 ? 'pl-14 bg-gray-100/40' : ''} ${isOver ? 'bg-blue-50 border-l-2 border-l-blue-400 border-b-gray-50' : 'border-b-gray-50 hover:bg-gray-50/60'}`}>
           <span className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing flex-shrink-0 text-base leading-none" title="ลากเพื่อเรียงลำดับ">⠿</span>
           {isChild && <span className="text-gray-300">└</span>}
           {hasChildren ? (
@@ -1518,7 +1562,7 @@ function MenuManagerView({ pages, loading, onReload, onEditContent, expandedSlug
               title={isExpanded ? 'ซ่อนเมนูย่อย' : 'แสดงเมนูย่อย'}>
               {isExpanded ? '▼' : '▶'}
             </button>
-          ) : !isChild && (
+          ) : (
             <span className="w-6 flex-shrink-0" />
           )}
           <span className="text-lg w-7 text-center flex-shrink-0">{page.icon}</span>
@@ -1578,7 +1622,7 @@ function MenuManagerView({ pages, loading, onReload, onEditContent, expandedSlug
             🗑️
           </button>
         </div>
-        {isExpanded && children.map((c, ci) => renderRow(c, children, ci, `child:${page.slug}`))}
+        {hasChildren && isExpanded && children.map((c, ci) => renderRow(c, children, ci, `child:${page.slug}`, depth + 1))}
       </div>
     )
   }
