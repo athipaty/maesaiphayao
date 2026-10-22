@@ -1,5 +1,4 @@
-﻿import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+﻿import { useSearchParams } from 'react-router-dom'
 
 const TABS = [
   { id: 'info',    label: '📋 ข้อมูลพื้นฐาน' },
@@ -351,14 +350,15 @@ function TabPower() {
 export default function AboutPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const requestedTab = searchParams.get('tab')
-  const [tab, setTab] = useState(TABS.some(t => t.id === requestedTab) ? requestedTab : 'info')
+  // Derived from the URL on every render (not copied into state) so a menu link to another tab
+  // still switches it when the About page is already open.
+  const tab = TABS.some(t => t.id === requestedTab) ? requestedTab : 'info'
 
   const content = { info: <TabInfo />, history: <TabHistory />, mission: <TabMission />, power: <TabPower /> }
 
   // Keeps history/power directly linkable from the main menu, not just reachable by clicking
   // a tab after landing on /about — so a menu item can point straight at /about?tab=power.
   function selectTab(id) {
-    setTab(id)
     setSearchParams(id === 'info' ? {} : { tab: id })
   }
 
