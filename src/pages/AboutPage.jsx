@@ -359,7 +359,9 @@ export default function AboutPage() {
   // Keeps history/power directly linkable from the main menu, not just reachable by clicking
   // a tab after landing on /about — so a menu item can point straight at /about?tab=power.
   function selectTab(id) {
-    setSearchParams(id === 'info' ? {} : { tab: id })
+    // replace, not push: switching tabs shouldn't add history entries, so browser Back leaves
+    // the About page instead of stepping back through every tab clicked.
+    setSearchParams(id === 'info' ? {} : { tab: id }, { replace: true })
   }
 
   return (
