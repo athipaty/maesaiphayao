@@ -256,7 +256,7 @@ export default function ElectricalStockPage() {
 
   // Shared header (type/date/party/docNo entered once) + one or more item rows — for
   // batch entries like "15 items received today on the same delivery note".
-  const [entryForm, setEntryForm] = useState({ type: 'รับ', date: todayStr(), party: '', docNo: '', rows: [{ ...EMPTY_ENTRY_ROW }] })
+  const [entryForm, setEntryForm] = useState({ type: 'รับ', date: todayStr(), party: '', docNo: '', purpose: '', rows: [{ ...EMPTY_ENTRY_ROW }] })
   const [entrySaving, setEntrySaving]   = useState(false)
   const [entryError, setEntryError]     = useState('')
   const [entrySuccess, setEntrySuccess] = useState('')
@@ -474,6 +474,7 @@ export default function ElectricalStockPage() {
     : (selectedWithdrawRows.length && new Set(selectedWithdrawRows.map(t => new Date(t.date).toDateString())).size === 1
         ? thaiDateShort(selectedWithdrawRows[0].date)
         : '.......................')
+  const withdrawPrintPurpose = withdrawPrintSource === 'entry' && lastWithdrawBatch ? lastWithdrawBatch.purpose : ''
 
   // Full in/out history for one item (บัญชีวัสดุ) — oldest first, running balance from each txn
   const ledgerTxns = useMemo(() => {
@@ -710,13 +711,14 @@ export default function ElectricalStockPage() {
       if (entryForm.type === 'จ่าย') {
         setLastWithdrawBatch({
           date: entryForm.date,
+          purpose: entryForm.purpose,
           rows: validRows.map(row => {
             const item = items.find(i => i._id === row.itemId)
             return { itemName: item?.name || '', qty: Number(row.qty), unit: item?.unit || '' }
           }),
         })
       }
-      setEntryForm(f => ({ ...f, party: '', docNo: '', rows: [{ ...EMPTY_ENTRY_ROW }] }))
+      setEntryForm(f => ({ ...f, party: '', docNo: '', purpose: '', rows: [{ ...EMPTY_ENTRY_ROW }] }))
       await load()
     } catch (err) {
       const reason = err?.response?.data?.error || 'บันทึกไม่สำเร็จ'
@@ -1151,6 +1153,14 @@ export default function ElectricalStockPage() {
                     <input className="input" value={entryForm.docNo}
                       onChange={e => setEntryForm(f => ({ ...f, docNo: e.target.value }))} />
                   </div>
+                  {entryForm.type === 'จ่าย' && (
+                    <div className="sm:col-span-3">
+                      <label className="form-label">เพื่อใช้ในงาน <span className="text-gray-400 font-normal">(ไม่บังคับ — แสดงในใบเบิกวัสดุที่พิมพ์)</span></label>
+                      <input className="input" value={entryForm.purpose}
+                        onChange={e => setEntryForm(f => ({ ...f, purpose: e.target.value }))}
+                        placeholder="เช่น ซ่อมไฟฟ้าส่องสว่างสาธารณะ หมู่ 5" />
+                    </div>
+                  )}
                 </div>
 
                 <div className="overflow-x-auto border border-gray-100 rounded-lg">
@@ -1610,7 +1620,7 @@ export default function ElectricalStockPage() {
         <p className="mb-1">
           ข้าพเจ้า {signers[0].name} ตำแหน่ง {signers[0].position}
         </p>
-        <p className="mb-1">ขอเบิกวัสดุ ประเภท {activeCategory} เพื่อใช้ในงาน .....................................</p>
+        <p className="mb-1">ขอเบิกวัสดุ ประเภท {activeCategory} เพื่อใช้ในงาน {withdrawPrintPurpose || '.....................................'}</p>
         <p className="mb-3">ดังรายการต่อไปนี้</p>
 
         <table className="w-full border-collapse text-[11px]">
