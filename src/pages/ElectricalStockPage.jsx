@@ -17,8 +17,9 @@ const EMPTY_ENTRY_ROW = { itemId: '', qty: '', unitPrice: '', note: '' }
 // summary tabs — the active one filters which items and transactions show everywhere.
 const CATEGORIES = [
   { key: 'วัสดุไฟฟ้า',   icon: '⚡', label: 'ไฟฟ้า' },
-  { key: 'วัสดุก่อสร้าง', icon: '🏗️', label: 'ก่อสร้าง' },
-  { key: 'วัสดุสำนักงาน', icon: '🗄️', label: 'สำนักงาน' },
+  { key: 'วัสดุก่อสร้าง', icon: '🏗️', label: 'กองช่าง' },
+  { key: 'วัสดุสำนักงาน', icon: '🗄️', label: 'วัสดุสำนักงาน' },
+  { key: 'วัสดุสำนักปลัด', icon: '📁', label: 'สำนักปลัด' },
 ]
 const DEFAULT_CATEGORY = CATEGORIES[0].key
 function categoryOf(item) { return item?.category || DEFAULT_CATEGORY }
@@ -41,6 +42,12 @@ const DEFAULT_REPORT_SIGNERS_BY_CATEGORY = {
   'วัสดุสำนักงาน': [
     { name: '', position: '' },
     { name: 'นายประวิทย์  อาจหาญ', position: 'ผู้อำนวยการกองช่าง' },
+  ],
+  // Both signers left blank — สำนักปลัด has its own staff, not กองช่าง's; fill in via
+  // ✏️ แก้ไขชื่อผู้ลงนาม once the names are known.
+  'วัสดุสำนักปลัด': [
+    { name: '', position: '' },
+    { name: '', position: '' },
   ],
 }
 
