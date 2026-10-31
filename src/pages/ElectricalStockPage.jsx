@@ -91,17 +91,22 @@ function SubjectCheckboxes({ request, leadIn, highlight }) {
     const mark = checked ? '☑' : '☐'
     return checked && highlight ? <span className="text-blue-600 font-semibold">{mark}</span> : mark
   }
+  // The lead-in ("เรื่อง") sits in its own fixed-width column so every checkbox line starts
+  // at the same indent — all four ☐ marks line up in one column, in both copies of the block.
   return (
-    <>
-      <div className="grid grid-cols-2 gap-x-2">
-        <p>{leadIn}{box('ซ่อมไฟฟ้าสาธารณะ')} แจ้งซ่อมไฟฟ้าสาธารณะ</p>
-        <p>{box('เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ')} ขอเพิ่มจุดติดตั้งไฟฟ้าสาธารณะ</p>
+    <div className="flex">
+      <span className="w-10 flex-shrink-0">{leadIn}</span>
+      <div className="flex-1 pl-4 space-y-0.5">
+        <div className="grid grid-cols-2 gap-x-2">
+          <p>{box('ซ่อมไฟฟ้าสาธารณะ')} แจ้งซ่อมไฟฟ้าสาธารณะ</p>
+          <p>{box('เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ')} ขอเพิ่มจุดติดตั้งไฟฟ้าสาธารณะ</p>
+        </div>
+        <p>
+          {box('ซ่อมระบบไฟฟ้าประปาหมู่บ้าน')} แจ้งซ่อมระบบไฟฟ้าของประปาหมู่บ้าน หมู่ที่ {request.subject === 'ซ่อมระบบไฟฟ้าประปาหมู่บ้าน' ? <Filled text={request.subjectMoo} highlight={highlight} /> : '.....'} ตำบลแม่ใส
+        </p>
+        <p>{box('อื่นๆ')} อื่นๆ {request.subject === 'อื่นๆ' ? <Filled text={request.subjectOther} fallback="" highlight={highlight} /> : ''}</p>
       </div>
-      <p>
-        {box('ซ่อมระบบไฟฟ้าประปาหมู่บ้าน')} แจ้งซ่อมระบบไฟฟ้าของประปาหมู่บ้าน หมู่ที่ {request.subject === 'ซ่อมระบบไฟฟ้าประปาหมู่บ้าน' ? <Filled text={request.subjectMoo} highlight={highlight} /> : '.....'} ตำบลแม่ใส
-      </p>
-      <p>{box('อื่นๆ')} อื่นๆ {request.subject === 'อื่นๆ' ? <Filled text={request.subjectOther} fallback="" highlight={highlight} /> : ''}</p>
-    </>
+    </div>
   )
 }
 
@@ -111,17 +116,20 @@ function ElectricalRequestDoc({ request, dateLabel, rows, signers, highlight = f
       <p>ที่พิเศษ/ <Filled text={request.docNo} highlight={highlight} /></p>
       <h1 className="text-center text-base font-bold my-1">แบบคำร้องงานไฟฟ้า</h1>
       <p className="text-right">เขียนที่ กองช่าง องค์การบริหารส่วนตำบลแม่ใส</p>
-      <p className="text-right mb-2">วันที่ <Filled text={dateLabel} highlight={highlight} /></p>
+      {/* Starts at the page's horizontal centre — directly under the middle of the centred title */}
+      <p className="pl-[50%] mb-2">วันที่ <Filled text={dateLabel} highlight={highlight} /></p>
 
       <div className="mb-2 space-y-0.5">
-        <SubjectCheckboxes request={request} leadIn="เรื่อง " highlight={highlight} />
+        <SubjectCheckboxes request={request} leadIn="เรื่อง" highlight={highlight} />
       </div>
 
-      <p>เรียน นายกองค์การบริหารส่วนตำบลแม่ใส</p>
-      <p className="mb-1">
+      {/* "เรียน" gets the same w-10 column as "เรื่อง", and the two lines below indent their
+          first line by that width (indent-10) so ข้าพเจ้า / หมายเลขโทรศัพท์ start right under นายก */}
+      <p className="flex"><span className="w-10 flex-shrink-0">เรียน</span>นายกองค์การบริหารส่วนตำบลแม่ใส</p>
+      <p className="mb-1 indent-10">
         ข้าพเจ้า <Filled text={request.requesterName} highlight={highlight} /> บ้านเลขที่ <Filled text={request.requesterHouseNo} highlight={highlight} /> หมู่ที่ <Filled text={request.requesterMoo} highlight={highlight} /> ตำบล<Filled text={request.requesterTambon} highlight={highlight} /> อำเภอ<Filled text={request.requesterAmphoe} highlight={highlight} /> จังหวัด<Filled text={request.requesterProvince} highlight={highlight} />
       </p>
-      <p className="mb-1">หมายเลขโทรศัพท์ <Filled text={request.requesterPhone} highlight={highlight} /> &nbsp;&nbsp;&nbsp;ข้าพเจ้ามีความประสงค์</p>
+      <p className="mb-1 indent-10">หมายเลขโทรศัพท์ <Filled text={request.requesterPhone} highlight={highlight} /> &nbsp;&nbsp;&nbsp;ข้าพเจ้ามีความประสงค์</p>
       <div className="mb-2 space-y-0.5">
         <SubjectCheckboxes request={request} highlight={highlight} />
       </div>
@@ -168,23 +176,23 @@ function ElectricalRequestDoc({ request, dateLabel, rows, signers, highlight = f
       <div className="grid grid-cols-2 gap-4 mt-4 items-start">
         <div>
           <p className="font-semibold mb-1">วัสดุอุปกรณ์ที่นำไปใช้ มีดังนี้</p>
-          <table className="w-full border-collapse text-[9px]">
+          <table className="w-full border-collapse text-[11px]">
             <thead>
               <tr>
-                <th className="border border-black p-0.5 w-8">ลำดับ</th>
-                <th className="border border-black p-0.5">รายการ</th>
-                <th className="border border-black p-0.5 w-12">จำนวน</th>
+                <th className="border border-black p-1 w-8">ลำดับ</th>
+                <th className="border border-black p-1">รายการ</th>
+                <th className="border border-black p-1 w-12">จำนวน</th>
               </tr>
             </thead>
             <tbody>
               {rows.length === 0 && (
-                <tr><td className="border border-black p-0.5 text-center text-gray-400" colSpan={3}>— ยังไม่มีรายการวัสดุ —</td></tr>
+                <tr><td className="border border-black p-1 text-center text-gray-400" colSpan={3}>— ยังไม่มีรายการวัสดุ —</td></tr>
               )}
               {rows.map((t, idx) => (
                 <tr key={t._id ?? idx}>
-                  <td className="border border-black p-0.5 text-center">{idx + 1}</td>
-                  <td className={`border border-black p-0.5 ${highlight ? 'text-blue-600 font-semibold' : ''}`}>{t.itemName}</td>
-                  <td className={`border border-black p-0.5 text-center ${highlight ? 'text-blue-600 font-semibold' : ''}`}>{t.qty.toLocaleString()} {t.unit}</td>
+                  <td className="border border-black p-1 text-center">{idx + 1}</td>
+                  <td className={`border border-black p-1 ${highlight ? 'text-blue-600 font-semibold' : ''}`}>{t.itemName}</td>
+                  <td className={`border border-black p-1 text-center ${highlight ? 'text-blue-600 font-semibold' : ''}`}>{t.qty.toLocaleString()} {t.unit}</td>
                 </tr>
               ))}
             </tbody>
@@ -1311,7 +1319,7 @@ export default function ElectricalStockPage() {
                   <div>
                     <label className="form-label">เลขที่เอกสาร <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
                     <input className="input" value={entryForm.docNo}
-                      onChange={e => setEntryForm(f => ({ ...f, docNo: e.target.value }))} />
+                      onChange={e => setEntryForm(f => ({ ...f, docNo: e.target.value }))} placeholder="เช่น พ.001/2569" />
                   </div>
                   {entryForm.type === 'จ่าย' && (
                     <div className="sm:col-span-3">
@@ -1352,14 +1360,14 @@ export default function ElectricalStockPage() {
                             <div>
                               <label className="form-label">หมู่ที่</label>
                               <input className="input" value={electricalRequestForm.subjectMoo}
-                                onChange={e => setElectricalRequestForm(f => ({ ...f, subjectMoo: e.target.value }))} />
+                                onChange={e => setElectricalRequestForm(f => ({ ...f, subjectMoo: e.target.value }))} placeholder="เช่น 5" />
                             </div>
                           )}
                           {electricalRequestForm.subject === 'อื่นๆ' && (
                             <div className="sm:col-span-3">
                               <label className="form-label">ระบุ</label>
                               <input className="input" value={electricalRequestForm.subjectOther}
-                                onChange={e => setElectricalRequestForm(f => ({ ...f, subjectOther: e.target.value }))} />
+                                onChange={e => setElectricalRequestForm(f => ({ ...f, subjectOther: e.target.value }))} placeholder="ระบุเรื่องที่ต้องการแจ้ง" />
                             </div>
                           )}
                         </div>
@@ -1368,61 +1376,61 @@ export default function ElectricalStockPage() {
                           <div className="sm:col-span-2">
                             <label className="form-label">ชื่อผู้ยื่นคำร้อง</label>
                             <input className="input" value={electricalRequestForm.requesterName}
-                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterName: e.target.value }))} />
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterName: e.target.value }))} placeholder="เช่น นายสมชาย ใจดี" />
                           </div>
                           <div>
                             <label className="form-label">บ้านเลขที่</label>
                             <input className="input" value={electricalRequestForm.requesterHouseNo}
-                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterHouseNo: e.target.value }))} />
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterHouseNo: e.target.value }))} placeholder="เช่น 123/4" />
                           </div>
                           <div>
                             <label className="form-label">หมู่ที่</label>
                             <input className="input" value={electricalRequestForm.requesterMoo}
-                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterMoo: e.target.value }))} />
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterMoo: e.target.value }))} placeholder="เช่น 5" />
                           </div>
                           <div>
                             <label className="form-label">ตำบล</label>
                             <input className="input" value={electricalRequestForm.requesterTambon}
-                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterTambon: e.target.value }))} />
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterTambon: e.target.value }))} placeholder="เช่น แม่ใส" />
                           </div>
                           <div>
                             <label className="form-label">อำเภอ</label>
                             <input className="input" value={electricalRequestForm.requesterAmphoe}
-                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterAmphoe: e.target.value }))} />
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterAmphoe: e.target.value }))} placeholder="เช่น เมืองพะเยา" />
                           </div>
                           <div>
                             <label className="form-label">จังหวัด</label>
                             <input className="input" value={electricalRequestForm.requesterProvince}
-                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterProvince: e.target.value }))} />
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterProvince: e.target.value }))} placeholder="เช่น พะเยา" />
                           </div>
                           <div>
                             <label className="form-label">เบอร์โทรศัพท์</label>
                             <input className="input" value={electricalRequestForm.requesterPhone}
-                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterPhone: e.target.value }))} />
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterPhone: e.target.value }))} placeholder="เช่น 081-234-5678" />
                           </div>
                         </div>
 
                         <div>
                           <label className="form-label">เนื่องจาก</label>
                           <textarea className="input" rows={2} value={electricalRequestForm.reason}
-                            onChange={e => setElectricalRequestForm(f => ({ ...f, reason: e.target.value }))} />
+                            onChange={e => setElectricalRequestForm(f => ({ ...f, reason: e.target.value }))} placeholder="เช่น ไฟฟ้าส่องสว่างสาธารณะดับ ไม่สามารถใช้งานได้" />
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                           <div>
                             <label className="form-label">จุดที่ ๑</label>
                             <input className="input" value={electricalRequestForm.point1}
-                              onChange={e => setElectricalRequestForm(f => ({ ...f, point1: e.target.value }))} />
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, point1: e.target.value }))} placeholder="เช่น หน้าบ้านเลขที่ 12 หมู่ 5" />
                           </div>
                           <div>
                             <label className="form-label">จุดที่ ๒ <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
                             <input className="input" value={electricalRequestForm.point2}
-                              onChange={e => setElectricalRequestForm(f => ({ ...f, point2: e.target.value }))} />
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, point2: e.target.value }))} placeholder="เช่น ทางแยกกลางหมู่บ้าน" />
                           </div>
                           <div>
                             <label className="form-label">จุดที่ ๓ <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
                             <input className="input" value={electricalRequestForm.point3}
-                              onChange={e => setElectricalRequestForm(f => ({ ...f, point3: e.target.value }))} />
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, point3: e.target.value }))} placeholder="เช่น ข้างศาลาเอนกประสงค์" />
                           </div>
                         </div>
                         <p className="text-[11px] text-gray-400">รายการวัสดุอุปกรณ์ที่นำไปใช้จะดึงจากตารางรายการวัสดุด้านล่างให้อัตโนมัติ — ไม่ต้องกรอกซ้ำ ส่วนลายเซ็น/ความเห็นผู้อำนวยการกองช่าง/ปลัดฯ/นายกฯ และผลการดำเนินการ จะเว้นว่างไว้ให้เซ็นด้วยมือหลังพิมพ์เหมือนเดิม</p>
