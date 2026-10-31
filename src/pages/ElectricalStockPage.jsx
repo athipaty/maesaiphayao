@@ -60,6 +60,15 @@ function thaiDateShort(dateInput) {
   return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear() + 543}`
 }
 
+const THAI_MONTHS = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+  'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม']
+
+// Official-letter style for แบบคำร้องงานไฟฟ้า: "31 เดือน ตุลาคม พ.ศ. 2569" (follows "วันที่ ")
+function thaiDateLong(dateInput) {
+  const d = new Date(dateInput)
+  return `${d.getDate()} เดือน ${THAI_MONTHS[d.getMonth()]} พ.ศ. ${d.getFullYear() + 543}`
+}
+
 const NAV = [
   { key: 'dashboard', icon: '🏠', label: 'แดชบอร์ด' },
   { key: 'entry',     icon: '✍️', label: 'บันทึกรับ-จ่าย' },
@@ -123,21 +132,22 @@ function ElectricalRequestDoc({ request, dateLabel, rows, signers, highlight = f
         <SubjectCheckboxes request={request} leadIn="เรื่อง" highlight={highlight} />
       </div>
 
-      {/* "เรียน" gets the same w-10 column as "เรื่อง", and the two lines below indent their
-          first line by that width (indent-10) so ข้าพเจ้า / หมายเลขโทรศัพท์ start right under นายก */}
-      <p className="flex"><span className="w-10 flex-shrink-0">เรียน</span>นายกองค์การบริหารส่วนตำบลแม่ใส</p>
-      <p className="mb-1 indent-10">
+      {/* The body lines below start at the checkbox column: SubjectCheckboxes' w-10 lead-in
+          column + pl-4 = 3.5rem, so นายก, ข้าพเจ้า, หมายเลขโทรศัพท์, เนื่องจาก and จุดที่ ๑–๓ all line
+          up with the ☐ marks (first-line indent only — wrapped text returns to the margin) */}
+      <p className="flex"><span className="w-14 flex-shrink-0">เรียน</span>นายกองค์การบริหารส่วนตำบลแม่ใส</p>
+      <p className="mb-1 indent-14">
         ข้าพเจ้า <Filled text={request.requesterName} highlight={highlight} /> บ้านเลขที่ <Filled text={request.requesterHouseNo} highlight={highlight} /> หมู่ที่ <Filled text={request.requesterMoo} highlight={highlight} /> ตำบล<Filled text={request.requesterTambon} highlight={highlight} /> อำเภอ<Filled text={request.requesterAmphoe} highlight={highlight} /> จังหวัด<Filled text={request.requesterProvince} highlight={highlight} />
       </p>
-      <p className="mb-1 indent-10">หมายเลขโทรศัพท์ <Filled text={request.requesterPhone} highlight={highlight} /> &nbsp;&nbsp;&nbsp;ข้าพเจ้ามีความประสงค์</p>
+      <p className="mb-1 indent-14">หมายเลขโทรศัพท์ <Filled text={request.requesterPhone} highlight={highlight} /> &nbsp;&nbsp;&nbsp;ข้าพเจ้ามีความประสงค์</p>
       <div className="mb-2 space-y-0.5">
         <SubjectCheckboxes request={request} highlight={highlight} />
       </div>
 
-      <p className="mb-1">เนื่องจาก <Filled text={request.reason} highlight={highlight} /> ดังนี้</p>
-      <p>จุดที่ ๑ <Filled text={request.point1} highlight={highlight} /></p>
-      <p>จุดที่ ๒ <Filled text={request.point2} highlight={highlight} /></p>
-      <p className="mb-3">จุดที่ ๓ <Filled text={request.point3} highlight={highlight} /></p>
+      <p className="mb-1 indent-14">เนื่องจาก <Filled text={request.reason} highlight={highlight} /> ดังนี้</p>
+      <p className="indent-14">จุดที่ ๑ <Filled text={request.point1} highlight={highlight} /></p>
+      <p className="indent-14">จุดที่ ๒ <Filled text={request.point2} highlight={highlight} /></p>
+      <p className="mb-3 indent-14">จุดที่ ๓ <Filled text={request.point3} highlight={highlight} /></p>
 
       <div className="flex justify-around mt-8 text-center">
         <div>
@@ -632,11 +642,13 @@ export default function ElectricalStockPage() {
   // The withdraw slip prints either the history tab's checked rows, or (right after a batch
   // withdrawal) the rows just submitted from the entry tab — whichever was triggered last.
   const withdrawPrintRows = withdrawPrintSource === 'entry' && lastWithdrawBatch ? lastWithdrawBatch.rows : selectedWithdrawRows
-  const withdrawPrintDateLabel = withdrawPrintSource === 'entry' && lastWithdrawBatch
-    ? thaiDateShort(lastWithdrawBatch.date)
+  const withdrawPrintDate = withdrawPrintSource === 'entry' && lastWithdrawBatch
+    ? lastWithdrawBatch.date
     : (selectedWithdrawRows.length && new Set(selectedWithdrawRows.map(t => new Date(t.date).toDateString())).size === 1
-        ? thaiDateShort(selectedWithdrawRows[0].date)
-        : '.......................')
+        ? selectedWithdrawRows[0].date
+        : null)
+  const withdrawPrintDateLabel = withdrawPrintDate ? thaiDateShort(withdrawPrintDate) : '.......................'
+  const electricalRequestDateLabel = withdrawPrintDate ? thaiDateLong(withdrawPrintDate) : '........ เดือน .................... พ.ศ. ..........'
   const withdrawPrintPurpose = withdrawPrintSource === 'entry' && lastWithdrawBatch ? lastWithdrawBatch.purpose : ''
 
   // Full in/out history for one item (บัญชีวัสดุ) — oldest first, running balance from each txn
@@ -1440,7 +1452,7 @@ export default function ElectricalStockPage() {
                           <div className="bg-white border border-gray-200 rounded-lg p-4 text-[11px] leading-relaxed overflow-x-auto">
                             <ElectricalRequestDoc
                               request={electricalRequestForm}
-                              dateLabel={thaiDateShort(entryForm.date)}
+                              dateLabel={thaiDateLong(entryForm.date)}
                               rows={entryForm.rows
                                 .filter(r => r.itemId && Number(r.qty) > 0)
                                 .map(row => {
@@ -1961,7 +1973,7 @@ export default function ElectricalStockPage() {
       {/* ── Print-only: แบบคำร้องงานไฟฟ้า (ไฟฟ้า category only — material list shared with the ใบเบิกวัสดุ above, entered once) ── */}
       {printMode === 'electricalRequest' && lastElectricalRequest && (
       <div className="print-only p-6 text-black text-[11px] leading-relaxed">
-        <ElectricalRequestDoc request={lastElectricalRequest} dateLabel={withdrawPrintDateLabel} rows={withdrawPrintRows} signers={signers} />
+        <ElectricalRequestDoc request={lastElectricalRequest} dateLabel={electricalRequestDateLabel} rows={withdrawPrintRows} signers={signers} />
       </div>
       )}
 
