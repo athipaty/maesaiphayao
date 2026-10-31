@@ -268,6 +268,20 @@ export default function ElectricalStockPage() {
   const [entryError, setEntryError]     = useState('')
   const [entrySuccess, setEntrySuccess] = useState('')
 
+  // Optional "แบบคำร้องงานไฟฟ้า" attached to a ไฟฟ้า withdrawal — lets the admin fill the
+  // request-form fields once here instead of handwriting the paper form and then re-typing
+  // the same material list again on a separate ใบเบิกวัสดุ. Only ever shown/used for ไฟฟ้า;
+  // the material list itself is NOT duplicated here — it prints straight from entryForm.rows.
+  const EMPTY_ELECTRICAL_REQUEST = {
+    docNo: '', subject: 'ซ่อมไฟฟ้าสาธารณะ', subjectMoo: '', subjectOther: '',
+    requesterName: '', requesterHouseNo: '', requesterMoo: '',
+    requesterTambon: 'แม่ใส', requesterAmphoe: 'เมืองพะเยา', requesterProvince: 'พะเยา', requesterPhone: '',
+    reason: '', point1: '', point2: '', point3: '',
+  }
+  const [showElectricalRequest, setShowElectricalRequest] = useState(false)
+  const [electricalRequestForm, setElectricalRequestForm] = useState(EMPTY_ELECTRICAL_REQUEST)
+  const [lastElectricalRequest, setLastElectricalRequest] = useState(null) // the request form data from the last submitted withdrawal, for the print button
+
   // Previously typed "รับจาก"/"จ่ายให้" names for this transaction type — powers the
   // datalist autocomplete on that field so common names don't need retyping.
   const partySuggestions = useMemo(() => {
@@ -289,7 +303,7 @@ export default function ElectricalStockPage() {
   const [historySearch, setHistorySearch] = useState('')
   const [summaryYear, setSummaryYear] = useState(currentFY)
 
-  const [printMode, setPrintMode] = useState(null) // null | 'report' | 'withdraw' | 'ledger'
+  const [printMode, setPrintMode] = useState(null) // null | 'report' | 'withdraw' | 'ledger' | 'electricalRequest'
   const [withdrawSelection, setWithdrawSelection] = useState(new Set())
   const [withdrawPrintSource, setWithdrawPrintSource] = useState('history') // 'history' | 'entry' — which rows the withdraw slip prints
   const [lastWithdrawBatch, setLastWithdrawBatch] = useState(null) // { date, rows: [{ itemName, qty, unit }] } from the entry tab's last submitted withdrawal
@@ -724,8 +738,13 @@ export default function ElectricalStockPage() {
             return { itemName: item?.name || '', qty: Number(row.qty), unit: item?.unit || '' }
           }),
         })
+        setLastElectricalRequest(
+          activeCategory === 'วัสดุไฟฟ้า' && showElectricalRequest ? electricalRequestForm : null
+        )
       }
       setEntryForm(f => ({ ...f, party: '', docNo: '', purpose: '', rows: [{ ...EMPTY_ENTRY_ROW }] }))
+      setElectricalRequestForm(EMPTY_ELECTRICAL_REQUEST)
+      setShowElectricalRequest(false)
       await load()
     } catch (err) {
       const reason = err?.response?.data?.error || 'บันทึกไม่สำเร็จ'
@@ -1170,6 +1189,114 @@ export default function ElectricalStockPage() {
                   )}
                 </div>
 
+                {entryForm.type === 'จ่าย' && activeCategory === 'วัสดุไฟฟ้า' && (
+                  <div className="border border-gray-100 rounded-lg overflow-hidden">
+                    <button type="button" onClick={() => setShowElectricalRequest(v => !v)}
+                      className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 text-xs font-semibold text-gray-600 hover:bg-gray-100">
+                      <span>📋 แนบแบบคำร้องงานไฟฟ้า <span className="text-gray-400 font-normal">(ไม่บังคับ — กรอกครั้งเดียว พิมพ์ได้ทั้งแบบคำร้องและใบเบิกวัสดุ ไม่ต้องคีย์รายการวัสดุซ้ำ)</span></span>
+                      <span>{showElectricalRequest ? '▲' : '▼'}</span>
+                    </button>
+                    {showElectricalRequest && (
+                      <div className="p-3 space-y-3 border-t border-gray-100">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                          <div>
+                            <label className="form-label">ที่พิเศษ/เลขที่ <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
+                            <input className="input" value={electricalRequestForm.docNo}
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, docNo: e.target.value }))} placeholder="เช่น 001" />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="form-label">เรื่อง</label>
+                            <select className="input" value={electricalRequestForm.subject}
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, subject: e.target.value }))}>
+                              <option value="ซ่อมไฟฟ้าสาธารณะ">แจ้งซ่อมไฟฟ้าสาธารณะ</option>
+                              <option value="เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ">ขอเพิ่มจุดติดตั้งไฟฟ้าสาธารณะ</option>
+                              <option value="ซ่อมระบบไฟฟ้าประปาหมู่บ้าน">แจ้งซ่อมระบบไฟฟ้าของประปาหมู่บ้าน</option>
+                              <option value="อื่นๆ">อื่นๆ</option>
+                            </select>
+                          </div>
+                          {electricalRequestForm.subject === 'ซ่อมระบบไฟฟ้าประปาหมู่บ้าน' && (
+                            <div>
+                              <label className="form-label">หมู่ที่</label>
+                              <input className="input" value={electricalRequestForm.subjectMoo}
+                                onChange={e => setElectricalRequestForm(f => ({ ...f, subjectMoo: e.target.value }))} />
+                            </div>
+                          )}
+                          {electricalRequestForm.subject === 'อื่นๆ' && (
+                            <div className="sm:col-span-3">
+                              <label className="form-label">ระบุ</label>
+                              <input className="input" value={electricalRequestForm.subjectOther}
+                                onChange={e => setElectricalRequestForm(f => ({ ...f, subjectOther: e.target.value }))} />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                          <div className="sm:col-span-2">
+                            <label className="form-label">ชื่อผู้ยื่นคำร้อง</label>
+                            <input className="input" value={electricalRequestForm.requesterName}
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterName: e.target.value }))} />
+                          </div>
+                          <div>
+                            <label className="form-label">บ้านเลขที่</label>
+                            <input className="input" value={electricalRequestForm.requesterHouseNo}
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterHouseNo: e.target.value }))} />
+                          </div>
+                          <div>
+                            <label className="form-label">หมู่ที่</label>
+                            <input className="input" value={electricalRequestForm.requesterMoo}
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterMoo: e.target.value }))} />
+                          </div>
+                          <div>
+                            <label className="form-label">ตำบล</label>
+                            <input className="input" value={electricalRequestForm.requesterTambon}
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterTambon: e.target.value }))} />
+                          </div>
+                          <div>
+                            <label className="form-label">อำเภอ</label>
+                            <input className="input" value={electricalRequestForm.requesterAmphoe}
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterAmphoe: e.target.value }))} />
+                          </div>
+                          <div>
+                            <label className="form-label">จังหวัด</label>
+                            <input className="input" value={electricalRequestForm.requesterProvince}
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterProvince: e.target.value }))} />
+                          </div>
+                          <div>
+                            <label className="form-label">เบอร์โทรศัพท์</label>
+                            <input className="input" value={electricalRequestForm.requesterPhone}
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, requesterPhone: e.target.value }))} />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="form-label">เนื่องจาก</label>
+                          <textarea className="input" rows={2} value={electricalRequestForm.reason}
+                            onChange={e => setElectricalRequestForm(f => ({ ...f, reason: e.target.value }))} />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                          <div>
+                            <label className="form-label">จุดที่ ๑</label>
+                            <input className="input" value={electricalRequestForm.point1}
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, point1: e.target.value }))} />
+                          </div>
+                          <div>
+                            <label className="form-label">จุดที่ ๒ <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
+                            <input className="input" value={electricalRequestForm.point2}
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, point2: e.target.value }))} />
+                          </div>
+                          <div>
+                            <label className="form-label">จุดที่ ๓ <span className="text-gray-400 font-normal">(ไม่บังคับ)</span></label>
+                            <input className="input" value={electricalRequestForm.point3}
+                              onChange={e => setElectricalRequestForm(f => ({ ...f, point3: e.target.value }))} />
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-gray-400">รายการวัสดุอุปกรณ์ที่นำไปใช้จะดึงจากตารางรายการวัสดุด้านล่างให้อัตโนมัติ — ไม่ต้องกรอกซ้ำ ส่วนลายเซ็น/ความเห็นผู้อำนวยการกองช่าง/ปลัดฯ/นายกฯ และผลการดำเนินการ จะเว้นว่างไว้ให้เซ็นด้วยมือหลังพิมพ์เหมือนเดิม</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="overflow-x-auto border border-gray-100 rounded-lg">
                   <table className="w-full text-xs border-collapse">
                     <thead>
@@ -1263,6 +1390,13 @@ export default function ElectricalStockPage() {
                       onClick={() => { setWithdrawPrintSource('entry'); triggerPrint('withdraw') }}
                       className="text-xs px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white font-medium transition-colors">
                       🖨️ พิมพ์ใบเบิกวัสดุ (รายการที่เพิ่งบันทึก)
+                    </button>
+                  )}
+                  {entryForm.type === 'จ่าย' && lastElectricalRequest && (
+                    <button type="button"
+                      onClick={() => triggerPrint('electricalRequest')}
+                      className="text-xs px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white font-medium transition-colors">
+                      🖨️ พิมพ์แบบคำร้องงานไฟฟ้า (รายการที่เพิ่งบันทึก)
                     </button>
                   )}
                 </div>
@@ -1659,6 +1793,116 @@ export default function ElectricalStockPage() {
             <p>ลงชื่อ ....................................................... ผู้จ่าย</p>
             <p className="mt-1">( {signers[1].name} )</p>
             <p>ตำแหน่ง {signers[1].position}</p>
+          </div>
+        </div>
+      </div>
+      )}
+
+      {/* ── Print-only: แบบคำร้องงานไฟฟ้า (ไฟฟ้า category only — material list shared with the ใบเบิกวัสดุ above, entered once) ── */}
+      {printMode === 'electricalRequest' && lastElectricalRequest && (
+      <div className="print-only p-6 text-black text-[11px] leading-relaxed">
+        <p>ที่พิเศษ/ {lastElectricalRequest.docNo || '.....'}</p>
+        <h1 className="text-center text-base font-bold my-1">แบบคำร้องงานไฟฟ้า</h1>
+        <p className="text-right">เขียนที่ กองช่าง องค์การบริหารส่วนตำบลแม่ใส</p>
+        <p className="text-right mb-2">วันที่ {withdrawPrintDateLabel}</p>
+
+        {(() => {
+          const subjectLabel = {
+            'ซ่อมไฟฟ้าสาธารณะ': 'แจ้งซ่อมไฟฟ้าสาธารณะ',
+            'เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ': 'ขอเพิ่มจุดติดตั้งไฟฟ้าสาธารณะ',
+          }
+          const box = v => lastElectricalRequest.subject === v ? '☑' : '☐'
+          return (
+            <>
+              <p className="mb-1">
+                เรื่อง {box('ซ่อมไฟฟ้าสาธารณะ')} {subjectLabel['ซ่อมไฟฟ้าสาธารณะ']}
+                {'  '}{box('เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ')} {subjectLabel['เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ']}
+              </p>
+              <p className="mb-1">
+                {box('ซ่อมระบบไฟฟ้าประปาหมู่บ้าน')} แจ้งซ่อมระบบไฟฟ้าของประปาหมู่บ้าน หมู่ที่ {lastElectricalRequest.subject === 'ซ่อมระบบไฟฟ้าประปาหมู่บ้าน' ? (lastElectricalRequest.subjectMoo || '.....') : '.....'} ตำบลแม่ใส
+              </p>
+              <p className="mb-2">
+                {box('อื่นๆ')} อื่นๆ {lastElectricalRequest.subject === 'อื่นๆ' ? lastElectricalRequest.subjectOther : ''}
+              </p>
+            </>
+          )
+        })()}
+
+        <p>เรียน นายกองค์การบริหารส่วนตำบลแม่ใส</p>
+        <p className="mb-1">
+          ข้าพเจ้า {lastElectricalRequest.requesterName || '.....'} บ้านเลขที่ {lastElectricalRequest.requesterHouseNo || '.....'} หมู่ที่ {lastElectricalRequest.requesterMoo || '.....'} ตำบล{lastElectricalRequest.requesterTambon} อำเภอ{lastElectricalRequest.requesterAmphoe} จังหวัด{lastElectricalRequest.requesterProvince}
+        </p>
+        <p className="mb-2">หมายเลขโทรศัพท์ {lastElectricalRequest.requesterPhone || '.....'}</p>
+
+        <p className="mb-1">เนื่องจาก {lastElectricalRequest.reason || '.....'} ดังนี้</p>
+        <p>จุดที่ ๑ {lastElectricalRequest.point1 || '.....'}</p>
+        <p>จุดที่ ๒ {lastElectricalRequest.point2 || '.....'}</p>
+        <p className="mb-3">จุดที่ ๓ {lastElectricalRequest.point3 || '.....'}</p>
+
+        <div className="flex justify-around mt-8 text-center">
+          <div>
+            <p>ลงชื่อ ....................................................... ผู้ยื่นคำร้อง</p>
+            <p className="mt-1">( {lastElectricalRequest.requesterName || '.......................'} )</p>
+          </div>
+          <div>
+            <p>ลงชื่อ ....................................................... ผู้เสนอ</p>
+            <p className="mt-1">( {signers[0].name} )</p>
+            <p>{signers[0].position}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3 mt-8 border-t border-black pt-2">
+          <div>
+            <p className="font-semibold mb-6">ความเห็นผู้อำนวยการกองช่าง</p>
+            <p>ลงชื่อ .......................................</p>
+            <p className="mt-1">( {signers[1].name || '..........................................'} )</p>
+            <p>{signers[1].position || 'ผู้อำนวยการกองช่าง'}</p>
+          </div>
+          <div>
+            <p className="font-semibold mb-6">ความเห็นปลัดฯ</p>
+            <p>ลงชื่อ .......................................</p>
+            <p className="mt-1">( .......................................... )</p>
+            <p>ปลัดองค์การบริหารส่วนตำบลแม่ใส</p>
+          </div>
+          <div>
+            <p className="font-semibold">ความเห็นนายกฯ</p>
+            <p>☐ อนุมัติ&nbsp;&nbsp;&nbsp;☐ ไม่อนุมัติ</p>
+            <p className="mt-4">ลงชื่อ .......................................</p>
+            <p className="mt-1">( .......................................... )</p>
+            <p>นายกองค์การบริหารส่วนตำบลแม่ใส</p>
+          </div>
+        </div>
+
+        <p className="mt-4 font-semibold">วัสดุอุปกรณ์ที่นำไปใช้ มีดังนี้</p>
+        <table className="w-full border-collapse text-[11px] mt-1">
+          <thead>
+            <tr>
+              <th className="border border-black p-1 w-12">ลำดับ</th>
+              <th className="border border-black p-1">รายการ</th>
+              <th className="border border-black p-1 w-32">จำนวน</th>
+            </tr>
+          </thead>
+          <tbody>
+            {withdrawPrintRows.map((t, idx) => (
+              <tr key={t._id ?? idx}>
+                <td className="border border-black p-1 text-center">{idx + 1}</td>
+                <td className="border border-black p-1">{t.itemName}</td>
+                <td className="border border-black p-1 text-center">{t.qty.toLocaleString()} {t.unit}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="flex justify-between mt-6 gap-6">
+          <div className="flex-1 space-y-1">
+            <p>☐ ได้ดำเนินการแล้ว เมื่อวันที่ ......./......./.......</p>
+            <p>☐ ตรวจสอบแล้วใช้งานได้</p>
+            <p>☐ แจ้งการซ่อม/ติดตั้งให้ผู้แจ้งทราบเรียบร้อยแล้ว</p>
+          </div>
+          <div className="text-center">
+            <p>ลงชื่อ .......................................</p>
+            <p className="mt-1">ผู้ยื่นคำร้อง</p>
+            <p className="mt-1">วันที่ ......./......./.......</p>
           </div>
         </div>
       </div>
