@@ -72,6 +72,117 @@ function todayStr() {
   return new Date().toISOString().slice(0, 10)
 }
 
+// Shared markup for แบบคำร้องงานไฟฟ้า — used both for the live on-screen draft preview
+// (fed with the entry form's current, unsaved values) and the print-only slip (fed with the
+// last submitted batch), so the two never drift apart.
+function ElectricalRequestDoc({ request, dateLabel, rows, signers }) {
+  const subjectLabel = {
+    'ซ่อมไฟฟ้าสาธารณะ': 'แจ้งซ่อมไฟฟ้าสาธารณะ',
+    'เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ': 'ขอเพิ่มจุดติดตั้งไฟฟ้าสาธารณะ',
+  }
+  const box = v => request.subject === v ? '☑' : '☐'
+  return (
+    <>
+      <p>ที่พิเศษ/ {request.docNo || '.....'}</p>
+      <h1 className="text-center text-base font-bold my-1">แบบคำร้องงานไฟฟ้า</h1>
+      <p className="text-right">เขียนที่ กองช่าง องค์การบริหารส่วนตำบลแม่ใส</p>
+      <p className="text-right mb-2">วันที่ {dateLabel}</p>
+
+      <p className="mb-1">
+        เรื่อง {box('ซ่อมไฟฟ้าสาธารณะ')} {subjectLabel['ซ่อมไฟฟ้าสาธารณะ']}
+        {'  '}{box('เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ')} {subjectLabel['เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ']}
+      </p>
+      <p className="mb-1">
+        {box('ซ่อมระบบไฟฟ้าประปาหมู่บ้าน')} แจ้งซ่อมระบบไฟฟ้าของประปาหมู่บ้าน หมู่ที่ {request.subject === 'ซ่อมระบบไฟฟ้าประปาหมู่บ้าน' ? (request.subjectMoo || '.....') : '.....'} ตำบลแม่ใส
+      </p>
+      <p className="mb-2">
+        {box('อื่นๆ')} อื่นๆ {request.subject === 'อื่นๆ' ? request.subjectOther : ''}
+      </p>
+
+      <p>เรียน นายกองค์การบริหารส่วนตำบลแม่ใส</p>
+      <p className="mb-1">
+        ข้าพเจ้า {request.requesterName || '.....'} บ้านเลขที่ {request.requesterHouseNo || '.....'} หมู่ที่ {request.requesterMoo || '.....'} ตำบล{request.requesterTambon} อำเภอ{request.requesterAmphoe} จังหวัด{request.requesterProvince}
+      </p>
+      <p className="mb-2">หมายเลขโทรศัพท์ {request.requesterPhone || '.....'}</p>
+
+      <p className="mb-1">เนื่องจาก {request.reason || '.....'} ดังนี้</p>
+      <p>จุดที่ ๑ {request.point1 || '.....'}</p>
+      <p>จุดที่ ๒ {request.point2 || '.....'}</p>
+      <p className="mb-3">จุดที่ ๓ {request.point3 || '.....'}</p>
+
+      <div className="flex justify-around mt-8 text-center">
+        <div>
+          <p>ลงชื่อ ....................................................... ผู้ยื่นคำร้อง</p>
+          <p className="mt-1">( {request.requesterName || '.......................'} )</p>
+        </div>
+        <div>
+          <p>ลงชื่อ ....................................................... ผู้เสนอ</p>
+          <p className="mt-1">( {signers[0].name} )</p>
+          <p>{signers[0].position}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3 mt-8 border-t border-black pt-2">
+        <div>
+          <p className="font-semibold mb-6">ความเห็นผู้อำนวยการกองช่าง</p>
+          <p>ลงชื่อ .......................................</p>
+          <p className="mt-1">( {signers[1].name || '..........................................'} )</p>
+          <p>{signers[1].position || 'ผู้อำนวยการกองช่าง'}</p>
+        </div>
+        <div>
+          <p className="font-semibold mb-6">ความเห็นปลัดฯ</p>
+          <p>ลงชื่อ .......................................</p>
+          <p className="mt-1">( .......................................... )</p>
+          <p>ปลัดองค์การบริหารส่วนตำบลแม่ใส</p>
+        </div>
+        <div>
+          <p className="font-semibold">ความเห็นนายกฯ</p>
+          <p>☐ อนุมัติ&nbsp;&nbsp;&nbsp;☐ ไม่อนุมัติ</p>
+          <p className="mt-4">ลงชื่อ .......................................</p>
+          <p className="mt-1">( .......................................... )</p>
+          <p>นายกองค์การบริหารส่วนตำบลแม่ใส</p>
+        </div>
+      </div>
+
+      <p className="mt-4 font-semibold">วัสดุอุปกรณ์ที่นำไปใช้ มีดังนี้</p>
+      <table className="w-full border-collapse text-[11px] mt-1">
+        <thead>
+          <tr>
+            <th className="border border-black p-1 w-12">ลำดับ</th>
+            <th className="border border-black p-1">รายการ</th>
+            <th className="border border-black p-1 w-32">จำนวน</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 && (
+            <tr><td className="border border-black p-1 text-center text-gray-400" colSpan={3}>— ยังไม่มีรายการวัสดุ —</td></tr>
+          )}
+          {rows.map((t, idx) => (
+            <tr key={t._id ?? idx}>
+              <td className="border border-black p-1 text-center">{idx + 1}</td>
+              <td className="border border-black p-1">{t.itemName}</td>
+              <td className="border border-black p-1 text-center">{t.qty.toLocaleString()} {t.unit}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="flex justify-between mt-6 gap-6">
+        <div className="flex-1 space-y-1">
+          <p>☐ ได้ดำเนินการแล้ว เมื่อวันที่ ......./......./.......</p>
+          <p>☐ ตรวจสอบแล้วใช้งานได้</p>
+          <p>☐ แจ้งการซ่อม/ติดตั้งให้ผู้แจ้งทราบเรียบร้อยแล้ว</p>
+        </div>
+        <div className="text-center">
+          <p>ลงชื่อ .......................................</p>
+          <p className="mt-1">ผู้ยื่นคำร้อง</p>
+          <p className="mt-1">วันที่ ......./......./.......</p>
+        </div>
+      </div>
+    </>
+  )
+}
+
 // Thai fiscal year (Buddhist): Oct 1 - Sep 30. Oct-Dec belongs to the *next* fiscal year.
 function fiscalYearOf(dateInput) {
   const d = new Date(dateInput)
@@ -1292,6 +1403,23 @@ export default function ElectricalStockPage() {
                           </div>
                         </div>
                         <p className="text-[11px] text-gray-400">รายการวัสดุอุปกรณ์ที่นำไปใช้จะดึงจากตารางรายการวัสดุด้านล่างให้อัตโนมัติ — ไม่ต้องกรอกซ้ำ ส่วนลายเซ็น/ความเห็นผู้อำนวยการกองช่าง/ปลัดฯ/นายกฯ และผลการดำเนินการ จะเว้นว่างไว้ให้เซ็นด้วยมือหลังพิมพ์เหมือนเดิม</p>
+
+                        <div>
+                          <p className="text-[11px] font-semibold text-gray-500 mb-1">👀 ตัวอย่างแบบฟอร์มที่จะพิมพ์ (อัปเดตตามที่พิมพ์ด้านบน)</p>
+                          <div className="bg-white border border-gray-200 rounded-lg p-4 text-[11px] leading-relaxed overflow-x-auto">
+                            <ElectricalRequestDoc
+                              request={electricalRequestForm}
+                              dateLabel={thaiDateShort(entryForm.date)}
+                              rows={entryForm.rows
+                                .filter(r => r.itemId && Number(r.qty) > 0)
+                                .map(row => {
+                                  const item = items.find(i => i._id === row.itemId)
+                                  return { itemName: item?.name || '', qty: Number(row.qty) || 0, unit: item?.unit || '' }
+                                })}
+                              signers={signers}
+                            />
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1801,110 +1929,7 @@ export default function ElectricalStockPage() {
       {/* ── Print-only: แบบคำร้องงานไฟฟ้า (ไฟฟ้า category only — material list shared with the ใบเบิกวัสดุ above, entered once) ── */}
       {printMode === 'electricalRequest' && lastElectricalRequest && (
       <div className="print-only p-6 text-black text-[11px] leading-relaxed">
-        <p>ที่พิเศษ/ {lastElectricalRequest.docNo || '.....'}</p>
-        <h1 className="text-center text-base font-bold my-1">แบบคำร้องงานไฟฟ้า</h1>
-        <p className="text-right">เขียนที่ กองช่าง องค์การบริหารส่วนตำบลแม่ใส</p>
-        <p className="text-right mb-2">วันที่ {withdrawPrintDateLabel}</p>
-
-        {(() => {
-          const subjectLabel = {
-            'ซ่อมไฟฟ้าสาธารณะ': 'แจ้งซ่อมไฟฟ้าสาธารณะ',
-            'เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ': 'ขอเพิ่มจุดติดตั้งไฟฟ้าสาธารณะ',
-          }
-          const box = v => lastElectricalRequest.subject === v ? '☑' : '☐'
-          return (
-            <>
-              <p className="mb-1">
-                เรื่อง {box('ซ่อมไฟฟ้าสาธารณะ')} {subjectLabel['ซ่อมไฟฟ้าสาธารณะ']}
-                {'  '}{box('เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ')} {subjectLabel['เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ']}
-              </p>
-              <p className="mb-1">
-                {box('ซ่อมระบบไฟฟ้าประปาหมู่บ้าน')} แจ้งซ่อมระบบไฟฟ้าของประปาหมู่บ้าน หมู่ที่ {lastElectricalRequest.subject === 'ซ่อมระบบไฟฟ้าประปาหมู่บ้าน' ? (lastElectricalRequest.subjectMoo || '.....') : '.....'} ตำบลแม่ใส
-              </p>
-              <p className="mb-2">
-                {box('อื่นๆ')} อื่นๆ {lastElectricalRequest.subject === 'อื่นๆ' ? lastElectricalRequest.subjectOther : ''}
-              </p>
-            </>
-          )
-        })()}
-
-        <p>เรียน นายกองค์การบริหารส่วนตำบลแม่ใส</p>
-        <p className="mb-1">
-          ข้าพเจ้า {lastElectricalRequest.requesterName || '.....'} บ้านเลขที่ {lastElectricalRequest.requesterHouseNo || '.....'} หมู่ที่ {lastElectricalRequest.requesterMoo || '.....'} ตำบล{lastElectricalRequest.requesterTambon} อำเภอ{lastElectricalRequest.requesterAmphoe} จังหวัด{lastElectricalRequest.requesterProvince}
-        </p>
-        <p className="mb-2">หมายเลขโทรศัพท์ {lastElectricalRequest.requesterPhone || '.....'}</p>
-
-        <p className="mb-1">เนื่องจาก {lastElectricalRequest.reason || '.....'} ดังนี้</p>
-        <p>จุดที่ ๑ {lastElectricalRequest.point1 || '.....'}</p>
-        <p>จุดที่ ๒ {lastElectricalRequest.point2 || '.....'}</p>
-        <p className="mb-3">จุดที่ ๓ {lastElectricalRequest.point3 || '.....'}</p>
-
-        <div className="flex justify-around mt-8 text-center">
-          <div>
-            <p>ลงชื่อ ....................................................... ผู้ยื่นคำร้อง</p>
-            <p className="mt-1">( {lastElectricalRequest.requesterName || '.......................'} )</p>
-          </div>
-          <div>
-            <p>ลงชื่อ ....................................................... ผู้เสนอ</p>
-            <p className="mt-1">( {signers[0].name} )</p>
-            <p>{signers[0].position}</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-3 mt-8 border-t border-black pt-2">
-          <div>
-            <p className="font-semibold mb-6">ความเห็นผู้อำนวยการกองช่าง</p>
-            <p>ลงชื่อ .......................................</p>
-            <p className="mt-1">( {signers[1].name || '..........................................'} )</p>
-            <p>{signers[1].position || 'ผู้อำนวยการกองช่าง'}</p>
-          </div>
-          <div>
-            <p className="font-semibold mb-6">ความเห็นปลัดฯ</p>
-            <p>ลงชื่อ .......................................</p>
-            <p className="mt-1">( .......................................... )</p>
-            <p>ปลัดองค์การบริหารส่วนตำบลแม่ใส</p>
-          </div>
-          <div>
-            <p className="font-semibold">ความเห็นนายกฯ</p>
-            <p>☐ อนุมัติ&nbsp;&nbsp;&nbsp;☐ ไม่อนุมัติ</p>
-            <p className="mt-4">ลงชื่อ .......................................</p>
-            <p className="mt-1">( .......................................... )</p>
-            <p>นายกองค์การบริหารส่วนตำบลแม่ใส</p>
-          </div>
-        </div>
-
-        <p className="mt-4 font-semibold">วัสดุอุปกรณ์ที่นำไปใช้ มีดังนี้</p>
-        <table className="w-full border-collapse text-[11px] mt-1">
-          <thead>
-            <tr>
-              <th className="border border-black p-1 w-12">ลำดับ</th>
-              <th className="border border-black p-1">รายการ</th>
-              <th className="border border-black p-1 w-32">จำนวน</th>
-            </tr>
-          </thead>
-          <tbody>
-            {withdrawPrintRows.map((t, idx) => (
-              <tr key={t._id ?? idx}>
-                <td className="border border-black p-1 text-center">{idx + 1}</td>
-                <td className="border border-black p-1">{t.itemName}</td>
-                <td className="border border-black p-1 text-center">{t.qty.toLocaleString()} {t.unit}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <div className="flex justify-between mt-6 gap-6">
-          <div className="flex-1 space-y-1">
-            <p>☐ ได้ดำเนินการแล้ว เมื่อวันที่ ......./......./.......</p>
-            <p>☐ ตรวจสอบแล้วใช้งานได้</p>
-            <p>☐ แจ้งการซ่อม/ติดตั้งให้ผู้แจ้งทราบเรียบร้อยแล้ว</p>
-          </div>
-          <div className="text-center">
-            <p>ลงชื่อ .......................................</p>
-            <p className="mt-1">ผู้ยื่นคำร้อง</p>
-            <p className="mt-1">วันที่ ......./......./.......</p>
-          </div>
-        </div>
+        <ElectricalRequestDoc request={lastElectricalRequest} dateLabel={withdrawPrintDateLabel} rows={withdrawPrintRows} signers={signers} />
       </div>
       )}
 
