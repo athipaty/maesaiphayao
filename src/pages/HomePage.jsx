@@ -186,17 +186,17 @@ function AnnouncementSection({ items, label, to, kind, gradient, icon, onLightbo
         </div>
       </Reveal>
 
-      {/* Desktop only, static 3×3 grid, latest 9 items */}
+      {/* Desktop only, static 2×3 grid (2 large cards per row), latest 6 items */}
       <Reveal>
         <div className="hidden lg:block card p-0 overflow-hidden">
-          <div className="grid grid-cols-3 gap-4 p-5">
-            {items.slice(0, 9).map((item, i) => (
+          <div className="grid grid-cols-2 gap-5 p-5">
+            {items.slice(0, 6).map((item, i) => (
             <div key={i}
               onClick={() => item.image ? onLightbox(item) : item.fileUrl && window.open(item.fileUrl, '_blank')}
               className="rounded-xl overflow-hidden border border-gray-100 shadow-sm group bg-white hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
             >
               <div className="relative overflow-hidden" style={{
-                height: '300px',
+                height: '520px',
                 background: item.image ? '#f1f5f9' : gradient
               }}>
                 {item.image ? (
