@@ -156,23 +156,23 @@ function ElectricalRequestDoc({ request, dateLabel, rows, signers }) {
       <div className="grid grid-cols-2 gap-4 mt-4 items-start">
         <div>
           <p className="font-semibold mb-1">วัสดุอุปกรณ์ที่นำไปใช้ มีดังนี้</p>
-          <table className="w-full border-collapse text-[11px]">
+          <table className="w-full border-collapse text-[9px]">
             <thead>
               <tr>
-                <th className="border border-black p-1 w-8">ลำดับ</th>
-                <th className="border border-black p-1">รายการ</th>
-                <th className="border border-black p-1 w-12">จำนวน</th>
+                <th className="border border-black p-0.5 w-8">ลำดับ</th>
+                <th className="border border-black p-0.5">รายการ</th>
+                <th className="border border-black p-0.5 w-12">จำนวน</th>
               </tr>
             </thead>
             <tbody>
               {rows.length === 0 && (
-                <tr><td className="border border-black p-1 text-center text-gray-400" colSpan={3}>— ยังไม่มีรายการวัสดุ —</td></tr>
+                <tr><td className="border border-black p-0.5 text-center text-gray-400" colSpan={3}>— ยังไม่มีรายการวัสดุ —</td></tr>
               )}
               {rows.map((t, idx) => (
                 <tr key={t._id ?? idx}>
-                  <td className="border border-black p-1 text-center">{idx + 1}</td>
-                  <td className="border border-black p-1">{t.itemName}</td>
-                  <td className="border border-black p-1 text-center">{t.qty.toLocaleString()} {t.unit}</td>
+                  <td className="border border-black p-0.5 text-center">{idx + 1}</td>
+                  <td className="border border-black p-0.5">{t.itemName}</td>
+                  <td className="border border-black p-0.5 text-center">{t.qty.toLocaleString()} {t.unit}</td>
                 </tr>
               ))}
             </tbody>
