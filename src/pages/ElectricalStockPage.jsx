@@ -1522,7 +1522,7 @@ export default function ElectricalStockPage() {
                   )}
                   {entryForm.type === 'จ่าย' && lastElectricalRequest && (
                     <button type="button"
-                      onClick={() => triggerPrint('electricalRequest')}
+                      onClick={() => { setWithdrawPrintSource('entry'); triggerPrint('electricalRequest') }}
                       className="text-xs px-3 py-1.5 rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary bg-white font-medium transition-colors">
                       🖨️ พิมพ์แบบคำร้องงานไฟฟ้า (รายการที่เพิ่งบันทึก)
                     </button>
