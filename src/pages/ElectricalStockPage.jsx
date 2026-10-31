@@ -72,13 +72,25 @@ function todayStr() {
   return new Date().toISOString().slice(0, 10)
 }
 
+// Wraps admin-typed text in blue on the live on-screen preview so it's easy to tell "what I
+// just typed" from the form's static boilerplate — print stays plain black/white, so callers
+// only ever pass highlight=true for the on-screen preview, never for the print-only version.
+function Filled({ text, fallback = '.....', highlight }) {
+  if (!text) return fallback
+  return highlight ? <span className="text-blue-600 font-semibold">{text}</span> : text
+}
+
 // Shared markup for แบบคำร้องงานไฟฟ้า — used both for the live on-screen draft preview
-// (fed with the entry form's current, unsaved values) and the print-only slip (fed with the
-// last submitted batch), so the two never drift apart.
+// (fed with the entry form's current, unsaved values, highlight=true) and the print-only slip
+// (fed with the last submitted batch, highlight=false/omitted), so the two never drift apart.
 // The paper form repeats this same three-line checkbox block twice (once under "เรื่อง",
 // once under "ข้าพเจ้ามีความประสงค์") — kept as one piece so both copies stay identical.
-function SubjectCheckboxes({ request, leadIn }) {
-  const box = v => request.subject === v ? '☑' : '☐'
+function SubjectCheckboxes({ request, leadIn, highlight }) {
+  const box = v => {
+    const checked = request.subject === v
+    const mark = checked ? '☑' : '☐'
+    return checked && highlight ? <span className="text-blue-600 font-semibold">{mark}</span> : mark
+  }
   return (
     <>
       <div className="grid grid-cols-2 gap-x-2">
@@ -86,43 +98,43 @@ function SubjectCheckboxes({ request, leadIn }) {
         <p>{box('เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ')} ขอเพิ่มจุดติดตั้งไฟฟ้าสาธารณะ</p>
       </div>
       <p>
-        {box('ซ่อมระบบไฟฟ้าประปาหมู่บ้าน')} แจ้งซ่อมระบบไฟฟ้าของประปาหมู่บ้าน หมู่ที่ {request.subject === 'ซ่อมระบบไฟฟ้าประปาหมู่บ้าน' ? (request.subjectMoo || '.....') : '.....'} ตำบลแม่ใส
+        {box('ซ่อมระบบไฟฟ้าประปาหมู่บ้าน')} แจ้งซ่อมระบบไฟฟ้าของประปาหมู่บ้าน หมู่ที่ {request.subject === 'ซ่อมระบบไฟฟ้าประปาหมู่บ้าน' ? <Filled text={request.subjectMoo} highlight={highlight} /> : '.....'} ตำบลแม่ใส
       </p>
-      <p>{box('อื่นๆ')} อื่นๆ {request.subject === 'อื่นๆ' ? request.subjectOther : ''}</p>
+      <p>{box('อื่นๆ')} อื่นๆ {request.subject === 'อื่นๆ' ? <Filled text={request.subjectOther} fallback="" highlight={highlight} /> : ''}</p>
     </>
   )
 }
 
-function ElectricalRequestDoc({ request, dateLabel, rows, signers }) {
+function ElectricalRequestDoc({ request, dateLabel, rows, signers, highlight = false }) {
   return (
     <>
-      <p>ที่พิเศษ/ {request.docNo || '.....'}</p>
+      <p>ที่พิเศษ/ <Filled text={request.docNo} highlight={highlight} /></p>
       <h1 className="text-center text-base font-bold my-1">แบบคำร้องงานไฟฟ้า</h1>
       <p className="text-right">เขียนที่ กองช่าง องค์การบริหารส่วนตำบลแม่ใส</p>
-      <p className="text-right mb-2">วันที่ {dateLabel}</p>
+      <p className="text-right mb-2">วันที่ <Filled text={dateLabel} highlight={highlight} /></p>
 
       <div className="mb-2 space-y-0.5">
-        <SubjectCheckboxes request={request} leadIn="เรื่อง " />
+        <SubjectCheckboxes request={request} leadIn="เรื่อง " highlight={highlight} />
       </div>
 
       <p>เรียน นายกองค์การบริหารส่วนตำบลแม่ใส</p>
       <p className="mb-1">
-        ข้าพเจ้า {request.requesterName || '.....'} บ้านเลขที่ {request.requesterHouseNo || '.....'} หมู่ที่ {request.requesterMoo || '.....'} ตำบล{request.requesterTambon} อำเภอ{request.requesterAmphoe} จังหวัด{request.requesterProvince}
+        ข้าพเจ้า <Filled text={request.requesterName} highlight={highlight} /> บ้านเลขที่ <Filled text={request.requesterHouseNo} highlight={highlight} /> หมู่ที่ <Filled text={request.requesterMoo} highlight={highlight} /> ตำบล<Filled text={request.requesterTambon} highlight={highlight} /> อำเภอ<Filled text={request.requesterAmphoe} highlight={highlight} /> จังหวัด<Filled text={request.requesterProvince} highlight={highlight} />
       </p>
-      <p className="mb-1">หมายเลขโทรศัพท์ {request.requesterPhone || '.....'} &nbsp;&nbsp;&nbsp;ข้าพเจ้ามีความประสงค์</p>
+      <p className="mb-1">หมายเลขโทรศัพท์ <Filled text={request.requesterPhone} highlight={highlight} /> &nbsp;&nbsp;&nbsp;ข้าพเจ้ามีความประสงค์</p>
       <div className="mb-2 space-y-0.5">
-        <SubjectCheckboxes request={request} />
+        <SubjectCheckboxes request={request} highlight={highlight} />
       </div>
 
-      <p className="mb-1">เนื่องจาก {request.reason || '.....'} ดังนี้</p>
-      <p>จุดที่ ๑ {request.point1 || '.....'}</p>
-      <p>จุดที่ ๒ {request.point2 || '.....'}</p>
-      <p className="mb-3">จุดที่ ๓ {request.point3 || '.....'}</p>
+      <p className="mb-1">เนื่องจาก <Filled text={request.reason} highlight={highlight} /> ดังนี้</p>
+      <p>จุดที่ ๑ <Filled text={request.point1} highlight={highlight} /></p>
+      <p>จุดที่ ๒ <Filled text={request.point2} highlight={highlight} /></p>
+      <p className="mb-3">จุดที่ ๓ <Filled text={request.point3} highlight={highlight} /></p>
 
       <div className="flex justify-around mt-8 text-center">
         <div>
           <p>ลงชื่อ ....................................................... ผู้ยื่นคำร้อง</p>
-          <p className="mt-1">( {request.requesterName || '.......................'} )</p>
+          <p className="mt-1">( <Filled text={request.requesterName} fallback="......................." highlight={highlight} /> )</p>
         </div>
         <div>
           <p>ลงชื่อ ....................................................... ผู้เสนอ</p>
@@ -171,8 +183,8 @@ function ElectricalRequestDoc({ request, dateLabel, rows, signers }) {
               {rows.map((t, idx) => (
                 <tr key={t._id ?? idx}>
                   <td className="border border-black p-0.5 text-center">{idx + 1}</td>
-                  <td className="border border-black p-0.5">{t.itemName}</td>
-                  <td className="border border-black p-0.5 text-center">{t.qty.toLocaleString()} {t.unit}</td>
+                  <td className={`border border-black p-0.5 ${highlight ? 'text-blue-600 font-semibold' : ''}`}>{t.itemName}</td>
+                  <td className={`border border-black p-0.5 text-center ${highlight ? 'text-blue-600 font-semibold' : ''}`}>{t.qty.toLocaleString()} {t.unit}</td>
                 </tr>
               ))}
             </tbody>
@@ -1428,6 +1440,7 @@ export default function ElectricalStockPage() {
                                   return { itemName: item?.name || '', qty: Number(row.qty) || 0, unit: item?.unit || '' }
                                 })}
                               signers={signers}
+                              highlight
                             />
                           </div>
                         </div>
