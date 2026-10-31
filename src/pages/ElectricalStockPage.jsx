@@ -75,12 +75,25 @@ function todayStr() {
 // Shared markup for แบบคำร้องงานไฟฟ้า — used both for the live on-screen draft preview
 // (fed with the entry form's current, unsaved values) and the print-only slip (fed with the
 // last submitted batch), so the two never drift apart.
-function ElectricalRequestDoc({ request, dateLabel, rows, signers }) {
-  const subjectLabel = {
-    'ซ่อมไฟฟ้าสาธารณะ': 'แจ้งซ่อมไฟฟ้าสาธารณะ',
-    'เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ': 'ขอเพิ่มจุดติดตั้งไฟฟ้าสาธารณะ',
-  }
+// The paper form repeats this same three-line checkbox block twice (once under "เรื่อง",
+// once under "ข้าพเจ้ามีความประสงค์") — kept as one piece so both copies stay identical.
+function SubjectCheckboxes({ request, leadIn }) {
   const box = v => request.subject === v ? '☑' : '☐'
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-x-2">
+        <p>{leadIn}{box('ซ่อมไฟฟ้าสาธารณะ')} แจ้งซ่อมไฟฟ้าสาธารณะ</p>
+        <p>{box('เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ')} ขอเพิ่มจุดติดตั้งไฟฟ้าสาธารณะ</p>
+      </div>
+      <p>
+        {box('ซ่อมระบบไฟฟ้าประปาหมู่บ้าน')} แจ้งซ่อมระบบไฟฟ้าของประปาหมู่บ้าน หมู่ที่ {request.subject === 'ซ่อมระบบไฟฟ้าประปาหมู่บ้าน' ? (request.subjectMoo || '.....') : '.....'} ตำบลแม่ใส
+      </p>
+      <p>{box('อื่นๆ')} อื่นๆ {request.subject === 'อื่นๆ' ? request.subjectOther : ''}</p>
+    </>
+  )
+}
+
+function ElectricalRequestDoc({ request, dateLabel, rows, signers }) {
   return (
     <>
       <p>ที่พิเศษ/ {request.docNo || '.....'}</p>
@@ -88,22 +101,18 @@ function ElectricalRequestDoc({ request, dateLabel, rows, signers }) {
       <p className="text-right">เขียนที่ กองช่าง องค์การบริหารส่วนตำบลแม่ใส</p>
       <p className="text-right mb-2">วันที่ {dateLabel}</p>
 
-      <p className="mb-1">
-        เรื่อง {box('ซ่อมไฟฟ้าสาธารณะ')} {subjectLabel['ซ่อมไฟฟ้าสาธารณะ']}
-        {'  '}{box('เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ')} {subjectLabel['เพิ่มจุดติดตั้งไฟฟ้าสาธารณะ']}
-      </p>
-      <p className="mb-1">
-        {box('ซ่อมระบบไฟฟ้าประปาหมู่บ้าน')} แจ้งซ่อมระบบไฟฟ้าของประปาหมู่บ้าน หมู่ที่ {request.subject === 'ซ่อมระบบไฟฟ้าประปาหมู่บ้าน' ? (request.subjectMoo || '.....') : '.....'} ตำบลแม่ใส
-      </p>
-      <p className="mb-2">
-        {box('อื่นๆ')} อื่นๆ {request.subject === 'อื่นๆ' ? request.subjectOther : ''}
-      </p>
+      <div className="mb-2 space-y-0.5">
+        <SubjectCheckboxes request={request} leadIn="เรื่อง " />
+      </div>
 
       <p>เรียน นายกองค์การบริหารส่วนตำบลแม่ใส</p>
       <p className="mb-1">
         ข้าพเจ้า {request.requesterName || '.....'} บ้านเลขที่ {request.requesterHouseNo || '.....'} หมู่ที่ {request.requesterMoo || '.....'} ตำบล{request.requesterTambon} อำเภอ{request.requesterAmphoe} จังหวัด{request.requesterProvince}
       </p>
-      <p className="mb-2">หมายเลขโทรศัพท์ {request.requesterPhone || '.....'}</p>
+      <p className="mb-1">หมายเลขโทรศัพท์ {request.requesterPhone || '.....'} &nbsp;&nbsp;&nbsp;ข้าพเจ้ามีความประสงค์</p>
+      <div className="mb-2 space-y-0.5">
+        <SubjectCheckboxes request={request} />
+      </div>
 
       <p className="mb-1">เนื่องจาก {request.reason || '.....'} ดังนี้</p>
       <p>จุดที่ ๑ {request.point1 || '.....'}</p>
