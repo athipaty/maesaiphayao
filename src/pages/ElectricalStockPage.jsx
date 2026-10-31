@@ -159,9 +159,9 @@ function ElectricalRequestDoc({ request, dateLabel, rows, signers }) {
           <table className="w-full border-collapse text-[11px]">
             <thead>
               <tr>
-                <th className="border border-black p-1 w-10">ลำดับ</th>
+                <th className="border border-black p-1 w-8">ลำดับ</th>
                 <th className="border border-black p-1">รายการ</th>
-                <th className="border border-black p-1 w-24">จำนวน</th>
+                <th className="border border-black p-1 w-12">จำนวน</th>
               </tr>
             </thead>
             <tbody>
