@@ -15,10 +15,26 @@ const EGP_TYPES = [
   { key: 'B0', label: 'ร่างประกวดราคา' },
 ]
 
+// Lists show this many rows at first; each "ดูเพิ่มเติม" click reveals another batch
+const PAGE_SIZE = 30
+
+function ShowMoreButton({ total, shown, onClick }) {
+  if (shown >= total) return null
+  return (
+    <div className="px-4 py-3 border-t border-gray-100 text-center">
+      <button onClick={onClick}
+        className="text-xs font-semibold text-secondary border border-secondary/40 bg-white px-4 py-1.5 rounded-full hover:bg-secondary hover:text-white transition-colors">
+        ดูเพิ่มเติม (เหลืออีก {total - shown} รายการ) ▾
+      </button>
+    </div>
+  )
+}
+
 function LocalTab() {
   const [items, setItems]     = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState('')
+  const [shown, setShown]     = useState(PAGE_SIZE)
 
   useEffect(() => {
     getProcurement({})
@@ -34,8 +50,9 @@ function LocalTab() {
   const hasSummary = items.some(i => i.winner || i.amount != null)
 
   return (
+    <div>
     <div className="divide-y divide-gray-50">
-      {items.map((item, idx) => {
+      {items.slice(0, shown).map((item, idx) => {
         const href = item.externalUrl || item.fileUrl || null
         const hasResult = item.winner || item.amount != null
         return (
@@ -69,6 +86,8 @@ function LocalTab() {
         )
       })}
     </div>
+    <ShowMoreButton total={items.length} shown={shown} onClick={() => setShown(n => n + PAGE_SIZE)} />
+    </div>
   )
 }
 
@@ -83,6 +102,7 @@ function EgpTab() {
   const [feed, setFeed]               = useState({})  // { unreachable, open, hours } from the backend
   const [tick, setTick]               = useState(0)  // bump to force re-fetch
   const [pdfOpen, setPdfOpen]         = useState({})
+  const [shown, setShown]             = useState(PAGE_SIZE)
 
   function togglePdf(id) {
     setPdfOpen(s => ({ ...s, [id]: !s[id] }))
@@ -95,6 +115,7 @@ function EgpTab() {
     setStaleAt(null)
     setFetchedAt(null)
     setFeed({})
+    setShown(PAGE_SIZE)
     const params = anounceType ? { anounceType } : {}
     getEgpRss(params)
       .then(r => {
@@ -190,8 +211,9 @@ function EgpTab() {
             : <>ยังไม่มีข้อมูลที่ดึงจากระบบ e-GP<p className="text-xs mt-2">ระบบจะดึงข้อมูลให้อัตโนมัติช่วง {feed.hours || '17:01–08:59 น.'}</p></>}
         </div>
       ) : items.length === 0 ? null : (
+        <div>
         <div className="divide-y divide-gray-50">
-          {items.map((item, i) => {
+          {items.slice(0, shown).map((item, i) => {
             const id = item._id || i
             const open = pdfOpen[id]
             return (
@@ -235,6 +257,8 @@ function EgpTab() {
               </div>
             )
           })}
+        </div>
+        <ShowMoreButton total={items.length} shown={shown} onClick={() => setShown(n => n + PAGE_SIZE)} />
         </div>
       )}
     </div>
