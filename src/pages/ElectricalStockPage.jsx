@@ -153,39 +153,41 @@ function ElectricalRequestDoc({ request, dateLabel, rows, signers }) {
         </div>
       </div>
 
-      <p className="mt-4 font-semibold">วัสดุอุปกรณ์ที่นำไปใช้ มีดังนี้</p>
-      <table className="w-full border-collapse text-[11px] mt-1">
-        <thead>
-          <tr>
-            <th className="border border-black p-1 w-12">ลำดับ</th>
-            <th className="border border-black p-1">รายการ</th>
-            <th className="border border-black p-1 w-32">จำนวน</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.length === 0 && (
-            <tr><td className="border border-black p-1 text-center text-gray-400" colSpan={3}>— ยังไม่มีรายการวัสดุ —</td></tr>
-          )}
-          {rows.map((t, idx) => (
-            <tr key={t._id ?? idx}>
-              <td className="border border-black p-1 text-center">{idx + 1}</td>
-              <td className="border border-black p-1">{t.itemName}</td>
-              <td className="border border-black p-1 text-center">{t.qty.toLocaleString()} {t.unit}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="grid grid-cols-2 gap-4 mt-4 items-start">
+        <div>
+          <p className="font-semibold mb-1">วัสดุอุปกรณ์ที่นำไปใช้ มีดังนี้</p>
+          <table className="w-full border-collapse text-[11px]">
+            <thead>
+              <tr>
+                <th className="border border-black p-1 w-10">ลำดับ</th>
+                <th className="border border-black p-1">รายการ</th>
+                <th className="border border-black p-1 w-24">จำนวน</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.length === 0 && (
+                <tr><td className="border border-black p-1 text-center text-gray-400" colSpan={3}>— ยังไม่มีรายการวัสดุ —</td></tr>
+              )}
+              {rows.map((t, idx) => (
+                <tr key={t._id ?? idx}>
+                  <td className="border border-black p-1 text-center">{idx + 1}</td>
+                  <td className="border border-black p-1">{t.itemName}</td>
+                  <td className="border border-black p-1 text-center">{t.qty.toLocaleString()} {t.unit}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      <div className="flex justify-between mt-6 gap-6">
-        <div className="flex-1 space-y-1">
+        <div className="border border-black p-2 space-y-1">
           <p>☐ ได้ดำเนินการแล้ว เมื่อวันที่ ......./......./.......</p>
           <p>☐ ตรวจสอบแล้วใช้งานได้</p>
           <p>☐ แจ้งการซ่อม/ติดตั้งให้ผู้แจ้งทราบเรียบร้อยแล้ว</p>
-        </div>
-        <div className="text-center">
-          <p>ลงชื่อ .......................................</p>
-          <p className="mt-1">ผู้ยื่นคำร้อง</p>
-          <p className="mt-1">วันที่ ......./......./.......</p>
+          <div className="text-center pt-3">
+            <p>(ลงชื่อ) .......................................</p>
+            <p className="mt-1">ผู้ยื่นคำร้อง</p>
+            <p className="mt-1">วันที่ ......./......./.......</p>
+          </div>
         </div>
       </div>
     </>
