@@ -74,7 +74,12 @@ const AdminContactMessages   = lazy(() => import("./pages/admin/AdminContactMess
 const AdminFeedback          = lazy(() => import("./pages/admin/AdminFeedback"));
 const AdminSurvey            = lazy(() => import("./pages/admin/AdminSurvey"));
 
+// Admin and the stock system are separate apps opened in a new tab (fresh sessionStorage),
+// so the public-site splash would otherwise greet staff every time they open them.
+const NO_SPLASH_PREFIXES = ["/admin", "/stock"];
+
 export default function App() {
+  const { pathname } = useLocation();
   const [showSplash, setShowSplash] = useState(
     () => !sessionStorage.getItem("splash_seen"),
   );
@@ -86,7 +91,7 @@ export default function App() {
 
   return (
     <>
-      {showSplash && <SplashPage onEnter={handleEnter} />}
+      {showSplash && !NO_SPLASH_PREFIXES.some(p => pathname.startsWith(p)) && <SplashPage onEnter={handleEnter} />}
 
       <ScrollToTop />
       <Routes>
