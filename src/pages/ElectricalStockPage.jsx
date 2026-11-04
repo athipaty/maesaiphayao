@@ -614,6 +614,30 @@ export default function ElectricalStockPage() {
   // what the rest of the dashboard is currently showing.
   const balanceAuditActive = useMemo(() => balanceAudit.filter(r => r.category === activeCategory), [balanceAudit, activeCategory])
 
+  // Surfaces exactly why "มูลค่าคงเหลือรวม" (valued at each item's CURRENT unitPrice) never
+  // has to equal "มูลค่ารับเข้าสะสม" minus "มูลค่าเบิกจ่ายสะสม" (each valued at whatever price
+  // was actually in effect when that transaction happened — last-cost, see postTxnRow/the
+  // backend's /stock-transactions route): a item's unitPrice changing on one รับ shifts the
+  // running balance's valuation going forward without rewriting any past transaction's amount.
+  const priceChangeAudit = useMemo(() => {
+    const results = []
+    for (const item of items) {
+      const receives = txns
+        .filter(t => String(t.item) === String(item._id) && t.type === 'รับ')
+        .slice()
+        .sort((a, b) => new Date(a.date) - new Date(b.date) || new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
+      const changes = []
+      for (let i = 1; i < receives.length; i++) {
+        if (receives[i].unitPrice !== receives[i - 1].unitPrice) {
+          changes.push({ from: receives[i - 1].unitPrice, to: receives[i].unitPrice, txn: receives[i] })
+        }
+      }
+      if (changes.length > 0) results.push({ item, category: categoryOf(item), changes })
+    }
+    return results
+  }, [items, txns])
+  const priceChangeAuditActive = useMemo(() => priceChangeAudit.filter(r => r.category === activeCategory), [priceChangeAudit, activeCategory])
+
   // ── Years available for the dropdowns (from transaction dates + current FY, always) ──
   const availableYears = useMemo(() => {
     const set = new Set([currentFY])
@@ -1290,6 +1314,51 @@ export default function ElectricalStockPage() {
                     </li>
                   ))}
                 </ul>
+              )}
+            </div>
+          )}
+
+          {/* Why มูลค่ารับเข้าสะสม/มูลค่าเบิกจ่ายสะสม don't have to net out to มูลค่าคงเหลือรวม:
+              lists every item whose unitPrice changed between one รับ and the next (last-cost
+              valuation — see priceChangeAudit above), with old → new price and when. */}
+          {isAdmin && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <h2 className="text-xs font-bold text-gray-700">
+                  💰 ประวัติราคาต่อหน่วยที่เปลี่ยน — {CATEGORIES.find(c => c.key === activeCategory)?.icon} {CATEGORIES.find(c => c.key === activeCategory)?.label}
+                </h2>
+                {priceChangeAuditActive.length > 0 && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-semibold">
+                    {priceChangeAuditActive.length} รายการ
+                  </span>
+                )}
+              </div>
+              {priceChangeAuditActive.length === 0 ? (
+                <p className="text-center text-gray-400 text-xs py-8">ไม่พบวัสดุที่ราคา/หน่วยเคยเปลี่ยนในหมวดนี้</p>
+              ) : (
+                <>
+                  <p className="px-4 pt-3 text-[11px] text-gray-400">
+                    นี่คือสาเหตุที่มูลค่ารับเข้าสะสม/เบิกจ่ายสะสม ไม่จำเป็นต้องหักลบกันแล้วเท่ากับมูลค่าคงเหลือรวมพอดี — แต่ละรายการด้านล่างบันทึกด้วยราคา ณ ตอนนั้นจริง ส่วนมูลค่าคงเหลือรวมคิดจากราคาปัจจุบันล่าสุดของวัสดุ
+                  </p>
+                  <ul className="divide-y divide-gray-50">
+                    {priceChangeAuditActive.map(({ item, changes }) => (
+                      <li key={item._id} className="px-4 py-3 text-xs">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <span className="font-semibold text-gray-800">[{item.code}] {item.name}</span>
+                          <button onClick={() => setLedgerItem(item)}
+                            className="text-[10px] px-2 py-1 rounded-md bg-slate-50 text-slate-600 hover:bg-slate-100 font-medium transition-colors flex-shrink-0">
+                            📇 ดูบัญชี
+                          </button>
+                        </div>
+                        {changes.map((c, i) => (
+                          <p key={i} className="text-blue-600">
+                            {new Date(c.txn.date).toLocaleDateString('th-TH')} — ราคา/หน่วยเปลี่ยนจาก {money2(c.from)} เป็น {money2(c.to)} บาท (รับเข้า {c.txn.qty.toLocaleString()} {c.txn.unit})
+                          </p>
+                        ))}
+                      </li>
+                    ))}
+                  </ul>
+                </>
               )}
             </div>
           )}
