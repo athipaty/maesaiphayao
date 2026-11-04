@@ -17,7 +17,6 @@ const MENU = [
   { path: '/admin/complaints',    label: 'เรื่องร้องเรียน',      icon: '📮', badgeKey: 'complaints' },
   { path: '/admin/feedback',      label: 'ความคิดเห็น',         icon: '💭', badgeKey: 'feedback' },
   { path: '/admin/survey',        label: 'สำรวจความพึงพอใจ',    icon: '📊' },
-  { path: '/admin/budget',        label: 'งบประมาณ',            icon: '💰' },
   { path: '/admin/banners',       label: 'แบนเนอร์ Footer',     icon: '🎨' },
   { path: '/admin/settings',      label: 'ตั้งค่าเว็บไซต์',    icon: '⚙️' },
   { section: 'ผู้ดูแลระบบ' },

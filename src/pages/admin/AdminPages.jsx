@@ -1379,8 +1379,9 @@ function PageFormModal({ pages, editPage, onClose, onSaved }) {
     showInNavbar: editPage.showInNavbar || false,
   } : { title: '', icon: '📄', parentSlug: '', isActive: true, showInNavbar: false })
   // Only relevant when creating a new entry — lets an existing hardcoded React route (e.g.
-  // /budget, built and edited through its own code/admin screen, not through blocks) get listed
-  // in this menu like any other page, instead of always creating a new blank CMS block page.
+  // /stock/electrical, built and edited through its own code/admin screen, not through blocks)
+  // get listed in this menu like any other page, instead of always creating a new blank CMS
+  // block page.
   const [isExistingRoute, setIsExistingRoute] = useState(false)
   const [existingPath, setExistingPath]       = useState('')
   const [saving, setSaving] = useState(false)
@@ -1391,7 +1392,7 @@ function PageFormModal({ pages, editPage, onClose, onSaved }) {
   async function submit() {
     if (!form.title.trim()) { setErr('กรุณากรอกชื่อเมนู'); return }
     if (!isEdit && isExistingRoute && !existingPath.trim().startsWith('/')) {
-      setErr('กรุณาระบุ path ของหน้าที่มีอยู่แล้ว เช่น /budget'); return
+      setErr('กรุณาระบุ path ของหน้าที่มีอยู่แล้ว เช่น /stock/electrical'); return
     }
     setErr(''); setSaving(true)
     try {
@@ -1444,11 +1445,11 @@ function PageFormModal({ pages, editPage, onClose, onSaved }) {
                 <input type="checkbox" checked={isExistingRoute} onChange={e => setIsExistingRoute(e.target.checked)} className="w-4 h-4 accent-amber-500" />
                 <div>
                   <p className="text-sm font-medium text-amber-800">หน้าที่มีอยู่แล้วในเว็บ</p>
-                  <p className="text-xs text-amber-600">สำหรับหน้าที่เขียนโค้ดไว้แล้ว (เช่น /budget) — เมนูนี้แค่ชี้ไปที่หน้านั้น ไม่สร้างหน้าใหม่</p>
+                  <p className="text-xs text-amber-600">สำหรับหน้าที่เขียนโค้ดไว้แล้ว (เช่น /stock/electrical) — เมนูนี้แค่ชี้ไปที่หน้านั้น ไม่สร้างหน้าใหม่</p>
                 </div>
               </label>
               {isExistingRoute && (
-                <input className={inp} placeholder="path ของหน้า เช่น /budget" value={existingPath}
+                <input className={inp} placeholder="path ของหน้า เช่น /stock/electrical" value={existingPath}
                   onChange={e => setExistingPath(e.target.value)} />
               )}
             </div>
