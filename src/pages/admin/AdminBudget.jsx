@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { getSettings, updateSetting } from '../../services/api'
+import { useState, useEffect, useRef } from 'react'
+import { getSettings, updateSetting, uploadExcel, uploadPdf } from '../../services/api'
 import { DEFAULT_BUDGET_DATA } from '../../utils/budgetDefaults'
 
 function Section({ icon, title, subtitle, children }) {
@@ -147,11 +147,50 @@ export default function AdminBudget() {
           nameKey="year" namePlaceholder="ปี พ.ศ. เช่น 2569" addLabel="เพิ่มปี" />
       </Section>
 
-      <Section icon="📄" title="ลิงก์ดาวน์โหลดเอกสารฉบับเต็ม (PDF)">
-        <input className={inputCls + ' w-full'} value={form.pdfUrl}
-          onChange={e => set('pdfUrl', e.target.value)} placeholder="https://..." />
+      <Section icon="📄" title="เอกสารฉบับเต็ม" subtitle="แนบไฟล์ (PDF/Excel) หรือใส่ลิงก์เองก็ได้ — ใช้สำหรับปุ่มดาวน์โหลดในหน้าเว็บ">
+        <DocumentUpload value={form.pdfUrl} onChange={v => set('pdfUrl', v)} />
       </Section>
 
+    </div>
+  )
+}
+
+function DocumentUpload({ value, onChange }) {
+  const [uploading, setUploading] = useState(false)
+  const [error, setError]         = useState('')
+  const inputRef = useRef(null)
+
+  async function handleFile(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setError('')
+    setUploading(true)
+    try {
+      const isExcel = /\.(xlsx|xls)$/i.test(file.name)
+      const r = isExcel ? await uploadExcel(file) : await uploadPdf(file)
+      onChange(r.data.url)
+    } catch {
+      setError('อัปโหลดไม่สำเร็จ ลองใหม่ หรือวางลิงก์เองด้านล่าง')
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <input className={inputCls + ' w-full'} value={value}
+        onChange={e => onChange(e.target.value)} placeholder="https://... (หรืออัปโหลดไฟล์ด้านล่าง)" />
+      <div className="flex items-center gap-2">
+        <label className={`text-xs px-3 py-2 rounded-lg border border-gray-200 cursor-pointer hover:border-primary/40 transition-colors inline-flex items-center gap-1.5 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+          {uploading ? '⏳ กำลังอัปโหลด...' : '📎 อัปโหลดไฟล์ (PDF/Excel)'}
+          <input ref={inputRef} type="file" accept=".pdf,.xlsx,.xls" className="hidden" onChange={handleFile} disabled={uploading} />
+        </label>
+        {value && (
+          <a href={value} target="_blank" rel="noreferrer" className="text-xs text-blue-500 hover:underline">ตรวจสอบลิงก์ →</a>
+        )}
+      </div>
+      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   )
 }

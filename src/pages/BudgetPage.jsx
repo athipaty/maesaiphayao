@@ -158,7 +158,7 @@ export default function BudgetPage() {
         <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 flex items-center justify-between">
           <div>
             <p className="text-sm font-semibold text-primary">📄 ดาวน์โหลดเอกสารฉบับเต็ม</p>
-            <p className="text-xs text-gray-500 mt-0.5">ข้อบัญญัติงบประมาณรายจ่าย พ.ศ. {fiscalYear} (PDF)</p>
+            <p className="text-xs text-gray-500 mt-0.5">ข้อบัญญัติงบประมาณรายจ่าย พ.ศ. {fiscalYear}</p>
           </div>
           <a href={pdfUrl} target="_blank" rel="noreferrer" className="text-xs bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
             ดาวน์โหลด

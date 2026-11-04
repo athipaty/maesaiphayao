@@ -1378,6 +1378,11 @@ function PageFormModal({ pages, editPage, onClose, onSaved }) {
     parentSlug: editPage.parentSlug || '', isActive: editPage.isActive,
     showInNavbar: editPage.showInNavbar || false,
   } : { title: '', icon: '📄', parentSlug: '', isActive: true, showInNavbar: false })
+  // Only relevant when creating a new entry — lets an existing hardcoded React route (e.g.
+  // /budget, built and edited through its own code/admin screen, not through blocks) get listed
+  // in this menu like any other page, instead of always creating a new blank CMS block page.
+  const [isExistingRoute, setIsExistingRoute] = useState(false)
+  const [existingPath, setExistingPath]       = useState('')
   const [saving, setSaving] = useState(false)
   const [err, setErr]       = useState('')
 
@@ -1385,13 +1390,18 @@ function PageFormModal({ pages, editPage, onClose, onSaved }) {
 
   async function submit() {
     if (!form.title.trim()) { setErr('กรุณากรอกชื่อเมนู'); return }
+    if (!isEdit && isExistingRoute && !existingPath.trim().startsWith('/')) {
+      setErr('กรุณาระบุ path ของหน้าที่มีอยู่แล้ว เช่น /budget'); return
+    }
     setErr(''); setSaving(true)
     try {
       if (isEdit) {
         const r = await updatePage(editPage._id, form); onSaved(r.data)
       } else {
         const slug = 'page-' + Date.now()
-        const r = await createPage({ ...form, slug, path: '/page/'+slug, isBuiltin: false, order: 999, blocks: [] })
+        const r = isExistingRoute
+          ? await createPage({ ...form, slug, path: existingPath.trim(), isBuiltin: true, order: 999, blocks: [] })
+          : await createPage({ ...form, slug, path: '/page/'+slug, isBuiltin: false, order: 999, blocks: [] })
         onSaved(r.data)
       }
       onClose()
@@ -1428,6 +1438,21 @@ function PageFormModal({ pages, editPage, onClose, onSaved }) {
             <input className={inp} placeholder="เช่น บริการประชาชน" value={form.title} onChange={e => set('title', e.target.value)}
               onKeyDown={e => e.key === 'Enter' && submit()} />
           </div>
+          {!isEdit && (
+            <div className="space-y-2">
+              <label className="flex items-center gap-3 cursor-pointer bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
+                <input type="checkbox" checked={isExistingRoute} onChange={e => setIsExistingRoute(e.target.checked)} className="w-4 h-4 accent-amber-500" />
+                <div>
+                  <p className="text-sm font-medium text-amber-800">หน้าที่มีอยู่แล้วในเว็บ</p>
+                  <p className="text-xs text-amber-600">สำหรับหน้าที่เขียนโค้ดไว้แล้ว (เช่น /budget) — เมนูนี้แค่ชี้ไปที่หน้านั้น ไม่สร้างหน้าใหม่</p>
+                </div>
+              </label>
+              {isExistingRoute && (
+                <input className={inp} placeholder="path ของหน้า เช่น /budget" value={existingPath}
+                  onChange={e => setExistingPath(e.target.value)} />
+              )}
+            </div>
+          )}
           <div>
             <label className="text-xs font-semibold text-gray-600 mb-1.5 block">อยู่ภายใต้เมนู <span className="text-gray-400 font-normal">(ถ้าเป็นเมนูย่อย — ซ้อนได้ {MAX_MENU_DEPTH} ชั้น)</span></label>
             <select className={`${inp}`} value={form.parentSlug} onChange={e => set('parentSlug', e.target.value)}>
