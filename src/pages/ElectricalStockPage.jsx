@@ -552,6 +552,7 @@ export default function ElectricalStockPage() {
 
   const totalValue = useMemo(() => categoryItems.reduce((s, i) => s + (i.balance || 0) * (i.unitPrice || 0), 0), [categoryItems])
   const lowStockItems = useMemo(() => categoryItems.filter(i => (i.balance || 0) <= 0), [categoryItems])
+  const lowStockCount = lowStockItems.length
 
   // All-time totals (not just this fiscal year) — each transaction's `amount` is qty × the
   // price it actually happened at (the item's cost at the time), so summing it stays correct
@@ -563,6 +564,7 @@ export default function ElectricalStockPage() {
   const recentTxns = useMemo(() =>
     categoryTxns.slice().sort((a, b) => new Date(b.date) - new Date(a.date) || new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 8),
     [categoryTxns])
+  const todayTxnCount = useMemo(() => categoryTxns.filter(t => (t.date || '').slice(0, 10) === todayStr()).length, [categoryTxns])
 
   // ── Data integrity audit — across every category, not just the active one, since this is
   // meant to catch the kind of problems already found this way in practice: a transaction
@@ -1144,11 +1146,19 @@ export default function ElectricalStockPage() {
       {/* ── TAB: แดชบอร์ด ── */}
       {tab === 'dashboard' && (
         <div className="space-y-4">
-          {/* KPI cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* KPI cards — row 1: counts, row 2: values */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
               <p className="text-2xl font-bold text-slate-800">{categoryItems.length}</p>
               <p className="text-xs text-gray-400 mt-1">รายการวัสดุทั้งหมด</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+              <p className="text-2xl font-bold text-amber-500">{todayTxnCount}</p>
+              <p className="text-xs text-gray-400 mt-1">รายการเคลื่อนไหววันนี้</p>
+            </div>
+            <div className={`bg-white rounded-xl shadow-sm border p-4 ${lowStockCount > 0 ? 'border-red-200' : 'border-gray-100'}`}>
+              <p className={`text-2xl font-bold ${lowStockCount > 0 ? 'text-red-500' : 'text-slate-800'}`}>{lowStockCount}</p>
+              <p className="text-xs text-gray-400 mt-1">รายการหมดสต๊อก</p>
             </div>
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
               <p className="text-2xl font-bold text-blue-600">฿{totalValue.toLocaleString()}</p>
