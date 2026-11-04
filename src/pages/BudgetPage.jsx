@@ -1,34 +1,28 @@
+import { useState, useEffect } from 'react'
 import PageHeader from '../components/PageHeader'
+import { getSettings } from '../services/api'
+import { DEFAULT_BUDGET_DATA } from '../utils/budgetDefaults'
 
 export default function BudgetPage() {
-  const budgetItems = [
-    { icon: '🏛️', label: 'งบกลาง',       amount: 16951402, pct: 40.4, color: '#3266ad' },
-    { icon: '👥', label: 'งบบุคลากร',    amount: 14053460, pct: 33.5, color: '#0F6E56' },
-    { icon: '⚙️', label: 'งบดำเนินงาน', amount: 9325238,  pct: 22.2, color: '#BA7517' },
-    { icon: '🏗️', label: 'งบลงทุน',     amount: 841900,   pct: 2.0,  color: '#993556' },
-    { icon: '🤝', label: 'งบอุดหนุน',   amount: 828000,   pct: 2.0,  color: '#888780' },
-  ]
+  // Falls back to the same ปี 2570 data the admin form starts from until an admin has actually
+  // saved something via หน้าแอดมิน → งบประมาณ, so the page never shows an empty/broken state.
+  const [data, setData] = useState(DEFAULT_BUDGET_DATA)
 
-  const plans2 = [
-    { name: 'งบกลาง',                               amount: 16951402 },
-    { name: 'บริหารงานทั่วไป',                       amount: 12005998 },
-    { name: 'เคหะและชุมชน',                          amount: 3797900 },
-    { name: 'การศึกษา',                              amount: 3460200 },
-    { name: 'สาธารณสุข',                             amount: 1972000 },
-    { name: 'รักษาความสงบภายใน',                     amount: 1933000 },
-    { name: 'สังคมสงเคราะห์',                        amount: 618000 },
-    { name: 'ศาสนา วัฒนธรรม และนันทนาการ',           amount: 515000 },
-    { name: 'อุตสาหกรรมและการโยธา',                 amount: 300000 },
-    { name: 'การเกษตร',                              amount: 30000 },
-  ]
+  useEffect(() => {
+    getSettings()
+      .then(r => { if (r?.data?.budgetData) setData(r.data.budgetData) })
+      .catch(() => {})
+  }, [])
 
-  const TOTAL = 42000000
+  const { fiscalYear, categories, plans, revenue, yearComparison, pdfUrl } = data
+  const total = categories.reduce((s, c) => s + (Number(c.amount) || 0), 0)
+  const maxYearAmount = Math.max(1, ...yearComparison.map(y => Number(y.amount) || 0))
 
   return (
     <div className="space-y-4">
 
-      <PageHeader icon="📋" title="ข้อบัญญัติงบประมาณรายจ่ายประจำปีงบประมาณ พ.ศ. 2568"
-        desc="งบประมาณรายจ่ายประจำปีขององค์การบริหารส่วนตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา วงเงินรวมทั้งสิ้น 42,000,000 บาท" />
+      <PageHeader icon="📋" title={`ข้อบัญญัติงบประมาณรายจ่ายประจำปีงบประมาณ พ.ศ. ${fiscalYear}`}
+        desc={`งบประมาณรายจ่ายประจำปีขององค์การบริหารส่วนตำบลแม่ใส อำเภอเมืองพะเยา จังหวัดพะเยา วงเงินรวมทั้งสิ้น ${total.toLocaleString()} บาท`} />
 
       {/* Budget summary */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -37,29 +31,23 @@ export default function BudgetPage() {
         <div className="px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-between">
           <div>
             <p className="text-white/70 text-sm">งบประมาณรวมทั้งสิ้น</p>
-            <p className="text-xl sm:text-3xl font-bold mt-1">42,000,000 บาท</p>
+            <p className="text-xl sm:text-3xl font-bold mt-1">{total.toLocaleString()} บาท</p>
           </div>
           <div className="text-4xl sm:text-5xl opacity-30 hidden sm:block">💰</div>
         </div>
 
-        {/* Summary cards */}
-        <div className="p-5 grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <div className="bg-blue-50 rounded-lg p-3 text-center border border-blue-100">
-            <p className="text-xs text-gray-500 mb-1">รายได้จัดเก็บเอง</p>
-            <p className="text-sm font-bold text-primary">713,500</p>
-            <p className="text-xs text-gray-400">บาท (1.7%)</p>
+        {/* Revenue breakdown — only shown once an admin has entered it */}
+        {revenue.length > 0 && (
+          <div className="p-5 grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {revenue.map((r, i) => (
+              <div key={i} className={`rounded-lg p-3 text-center border ${i % 3 === 0 ? 'bg-blue-50 border-blue-100' : i % 3 === 1 ? 'bg-green-50 border-green-100' : 'bg-purple-50 border-purple-100'}`}>
+                <p className="text-xs text-gray-500 mb-1">{r.label}</p>
+                <p className="text-sm font-bold text-primary">{(Number(r.amount) || 0).toLocaleString()}</p>
+                <p className="text-xs text-gray-400">บาท ({total ? ((Number(r.amount) || 0) / total * 100).toFixed(1) : 0}%)</p>
+              </div>
+            ))}
           </div>
-          <div className="bg-green-50 rounded-lg p-3 text-center border border-green-100">
-            <p className="text-xs text-gray-500 mb-1">ภาษีจัดสรรจากรัฐ</p>
-            <p className="text-sm font-bold text-primary">18,756,600</p>
-            <p className="text-xs text-gray-400">บาท (44.7%)</p>
-          </div>
-          <div className="bg-purple-50 rounded-lg p-3 text-center border border-purple-100 col-span-2 sm:col-span-1">
-            <p className="text-xs text-gray-500 mb-1">เงินอุดหนุนจากรัฐ</p>
-            <p className="text-sm font-bold text-primary">22,529,900</p>
-            <p className="text-xs text-gray-400">บาท (53.6%)</p>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* งบตามหมวด */}
@@ -69,21 +57,24 @@ export default function BudgetPage() {
           <h2 className="text-white font-bold text-sm">📊 สัดส่วนงบประมาณรายจ่ายตามหมวด</h2>
         </div>
         <div className="p-5 space-y-4">
-          {budgetItems.map(item => (
-            <div key={item.label}>
-              <div className="flex items-center justify-between mb-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-base">{item.icon}</span>
-                  <span className="text-sm font-medium text-gray-700">{item.label}</span>
-                  <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: item.color }}>{item.pct}%</span>
+          {categories.map(item => {
+            const pct = total ? (Number(item.amount) || 0) / total * 100 : 0
+            return (
+              <div key={item.label}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{item.icon}</span>
+                    <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: item.color }}>{pct.toFixed(1)}%</span>
+                  </div>
+                  <span className="text-sm font-semibold text-gray-800">{(Number(item.amount) || 0).toLocaleString()} บ.</span>
                 </div>
-                <span className="text-sm font-semibold text-gray-800">{item.amount.toLocaleString()} บ.</span>
+                <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: item.color }}></div>
+                </div>
               </div>
-              <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full rounded-full" style={{ width: `${item.pct}%`, background: item.color }}></div>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
@@ -103,16 +94,16 @@ export default function BudgetPage() {
               </tr>
             </thead>
             <tbody>
-              {plans2.map((item, i) => (
+              {plans.map((item, i) => (
                 <tr key={item.name} className={`border-b border-gray-50 ${i % 2 === 0 ? '' : 'bg-gray-50/50'}`}>
                   <td className="px-4 py-2.5 text-gray-700">{item.name}</td>
-                  <td className="px-4 py-2.5 text-right text-gray-800 font-medium">{item.amount.toLocaleString()}</td>
-                  <td className="px-4 py-2.5 text-right text-gray-500">{(item.amount / TOTAL * 100).toFixed(1)}%</td>
+                  <td className="px-4 py-2.5 text-right text-gray-800 font-medium">{(Number(item.amount) || 0).toLocaleString()}</td>
+                  <td className="px-4 py-2.5 text-right text-gray-500">{total ? ((Number(item.amount) || 0) / total * 100).toFixed(1) : '0.0'}%</td>
                 </tr>
               ))}
               <tr className="bg-primary/10 font-bold">
                 <td className="px-4 py-2.5 text-primary">รวมทั้งสิ้น</td>
-                <td className="px-4 py-2.5 text-right text-primary">{TOTAL.toLocaleString()}</td>
+                <td className="px-4 py-2.5 text-right text-primary">{plans.reduce((s, p) => s + (Number(p.amount) || 0), 0).toLocaleString()}</td>
                 <td className="px-4 py-2.5 text-right text-primary">100%</td>
               </tr>
             </tbody>
@@ -120,56 +111,60 @@ export default function BudgetPage() {
         </div>
       </div>
 
-      {/* เปรียบเทียบ 3 ปี */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="bg-secondary px-5 py-3 flex items-center gap-2">
-          <span className="w-1 h-5 bg-accent rounded inline-block"></span>
-          <h2 className="text-white font-bold text-sm">📈 เปรียบเทียบงบประมาณ 3 ปี</h2>
-        </div>
-        <div className="p-5">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-            {[
-              { year: '2566', amount: '33.85 ล้าน', change: '' },
-              { year: '2567', amount: '40.00 ล้าน', change: '+18.2%' },
-              { year: '2568', amount: '42.00 ล้าน', change: '+5.0%' },
-            ].map(item => (
-              <div key={item.year} className="text-center p-3 bg-blue-50 rounded-xl border border-blue-100">
-                <p className="text-xs text-gray-500 mb-1">ปี {item.year}</p>
-                <p className="text-base font-bold text-primary">{item.amount}</p>
-                {item.change && <p className="text-xs text-green-600 font-medium mt-0.5">{item.change}</p>}
-              </div>
-            ))}
+      {/* เปรียบเทียบย้อนหลัง */}
+      {yearComparison.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-secondary px-5 py-3 flex items-center gap-2">
+            <span className="w-1 h-5 bg-accent rounded inline-block"></span>
+            <h2 className="text-white font-bold text-sm">📈 เปรียบเทียบงบประมาณย้อนหลัง</h2>
           </div>
-          <div className="space-y-2">
-            {[
-              { label: 'ปี 2566', amount: 33853125, max: 42000000, color: '#b0c4de' },
-              { label: 'ปี 2567', amount: 40000000, max: 42000000, color: '#6495ed' },
-              { label: 'ปี 2568', amount: 42000000, max: 42000000, color: '#3266ad' },
-            ].map(item => (
-              <div key={item.label} className="flex items-center gap-3">
-                <span className="text-xs text-gray-500 w-16 flex-shrink-0">{item.label}</span>
-                <div className="flex-1 h-5 bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full rounded-full flex items-center justify-end pr-2"
-                    style={{ width: `${item.amount / item.max * 100}%`, background: item.color }}>
-                    <span className="text-white text-xs font-bold" style={{ fontSize: '10px' }}>{(item.amount/1000000).toFixed(2)}ล.</span>
+          <div className="p-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+              {yearComparison.map((item, i) => {
+                const prev = yearComparison[i - 1]
+                const change = prev && Number(prev.amount) ? ((Number(item.amount) - Number(prev.amount)) / Number(prev.amount) * 100) : null
+                return (
+                  <div key={item.year} className="text-center p-3 bg-blue-50 rounded-xl border border-blue-100">
+                    <p className="text-xs text-gray-500 mb-1">ปี {item.year}</p>
+                    <p className="text-base font-bold text-primary">{((Number(item.amount) || 0) / 1000000).toFixed(2)} ล้าน</p>
+                    {change !== null && (
+                      <p className={`text-xs font-medium mt-0.5 ${change >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                        {change >= 0 ? '+' : ''}{change.toFixed(1)}%
+                      </p>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+            <div className="space-y-2">
+              {yearComparison.map((item, i) => (
+                <div key={item.year} className="flex items-center gap-3">
+                  <span className="text-xs text-gray-500 w-16 flex-shrink-0">ปี {item.year}</span>
+                  <div className="flex-1 h-5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full flex items-center justify-end pr-2"
+                      style={{ width: `${(Number(item.amount) || 0) / maxYearAmount * 100}%`, background: `hsl(216, ${45 + i * 10}%, ${55 - i * 6}%)` }}>
+                      <span className="text-white text-xs font-bold" style={{ fontSize: '10px' }}>{((Number(item.amount) || 0) / 1000000).toFixed(2)}ล.</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Download */}
-      <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-semibold text-primary">📄 ดาวน์โหลดเอกสารฉบับเต็ม</p>
-          <p className="text-xs text-gray-500 mt-0.5">ข้อบัญญัติงบประมาณรายจ่าย พ.ศ. 2568 (PDF)</p>
+      {/* Download — only shown once an admin has set a real link */}
+      {pdfUrl && (
+        <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-primary">📄 ดาวน์โหลดเอกสารฉบับเต็ม</p>
+            <p className="text-xs text-gray-500 mt-0.5">ข้อบัญญัติงบประมาณรายจ่าย พ.ศ. {fiscalYear} (PDF)</p>
+          </div>
+          <a href={pdfUrl} target="_blank" rel="noreferrer" className="text-xs bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
+            ดาวน์โหลด
+          </a>
         </div>
-        <a href="#" className="text-xs bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
-          ดาวน์โหลด
-        </a>
-      </div>
+      )}
 
     </div>
   )

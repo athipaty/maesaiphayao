@@ -70,6 +70,7 @@ const AdminSettings       = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminPages          = lazy(() => import("./pages/admin/AdminPages"));
 const AdminBanners           = lazy(() => import("./pages/admin/AdminBanners"));
 const AdminNotice            = lazy(() => import("./pages/admin/AdminNotice"));
+const AdminBudget            = lazy(() => import("./pages/admin/AdminBudget"));
 const AdminContactMessages   = lazy(() => import("./pages/admin/AdminContactMessages"));
 const AdminFeedback          = lazy(() => import("./pages/admin/AdminFeedback"));
 const AdminSurvey            = lazy(() => import("./pages/admin/AdminSurvey"));
@@ -210,6 +211,7 @@ export default function App() {
           <Route path="survey"           element={<ChunkErrorBoundary><Suspense fallback={null}><AdminSurvey /></Suspense></ChunkErrorBoundary>} />
           <Route path="documents"        element={<ChunkErrorBoundary><Suspense fallback={null}><AdminDocument /></Suspense></ChunkErrorBoundary>} />
           <Route path="banners"          element={<ChunkErrorBoundary><Suspense fallback={null}><AdminBanners /></Suspense></ChunkErrorBoundary>} />
+          <Route path="budget"           element={<ChunkErrorBoundary><Suspense fallback={null}><AdminBudget /></Suspense></ChunkErrorBoundary>} />
           <Route path="settings"         element={<ChunkErrorBoundary><Suspense fallback={null}><AdminSettings /></Suspense></ChunkErrorBoundary>} />
           <Route path="pages"            element={<ChunkErrorBoundary><Suspense fallback={<div className="p-8 text-center text-gray-400 text-sm animate-pulse">กำลังโหลด...</div>}><AdminPages /></Suspense></ChunkErrorBoundary>} />
           <Route path="contact"          element={<ChunkErrorBoundary><Suspense fallback={null}><AdminContactMessages /></Suspense></ChunkErrorBoundary>} />
