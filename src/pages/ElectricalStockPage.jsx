@@ -554,6 +554,12 @@ export default function ElectricalStockPage() {
   const lowStockItems = useMemo(() => categoryItems.filter(i => (i.balance || 0) <= 0), [categoryItems])
   const lowStockCount = lowStockItems.length
 
+  // All-time totals (not just this fiscal year) — each transaction's `amount` is qty × the
+  // price it actually happened at (the item's cost at the time), so summing it stays correct
+  // even after the item's current unitPrice has since changed.
+  const totalReceivedValue  = useMemo(() => categoryTxns.filter(t => t.type === 'รับ').reduce((s, t) => s + (t.amount || 0), 0), [categoryTxns])
+  const totalWithdrawnValue = useMemo(() => categoryTxns.filter(t => t.type === 'จ่าย').reduce((s, t) => s + (t.amount || 0), 0), [categoryTxns])
+
   // ── Dashboard-only derived data ─────────────────────────────────────────
   const recentTxns = useMemo(() =>
     categoryTxns.slice().sort((a, b) => new Date(b.date) - new Date(a.date) || new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 8),
@@ -1141,7 +1147,7 @@ export default function ElectricalStockPage() {
       {tab === 'dashboard' && (
         <div className="space-y-4">
           {/* KPI cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
               <p className="text-2xl font-bold text-slate-800">{categoryItems.length}</p>
               <p className="text-xs text-gray-400 mt-1">รายการวัสดุทั้งหมด</p>
@@ -1149,6 +1155,14 @@ export default function ElectricalStockPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
               <p className="text-2xl font-bold text-blue-600">฿{totalValue.toLocaleString()}</p>
               <p className="text-xs text-gray-400 mt-1">มูลค่าคงเหลือรวม</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+              <p className="text-2xl font-bold text-green-600">฿{totalReceivedValue.toLocaleString()}</p>
+              <p className="text-xs text-gray-400 mt-1">มูลค่ารับเข้าสะสม</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+              <p className="text-2xl font-bold text-orange-600">฿{totalWithdrawnValue.toLocaleString()}</p>
+              <p className="text-xs text-gray-400 mt-1">มูลค่าเบิกจ่ายสะสม</p>
             </div>
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
               <p className="text-2xl font-bold text-amber-500">{todayTxnCount}</p>
