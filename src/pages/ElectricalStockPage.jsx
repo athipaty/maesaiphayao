@@ -128,10 +128,6 @@ function ElectricalRequestDoc({ request, dateLabel, rows, signers, highlight = f
       {/* Starts at the page's horizontal centre — directly under the middle of the centred title */}
       <p className="pl-[50%] mb-2">วันที่ <Filled text={dateLabel} highlight={highlight} /></p>
 
-      <div className="mb-2 space-y-0.5">
-        <SubjectCheckboxes request={request} leadIn="เรื่อง" highlight={highlight} />
-      </div>
-
       {/* The body lines below start at the checkbox column: SubjectCheckboxes' w-10 lead-in
           column + pl-4 = 3.5rem, so นายก, ข้าพเจ้า, หมายเลขโทรศัพท์, เนื่องจาก and จุดที่ ๑–๓ all line
           up with the ☐ marks (first-line indent only — wrapped text returns to the margin) */}
@@ -152,7 +148,7 @@ function ElectricalRequestDoc({ request, dateLabel, rows, signers, highlight = f
       <div className="flex justify-around mt-8 text-center">
         <div>
           <p>ลงชื่อ ....................................................... ผู้ยื่นคำร้อง</p>
-          <p className="mt-1">( <Filled text={request.requesterName} fallback="......................." highlight={highlight} /> )</p>
+          <p className="mt-1">( <Filled text={request.requesterName} fallback="......................................................." highlight={highlight} /> )</p>
         </div>
         <div>
           <p>ลงชื่อ ....................................................... ผู้เสนอ</p>
