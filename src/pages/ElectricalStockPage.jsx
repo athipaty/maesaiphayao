@@ -15,14 +15,18 @@ const EMPTY_ENTRY_ROW = { itemId: '', qty: '', unitPrice: '', note: '' }
 
 // Independently-tracked material categories sharing the same dashboard/registry/history/
 // summary tabs — the active one filters which items and transactions show everywhere.
+// `dept` is the owning division printed on the รายงานวัสดุคงเหลือ header.
 const CATEGORIES = [
-  { key: 'วัสดุไฟฟ้า',   icon: '⚡', label: 'ไฟฟ้า' },
-  { key: 'วัสดุก่อสร้าง', icon: '🏗️', label: 'กองช่าง' },
-  { key: 'วัสดุสำนักงาน', icon: '🗄️', label: 'วัสดุสำนักงาน' },
-  { key: 'วัสดุสำนักปลัด', icon: '📁', label: 'สำนักปลัด' },
+  { key: 'วัสดุไฟฟ้า',   icon: '⚡', label: 'ไฟฟ้า', dept: 'กองช่าง' },
+  { key: 'วัสดุก่อสร้าง', icon: '🏗️', label: 'กองช่าง', dept: 'กองช่าง' },
+  { key: 'วัสดุสำนักงาน', icon: '🗄️', label: 'วัสดุสำนักงาน', dept: 'กองช่าง' },
+  { key: 'วัสดุสำนักปลัด', icon: '📁', label: 'สำนักปลัด', dept: 'กองช่าง' },
+  { key: 'วัสดุสำนักงาน (กองคลัง)', icon: '📎', label: 'วัสดุสำนักงาน (กองคลัง)', dept: 'กองคลัง' },
+  { key: 'วัสดุคอมพิวเตอร์ (กองคลัง)', icon: '💻', label: 'วัสดุคอมพิวเตอร์ (กองคลัง)', dept: 'กองคลัง' },
 ]
 const DEFAULT_CATEGORY = CATEGORIES[0].key
 function categoryOf(item) { return item?.category || DEFAULT_CATEGORY }
+function deptOf(category) { return CATEGORIES.find(c => c.key === category)?.dept || 'กองช่าง' }
 
 // Default signers shown on the printed "รายงานวัสดุคงเหลือ" report — editable by admins,
 // saved server-side per category (staff in these positions differ per category, and
@@ -46,6 +50,15 @@ const DEFAULT_REPORT_SIGNERS_BY_CATEGORY = {
   // Both signers left blank — สำนักปลัด has its own staff, not กองช่าง's; fill in via
   // ✏️ แก้ไขชื่อผู้ลงนาม once the names are known.
   'วัสดุสำนักปลัด': [
+    { name: '', position: '' },
+    { name: '', position: '' },
+  ],
+  // กองคลัง's own staff — names not given yet, fill in via ✏️ แก้ไขชื่อผู้ลงนาม.
+  'วัสดุสำนักงาน (กองคลัง)': [
+    { name: '', position: '' },
+    { name: '', position: '' },
+  ],
+  'วัสดุคอมพิวเตอร์ (กองคลัง)': [
     { name: '', position: '' },
     { name: '', position: '' },
   ],
@@ -1027,10 +1040,10 @@ export default function ElectricalStockPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="card w-full max-w-sm">
           <div className="section-head">
-            <h2 className="text-sm font-semibold">🔐 เข้าสู่ระบบเจ้าหน้าที่กองช่าง</h2>
+            <h2 className="text-sm font-semibold">🔐 เข้าสู่ระบบเจ้าหน้าที่</h2>
           </div>
           <form onSubmit={handleLogin} className="p-4 space-y-3">
-            <p className="text-xs text-gray-400">บัญชีวัสดุ กองช่าง — ใช้รหัสผ่านเดียวกับผู้ดูแลระบบ</p>
+            <p className="text-xs text-gray-400">บัญชีวัสดุ กองช่าง · กองคลัง — ใช้รหัสผ่านเดียวกับผู้ดูแลระบบ</p>
             <div className="relative">
               <input
                 type={showPw ? 'text' : 'password'}
@@ -1885,7 +1898,7 @@ export default function ElectricalStockPage() {
           <div className="p-3">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs text-gray-400">
-                ณ วันที่ 30 กันยายน {summaryYear} · กองช่าง · {activeCategory}
+                ณ วันที่ 30 กันยายน {summaryYear} · {deptOf(activeCategory)} · {activeCategory}
               </p>
               <div className="flex gap-2">
                 <button onClick={() => triggerPrint('report')}
@@ -1957,7 +1970,7 @@ export default function ElectricalStockPage() {
       <div className="print-only p-6 text-black text-xs">
         <h1 className="text-center text-lg font-bold mb-1">รายงานวัสดุคงเหลือ</h1>
         <p className="text-center mb-1">ณ วันที่ 30 กันยายน {summaryYear}</p>
-        <p className="text-center mb-3">กองช่าง · {activeCategory}</p>
+        <p className="text-center mb-3">{deptOf(activeCategory)} · {activeCategory}</p>
         <table className="w-full border-collapse text-[11px]">
           <thead>
             <tr>
