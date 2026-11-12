@@ -347,7 +347,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
             style={{ width: '130px', height: '195px' }}>👤</div>
         )}
         <h4 className="text-sm font-semibold text-primary">{settings.mayorName}</h4>
-        <p className="text-xs text-gray-500 mt-1">{settings.mayorPosition}</p>
+        <p className="text-xs text-gray-500 mt-1">{keepPlaceNameTogether(settings.mayorPosition)}</p>
         <p className="text-xs text-secondary mt-1">{settings.mayorPhone}</p>
       </div>
 
@@ -363,7 +363,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
               style={{ width: '130px', height: '195px' }}>👤</div>
           )}
           <h4 className="text-sm font-semibold text-primary">{settings.deputyName}</h4>
-          <p className="text-xs text-gray-500 mt-1">{settings.deputyPosition}</p>
+          <p className="text-xs text-gray-500 mt-1">{keepPlaceNameTogether(settings.deputyPosition)}</p>
           <p className="text-xs text-secondary mt-1">{settings.deputyPhone}</p>
         </div>
       )}
