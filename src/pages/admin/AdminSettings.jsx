@@ -342,7 +342,7 @@ export default function AdminSettings() {
               }}>
                 <div className="w-10 h-10 rounded-full bg-white/20 ring-2 ring-white/40 flex-shrink-0" />
                 <div>
-                  <p className="text-white text-xs font-bold leading-tight">องค์การบริหารส่วนตำบล⁠แม่⁠ใส</p>
+                  <p className="text-white text-xs font-bold leading-tight">องค์การบริหารส่วน<span style={{ whiteSpace: 'nowrap' }}>ตำบลแม่ใส</span></p>
                   <p className="text-white/70 text-[10px]">อ.เมืองพะเยา จ.พะเยา</p>
                 </div>
               </div>

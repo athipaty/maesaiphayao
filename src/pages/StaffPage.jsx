@@ -4,11 +4,15 @@ import { getStaff, getSettings } from '../services/api'
 
 // Thai has no spaces, so the browser's line-breaker falls back to syllable boundaries for a
 // phrase it doesn't recognize as one word — "ตำบลแม่ใส" (the tambon's own name) can land split
-// mid-phrase, orphaning "ใส" alone on its own line, in these narrow cards. Word-joiners
-// (invisible, zero-width) between each syllable of just that phrase keep it on one line without
-// changing what's displayed or copied, and without affecting "ตำบล" elsewhere in the text.
+// mid-phrase, orphaning "ใส" alone on its own line, in these narrow cards. A word-joiner
+// (invisible, zero-width) was tried first but some mobile browsers' Thai line-breaker ignores
+// it; wrapping just that phrase in a white-space:nowrap span is the one technique that reliably
+// holds, without affecting "ตำบล" elsewhere in the text or changing what's displayed/copied.
 function keepPlaceNameTogether(text) {
-  return typeof text === 'string' ? text.replace(/ตำบลแม่ใส/g, 'ตำบล⁠แม่⁠ใส') : text
+  if (typeof text !== 'string') return text
+  return text.split(/(ตำบลแม่ใส)/g).map((part, i) =>
+    part === 'ตำบลแม่ใส' ? <span key={i} style={{ whiteSpace: 'nowrap' }}>{part}</span> : part
+  )
 }
 
 const DEFAULT_DEPTS = [

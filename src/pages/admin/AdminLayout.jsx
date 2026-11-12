@@ -117,7 +117,7 @@ export default function AdminLayout() {
           <div className="bg-gradient-to-r from-primary to-secondary px-8 py-8 flex flex-col items-center">
             <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-4xl mb-4">🏛️</div>
             <h1 className="text-white text-lg font-bold text-center">ระบบจัดการเนื้อหา</h1>
-            <p className="text-white/70 text-xs mt-1 text-center">องค์การบริหารส่วนตำบล⁠แม่⁠ใส</p>
+            <p className="text-white/70 text-xs mt-1 text-center">องค์การบริหารส่วน<span style={{ whiteSpace: 'nowrap' }}>ตำบลแม่ใส</span></p>
           </div>
           <div className="px-8 py-8 space-y-5">
             <div>
