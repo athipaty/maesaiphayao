@@ -2,6 +2,15 @@ import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { getStaff, getSettings } from '../services/api'
 
+// Thai has no spaces, so the browser's line-breaker falls back to syllable boundaries for a
+// phrase it doesn't recognize as one word — "ตำบลแม่ใส" (the tambon's own name) can land split
+// mid-phrase, orphaning "ใส" alone on its own line, in these narrow cards. Word-joiners
+// (invisible, zero-width) between each syllable of just that phrase keep it on one line without
+// changing what's displayed or copied, and without affecting "ตำบล" elsewhere in the text.
+function keepPlaceNameTogether(text) {
+  return typeof text === 'string' ? text.replace(/ตำบลแม่ใส/g, 'ตำบล⁠แม่⁠ใส') : text
+}
+
 const DEFAULT_DEPTS = [
   { value: 'executive',   label: 'ผู้บริหาร' },
   { value: 'council',     label: 'สมาชิกสภา อบต.' },
@@ -21,7 +30,7 @@ function StaffCard({ s }) {
           <span className="text-3xl mb-1">👤</span>
           <span className="text-xs text-gray-400">ตำแหน่งว่าง</span>
         </div>
-        <p className="text-xs text-gray-400 italic leading-snug">{s.position}</p>
+        <p className="text-xs text-gray-400 italic leading-snug">{keepPlaceNameTogether(s.position)}</p>
       </div>
     )
   }
@@ -39,10 +48,10 @@ function StaffCard({ s }) {
         </div>
       )}
       <h4 className="text-xs font-semibold text-primary leading-snug">{s.name}</h4>
-      <p className="text-xs text-gray-500 mt-0.5 leading-snug">{s.position}</p>
+      <p className="text-xs text-gray-500 mt-0.5 leading-snug">{keepPlaceNameTogether(s.position)}</p>
       {s.responsibilities && (
         <p className="text-[10px] text-gray-400 mt-1 leading-snug italic px-1" title={s.responsibilities}>
-          📋 {s.responsibilities}
+          📋 {keepPlaceNameTogether(s.responsibilities)}
         </p>
       )}
       {s.phone && <p className="text-xs text-secondary mt-0.5">{s.phone}</p>}
