@@ -10,6 +10,15 @@ const ESERVICES = [
   { icon: '📊', label: 'แบบสำรวจความพึงพอใจ',                   to: '/survey' },
 ]
 
+// Thai has no spaces, so the browser's line-breaker falls back to syllable boundaries for a
+// phrase it doesn't recognize as one word — "ตำบลแม่ใส" (the tambon's own name) can land split
+// mid-phrase, orphaning "ใส" alone on its own line, in this card's narrow text column.
+// Word-joiners (invisible, zero-width) between each syllable of just that phrase keep it on one
+// line without changing what's displayed or copied, and without affecting "ตำบล" elsewhere.
+function keepPlaceNameTogether(text) {
+  return typeof text === 'string' ? text.replace(/ตำบลแม่ใส/g, 'ตำบล⁠แม่⁠ใส') : text
+}
+
 const DEFAULT_SETTINGS = {
   mayorName:     'นายสันติ สารเร็ว',
   mayorPosition: 'นายกองค์การบริหารส่วนตำบลแม่ใส',
@@ -124,7 +133,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
           )}
           <div className="min-w-0">
             <p className="text-sm font-semibold text-primary leading-snug">{settings.mayorName}</p>
-            <p className="text-xs text-gray-500 mt-0.5 leading-snug">{settings.mayorPosition}</p>
+            <p className="text-xs text-gray-500 mt-0.5 leading-snug">{keepPlaceNameTogether(settings.mayorPosition)}</p>
             {settings.mayorPhone && <p className="text-xs text-secondary mt-1 font-medium">{settings.mayorPhone}</p>}
           </div>
         </div>
@@ -140,7 +149,7 @@ export default function Sidebar({ onNavigate, mobile = false }) {
             )}
             <div className="min-w-0">
               <p className="text-sm font-semibold text-primary leading-snug">{settings.deputyName}</p>
-              <p className="text-xs text-gray-500 mt-0.5 leading-snug">{settings.deputyPosition}</p>
+              <p className="text-xs text-gray-500 mt-0.5 leading-snug">{keepPlaceNameTogether(settings.deputyPosition)}</p>
               {settings.deputyPhone && <p className="text-xs text-secondary mt-1 font-medium">{settings.deputyPhone}</p>}
             </div>
           </div>
