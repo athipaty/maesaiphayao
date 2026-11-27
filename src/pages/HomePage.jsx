@@ -4,6 +4,7 @@ import { getNews, getAnnouncements, getProcurement, getTravel, getProducts, getV
 import { LatestNewsGrid } from '../components/NewsSection'
 import { iframeSrc as pdfIframeSrc } from '../components/PdfPreviewPanel'
 import { toArabicDigits } from '../utils/thaiNumerals'
+import FacebookLive from '../components/FacebookLive'
 
 const FB_PAGE = 'https://www.facebook.com/MaesaiSAOPhayao'
 
@@ -364,10 +365,10 @@ export default function HomePage() {
       <Reveal>
       <SectionBanner label="Facebook" />
       <div className="flex flex-col lg:flex-row gap-4 items-stretch">
-        {/* The latest post is entered manually by admin (ตั้งค่าเว็บไซต์ → โพสต์ล่าสุดจาก Facebook)
-            instead of fetched live — Facebook's Graph API requires page-admin-granted permissions
-            we don't have, and the old page.php iframe embed gets blocked by tracker blockers
-            (Brave Shields, uBlock, etc.) for a lot of visitors. A plain link never has that problem. */}
+        {/* Live posts through Facebook's Page Plugin (components/FacebookLive.jsx). Where a tracker blocker
+            (Brave Shields, uBlock, ...) stops Facebook's script, and while it loads, the post the admin enters by hand
+            (ตั้งค่าเว็บไซต์ → โพสต์ล่าสุดจาก Facebook) shows instead. The Graph API needs page-admin-granted permissions. */}
+        <FacebookLive page={FB_PAGE} fallback={(
         <div className="card p-0 overflow-hidden w-full lg:w-[500px] lg:flex-shrink-0 flex flex-col">
           {/* Header — laid out like a real Facebook post: avatar, page name + follow, date + globe */}
           <div className="flex items-start gap-2.5 px-4 pt-3 pb-2">
@@ -444,6 +445,7 @@ export default function HomePage() {
             </div>
           )}
         </div>
+        )} />
 
         {/* Photo — fills the space beside Facebook on desktop, uploaded by admin in ตั้งค่าเว็บไซต์ */}
         <div className="hidden lg:block card p-0 overflow-hidden flex-1 bg-gray-50">
